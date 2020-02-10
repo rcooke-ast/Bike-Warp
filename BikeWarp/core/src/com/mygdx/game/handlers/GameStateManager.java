@@ -1,0 +1,94 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.mygdx.game.handlers;
+
+import com.mygdx.game.BikeGame;
+import com.mygdx.game.states.GameState;
+import com.mygdx.game.states.LevelSelectGame;
+import com.mygdx.game.states.LevelSelectTraining;
+import com.mygdx.game.states.MainMenu;
+import com.mygdx.game.states.Editor;
+import com.mygdx.game.states.MenuExit;
+import com.mygdx.game.states.MenuRecords;
+import com.mygdx.game.states.OptionColorSelect;
+import com.mygdx.game.states.Play;
+
+import java.util.Stack;
+
+/**
+ *
+ * @author rcooke
+ */
+public class GameStateManager {
+    private BikeGame game;
+    private Stack<GameState> gameStates;
+    public GameState editorWindow = null;
+    
+    public static final int MAINMENU = 100000;
+    public static final int MENUEXIT = 100001;
+    public static final int MENURECORDS = 100002;
+    public static final int MENUOPTIONS = 100003;
+    public static final int MENUOPTIONSCOLOR = 110003;
+    public static final int MENUTRAINING = 100004;
+    public static final int MENULEVELS = 100005;
+    public static final int PLAY = 200000;
+    public static final int LEVELSELECT = 300000;
+    public static final int EDITOR = 400000;
+    public static final int PEEK = 1;
+
+    public GameStateManager(BikeGame game) {
+        this.game = game;
+        gameStates = new Stack<GameState>();
+        //pushState(MAINMENU, null); // Set the starting State
+        pushState(MAINMENU, null); // Set the starting State
+    }
+    
+    public BikeGame game() { return game; }
+    
+    public void update(float dt) {
+        gameStates.peek().update(dt);
+    }
+
+    public void render() {
+        gameStates.peek().render();
+    }
+
+    public void dispose() {
+        if (game != null) game.dispose();
+        if (editorWindow != null) editorWindow.dispose();
+        this.dispose();
+    }
+
+    private GameState getState(int state, String editorScene) {
+        if (state == MAINMENU) return new MainMenu(this);
+        else if (state == MENUEXIT) return new MenuExit(this);
+        else if (state == MENURECORDS) return new MenuRecords(this);
+        //else if (state == MENUOPTIONS) return new MenuOptions(this);
+        else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
+        else if (state == MENUTRAINING) return new LevelSelectTraining(this);
+        else if (state == MENULEVELS) return new LevelSelectGame(this);
+        else if (state == PLAY) return new Play(this, editorScene);
+        else if (state == EDITOR) return new Editor(this);
+        //else if (state == LEVELSELECT) return new LevelSelect(this);
+        return null;
+    }
+    
+    public void setState(int state, boolean store, String scene) {
+        if (!store) popState();
+    	if (state != PEEK) pushState(state, scene);
+    }
+
+    public void pushState(int state, String scene) {
+        gameStates.push(getState(state, scene));
+    }
+    
+    public void popState() {
+        GameState g = gameStates.pop();
+        g.dispose();
+    }
+
+}
