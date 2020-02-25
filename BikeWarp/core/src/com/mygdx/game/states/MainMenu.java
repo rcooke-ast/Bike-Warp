@@ -173,8 +173,8 @@ public class MainMenu extends GameState {
         // Draw Sky
         sb.draw(sky, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);        	
         // Draw bike
-        sb.draw(wheel, cam.position.x-wwidth/2.0f, cam.position.y-wheight/2.0f, wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
-        sb.draw(shaft, cam.position.x-wwidth/2.0f, cam.position.y-wheight/2.0f, wwidth/2.0f, wheight/2.0f, swidth, wheight, 1.0f, 1.0f, 0.0f);
+        sb.draw(wheel, cam.position.x+SCRWIDTH/2-swidth, cam.position.y-wheight/2.0f, wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
+        sb.draw(shaft, cam.position.x+SCRWIDTH/2-swidth, cam.position.y-wheight/2.0f, wwidth/2.0f, wheight/2.0f, swidth, wheight, 1.0f, 1.0f, 0.0f);
         // Draw dirt
         dirt.setU((2*groundTimer)%1);
         dirt.setU2(((2*groundTimer)%1)+1);
@@ -191,16 +191,17 @@ public class MainMenu extends GameState {
         }
         sb.end();
         // Draw menu
-        float xshift, yshift, alpha, alphaSign;
+        float xshift, yshift, mshift, alpha, alphaSign;
+        mshift = SCRWIDTH/2-swidth+wwidth/2.0f;
         if (scrollGoal==0.0f) {
         	// Menu is stationary
         	sb.begin();
         	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
         	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, fadeIn);
         	else sb.setColor(1, 1, 1, 1); 
-            sb.draw(OptionsMainMenu.getDisplaySprites(OptionsMainMenu.currentOption), cam.position.x+mxcen-mwidth/2, cam.position.y+mycen-mheight/2, mwidth/2, mheight/2, mwidth, mheight, 1.0f, 1.0f, 15.0f);
+            sb.draw(OptionsMainMenu.getDisplaySprites(OptionsMainMenu.currentOption), cam.position.x+mxcen-mwidth/2+mshift, cam.position.y+mycen-mheight/2, mwidth/2, mheight/2, mwidth, mheight, 1.0f, 1.0f, 15.0f);
             sb.end();
-            xshift = mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians);
+            xshift = mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians) + mshift;
             yshift = mheight*(float)Math.sin(105.0*MathUtils.degreesToRadians);
         	sb.begin();
         	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut*0.5f);
@@ -208,7 +209,7 @@ public class MainMenu extends GameState {
         	else sb.setColor(1, 1, 1, 0.5f); 
             sb.draw(OptionsMainMenu.getDisplaySprites(OptionsMainMenu.currentOption-1), cam.position.x+mxcen-mwidth/2+xshift, cam.position.y+mycen-mheight/2+yshift, mwidth/2, mheight/2, mwidth, mheight, 1.0f, 1.0f, 15.0f);
             sb.end();
-            xshift = mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians);
+            xshift = mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians) + mshift;
             yshift = mheight*(float)Math.sin(285.0*MathUtils.degreesToRadians);
         	sb.begin();
         	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut*0.5f);
@@ -225,10 +226,10 @@ public class MainMenu extends GameState {
             	alpha = 1.0f-Math.abs(alphaSign);
             	if ((alpha > 0.0f) & (alpha < 1.0f)) {
                 	if (alphaSign > 0.0) {
-                		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians);
+                		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians) + mshift;
                 		yshift = 2.0f*(1-alpha)*mheight*(float)Math.sin(285.0*MathUtils.degreesToRadians);
                 	} else {
-                		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians);
+                		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians) + mshift;
                 		yshift = 2.0f*(1-alpha)*mheight*(float)Math.sin(105.0*MathUtils.degreesToRadians);                		
                 	}
 //                	alpha = 1.0f-Math.abs(alphaSign);
@@ -256,10 +257,10 @@ public class MainMenu extends GameState {
                 	alpha = 1.0f-Math.abs(alphaSign);
                 	if ((alpha > 0.0f) & (alpha < 1.0f)) {
                     	if (alphaSign > 0.0) {
-                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians);
+                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians) + mshift;
                     		yshift = 2.0f*(1-alpha)*mheight*(float)Math.sin(285.0*MathUtils.degreesToRadians);
                     	} else {
-                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians);
+                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians) + mshift;
                     		yshift = 2.0f*(1-alpha)*mheight*(float)Math.sin(105.0*MathUtils.degreesToRadians);                		
                     	}
                     	sb.begin();
@@ -275,10 +276,10 @@ public class MainMenu extends GameState {
                 	alpha = 1.0f-Math.abs(alphaSign);
                 	if ((alpha > 0.0f) & (alpha < 1.0f)) {
                     	if (alphaSign > 0.0) {
-                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians);
+                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(285.0*MathUtils.degreesToRadians) + mshift;
                     		yshift = 2.0f*(1-alpha)*mheight*(float)Math.sin(285.0*MathUtils.degreesToRadians);
                     	} else {
-                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians);
+                    		xshift = 2.0f*(1-alpha)*mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians) + mshift;
                     		yshift = 2.0f*(1-alpha)*mheight*(float)Math.sin(105.0*MathUtils.degreesToRadians);                		
                     	}
                     	sb.begin();
