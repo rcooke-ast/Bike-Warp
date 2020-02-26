@@ -10,6 +10,7 @@ import com.mygdx.game.BikeGame;
 import com.mygdx.game.states.GameState;
 import com.mygdx.game.states.LevelSelectGame;
 import com.mygdx.game.states.LevelSelectTraining;
+import com.mygdx.game.states.MenuSelectPlayer;
 import com.mygdx.game.states.MainMenu;
 import com.mygdx.game.states.Editor;
 import com.mygdx.game.states.MenuExit;
@@ -35,6 +36,7 @@ public class GameStateManager {
     public static final int MENUOPTIONSCOLOR = 110003;
     public static final int MENUTRAINING = 100004;
     public static final int MENULEVELS = 100005;
+    public static final int MENUPLAYER = 100006;
     public static final int PLAY = 200000;
     public static final int LEVELSELECT = 300000;
     public static final int EDITOR = 400000;
@@ -44,7 +46,7 @@ public class GameStateManager {
         this.game = game;
         gameStates = new Stack<GameState>();
         //pushState(MAINMENU, null); // Set the starting State
-        pushState(MAINMENU, null); // Set the starting State
+        pushState(MENUPLAYER, null); // Set the starting State
     }
     
     public BikeGame game() { return game; }
@@ -64,7 +66,8 @@ public class GameStateManager {
     }
 
     private GameState getState(int state, String editorScene) {
-        if (state == MAINMENU) return new MainMenu(this);
+        if (state == MENUPLAYER) return new MenuSelectPlayer(this);
+        else if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
         else if (state == MENURECORDS) return new MenuRecords(this);
         //else if (state == MENUOPTIONS) return new MenuOptions(this);
