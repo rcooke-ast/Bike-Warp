@@ -45,7 +45,6 @@ public class GameStateManager {
     public GameStateManager(BikeGame game) {
         this.game = game;
         gameStates = new Stack<GameState>();
-        //pushState(MAINMENU, null); // Set the starting State
         pushState(MENUPLAYER, null); // Set the starting State
     }
     
