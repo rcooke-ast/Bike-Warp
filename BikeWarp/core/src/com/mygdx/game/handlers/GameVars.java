@@ -7,20 +7,30 @@
 package com.mygdx.game.handlers;
 
 import java.util.ArrayList;
-
+import java.io.Serializable;
 import com.badlogic.gdx.Input.Keys;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 /**
  *
  * @author rcooke
  */
-public class GameVars {
+public class GameVars implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	// How many level skips are allowed
 	public static final int skipsAllowed = 3;
 	// Player arrays
 	public static int currentPlayer = -1;
-	public static String[] plyrNames;
+	public static String[] plyrNames = new String[0];
 	public static ArrayList<ArrayList<int[]>> plyrTimes = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<ArrayList<int[]>> plyrTimesDmnd = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<ArrayList<int[]>> plyrTimesTrain = new ArrayList<ArrayList<int[]>>();
@@ -118,6 +128,64 @@ public class GameVars {
 		return controls.clone();
 	}
 
+	@SuppressWarnings("unchecked")
+	public static void LoadPlayers() {
+		try {
+			FileInputStream fi = new FileInputStream(new File("BGstate.dat"));
+			ObjectInputStream oi = new ObjectInputStream(fi);
+
+			// Read objects
+			plyrNames = (String[]) oi.readObject();
+			plyrTimes = (ArrayList<ArrayList<int[]>>) oi.readObject();
+			plyrTimesDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
+			plyrTimesTrain = (ArrayList<ArrayList<int[]>>) oi.readObject();
+			plyrTimesTrainDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
+			plyrControls = (ArrayList<int[]>) oi.readObject();
+			plyrColDmnd = (ArrayList<boolean[]>) oi.readObject();
+			plyrColDmndTrain = (ArrayList<boolean[]>) oi.readObject();
+			plyrSkipLevel = (ArrayList<boolean[]>) oi.readObject();
+			plyrBikeColor = (ArrayList<float[]>) oi.readObject();
+
+			// Close files
+			oi.close();
+			fi.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+		} catch (IOException e) {
+			System.out.println("Error initializing stream");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void SavePlayers() {
+		FileOutputStream f;
+		try {
+			f = new FileOutputStream(new File("BGstate.dat"));
+			ObjectOutputStream o = new ObjectOutputStream(f);
+
+			// Write objects to file
+			o.writeObject(plyrNames);
+			o.writeObject(plyrTimes);
+			o.writeObject(plyrTimesDmnd);
+			o.writeObject(plyrTimesTrain);
+			o.writeObject(plyrTimesTrainDmnd);
+			o.writeObject(plyrControls);
+			o.writeObject(plyrColDmnd);
+			o.writeObject(plyrColDmndTrain);
+			o.writeObject(plyrSkipLevel);
+			o.writeObject(plyrBikeColor);
+
+			// Close the file
+			o.close();
+			f.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+		} catch (IOException e) {
+			System.out.println("Error initializing stream");
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static ArrayList<int[]> GetEmptyTimes(int numLevels) {
 		ArrayList<int[]> times = new ArrayList<int[]>();

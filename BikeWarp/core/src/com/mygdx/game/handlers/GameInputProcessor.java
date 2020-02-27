@@ -87,6 +87,13 @@ public class GameInputProcessor extends InputMultiplexer {
         return true;
     }
 
+    public boolean keyTyped(char ch) {
+    	// Catch a backspace
+    	if (ch == '\b') GameInput.setCharacter("\b");
+    	else GameInput.setCharacter(String.valueOf(ch));
+		return false;
+    }
+
     public boolean scrolled(int k) {
         GameInput.SCROLL = k;
         return true;
