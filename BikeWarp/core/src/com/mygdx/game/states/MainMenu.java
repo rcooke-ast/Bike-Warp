@@ -110,6 +110,7 @@ public class MainMenu extends GameState {
         	fadeOut=1.0f;
         	String tstName = OptionsMainMenu.menuStrings[OptionsMainMenu.getCurrent()];
         	if (tstName=="Change Player") {
+        		goToLevel = GameStateManager.MENUPLAYER;
         	} else if (tstName=="Training") {
         		goToLevel = GameStateManager.MENUTRAINING;
         	} else if (tstName=="Single Player") {
