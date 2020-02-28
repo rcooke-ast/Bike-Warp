@@ -63,14 +63,18 @@ public class MenuSelectPlayer extends GameState {
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/plyrWidth;
         playerList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         playerList.setScale(scaleVal);
-        plyrHeight = playerList.getBounds("My").height;
-        numPlyrShow = (int) Math.floor(sheight/(1.5f*plyrHeight));
-        if (numPlyrShow > numOptions) numPlyrShow = numOptions;
+        SetNumPlyrShow();
         // Set the fading variables
         fadeOut = -1.0f;
         fadeIn = 0.0f;
     }
 
+    public void SetNumPlyrShow() {
+        plyrHeight = playerList.getBounds("My").height;
+        numPlyrShow = (int) Math.floor(sheight/(1.5f*plyrHeight));
+        if (numPlyrShow > numOptions) numPlyrShow = numOptions;    	
+    }
+    
     @Override
 	public void handleInput() {
     	boolean exists;
@@ -86,7 +90,7 @@ public class MenuSelectPlayer extends GameState {
         	} else if (createPlayer) {
         		// A player name has been generated
         		if (newName == "") {
-        			
+        			createPlayer = false;
         		} else {
         			// Check if name already exists
         			exists = false;
@@ -96,9 +100,11 @@ public class MenuSelectPlayer extends GameState {
         	        		GameVars.SetCurrentPlayer(i);
         	        	}
         	        }
-        	        if (!exists) {
+        	        if (exists == false) {
         	        	// Player created successfully
         	        	GameVars.AddPlayer(newName);
+        	        	SetNumPlyrShow();
+        	        	numOptions = 1 + GameVars.plyrNames.length;
         	        	newName = "";
         	        	createPlayer = false;
         	        }
