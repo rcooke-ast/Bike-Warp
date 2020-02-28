@@ -116,7 +116,7 @@ public class MenuSelectPlayer extends GameState {
         	} else {
         		// Set the current player
         		GameVars.SetCurrentPlayer(currentOption);
-        		fadeOut=1.0f; // Create a new player
+        		fadeOut=1.0f;
         	}
         } else if (fadeOut==0.0f) {
         	// Go to the main menu
@@ -169,7 +169,7 @@ public class MenuSelectPlayer extends GameState {
 	        // Check if a new character is available
         	if (GameInput.currChar != "") {
         		if ((newName.length() > 0) & (GameInput.currChar == "\b")) newName = newName.substring(0, newName.length() - 1);
-        		else newName += GameInput.currChar;
+        		else if (newName.length() <= 6) newName += GameInput.currChar;
         		GameInput.setCharacter("");
         	}
 	        // Draw Player Name
