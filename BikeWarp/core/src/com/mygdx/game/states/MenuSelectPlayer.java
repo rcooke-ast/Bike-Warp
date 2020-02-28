@@ -74,7 +74,7 @@ public class MenuSelectPlayer extends GameState {
         numPlyrShow = (int) Math.floor(sheight/(1.5f*plyrHeight));
         if (numPlyrShow > numOptions) numPlyrShow = numOptions;    	
     }
-    
+
     @Override
 	public void handleInput() {
     	boolean exists;
@@ -87,24 +87,27 @@ public class MenuSelectPlayer extends GameState {
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if ((currentOption == numOptions-1) & (createPlayer == false)) {
     			createPlayer = true;
+    			newName = "";  // Reset the name string
         	} else if (createPlayer) {
-        		// A player name has been generated
-        		if (newName == "") {
+        		// A player name has been generated - filter out special characters
+        		if (newName.equals("")) {
         			createPlayer = false;
         		} else {
         			// Check if name already exists
         			exists = false;
         	        for (int i=0; i<GameVars.plyrNames.length; i++) {
-        	        	if (GameVars.plyrNames[i] == newName) {
+        	        	if (GameVars.plyrNames[i].equals(newName)) {
+        	        		currentOption = i;
         	        		exists = true;
-        	        		GameVars.SetCurrentPlayer(i);
+        	        		GameVars.SetCurrentPlayer(currentOption);
+            	        	createPlayer = false;
         	        	}
         	        }
         	        if (exists == false) {
         	        	// Player created successfully
         	        	GameVars.AddPlayer(newName);
-        	        	SetNumPlyrShow();
         	        	numOptions = 1 + GameVars.plyrNames.length;
+        	        	SetNumPlyrShow();
         	        	newName = "";
         	        	createPlayer = false;
         	        }
@@ -167,7 +170,7 @@ public class MenuSelectPlayer extends GameState {
         	if (GameInput.currChar != "") {
         		if ((newName.length() > 0) & (GameInput.currChar == "\b")) newName = newName.substring(0, newName.length() - 1);
         		else newName += GameInput.currChar;
-        		GameInput.currChar = "";
+        		GameInput.setCharacter("");
         	}
 	        // Draw Player Name
 	    	if (fadeOut >= 0.0f) alpha=fadeOut;

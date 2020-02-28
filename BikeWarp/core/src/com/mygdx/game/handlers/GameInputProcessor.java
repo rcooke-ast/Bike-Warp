@@ -90,7 +90,7 @@ public class GameInputProcessor extends InputMultiplexer {
     public boolean keyTyped(char ch) {
     	// Catch a backspace
     	if (ch == '\b') GameInput.setCharacter("\b");
-    	else GameInput.setCharacter(String.valueOf(ch));
+    	else GameInput.setCharacter(Character.toString(ch).trim());
 		return false;
     }
 
