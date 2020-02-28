@@ -197,10 +197,7 @@ public class MenuRecords extends GameState {
     	menuText.draw(sb, "Personal Times", cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 4.5f*menuHeight);
     	if (currentOption == 3) menuText.setColor(1, 1, 1, alpha);
     	else menuText.setColor(1, 1, 1, alpha/2);
-    	menuText.draw(sb, "National Records", cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 6.0f*menuHeight);
-    	if (currentOption == 4) menuText.setColor(1, 1, 1, alpha);
-    	else menuText.setColor(1, 1, 1, alpha/2);
-    	menuText.draw(sb, "World Records", cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 7.5f*menuHeight);
+    	menuText.draw(sb, "World Records", cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 6.0f*menuHeight);
     	// Draw the level number on the menu
     	String numtxt = "--";
     	if (tLevelNumber != -1) {
@@ -232,7 +229,7 @@ public class MenuRecords extends GameState {
         	if ((10-i) <= 3) textcarveglow.draw(sb, nmbrString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	else textcarve.draw(sb, nmbrString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	aliasString = "";
-        	if ((10-i) <= 15) aliasString = "Your alias hereO";
+        	if ((10-i) <= 15) aliasString = "MMMMMMM";
         	if ((10-i) <= 3) textcarveglow.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f + 1.25f*nmbrWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	else textcarve.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f + 1.25f*nmbrWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	times.setColor(0, 0, 0, alpha);
@@ -253,8 +250,7 @@ public class MenuRecords extends GameState {
         // Draw records type
         aliasString = "";
         if (currentOption == 2) aliasString = "Your Best Times"; 
-        if (currentOption == 3) aliasString = "National Records"; 
-        if (currentOption == 4) aliasString = "World Records";
+        if (currentOption == 3) aliasString = "World Records"; 
         numWid = textcarve.getBounds(aliasString).width;
         numWid = (0.4f*sheight)/numWid;
         if (numWid < 1.0f) textcarve.setScale(numScale*numWid);

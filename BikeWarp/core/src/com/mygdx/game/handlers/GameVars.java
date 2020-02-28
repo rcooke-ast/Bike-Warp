@@ -37,7 +37,7 @@ public class GameVars implements Serializable {
 	public static ArrayList<ArrayList<int[]>> plyrTimesTrainDmnd = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<int[]> plyrControls = new ArrayList<int[]>();
 	public static ArrayList<boolean[]> plyrColDmnd = new ArrayList<boolean[]>();
-	public static ArrayList<boolean[]> plyrColDmndTrain = new ArrayList<boolean[]>();
+	public static ArrayList<boolean[]> plyrColTrainDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<boolean[]> plyrSkipLevel = new ArrayList<boolean[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
 
@@ -53,18 +53,18 @@ public class GameVars implements Serializable {
 	public static int[] GetPlayerTimesTrainDmnd(int lvl) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl);}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
-	public static boolean[] GetPlayerDiamondsTrain() {return plyrColDmndTrain.get(currentPlayer);}
+	public static boolean[] GetPlayerDiamondsTrain() {return plyrColTrainDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerSkipLevel() {return plyrSkipLevel.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
 
 	// Is options
 	public static boolean IsDiamondCollected(int lvl) {return plyrColDmnd.get(currentPlayer)[lvl];}
-	public static boolean IsDiamondCollectedTrain(int lvl) {return plyrColDmndTrain.get(currentPlayer)[lvl];}
+	public static boolean IsDiamondCollectedTrain(int lvl) {return plyrColTrainDmnd.get(currentPlayer)[lvl];}
 	public static boolean IsSkipLevel(int lvl) {return plyrSkipLevel.get(currentPlayer)[lvl];}
 	
 	// Set options
 	public static void SetDiamond(int lvl) {plyrColDmnd.get(currentPlayer)[lvl]=true;}
-	public static void SetDiamondTrain(int lvl) {plyrColDmndTrain.get(currentPlayer)[lvl]=true;}
+	public static void SetDiamondTrain(int lvl) {plyrColTrainDmnd.get(currentPlayer)[lvl]=true;}
 	public static void SetSkipLevel(int lvl) {
 		if (CanSkip()) {
 			plyrSkipLevel.get(currentPlayer)[lvl]=true;}
@@ -87,7 +87,7 @@ public class GameVars implements Serializable {
 		// Add an empty diamonds array
 		plyrColDmnd.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
 		// Add an empty diamonds training array
-		plyrColDmndTrain.add(FalseBoolean(LevelsListTraining.NUMTRAINLEVELS));
+		plyrColTrainDmnd.add(FalseBoolean(LevelsListTraining.NUMTRAINLEVELS));
 		// Add an empty level skip array
 		plyrSkipLevel.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
 		// Add a default Bike color
@@ -142,7 +142,7 @@ public class GameVars implements Serializable {
 			plyrTimesTrainDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrControls = (ArrayList<int[]>) oi.readObject();
 			plyrColDmnd = (ArrayList<boolean[]>) oi.readObject();
-			plyrColDmndTrain = (ArrayList<boolean[]>) oi.readObject();
+			plyrColTrainDmnd = (ArrayList<boolean[]>) oi.readObject();
 			plyrSkipLevel = (ArrayList<boolean[]>) oi.readObject();
 			plyrBikeColor = (ArrayList<float[]>) oi.readObject();
 
@@ -172,7 +172,7 @@ public class GameVars implements Serializable {
 			o.writeObject(plyrTimesTrainDmnd);
 			o.writeObject(plyrControls);
 			o.writeObject(plyrColDmnd);
-			o.writeObject(plyrColDmndTrain);
+			o.writeObject(plyrColTrainDmnd);
 			o.writeObject(plyrSkipLevel);
 			o.writeObject(plyrBikeColor);
 

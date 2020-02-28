@@ -21,7 +21,7 @@ public class GameStateLoader {
 		public ArrayList<ArrayList<int[]>> timesTrainDiamond;
 		public ArrayList<int[]> controls;
 		public ArrayList<boolean[]> collectDiamond;
-		public ArrayList<boolean[]> collectDiamondTrain;
+		public ArrayList<boolean[]> collectTrainDiamond;
 		public ArrayList<boolean[]> skipLevel;
 		public ArrayList<float[]> optBikeColor;
 	}
@@ -37,7 +37,7 @@ public class GameStateLoader {
 		jWorld.timesTrainDiamond = (ArrayList<ArrayList<int[]>>) GameVars.plyrTimesTrainDmnd.clone();
 		jWorld.controls = (ArrayList<int[]>) GameVars.plyrControls.clone();
 		jWorld.collectDiamond = (ArrayList<boolean[]>) GameVars.plyrColDmnd.clone();
-		jWorld.collectDiamondTrain = (ArrayList<boolean[]>) GameVars.plyrColDmndTrain.clone();
+		jWorld.collectTrainDiamond = (ArrayList<boolean[]>) GameVars.plyrColTrainDmnd.clone();
 		jWorld.skipLevel = (ArrayList<boolean[]>) GameVars.plyrSkipLevel.clone();
 		jWorld.optBikeColor = (ArrayList<float[]>) GameVars.plyrBikeColor.clone();
 
@@ -59,7 +59,7 @@ public class GameStateLoader {
 			GameVars.plyrTimesTrainDmnd = (ArrayList<ArrayList<int[]>>) jWorld.timesTrainDiamond.clone();
 			GameVars.plyrControls = (ArrayList<int[]>) jWorld.controls.clone();
 			GameVars.plyrColDmnd = (ArrayList<boolean[]>) jWorld.collectDiamond.clone();
-			GameVars.plyrColDmndTrain = (ArrayList<boolean[]>) jWorld.collectDiamondTrain.clone();
+			GameVars.plyrColTrainDmnd = (ArrayList<boolean[]>) jWorld.collectTrainDiamond.clone();
 			GameVars.plyrSkipLevel = (ArrayList<boolean[]>) jWorld.skipLevel.clone();
 			GameVars.plyrBikeColor = (ArrayList<float[]>) jWorld.optBikeColor.clone();
 		} else {
