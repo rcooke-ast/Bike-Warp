@@ -248,14 +248,14 @@ public class Play extends GameState {
 
         // Get the records
         if (mode == 1) {
-            worldRecord = getTimeString(GameVars.worldTimesTrain.get(levelID)[0]);
-            personalRecord = getTimeString(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID)[0]);
+            worldRecord = GameVars.getTimeString(GameVars.worldTimesTrain.get(levelID)[0]);
+            personalRecord = GameVars.getTimeString(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID)[0]);
         } else if (mode == 2) {
-            worldRecord = getTimeString(GameVars.worldTimes.get(levelID)[0]);
-            personalRecord = getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
+            worldRecord = GameVars.getTimeString(GameVars.worldTimes.get(levelID)[0]);
+            personalRecord = GameVars.getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
         } else {
-        	worldRecord = getTimeString(-1);
-            personalRecord = getTimeString(-1);
+        	worldRecord = GameVars.getTimeString(-1);
+            personalRecord = GameVars.getTimeString(-1);
         }
         collectDiamond = false;
         
@@ -356,18 +356,6 @@ public class Play extends GameState {
     	playerJump = 100.0f;
     	lrIsDown = false;
     }
-    
-    public String getTimeString(int time) {
-    	String retval = "--:--:---";
-    	if (time > 0) {
-        	// time is in milliseconds
-            int MSecs = time%1000;
-        	int Secs  = ((time-timerMSecs)%60000)/1000;
-        	int Mins  = (time-timerMSecs-1000*timerSecs)/60000;
-        	retval = String.format("%02d", Mins) + ":" + String.format("%02d", Secs) + ":" + String.format("%03d", MSecs);
-    	}
-		return retval;
-    }
 
     public void handleInput() {
     	// ESC is pressed
@@ -459,24 +447,30 @@ public class Play extends GameState {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
 	     	   			// Check the records
-	     	   			
+     	   				if (mode == 1) {
+     	   					GameVars.CheckTimes(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID), 2, levelID, timerTotal, false);
+     	   					GameVars.CheckTimes(GameVars.worldTimesTrain.get(levelID), 2, levelID, timerTotal, true);
+     	   				} else if (mode == 2) {
+     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID), 0, levelID, timerTotal, false);
+     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID), 0, levelID, timerTotal, true);
+     	   				}
+	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
 	     	   				if (mode == 1) {
 	     	   					// Set the Diamond
 	     	   					GameVars.SetDiamondTrain(levelID);
 	     	   					// Check the time
-	     	   					GameVars.CheckTimesTrainDmnd(levelID, timerTotal);
-	     	   					GameVars.CheckWorldTimesTrainDmnd(levelID, timerTotal);
-	     	   				}
-	     	   				else if (mode == 2) {
+	     	   					GameVars.CheckTimes(GameVars.plyrTimesTrainDmnd.get(GameVars.currentPlayer).get(levelID), 3, levelID, timerTotal, false);
+	     	   					GameVars.CheckTimes(GameVars.worldTimesTrainDmnd.get(levelID), 3, levelID, timerTotal, true);
+	     	   				} else if (mode == 2) {
 	     	   					// Set the Diamond
 	     	   					GameVars.SetDiamond(levelID);
 	     	   					// Check the time
-	     	   					GameVars.CheckTimesDmnd(levelID, timerTotal);
-	     	   					GameVars.CheckWorldTimesDmnd(levelID, timerTotal);
+	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID), 1, levelID, timerTotal, false);
+	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID), 1, levelID, timerTotal, true);
 	     	   				}
 	     	   			}
-	     	   			System.out.println(String.format("%02d", timerMins) + ":" + String.format("%02d", timerSecs) + ":" + String.format("%03d", timerMSecs));
+	     	   			System.out.println(GameVars.getTimeString(timerTotal));
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
@@ -1569,7 +1563,7 @@ public class Play extends GameState {
         float vshift = 0.0f;
         // Draw the timer
         timerCurrent = (int) (TimeUtils.millis()) - timerStart;
-        String timeStr = getTimeString(timerCurrent);
+        String timeStr = GameVars.getTimeString(timerCurrent);
     	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);
     	vshift += timerHeight +5;
     	// WR

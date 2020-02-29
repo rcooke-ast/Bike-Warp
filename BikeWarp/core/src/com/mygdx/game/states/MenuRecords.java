@@ -15,6 +15,8 @@ import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.handlers.GameVars;
+import com.mygdx.game.handlers.LevelsListGame;
 
 /**
  *
@@ -102,17 +104,16 @@ public class MenuRecords extends GameState {
         levelNumber = 0; // level number = 0 is for the total times
         tLevelNumber = -1; // Only positive when a new level is being entered
         levnum = -1.0f; // Once levnum reaches levnumTime, LevelNumber will be set to the tLevelNumber
-        System.out.println("ERROR :: get total number of levels");
-        totalLevels = 10;
+        totalLevels = LevelsListGame.NUMGAMELEVELS;
     }
 
     public void handleInput() {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
-    		if (currentOption < 0) currentOption = 4;
+    		if (currentOption < 0) currentOption = 3;
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
-    		if (currentOption > 4) currentOption = 0;
+    		if (currentOption > 3) currentOption = 0;
         } else if (GameInput.isPressed(GameInput.KEY_RIGHT)) {
     		levelNumber++;
     		if (levelNumber > totalLevels) levelNumber = 0;
@@ -215,7 +216,7 @@ public class MenuRecords extends GameState {
         // Draw Records board
         sb.draw(stone, cam.position.x-SCRWIDTH*2/5, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth), 0, 0, sheight, sheight, 1.0f, 1.0f, 0.0f);
         // Draw Records
-        String nmbrString, aliasString;
+        String nmbrString, aliasString = "", timeString = "--:--:---";
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;
     	else alpha=1.0f;
@@ -228,16 +229,27 @@ public class MenuRecords extends GameState {
         	else textcarve.setColor(1, 1, 1, alpha);
         	if ((10-i) <= 3) textcarveglow.draw(sb, nmbrString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	else textcarve.draw(sb, nmbrString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
-        	aliasString = "";
-        	if ((10-i) <= 15) aliasString = "MMMMMMM";
+        	// Get the name and time
+        	if (levelNumber == 0) {
+        		// Total times
+        	} else {
+	        	if (currentOption == 2) {
+	        		if (GameVars.GetPlayerTimes(levelNumber-1, 9-i) != -1) aliasString = GameVars.GetPlayerName();
+	        		else aliasString = "";
+	        		timeString = GameVars.getTimeString(GameVars.GetPlayerTimes(levelNumber-1, 9-i));
+	        	} else if (currentOption == 3) {
+	        		aliasString = GameVars.GetWorldNames(levelNumber-1, 9-i);
+	        		timeString = GameVars.getTimeString(GameVars.GetWorldTimes(levelNumber-1, 9-i));
+	        	}
+        	}
         	if ((10-i) <= 3) textcarveglow.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f + 1.25f*nmbrWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	else textcarve.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f + 1.25f*nmbrWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	times.setColor(0, 0, 0, alpha);
-        	times.draw(sb, "00:00:000", cam.position.x-SCRWIDTH*2/5 + 14.0f*sheight/15.0f - timesWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+1.5f)*carveHeight + 1.3f*timesHeight);
+        	times.draw(sb, timeString, cam.position.x-SCRWIDTH*2/5 + 14.0f*sheight/15.0f - timesWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+1.5f)*carveHeight + 1.3f*timesHeight);
         }
         // Draw Level Number and Name
         if (levelNumber == 0) aliasString = "Total Times";
-        else aliasString = "99. Insert Level Number Here";
+        else aliasString = LevelsListGame.gameLevelNames[levelNumber];
         textcarve.setScale(numScale);
         float numWid = textcarve.getBounds(aliasString).width;
         float numOff = 0.0f; // Offset the level string so that it appears in the centre of the board 
