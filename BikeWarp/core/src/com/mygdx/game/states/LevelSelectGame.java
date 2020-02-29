@@ -84,11 +84,11 @@ public class LevelSelectGame extends GameState {
         	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
         	else {
         		// Load the level
-        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[currentOption])), currentOption, 2);
+        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[currentOption])), currentOption-1, 2);
         	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.PEEK, false, "none", currentOption, 2);
+    		gsm.setState(GameStateManager.PEEK, false, "none", currentOption-1, 2);
         }
     	//if (currentOption == 1) currentLevelTxt = "";
     	if ((currentOption>numLevShow/2) & (currentOption<totalLevels-numLevShow/2)) numMin = currentOption-numLevShow/2;

@@ -27,7 +27,8 @@ public class GameVars implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	// How many level skips are allowed
-	public static final int skipsAllowed = 3;
+	public static final int skipsAllowed = 3; // Allow players to skip 3 levels
+	public static final int numStore = 10; // Store the top 10 times of each level
 	// Player arrays
 	public static int currentPlayer = -1;
 	public static String[] plyrNames = new String[0];
@@ -41,9 +42,13 @@ public class GameVars implements Serializable {
 	public static ArrayList<boolean[]> plyrSkipLevel = new ArrayList<boolean[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
 	// World records
+	public static ArrayList<String[]> worldNames = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimes = new ArrayList<int[]>();
+	public static ArrayList<String[]> worldNamesDmnd = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimesDmnd = new ArrayList<int[]>();
+	public static ArrayList<String[]> worldNamesTrain = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimesTrain = new ArrayList<int[]>();
+	public static ArrayList<String[]> worldNamesTrainDmnd = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimesTrainDmnd = new ArrayList<int[]>();
 	
 	// Get and Set options
@@ -57,71 +62,100 @@ public class GameVars implements Serializable {
 
 	// Get Player properties
 	public static String GetPlayerName() {return plyrNames[currentPlayer];}
-	public static int[] GetPlayerTimes(int lvl) {return plyrTimes.get(currentPlayer).get(lvl);}
-	public static int[] GetPlayerTimesDmnd(int lvl) {return plyrTimesDmnd.get(currentPlayer).get(lvl);}
-	public static int[] GetPlayerTimesTrain(int lvl) {return plyrTimesTrain.get(currentPlayer).get(lvl);}
+	public static int GetPlayerTimes(int lvl, int indx) {return plyrTimes.get(currentPlayer).get(lvl)[indx];}
+	public static int GetPlayerTimesDmnd(int lvl, int indx) {return plyrTimesDmnd.get(currentPlayer).get(lvl)[indx];}
+	public static int GetPlayerTimesTrain(int lvl, int indx) {return plyrTimesTrain.get(currentPlayer).get(lvl)[indx];}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamondsTrain() {return plyrColTrainDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerSkipLevel() {return plyrSkipLevel.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
 	public static int[] GetPlayerTimesTrainDmnd(int lvl) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl);}
-	// Get the world record times
-	public static int[] GetWorldTimes(int lvl) {return worldTimes.get(lvl);}
-	public static int[] GetWorldTimesDmnd(int lvl) {return worldTimesDmnd.get(lvl);}
-	public static int[] GetWorldTimesTrain(int lvl) {return worldTimesTrain.get(lvl);}
-	public static int[] GetWorldTimesTrainDmnd(int lvl) {return worldTimesTrainDmnd.get(lvl);}
+	// Get the world record times and aliases
+	public static int GetWorldTimes(int lvl, int indx) {return worldTimes.get(lvl)[indx];}
+	public static int GetWorldTimesDmnd(int lvl, int indx) {return worldTimesDmnd.get(lvl)[indx];}
+	public static int GetWorldTimesTrain(int lvl, int indx) {return worldTimesTrain.get(lvl)[indx];}
+	public static int GetWorldTimesTrainDmnd(int lvl, int indx) {return worldTimesTrainDmnd.get(lvl)[indx];}
+	public static String GetWorldNames(int lvl, int indx) {return worldNames.get(lvl)[indx];}
+	public static String GetWorldNamesDmnd(int lvl, int indx) {return worldNamesDmnd.get(lvl)[indx];}
+	public static String GetWorldNamesTrain(int lvl, int indx) {return worldNamesTrain.get(lvl)[indx];}
+	public static String GetWorldNamesTrainDmnd(int lvl, int indx) {return worldNamesTrainDmnd.get(lvl)[indx];}
 
-	// Check the player times
-	public static void CheckTimes(int lvl, int timerTotal) {
-		boolean saveTimes = false;
-		plyrTimes
-		if (saveTimes) SavePlayers();
-		return;
-	}
-	public static void CheckTimesDmnd(int lvl, int timerTotal) {
-		boolean saveTimes = false;
-		plyrTimesDmnd
-		if (saveTimes) SavePlayers();
-		return;
-	}
-	public static void CheckTimesTrain(int lvl, int timerTotal) {
-		boolean saveTimes = false;
-		plyrTimesTrain
-		if (saveTimes) SavePlayers();
-		return;
-	}
-	public static void CheckTimesTrainDmnd(int lvl, int timerTotal) {
-		boolean saveTimes = false;
-		plyrTimesTrainDmnd
-		if (saveTimes) SavePlayers();
-		return;
-	}
+    public static String getTimeString(int time) {
+    	String retval = "--:--:---";
+    	if (time > 0) {
+        	// time is in milliseconds
+            int MSecs = time%1000;
+        	int Secs  = ((time-MSecs)%60000)/1000;
+        	int Mins  = (time-MSecs-1000*Secs)/60000;
+        	retval = String.format("%02d", Mins) + ":" + String.format("%02d", Secs) + ":" + String.format("%03d", MSecs);
+    	}
+		return retval;
+    }
 
-	// Check the world record times
-	public static void CheckWorldTimes(int lvl, int timerTotal) {
+	// Check the player and world record times
+	public static void CheckTimes(int[] times, int indx, int lvl, int timerTotal, boolean world) {
+		// times = plyrTimes.get(currentPlayer).get(lvl)
+		// indx = 0, 1, 2, 3 = plyrTimes, plyrTimesDmnd, plyrTimesTrain, plyrTimesTrainDmnd
+		// Need to fetch names for the world records
+		String[] names = new String[numStore];
+		if (world) {
+			if (indx == 0) names = worldNames.get(lvl);
+			else if (indx == 1) names = worldNamesDmnd.get(lvl);
+			else if (indx == 2) names = worldNamesTrain.get(lvl);
+			else if (indx == 3) names = worldNamesTrainDmnd.get(lvl);
+		}
 		boolean saveTimes = false;
-		worldTimes
-		if (saveTimes) SaveWorldRecords();
-		return;
-	}
-	public static void CheckWorldTimesDmnd(int lvl, int timerTotal) {
-		boolean saveTimes = false;
-		worldTimesDmnd
-		if (saveTimes) SaveWorldRecords();
-		return;
-	}
-	public static void CheckWorldTimesTrain(int lvl, int timerTotal) {
-		boolean saveTimes = false;
-		worldTimesTrain
-		if (saveTimes) SaveWorldRecords();
-		return;
-	}
-	public static void CheckWorldTimesTrainDmnd(int lvl, int timerTotal) {
-		boolean saveTimes = false;
-		worldTimesTrainDmnd
-		if (saveTimes) SaveWorldRecords();
-		return;
+		int[] tempTime = new int[numStore];
+		for (int i=0; i<numStore; i++) {
+			if (saveTimes) {
+				// Shifting down times
+				tempTime[i] = times[i-1];
+			} else if ((timerTotal < times[i]) | (times[i] == -1)) {
+				tempTime[i] = timerTotal;
+				if (world) names[i] = GetPlayerName();
+				saveTimes = true;
+			} else tempTime[i] = times[i];
+		}
+		if (saveTimes) {
+			if (world) {
+				// First update the arrays
+				if (indx == 0) {
+					worldNames.set(lvl, names);
+					worldTimes.set(lvl, tempTime);
+				} else if (indx == 1) {
+					worldNamesDmnd.set(lvl, names);
+					worldTimesDmnd.set(lvl, tempTime);
+				} else if (indx == 2) {
+					worldNamesTrain.set(lvl, names);
+					worldTimesTrain.set(lvl, tempTime);
+				} else if (indx == 3) {
+					worldNamesTrainDmnd.set(lvl, names);
+					worldTimesTrainDmnd.set(lvl, tempTime);
+				}
+				SaveWorldRecords();
+			} else {
+				// First update the arrays
+				if (indx == 0) {
+					ArrayList<int[]> copyTimes = plyrTimes.get(currentPlayer);
+					copyTimes.set(lvl, tempTime);
+					plyrTimes.set(currentPlayer, copyTimes);
+				} else if (indx == 1) {
+					ArrayList<int[]> copyTimes = plyrTimesDmnd.get(currentPlayer);
+					copyTimes.set(lvl, tempTime);
+					plyrTimesDmnd.set(currentPlayer, copyTimes);				
+				} else if (indx == 2) {
+					ArrayList<int[]> copyTimes = plyrTimesTrain.get(currentPlayer);
+					copyTimes.set(lvl, tempTime);
+					plyrTimesTrain.set(currentPlayer, copyTimes);
+				} else if (indx == 3) {
+					ArrayList<int[]> copyTimes = plyrTimesTrainDmnd.get(currentPlayer);
+					copyTimes.set(lvl, tempTime);
+					plyrTimesTrainDmnd.set(currentPlayer, copyTimes);
+				}
+				SavePlayers();
+			}
+		}
 	}
 
 	// Is options
@@ -217,9 +251,9 @@ public class GameVars implements Serializable {
 			oi.close();
 			fi.close();
 		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
+			System.out.println("Players file not found");
 		} catch (IOException e) {
-			System.out.println("Error initializing stream");
+			System.out.println("Error initializing stream for players file");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -247,9 +281,9 @@ public class GameVars implements Serializable {
 			o.close();
 			f.close();
 		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
+			System.out.println("World records file not found");
 		} catch (IOException e) {
-			System.out.println("Error initializing stream");
+			System.out.println("Error initializing stream for world records");
 		}
 	}
 
@@ -261,9 +295,13 @@ public class GameVars implements Serializable {
 			ObjectInputStream oi = new ObjectInputStream(fi);
 
 			// Read objects
+			worldNames = (ArrayList<String[]>) oi.readObject();
 			worldTimes = (ArrayList<int[]>) oi.readObject();
+			worldNamesDmnd = (ArrayList<String[]>) oi.readObject();
 			worldTimesDmnd = (ArrayList<int[]>) oi.readObject();
+			worldNamesTrain = (ArrayList<String[]>) oi.readObject();
 			worldTimesTrain = (ArrayList<int[]>) oi.readObject();
+			worldNamesTrainDmnd = (ArrayList<String[]>) oi.readObject();
 			worldTimesTrainDmnd = (ArrayList<int[]>) oi.readObject();
 
 			// Close files
@@ -271,16 +309,20 @@ public class GameVars implements Serializable {
 			fi.close();
 			failed = false;
 		} catch (FileNotFoundException e) {
-			System.out.println("File not found");
+			System.out.println("World records file not found");
 		} catch (IOException e) {
-			System.out.println("Error initializing stream");
+			System.out.println("Error initializing stream for world records");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		if (failed) {
+			worldNames = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
 			worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+			worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
 			worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+			worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
 			worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+			worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
 			worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
 		}
 	}
@@ -292,9 +334,13 @@ public class GameVars implements Serializable {
 			ObjectOutputStream o = new ObjectOutputStream(f);
 
 			// Write objects to file
+			o.writeObject(worldNames);
 			o.writeObject(worldTimes);
+			o.writeObject(worldNamesDmnd);
 			o.writeObject(worldTimesDmnd);
+			o.writeObject(worldNamesTrain);
 			o.writeObject(worldTimesTrain);
+			o.writeObject(worldNamesTrainDmnd);
 			o.writeObject(worldTimesTrainDmnd);
 
 			// Close the file
@@ -310,11 +356,21 @@ public class GameVars implements Serializable {
 	@SuppressWarnings("unchecked")
 	public static ArrayList<int[]> GetEmptyTimes(int numLevels) {
 		ArrayList<int[]> times = new ArrayList<int[]>();
-		int[] emptyTimes = new int[10]; // Store the top 10 times in each level
+		int[] emptyTimes = new int[numStore]; // Store the top 10 times in each level
 		for (int i=0; i<10; i++) emptyTimes[i] = -1; // -1 means that a time has not been recorded for this level
 		// Add a copy of this array for all levels
 		for (int i=0; i<numLevels; i++) times.add(emptyTimes.clone());
 		return (ArrayList<int[]>) times.clone();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static ArrayList<String[]> GetEmptyNames(int numLevels) {
+		ArrayList<String[]> names = new ArrayList<String[]>();
+		String[] emptyNames = new String[numStore]; // Store the top 10 times in each level
+		for (int i=0; i<10; i++) emptyNames[i] = ""; // "" means that a time has not been recorded for this level
+		// Add a copy of this array for all levels
+		for (int i=0; i<numLevels; i++) names.add(emptyNames.clone());
+		return (ArrayList<String[]>) names.clone();
 	}
 
 	public static boolean[] FalseBoolean(int num) {
