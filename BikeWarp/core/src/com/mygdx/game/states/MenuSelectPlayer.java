@@ -26,6 +26,7 @@ public class MenuSelectPlayer extends GameState {
 		// If we have no information on the players, load it
 		if (GameVars.currentPlayer == -1) {
 			GameVars.LoadPlayers();
+			GameVars.LoadWorldRecords();
 		} else {
 	        // Set the starting option
 	        currentOption = GameVars.GetCurrentPlayer();
@@ -121,7 +122,7 @@ public class MenuSelectPlayer extends GameState {
         } else if (fadeOut==0.0f) {
         	// Go to the main menu
     		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.MAINMENU, false, "none", -1, false);
+    		gsm.setState(GameStateManager.MAINMENU, false, "none", -1, 0);
         }
     	if ((currentOption>numPlyrShow/2) & (currentOption<numOptions-numPlyrShow/2)) numMin = currentOption-numPlyrShow/2;
     	else if (currentOption<=numPlyrShow/2) numMin = 0;

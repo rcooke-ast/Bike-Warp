@@ -88,8 +88,7 @@ public class Play extends GameState {
     private OrthographicCamera b2dCam;
     private GameContactListener cl;
     private String editorString = null;
-    private int levelID;
-    private boolean isTrain;
+    private int levelID, mode;
     private int mVelocityIter = 8;
     private int mPositionIter = 3;
 
@@ -158,14 +157,14 @@ public class Play extends GameState {
     private Sprite bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private BitmapFont timer, timerWR, timerPB;
     private int timerStart, timerCurrent, timerTotal, timerMSecs, timerSecs, timerMins;
-    private int[] worldRecord = new int[3];
-    private int[] personalRecord = new int[3];
+    private String worldRecord, personalRecord;
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight;
     private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0;
     //private int[] animateJewel;
     private float SCRWIDTH;
     private BitmapFont keyRedCntr, keyGreenCntr, keyBlueCntr, jewelCntr, nitrousCntr;
     private int collectJewel;
+    private boolean collectDiamond;
     private int nullvar;
     private boolean forcequit, lrIsDown, paintBackdrop;
     
@@ -204,12 +203,11 @@ public class Play extends GameState {
     private int mRubeFileList;
     private int mRubeFileIndex;
     
-    public Play(GameStateManager gsm, String editorScene, int levID, boolean train) {
+    public Play(GameStateManager gsm, String editorScene, int levID, int modeValue) {
         super(gsm);
         editorString = editorScene;
         levelID = levID;
-        isTrain = train;
-		System.out.println(editorString);
+        mode = modeValue;
         create();
     }
     
@@ -249,7 +247,17 @@ public class Play extends GameState {
         mState = mNextState = GAME_STATE.STARTING;
 
         // Get the records
-        //worldRecord = getTimeParams(GameVars.plyrTimes[GameVars.currentPlayer][][0]);
+        if (mode == 1) {
+            worldRecord = getTimeString(GameVars.worldTimesTrain.get(levelID)[0]);
+            personalRecord = getTimeString(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID)[0]);
+        } else if (mode == 2) {
+            worldRecord = getTimeString(GameVars.worldTimes.get(levelID)[0]);
+            personalRecord = getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
+        } else {
+        	worldRecord = getTimeString(-1);
+            personalRecord = getTimeString(-1);
+        }
+        collectDiamond = false;
         
         // Create new wheel and rope joint definitions
         leftWheelL = new WheelJointDef();
@@ -349,12 +357,16 @@ public class Play extends GameState {
     	lrIsDown = false;
     }
     
-    public int[] getTimeParams(int time) {
-    	// time is in milliseconds
-        int MSecs = time%1000;
-    	int Secs  = ((time-timerMSecs)%60000)/1000;
-    	int Mins  = (time-timerMSecs-1000*timerSecs)/60000;
-    	return new int[]{Mins, Secs, MSecs};
+    public String getTimeString(int time) {
+    	String retval = "--:--:---";
+    	if (time > 0) {
+        	// time is in milliseconds
+            int MSecs = time%1000;
+        	int Secs  = ((time-timerMSecs)%60000)/1000;
+        	int Mins  = (time-timerMSecs-1000*timerSecs)/60000;
+        	retval = String.format("%02d", Mins) + ":" + String.format("%02d", Secs) + ":" + String.format("%03d", MSecs);
+    	}
+		return retval;
     }
 
     public void handleInput() {
@@ -446,11 +458,26 @@ public class Play extends GameState {
 	       	   	if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
-	     	   			timerMSecs = timerTotal%1000;
-	     	   			timerSecs  = ((timerTotal-timerMSecs)%60000)/1000;
-	     	   			timerMins  = (timerTotal-timerMSecs-1000*timerSecs)/60000;
+	     	   			// Check the records
+	     	   			
+	     	   			if (collectDiamond) {
+	     	   				if (mode == 1) {
+	     	   					// Set the Diamond
+	     	   					GameVars.SetDiamondTrain(levelID);
+	     	   					// Check the time
+	     	   					GameVars.CheckTimesTrainDmnd(levelID, timerTotal);
+	     	   					GameVars.CheckWorldTimesTrainDmnd(levelID, timerTotal);
+	     	   				}
+	     	   				else if (mode == 2) {
+	     	   					// Set the Diamond
+	     	   					GameVars.SetDiamond(levelID);
+	     	   					// Check the time
+	     	   					GameVars.CheckTimesDmnd(levelID, timerTotal);
+	     	   					GameVars.CheckWorldTimesDmnd(levelID, timerTotal);
+	     	   				}
+	     	   			}
 	     	   			System.out.println(String.format("%02d", timerMins) + ":" + String.format("%02d", timerSecs) + ":" + String.format("%03d", timerMSecs));
-	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, isTrain);
+	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
 	     	   	} else if ((cl.isPlayerDead()) | (forcequit)) {
@@ -466,7 +493,7 @@ public class Play extends GameState {
 //	     	   			bikeBodyC.setTransform(bikeBodyCpos, bikeBodyCang);
 //	     	   			mState=GAME_STATE.LOADING;
 //	     	   		}
-	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, isTrain);
+	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	            	break;
 	     	   	}
         	   updateBike(dt);
@@ -702,6 +729,7 @@ public class Play extends GameState {
     				//Game.res.getSound("jewel").play();
     			} else if (collectID.equals("Diamond")) {
     				collectJewel = 0;
+    				collectDiamond = true; // The player has collected the diamond
     				//Game.res.getSound("jewel").play();
     			}
     			if (!noKeys) {
@@ -1541,16 +1569,14 @@ public class Play extends GameState {
         float vshift = 0.0f;
         // Draw the timer
         timerCurrent = (int) (TimeUtils.millis()) - timerStart;
-        timerMSecs = timerCurrent%1000;
-    	timerSecs  = ((timerCurrent-timerMSecs)%60000)/1000;
-    	timerMins  = (timerCurrent-timerMSecs-1000*timerSecs)/60000;
-    	timer.draw(mBatch, String.format("%02d", timerMins) + ":" + String.format("%02d", timerSecs) + ":" + String.format("%03d", timerMSecs),SCRWIDTH-timerWidth-10.0f,BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);
+        String timeStr = getTimeString(timerCurrent);
+    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);
     	vshift += timerHeight +5;
     	// WR
-    	timerWR.draw(mBatch, "WR  " + String.format("%02d", 0) + ":" + String.format("%02d", 0) + ":" + String.format("%03d", 0),SCRWIDTH-timerWRWidth-10.0f,BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+    	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f, BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
     	vshift += timerWRHeight + 5;
     	// PB
-    	timerPB.draw(mBatch, "PB  " + String.format("%02d", 0) + ":" + String.format("%02d", 0) + ":" + String.format("%03d", 0),SCRWIDTH-timerWRWidth-10.0f,BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+    	timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f, BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
     	vshift += timerWRHeight + 8;
         // Draw the jewel and it's counter
         jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f,BikeGame.V_HEIGHT-vshift-(pThick-jcntrHeight)/2.0f);

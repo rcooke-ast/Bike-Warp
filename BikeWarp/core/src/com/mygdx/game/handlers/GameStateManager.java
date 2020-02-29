@@ -45,7 +45,7 @@ public class GameStateManager {
     public GameStateManager(BikeGame game) {
         this.game = game;
         gameStates = new Stack<GameState>();
-        pushState(MENUPLAYER, null, -1, false); // Set the starting State
+        pushState(MENUPLAYER, null, -1, 0); // Set the starting State
     }
     
     public BikeGame game() { return game; }
@@ -64,7 +64,7 @@ public class GameStateManager {
         this.dispose();
     }
 
-    private GameState getState(int state, String editorScene, int levelID, boolean train) {
+    private GameState getState(int state, String editorScene, int levelID, int train) {
         if (state == MENUPLAYER) return new MenuSelectPlayer(this);
         else if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
@@ -79,12 +79,12 @@ public class GameStateManager {
         return null;
     }
     
-    public void setState(int state, boolean store, String scene, int levelID, boolean train) {
+    public void setState(int state, boolean store, String scene, int levelID, int train) {
         if (!store) popState();
     	if (state != PEEK) pushState(state, scene, levelID, train);
     }
 
-    public void pushState(int state, String scene, int levelID, boolean train) {
+    public void pushState(int state, String scene, int levelID, int train) {
         gameStates.push(getState(state, scene, levelID, train));
     }
     
