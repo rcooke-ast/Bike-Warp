@@ -31,7 +31,6 @@ public class LevelStateManager {
     public static final int PROP_DIAMOND = 3;
     public static final int PROP_PB = 4;
     public static final int PROP_WORLD_RCRD = 5;
-    public static final int PROP_NATIONAL_RCRD = 6;
     
     static {
     	levelState = new String[NUM_PROPS];
@@ -49,6 +48,5 @@ public class LevelStateManager {
         levelState[PROP_DIAMOND] = "";
         levelState[PROP_PB] = "";
         levelState[PROP_WORLD_RCRD] = "";
-        levelState[PROP_NATIONAL_RCRD] = "";
     }
 }

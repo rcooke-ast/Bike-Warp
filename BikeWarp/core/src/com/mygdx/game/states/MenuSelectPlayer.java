@@ -121,7 +121,7 @@ public class MenuSelectPlayer extends GameState {
         } else if (fadeOut==0.0f) {
         	// Go to the main menu
     		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.MAINMENU, false, "none");
+    		gsm.setState(GameStateManager.MAINMENU, false, "none", -1, false);
         }
     	if ((currentOption>numPlyrShow/2) & (currentOption<numOptions-numPlyrShow/2)) numMin = currentOption-numPlyrShow/2;
     	else if (currentOption<=numPlyrShow/2) numMin = 0;

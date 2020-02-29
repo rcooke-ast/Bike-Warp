@@ -157,7 +157,7 @@ public class OptionColorSelect extends GameState {
         	fadeOut=1.0f;
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.PEEK, false, "none");
+    		gsm.setState(GameStateManager.PEEK, false, "none", -1, false);
     		fadeIn=0.0f;
         }
     	if (GameInput.isDown(GameInput.KEY_ACCEL)) {

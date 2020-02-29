@@ -531,7 +531,7 @@ public class Editor extends GameState {
 				if (!hideToolbar) {
 					if (!drawingPoly) {
 						if (!changesMade) {
-							gsm.setState(GameStateManager.PEEK, false, "none");
+							gsm.setState(GameStateManager.PEEK, false, "none", -1, false);
 						} else {
 							warnMessage[warnNumber] = "Changes made since last save!";
 							warnElapse[warnNumber] = 0.0f;
@@ -593,7 +593,7 @@ public class Editor extends GameState {
 							} else {
 								enteringFilename = false;
 								stage.setKeyboardFocus(null);
-								gsm.setState(GameStateManager.PLAY, true, jsonLevelString);
+								gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, false);
 							}
 						} catch (JSONException e) {
 							e.printStackTrace();
