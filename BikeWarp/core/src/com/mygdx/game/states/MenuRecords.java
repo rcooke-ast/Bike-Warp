@@ -134,7 +134,7 @@ public class MenuRecords extends GameState {
         	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.PEEK, false, "none");
+    		gsm.setState(GameStateManager.PEEK, false, "none", -1, false);
         }
     	//if (currentOption == 1) currentLevelTxt = "";
 

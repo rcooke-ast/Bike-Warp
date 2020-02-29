@@ -45,7 +45,7 @@ public class GameStateManager {
     public GameStateManager(BikeGame game) {
         this.game = game;
         gameStates = new Stack<GameState>();
-        pushState(MENUPLAYER, null); // Set the starting State
+        pushState(MENUPLAYER, null, -1, false); // Set the starting State
     }
     
     public BikeGame game() { return game; }
@@ -64,7 +64,7 @@ public class GameStateManager {
         this.dispose();
     }
 
-    private GameState getState(int state, String editorScene) {
+    private GameState getState(int state, String editorScene, int levelID, boolean train) {
         if (state == MENUPLAYER) return new MenuSelectPlayer(this);
         else if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
@@ -73,19 +73,19 @@ public class GameStateManager {
         else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
         else if (state == MENUTRAINING) return new LevelSelectTraining(this);
         else if (state == MENULEVELS) return new LevelSelectGame(this);
-        else if (state == PLAY) return new Play(this, editorScene);
+        else if (state == PLAY) return new Play(this, editorScene, levelID, train);
         else if (state == EDITOR) return new Editor(this);
         //else if (state == LEVELSELECT) return new LevelSelect(this);
         return null;
     }
     
-    public void setState(int state, boolean store, String scene) {
+    public void setState(int state, boolean store, String scene, int levelID, boolean train) {
         if (!store) popState();
-    	if (state != PEEK) pushState(state, scene);
+    	if (state != PEEK) pushState(state, scene, levelID, train);
     }
 
-    public void pushState(int state, String scene) {
-        gameStates.push(getState(state, scene));
+    public void pushState(int state, String scene, int levelID, boolean train) {
+        gameStates.push(getState(state, scene, levelID, train));
     }
     
     public void popState() {

@@ -57,6 +57,7 @@ import static com.mygdx.game.handlers.B2DVars.PPM;
 import com.mygdx.game.handlers.GameContactListener;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.utilities.PolygonOperations;
 import com.gushikustudios.rube.PolySpatial;
@@ -87,6 +88,8 @@ public class Play extends GameState {
     private OrthographicCamera b2dCam;
     private GameContactListener cl;
     private String editorString = null;
+    private int levelID;
+    private boolean isTrain;
     private int mVelocityIter = 8;
     private int mPositionIter = 3;
 
@@ -155,6 +158,8 @@ public class Play extends GameState {
     private Sprite bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private BitmapFont timer, timerWR, timerPB;
     private int timerStart, timerCurrent, timerTotal, timerMSecs, timerSecs, timerMins;
+    private int[] worldRecord = new int[3];
+    private int[] personalRecord = new int[3];
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight;
     private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0;
     //private int[] animateJewel;
@@ -199,9 +204,12 @@ public class Play extends GameState {
     private int mRubeFileList;
     private int mRubeFileIndex;
     
-    public Play(GameStateManager gsm, String editorScene) {
+    public Play(GameStateManager gsm, String editorScene, int levID, boolean train) {
         super(gsm);
         editorString = editorScene;
+        levelID = levID;
+        isTrain = train;
+		System.out.println(editorString);
         create();
     }
     
@@ -240,6 +248,9 @@ public class Play extends GameState {
 
         mState = mNextState = GAME_STATE.STARTING;
 
+        // Get the records
+        //worldRecord = getTimeParams(GameVars.plyrTimes[GameVars.currentPlayer][][0]);
+        
         // Create new wheel and rope joint definitions
         leftWheelL = new WheelJointDef();
         rightWheelL = new WheelJointDef();
@@ -338,6 +349,14 @@ public class Play extends GameState {
     	lrIsDown = false;
     }
     
+    public int[] getTimeParams(int time) {
+    	// time is in milliseconds
+        int MSecs = time%1000;
+    	int Secs  = ((time-timerMSecs)%60000)/1000;
+    	int Mins  = (time-timerMSecs-1000*timerSecs)/60000;
+    	return new int[]{Mins, Secs, MSecs};
+    }
+
     public void handleInput() {
     	// ESC is pressed
         if (GameInput.isPressed(GameInput.KEY_ESC)) forcequit = true;
@@ -431,7 +450,7 @@ public class Play extends GameState {
 	     	   			timerSecs  = ((timerTotal-timerMSecs)%60000)/1000;
 	     	   			timerMins  = (timerTotal-timerMSecs-1000*timerSecs)/60000;
 	     	   			System.out.println(String.format("%02d", timerMins) + ":" + String.format("%02d", timerSecs) + ":" + String.format("%03d", timerMSecs));
-	     	   			gsm.setState(GameStateManager.PEEK, false, null);
+	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, isTrain);
 	     	   			break;
 	     	   		} else cl.notFinished();
 	     	   	} else if ((cl.isPlayerDead()) | (forcequit)) {
@@ -447,7 +466,7 @@ public class Play extends GameState {
 //	     	   			bikeBodyC.setTransform(bikeBodyCpos, bikeBodyCang);
 //	     	   			mState=GAME_STATE.LOADING;
 //	     	   		}
-	            	gsm.setState(GameStateManager.PEEK, false, null);
+	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, isTrain);
 	            	break;
 	     	   	}
         	   updateBike(dt);
