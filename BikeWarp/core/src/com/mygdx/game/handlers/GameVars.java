@@ -40,7 +40,12 @@ public class GameVars implements Serializable {
 	public static ArrayList<boolean[]> plyrColTrainDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<boolean[]> plyrSkipLevel = new ArrayList<boolean[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
-
+	// World records
+	public static ArrayList<int[]> worldTimes = new ArrayList<int[]>();
+	public static ArrayList<int[]> worldTimesDmnd = new ArrayList<int[]>();
+	public static ArrayList<int[]> worldTimesTrain = new ArrayList<int[]>();
+	public static ArrayList<int[]> worldTimesTrainDmnd = new ArrayList<int[]>();
+	
 	// Get and Set options
 	public static void SetCurrentPlayer(int i) {
 		currentPlayer = i;
@@ -50,17 +55,74 @@ public class GameVars implements Serializable {
 
 	public static int GetCurrentPlayer() {return currentPlayer;}
 
-	// Get options
+	// Get Player properties
 	public static String GetPlayerName() {return plyrNames[currentPlayer];}
 	public static int[] GetPlayerTimes(int lvl) {return plyrTimes.get(currentPlayer).get(lvl);}
 	public static int[] GetPlayerTimesDmnd(int lvl) {return plyrTimesDmnd.get(currentPlayer).get(lvl);}
 	public static int[] GetPlayerTimesTrain(int lvl) {return plyrTimesTrain.get(currentPlayer).get(lvl);}
-	public static int[] GetPlayerTimesTrainDmnd(int lvl) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl);}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamondsTrain() {return plyrColTrainDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerSkipLevel() {return plyrSkipLevel.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
+	public static int[] GetPlayerTimesTrainDmnd(int lvl) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl);}
+	// Get the world record times
+	public static int[] GetWorldTimes(int lvl) {return worldTimes.get(lvl);}
+	public static int[] GetWorldTimesDmnd(int lvl) {return worldTimesDmnd.get(lvl);}
+	public static int[] GetWorldTimesTrain(int lvl) {return worldTimesTrain.get(lvl);}
+	public static int[] GetWorldTimesTrainDmnd(int lvl) {return worldTimesTrainDmnd.get(lvl);}
+
+	// Check the player times
+	public static void CheckTimes(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		plyrTimes
+		if (saveTimes) SavePlayers();
+		return;
+	}
+	public static void CheckTimesDmnd(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		plyrTimesDmnd
+		if (saveTimes) SavePlayers();
+		return;
+	}
+	public static void CheckTimesTrain(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		plyrTimesTrain
+		if (saveTimes) SavePlayers();
+		return;
+	}
+	public static void CheckTimesTrainDmnd(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		plyrTimesTrainDmnd
+		if (saveTimes) SavePlayers();
+		return;
+	}
+
+	// Check the world record times
+	public static void CheckWorldTimes(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		worldTimes
+		if (saveTimes) SaveWorldRecords();
+		return;
+	}
+	public static void CheckWorldTimesDmnd(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		worldTimesDmnd
+		if (saveTimes) SaveWorldRecords();
+		return;
+	}
+	public static void CheckWorldTimesTrain(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		worldTimesTrain
+		if (saveTimes) SaveWorldRecords();
+		return;
+	}
+	public static void CheckWorldTimesTrainDmnd(int lvl, int timerTotal) {
+		boolean saveTimes = false;
+		worldTimesTrainDmnd
+		if (saveTimes) SaveWorldRecords();
+		return;
+	}
 
 	// Is options
 	public static boolean IsDiamondCollected(int lvl) {return plyrColDmnd.get(currentPlayer)[lvl];}
@@ -162,7 +224,7 @@ public class GameVars implements Serializable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void SavePlayers() {
 		FileOutputStream f;
 		try {
@@ -190,7 +252,61 @@ public class GameVars implements Serializable {
 			System.out.println("Error initializing stream");
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public static void LoadWorldRecords() {
+		boolean failed = true;
+		try {
+			FileInputStream fi = new FileInputStream(new File("WorldRecords.dat"));
+			ObjectInputStream oi = new ObjectInputStream(fi);
+
+			// Read objects
+			worldTimes = (ArrayList<int[]>) oi.readObject();
+			worldTimesDmnd = (ArrayList<int[]>) oi.readObject();
+			worldTimesTrain = (ArrayList<int[]>) oi.readObject();
+			worldTimesTrainDmnd = (ArrayList<int[]>) oi.readObject();
+
+			// Close files
+			oi.close();
+			fi.close();
+			failed = false;
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+		} catch (IOException e) {
+			System.out.println("Error initializing stream");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (failed) {
+			worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+			worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+			worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+			worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+		}
+	}
+
+	public static void SaveWorldRecords() {
+		FileOutputStream f;
+		try {
+			f = new FileOutputStream(new File("WorldRecords.dat"));
+			ObjectOutputStream o = new ObjectOutputStream(f);
+
+			// Write objects to file
+			o.writeObject(worldTimes);
+			o.writeObject(worldTimesDmnd);
+			o.writeObject(worldTimesTrain);
+			o.writeObject(worldTimesTrainDmnd);
+
+			// Close the file
+			o.close();
+			f.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("File not found");
+		} catch (IOException e) {
+			System.out.println("Error initializing stream");
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public static ArrayList<int[]> GetEmptyTimes(int numLevels) {
 		ArrayList<int[]> times = new ArrayList<int[]>();

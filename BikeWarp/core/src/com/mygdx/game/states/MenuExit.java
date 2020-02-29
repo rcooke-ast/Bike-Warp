@@ -70,7 +70,7 @@ public class MenuExit extends GameState {
         	fadeOut=1.0f;
         } else if (fadeOut==0.0f) {
     		if (action==0) Gdx.app.exit(); // Exit game
-    		else gsm.setState(GameStateManager.PEEK, false, "none", -1, false); // Return to menu
+    		else gsm.setState(GameStateManager.PEEK, false, "none", -1, 0); // Return to menu
         }
 	}
 

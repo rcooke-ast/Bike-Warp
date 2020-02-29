@@ -128,7 +128,7 @@ public class MainMenu extends GameState {
         	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
-    		gsm.setState(goToLevel, true, "none", -1, false);
+    		gsm.setState(goToLevel, true, "none", -1, 0);
     		fadeIn=0.0f;
         }
     }

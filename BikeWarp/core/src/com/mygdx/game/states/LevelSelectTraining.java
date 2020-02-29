@@ -86,11 +86,11 @@ public class LevelSelectTraining extends GameState {
         	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
         	else {
         		// Load the level
-        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[currentOption])), currentOption, true);
+        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[currentOption])), currentOption, 1);
         	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.PEEK, false, "none", currentOption, true);
+    		gsm.setState(GameStateManager.PEEK, false, "none", currentOption, 1);
         }
     	//if (currentOption == 1) currentLevelTxt = "";
     	if ((currentOption>numLevShow/2) & (currentOption<totalLevels-numLevShow/2)) numMin = currentOption-numLevShow/2;
