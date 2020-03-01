@@ -15,7 +15,20 @@ import com.badlogic.gdx.InputMultiplexer;
  */
 public class GameInputProcessor extends InputMultiplexer {
     
-    public boolean keyDown(int k) {
+	public static boolean disable_keys = false;
+	
+	public static void Disable(boolean dis) {
+		disable_keys = dis;
+	}
+
+	public boolean keyDown(int k) {
+    	// Check the escape key first (we always need escape)
+        if (k == Keys.ESCAPE) {
+        	GameInput.setKey(GameInput.KEY_ESC, true);
+        	if (disable_keys) return true;
+        }
+        // Check is keys are disabled
+    	if (disable_keys) return false;
     	// Game keys
     	if (k == Keys.UP) GameInput.setKey(GameInput.KEY_ACCEL, true);
     	if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_BRAKE, true);
@@ -31,7 +44,6 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.RIGHT) GameInput.setKey(GameInput.KEY_RIGHT, true);
         if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_SPACE, true);
         if (k == Keys.ENTER) GameInput.setKey(GameInput.KEY_ENTER, true);
-        if (k == Keys.ESCAPE) GameInput.setKey(GameInput.KEY_ESC, true);
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, true);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, true);
         if (k == Keys.Z) GameInput.setKey(GameInput.KEY_Z, true);
@@ -52,6 +64,12 @@ public class GameInputProcessor extends InputMultiplexer {
     }
 
     public boolean keyUp(int k) {
+    	// Check the escape key first (we always need escape)
+        if (k == Keys.ESCAPE) {
+        	GameInput.setKey(GameInput.KEY_ESC, false);
+        	if (disable_keys) return true;
+        }
+    	if (disable_keys) return false;
     	// Game keys
     	if (k == Keys.UP) GameInput.setKey(GameInput.KEY_ACCEL, false);
     	if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_BRAKE, false);
@@ -67,7 +85,6 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.RIGHT) GameInput.setKey(GameInput.KEY_RIGHT, false);
         if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_SPACE, false);
         if (k == Keys.ENTER) GameInput.setKey(GameInput.KEY_ENTER, false);
-        if (k == Keys.ESCAPE) GameInput.setKey(GameInput.KEY_ESC, false);
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, false);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, false);
         if (k == Keys.Z) GameInput.setKey(GameInput.KEY_Z, false);
