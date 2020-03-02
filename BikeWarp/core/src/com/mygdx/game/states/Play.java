@@ -95,6 +95,7 @@ public class Play extends GameState {
     private String editorString = null;
     private int levelID, mode;
     private boolean isReplay = false;
+    private int replayCntr;
     private int mVelocityIter = 8;
     private int mPositionIter = 3;
 
@@ -229,6 +230,7 @@ public class Play extends GameState {
     
     public void create() {
     	forcequit = false;
+    	replayCntr = 0;
         // Set the contact listener
         cl = new GameContactListener();
 
@@ -373,19 +375,16 @@ public class Play extends GameState {
     	lrIsDown = false;
     }
 
-    public void handleReplays(float dt) {
-//    	int repTimer = (int) (TimeUtils.millis() - 0.5f*dt) - timerStart; // -0.5dt to account for rounding
-    	int repTimer = (int) (TimeUtils.millis()) - timerStart; // -0.5dt to account for rounding
+    public void handleReplays() {
     	// Check the key presses
-    	ReplayVars.Check(repTimer);
+    	ReplayVars.Check(replayCntr);
     }
     
     public void handleInput() {
-    	int repTimer = (int) (TimeUtils.millis()) - timerStart;
     	// ESC is pressed
         if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	forcequit = true;
-        	ReplayVars.replayKeyPressTime.add(repTimer);
+        	ReplayVars.replayKeyPressTime.add(replayCntr);
         	ReplayVars.replayKeyPress.add(GameInput.KEY_ESC);
         }
         // Accelerate
@@ -394,7 +393,7 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.accelDown == false) & (!isReplay)) {
         		ReplayVars.replayAccel.add(1);
-        		ReplayVars.replayAccelTime.add(repTimer);
+        		ReplayVars.replayAccelTime.add(replayCntr);
         		ReplayVars.accelDown = true;
         	}
         }
@@ -403,7 +402,7 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.accelDown == true) & (!isReplay)) {
         		ReplayVars.replayAccel.add(0);
-        		ReplayVars.replayAccelTime.add(repTimer);
+        		ReplayVars.replayAccelTime.add(replayCntr);
         		ReplayVars.accelDown = false;
         	}
         }
@@ -421,7 +420,7 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.brakeDown == false) & (!isReplay)) {
         		ReplayVars.replayBrake.add(1);
-        		ReplayVars.replayBrakeTime.add(repTimer);
+        		ReplayVars.replayBrakeTime.add(replayCntr);
         		ReplayVars.brakeDown = true;
         	}
         } else {
@@ -430,7 +429,7 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.brakeDown == true) & (!isReplay)) {
         		ReplayVars.replayBrake.add(0);
-        		ReplayVars.replayBrakeTime.add(repTimer);
+        		ReplayVars.replayBrakeTime.add(replayCntr);
         		ReplayVars.brakeDown = false;
         	}
         }
@@ -438,7 +437,7 @@ public class Play extends GameState {
         if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
         	switchBikeDirection();
         	if  (!isReplay) {
-            	ReplayVars.replayKeyPressTime.add(repTimer);
+            	ReplayVars.replayKeyPressTime.add(replayCntr);
             	ReplayVars.replayKeyPress.add(GameInput.KEY_CHDIR);
         	} else ReplayVars.UpdateKeyPress();
         }
@@ -455,7 +454,7 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.spinLDown == false) & (!isReplay)) {
         		ReplayVars.replaySpinL.add(1);
-        		ReplayVars.replaySpinLTime.add(repTimer);
+        		ReplayVars.replaySpinLTime.add(replayCntr);
         		ReplayVars.spinLDown = true;
         	}
         } else if (GameInput.isDown(GameInput.KEY_SPINR)) {
@@ -469,7 +468,7 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.spinRDown == false) & (!isReplay)) {
         		ReplayVars.replaySpinR.add(1);
-        		ReplayVars.replaySpinRTime.add(repTimer);
+        		ReplayVars.replaySpinRTime.add(replayCntr);
         		ReplayVars.spinRDown = true;
         	}
         } else {
@@ -477,12 +476,12 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.spinLDown == true) & (!isReplay)) {
         		ReplayVars.replaySpinL.add(0);
-        		ReplayVars.replaySpinLTime.add(repTimer);
+        		ReplayVars.replaySpinLTime.add(replayCntr);
         		ReplayVars.spinLDown = false;
         	}
         	if ((ReplayVars.spinRDown == true) & (!isReplay)) {
         		ReplayVars.replaySpinR.add(0);
-        		ReplayVars.replaySpinRTime.add(repTimer);
+        		ReplayVars.replaySpinRTime.add(replayCntr);
         		ReplayVars.spinRDown = false;
         	}
         }
@@ -491,7 +490,7 @@ public class Play extends GameState {
         	playerJump = 0;
         	applyJump = 0.0f;
         	if  (!isReplay) {
-	        	ReplayVars.replayKeyPressTime.add(repTimer);
+	        	ReplayVars.replayKeyPressTime.add(replayCntr);
 	        	ReplayVars.replayKeyPress.add(GameInput.KEY_BUNNY);
         	} else ReplayVars.UpdateKeyPress();
         } else if (GameInput.isDown(GameInput.KEY_NITROUS)) {
@@ -508,7 +507,7 @@ public class Play extends GameState {
             	// Replay actions
             	if ((ReplayVars.nitrousDown == false) & (!isReplay)) {
             		ReplayVars.replayNitrous.add(1);
-            		ReplayVars.replayNitrousTime.add(repTimer);
+            		ReplayVars.replayNitrousTime.add(replayCntr);
             		ReplayVars.nitrousDown = true;
             	}
         	}
@@ -517,7 +516,7 @@ public class Play extends GameState {
         	// Replay actions
         	if ((ReplayVars.nitrousDown == true) & (!isReplay)) {
         		ReplayVars.replayNitrous.add(0);
-        		ReplayVars.replayNitrousTime.add(repTimer);
+        		ReplayVars.replayNitrousTime.add(replayCntr);
         		ReplayVars.nitrousDown = false;
         	}
         }
@@ -541,10 +540,11 @@ public class Play extends GameState {
                break;
               
            case RUNNING:
-        	   handleReplays(dt);
+        	   handleReplays();
         	   handleInput();
+        	   replayCntr += 1;
         	   mWorld.step(dt, mVelocityIter, mPositionIter);
-	       	   	if (cl.isFinished()) {
+	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
 	     	   			// Check the records
@@ -575,7 +575,7 @@ public class Play extends GameState {
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
-	     	   	} else if ((cl.isPlayerDead()) | (forcequit)) {
+	     	   } else if ((cl.isPlayerDead()) | (forcequit)) {
 	            	//Game.res.getSound("hit").play();
 //	     	   		gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
 //	     	   		System.out.println("NEED TO CORRECT THIS!!!");
@@ -590,7 +590,7 @@ public class Play extends GameState {
 //	     	   		}
 	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	            	break;
-	     	   	}
+	     	   }
         	   updateBike(dt);
         	   updateCollect();
         	   updateFallingBodies(dt);
@@ -1436,6 +1436,7 @@ public class Play extends GameState {
     @Override
     public void dispose() {
     	//ReplayVars.SaveReplay("replay.rpl");
+    	ReplayVars.RestartKeys();
     	GameInputProcessor.Disable(false);
     	if (mBatch != null) mBatch.dispose();
     	if (mPolyBatch != null) mPolyBatch.dispose();

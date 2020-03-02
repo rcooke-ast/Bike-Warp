@@ -78,6 +78,7 @@ public class GameInput {
     
     public static void setCharacter(String character) { currChar = character; }
     public static void setKey(int i, boolean b) { keys[i] = b; }
+    public static void setpKey(int i, boolean b) { pkeys[i] = b; }
     public static boolean isDown(int i) { return keys[i]; }
     public static boolean isPressed(int i) { return keys[i] && !pkeys[i]; }
     public static boolean isNumberPressed() {
