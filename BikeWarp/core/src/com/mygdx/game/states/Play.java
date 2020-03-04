@@ -9,6 +9,8 @@ package com.mygdx.game.states;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
@@ -63,6 +65,7 @@ import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.ObjectVars;
+import com.mygdx.game.handlers.ReplayRecord;
 import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.PolygonOperations;
 import com.gushikustudios.rube.PolySpatial;
@@ -94,10 +97,11 @@ public class Play extends GameState {
     private GameContactListener cl;
     private String editorString = null;
     private int levelID, mode;
-    private boolean isReplay = false;
-    private int replayCntr;
     private int mVelocityIter = 8;
     private int mPositionIter = 3;
+
+    // For replays
+    private ExecutorService executor;
 
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
@@ -215,25 +219,17 @@ public class Play extends GameState {
         editorString = editorScene;
         levelID = levID;
         mode = modeValue;
-        // Check if it's a replay
-        ReplayVars.Reset();
-        // NEED TO DELETE THESE TWO LINES
-        mode = 4;
-        ReplayVars.LoadReplay("replay.rpl");
-        ///////////////////////////////////
-        if ((mode == 3) | (mode==4)) {
-        	isReplay = false;
-        	GameInputProcessor.Disable(true);
-        } else isReplay = false;
         create();
     }
     
     public void create() {
     	forcequit = false;
-    	replayCntr = 0;
         // Set the contact listener
         cl = new GameContactListener();
 
+        // Set the replay
+        //executor = Executors.newFixedThreadPool(25);
+        
         // Set up box2d camera
         float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);
         float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
@@ -374,38 +370,15 @@ public class Play extends GameState {
     	playerJump = 100.0f;
     	lrIsDown = false;
     }
-
-    public void handleReplays() {
-    	// Check the key presses
-    	ReplayVars.Check(replayCntr);
-    }
     
     public void handleInput() {
     	// ESC is pressed
         if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	forcequit = true;
-        	ReplayVars.replayKeyPressTime.add(replayCntr);
-        	ReplayVars.replayKeyPress.add(GameInput.KEY_ESC);
         }
         // Accelerate
-        if (GameInput.isDown(GameInput.KEY_ACCEL)) {
-        	motorTorque = 10.0f;
-        	// Replay actions
-        	if ((ReplayVars.accelDown == false) & (!isReplay)) {
-        		ReplayVars.replayAccel.add(1);
-        		ReplayVars.replayAccelTime.add(replayCntr);
-        		ReplayVars.accelDown = true;
-        	}
-        }
-        else {
-        	motorTorque = 0.0f;
-        	// Replay actions
-        	if ((ReplayVars.accelDown == true) & (!isReplay)) {
-        		ReplayVars.replayAccel.add(0);
-        		ReplayVars.replayAccelTime.add(replayCntr);
-        		ReplayVars.accelDown = false;
-        	}
-        }
+        if (GameInput.isDown(GameInput.KEY_ACCEL)) motorTorque = 10.0f;
+        else motorTorque = 0.0f;
         // Brake
         if (GameInput.isDown(GameInput.KEY_BRAKE)) {
         	if (bikeDirc == 1.0f) {
@@ -417,29 +390,13 @@ public class Play extends GameState {
         		bikeBodyRW.setFixedRotation(true);
         		bikeBodyLW.setAngularVelocity(0.9f*bikeBodyLW.getAngularVelocity());
         	}
-        	// Replay actions
-        	if ((ReplayVars.brakeDown == false) & (!isReplay)) {
-        		ReplayVars.replayBrake.add(1);
-        		ReplayVars.replayBrakeTime.add(replayCntr);
-        		ReplayVars.brakeDown = true;
-        	}
         } else {
     		bikeBodyLW.setFixedRotation(false);        	
     		bikeBodyRW.setFixedRotation(false);        	
-        	// Replay actions
-        	if ((ReplayVars.brakeDown == true) & (!isReplay)) {
-        		ReplayVars.replayBrake.add(0);
-        		ReplayVars.replayBrakeTime.add(replayCntr);
-        		ReplayVars.brakeDown = false;
-        	}
         }
         // Change Direction
         if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
         	switchBikeDirection();
-        	if  (!isReplay) {
-            	ReplayVars.replayKeyPressTime.add(replayCntr);
-            	ReplayVars.replayKeyPress.add(GameInput.KEY_CHDIR);
-        	} else ReplayVars.UpdateKeyPress();
         }
         //playerTorque = 0.0f;
         float torqueVal = 180.0f;
@@ -451,12 +408,6 @@ public class Play extends GameState {
         		applyTorque = 0.0f;
         		if (cl.isBikeOnGround()) playerTorque *= 0.95f;
         	}
-        	// Replay actions
-        	if ((ReplayVars.spinLDown == false) & (!isReplay)) {
-        		ReplayVars.replaySpinL.add(1);
-        		ReplayVars.replaySpinLTime.add(replayCntr);
-        		ReplayVars.spinLDown = true;
-        	}
         } else if (GameInput.isDown(GameInput.KEY_SPINR)) {
         	lrIsDown = true;
         	if ((applyTorque<0.0f) & (applyJump<0.0f)) {
@@ -465,34 +416,11 @@ public class Play extends GameState {
         		applyTorque = 0.0f;
         		if (cl.isBikeOnGround()) playerTorque *= 0.95f;
         	}
-        	// Replay actions
-        	if ((ReplayVars.spinRDown == false) & (!isReplay)) {
-        		ReplayVars.replaySpinR.add(1);
-        		ReplayVars.replaySpinRTime.add(replayCntr);
-        		ReplayVars.spinRDown = true;
-        	}
-        } else {
-        	lrIsDown = false;
-        	// Replay actions
-        	if ((ReplayVars.spinLDown == true) & (!isReplay)) {
-        		ReplayVars.replaySpinL.add(0);
-        		ReplayVars.replaySpinLTime.add(replayCntr);
-        		ReplayVars.spinLDown = false;
-        	}
-        	if ((ReplayVars.spinRDown == true) & (!isReplay)) {
-        		ReplayVars.replaySpinR.add(0);
-        		ReplayVars.replaySpinRTime.add(replayCntr);
-        		ReplayVars.spinRDown = false;
-        	}
-        }
+        } else lrIsDown = false;
         // Tricks
         if ((GameInput.isPressed(GameInput.KEY_BUNNY)) & (cl.isBikeOnGround()) & (applyJump<0.0f) & (applyTorque<0.0f)) {
         	playerJump = 0;
         	applyJump = 0.0f;
-        	if  (!isReplay) {
-	        	ReplayVars.replayKeyPressTime.add(replayCntr);
-	        	ReplayVars.replayKeyPress.add(GameInput.KEY_BUNNY);
-        	} else ReplayVars.UpdateKeyPress();
         } else if (GameInput.isDown(GameInput.KEY_NITROUS)) {
         	if ((collectNitrous > 0) | (nitrousLevel > 0.0f)) {
         		applyNitrous = 1;
@@ -504,21 +432,9 @@ public class Play extends GameState {
         			nitrousLevel = 0.0f;
         			collectNitrous -= 1;
         		}
-            	// Replay actions
-            	if ((ReplayVars.nitrousDown == false) & (!isReplay)) {
-            		ReplayVars.replayNitrous.add(1);
-            		ReplayVars.replayNitrousTime.add(replayCntr);
-            		ReplayVars.nitrousDown = true;
-            	}
         	}
         } else if (GameInput.isDown(GameInput.KEY_NITROUS)==false) {
         	applyNitrous = 0;
-        	// Replay actions
-        	if ((ReplayVars.nitrousDown == true) & (!isReplay)) {
-        		ReplayVars.replayNitrous.add(0);
-        		ReplayVars.replayNitrousTime.add(replayCntr);
-        		ReplayVars.nitrousDown = false;
-        	}
         }
         //if ((applyTorque<0.0f) & (applyJump<0.0f)) bikeAngle = bikeBodyC.getAngle();
 
@@ -540,9 +456,10 @@ public class Play extends GameState {
                break;
               
            case RUNNING:
-        	   handleReplays();
+        	   //ReplayRecord worker = new ReplayRecord();
+        	   //worker.prepare();			// grab screenshot
+        	   //executor.execute(worker);	// delayed save in other thread
         	   handleInput();
-        	   replayCntr += 1;
         	   mWorld.step(dt, mVelocityIter, mPositionIter);
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
@@ -588,6 +505,7 @@ public class Play extends GameState {
 //	     	   			bikeBodyC.setTransform(bikeBodyCpos, bikeBodyCang);
 //	     	   			mState=GAME_STATE.LOADING;
 //	     	   		}
+	     		   	//ReplayRecord.convertToPNG();
 	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	            	break;
 	     	   }
