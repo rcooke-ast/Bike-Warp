@@ -43,7 +43,7 @@ public class LevelSelectTraining extends GameState {
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
-        totalLevels = LevelsListTraining.trainingLevelNames.length;
+        totalLevels = LevelsListTraining.NUMTRAINLEVELS;
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         float scaleVal = 1.0f;
@@ -57,7 +57,7 @@ public class LevelSelectTraining extends GameState {
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuHeight = menuText.getBounds("My").height;
         numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
-        if (numLevShow > totalLevels) numLevShow = totalLevels;
+        if (numLevShow > totalLevels+1) numLevShow = totalLevels;
         // Load the background metal grid
         metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
         float ratio = 4.0f;
@@ -76,10 +76,10 @@ public class LevelSelectTraining extends GameState {
     public void handleInput() {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
-    		if (currentOption < 0) currentOption = totalLevels-1;
+    		if (currentOption < 0) currentOption = totalLevels;
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
-    		if (currentOption >= totalLevels) currentOption = 0;
+    		if (currentOption >= totalLevels+1) currentOption = 0;
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
@@ -95,7 +95,7 @@ public class LevelSelectTraining extends GameState {
     	//if (currentOption == 1) currentLevelTxt = "";
     	if ((currentOption>numLevShow/2) & (currentOption<totalLevels-numLevShow/2)) numMin = currentOption-numLevShow/2;
     	else if (currentOption<=numLevShow/2) numMin = 0;
-    	else if (currentOption>=totalLevels-numLevShow/2) numMin = totalLevels-numLevShow;
+    	else if (currentOption>=totalLevels-numLevShow/2) numMin = totalLevels+1-numLevShow;
     }
     
     public void update(float dt) {
