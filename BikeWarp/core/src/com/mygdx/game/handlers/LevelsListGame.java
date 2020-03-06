@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 28; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 32; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -26,28 +26,28 @@ public class LevelsListGame {
     	gameLevelFiles[1] = "data/gamelevels/startengine.lvl";
     	gameLevelDescr[1] = "Display records";
     	// Level 2
-    	gameLevelNames[2] = "2. Whoops";
-    	gameLevelFiles[2] = "data/gamelevels/whoops.lvl";
+    	gameLevelNames[2] = "2. Hang tight!";
+    	gameLevelFiles[2] = "data/gamelevels/hangtight.lvl";
     	gameLevelDescr[2] = "Display records";
     	// Level 3
-    	gameLevelNames[3] = "3. Suspension";
-    	gameLevelFiles[3] = "data/gamelevels/suspension.lvl";
+    	gameLevelNames[3] = "3. Whoops";
+    	gameLevelFiles[3] = "data/gamelevels/whoops.lvl";
     	gameLevelDescr[3] = "Display records";
     	// Level 4
-    	gameLevelNames[4] = "4. Skyjumper";
-    	gameLevelFiles[4] = "data/gamelevels/skyjumper.lvl";
+    	gameLevelNames[4] = "4. Suspension";
+    	gameLevelFiles[4] = "data/gamelevels/suspension.lvl";
     	gameLevelDescr[4] = "Display records";
     	// Level 5
-    	gameLevelNames[5] = "5. Steve 1";
-    	gameLevelFiles[5] = "data/gamelevels/steve01.lvl";
+    	gameLevelNames[5] = "5. Skyjumper";
+    	gameLevelFiles[5] = "data/gamelevels/skyjumper.lvl";
     	gameLevelDescr[5] = "Display records";
     	// Level 6
-    	gameLevelNames[6] = "6. Steve 2";
-    	gameLevelFiles[6] = "data/gamelevels/steve02.lvl";
+    	gameLevelNames[6] = "6. Steve";
+    	gameLevelFiles[6] = "data/gamelevels/steve01.lvl";
     	gameLevelDescr[6] = "Display records";
     	// Level 7
-    	gameLevelNames[7] = "7. Boulder Dash";
-    	gameLevelFiles[7] = "data/gamelevels/boulderdash.lvl";
+    	gameLevelNames[7] = "7. Spikey";
+    	gameLevelFiles[7] = "data/gamelevels/spikey.lvl";
     	gameLevelDescr[7] = "Display records";
     	// Level 8
     	gameLevelNames[8] = "8. Boxed In";
@@ -90,15 +90,15 @@ public class LevelsListGame {
     	gameLevelFiles[17] = "data/gamelevels/xmarks.lvl";
     	gameLevelDescr[17] = "Display records";
     	// Level 18
-    	gameLevelNames[18] = "18. X-port";
-    	gameLevelFiles[18] = "data/gamelevels/xport.lvl";
+    	gameLevelNames[18] = "18. Fine tooth comb";
+    	gameLevelFiles[18] = "data/gamelevels/steve02.lvl";
     	gameLevelDescr[18] = "Display records";
     	// Level 19
-    	gameLevelNames[19] = "19. Underground";
+    	gameLevelNames[19] = "19. Underground (Part 1)";
     	gameLevelFiles[19] = "data/gamelevels/underground.lvl";
     	gameLevelDescr[19] = "Display records";
     	// Level 20
-    	gameLevelNames[20] = "20. Underground 2";
+    	gameLevelNames[20] = "20. Underground (Part 2)";
     	gameLevelFiles[20] = "data/gamelevels/undergroun2.lvl";
     	gameLevelDescr[20] = "Display records";
     	// Level 21
@@ -133,6 +133,22 @@ public class LevelsListGame {
     	gameLevelNames[28] = "28. Jigsaw";
     	gameLevelFiles[28] = "data/gamelevels/jigsaw.lvl";
     	gameLevelDescr[28] = "Display records";
+    	// Level 29
+    	gameLevelNames[29] = "29. Boulder Dash";
+    	gameLevelFiles[29] = "data/gamelevels/boulderdash.lvl";
+    	gameLevelDescr[29] = "Display records";
+    	// Level 30
+    	gameLevelNames[30] = "30. X-port";
+    	gameLevelFiles[30] = "data/gamelevels/xport.lvl";
+    	gameLevelDescr[30] = "Display records";
+    	// Level 31
+    	gameLevelNames[31] = "31. Trip Trap";
+    	gameLevelFiles[31] = "data/gamelevels/triptrap.lvl";
+    	gameLevelDescr[31] = "Display records";
+    	// Level 32
+    	gameLevelNames[32] = "32. Move!";
+    	gameLevelFiles[32] = "data/gamelevels/move.lvl";
+    	gameLevelDescr[32] = "Display records";
     }
 
     public static String getLevelFile(int i) { return gameLevelFiles[i]; }

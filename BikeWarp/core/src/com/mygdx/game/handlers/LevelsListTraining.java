@@ -10,10 +10,11 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListTraining {
-	public static final int NUMTRAINLEVELS = 11;
-    public static String[] trainingLevelNames = new String[NUMTRAINLEVELS];
-    public static String[] trainingLevelDescr = new String[NUMTRAINLEVELS];
-    public static String[] trainingLevelFiles = new String[NUMTRAINLEVELS];
+	public static final int NUMTRAINLEVELS = 12
+			;
+    public static String[] trainingLevelNames = new String[NUMTRAINLEVELS+1];
+    public static String[] trainingLevelDescr = new String[NUMTRAINLEVELS+1];
+    public static String[] trainingLevelFiles = new String[NUMTRAINLEVELS+1];
 
     // Set the training levels
     static {
@@ -54,13 +55,21 @@ public class LevelsListTraining {
     	trainingLevelFiles[8] = "data/gamelevels/train08.lvl";
     	trainingLevelDescr[8] = "Platforms with a (!) road sign will fall 5 seconds after you first touch them.";
     	// Level 9
-    	trainingLevelNames[9] = "9. Obstacles";
+    	trainingLevelNames[9] = "9. Tricks";
     	trainingLevelFiles[9] = "data/gamelevels/train09.lvl";
-    	trainingLevelDescr[9] = "Look out for obstacles.";
+    	trainingLevelDescr[9] = "The rider can do some basic tricks, like bunny hop. Use this trick to get a little more air, or jump over obstacles.";
     	// Level 10
-    	trainingLevelNames[10] = "10. The Diamond";
+    	trainingLevelNames[10] = "10. Nitrous";
     	trainingLevelFiles[10] = "data/gamelevels/train10.lvl";
-    	trainingLevelDescr[10] = "Every level contains a diamond jewel that is hard to find and difficult to collect. If you collect a diamond jewel, you will not need to collect any more golden jewels, just go straight to the exit warp. To successfully collect the diamond jewel in each level, you must finish by exiting through the warp. Try to find the diamonds in all of these training levels.";
+    	trainingLevelDescr[10] = "Collect some nitrous, and use it for an extreme boost in speed by holding down the 'nitrous' key. It slowly runs out, so use it sparingly!";
+    	// Level 11
+    	trainingLevelNames[11] = "11. Obstacles";
+    	trainingLevelFiles[11] = "data/gamelevels/train11.lvl";
+    	trainingLevelDescr[11] = "Look out for obstacles!";
+    	// Level 12
+    	trainingLevelNames[12] = "12. The Diamond";
+    	trainingLevelFiles[12] = "data/gamelevels/train12.lvl";
+    	trainingLevelDescr[12] = "Every level contains a diamond jewel that is hard to find and difficult to collect. If you collect a diamond jewel, you will not need to collect any more golden jewels, just go straight to the exit warp. To successfully collect the diamond jewel in each level, you must finish by exiting through the warp. Try to find the diamonds in all of these training levels.";
     }
 
     public static String getLevelFile(int i) { return trainingLevelFiles[i]; }
