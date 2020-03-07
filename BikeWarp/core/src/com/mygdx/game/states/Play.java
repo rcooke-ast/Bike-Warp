@@ -65,8 +65,8 @@ import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.ObjectVars;
-import com.mygdx.game.handlers.ReplayRecord;
-import com.mygdx.game.handlers.ReplayVars;
+//import com.mygdx.game.handlers.ReplayRecord;
+//import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.PolygonOperations;
 import com.gushikustudios.rube.PolySpatial;
 import com.gushikustudios.rube.RubeScene;
@@ -1354,7 +1354,7 @@ public class Play extends GameState {
     @Override
     public void dispose() {
     	//ReplayVars.SaveReplay("replay.rpl");
-    	ReplayVars.RestartKeys();
+    	//ReplayVars.RestartKeys();
     	GameInputProcessor.Disable(false);
     	if (mBatch != null) mBatch.dispose();
     	if (mPolyBatch != null) mPolyBatch.dispose();
