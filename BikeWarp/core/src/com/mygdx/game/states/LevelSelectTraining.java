@@ -33,7 +33,7 @@ public class LevelSelectTraining extends GameState {
     private float uRight, vTop, sheight;
     private float menuHeight, menuWidth, lvlWidth;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f;
-    private int currentOption, numMin, numLevShow, totalLevels;
+    private int currentOption, numMin, numLevShow, totalItems;
 
     public LevelSelectTraining(GameStateManager gsm) {
         super(gsm);
@@ -43,13 +43,13 @@ public class LevelSelectTraining extends GameState {
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
-        totalLevels = LevelsListTraining.NUMTRAINLEVELS;
+        totalItems = LevelsListTraining.NUMTRAINLEVELS+1;
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         float scaleVal = 1.0f;
         menuText.setScale(scaleVal);
         menuWidth = menuText.getBounds(LevelsListTraining.trainingLevelNames[0]).width;
-        for (int i=1; i<totalLevels; i++) {
+        for (int i=1; i<totalItems; i++) {
         	if (menuText.getBounds(LevelsListTraining.trainingLevelNames[i]).width > menuWidth) menuWidth = menuText.getBounds(LevelsListTraining.trainingLevelNames[i]).width;
         }
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
@@ -57,7 +57,7 @@ public class LevelSelectTraining extends GameState {
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuHeight = menuText.getBounds("My").height;
         numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
-        if (numLevShow > totalLevels+1) numLevShow = totalLevels;
+        if (numLevShow > totalItems) numLevShow = totalItems;
         // Load the background metal grid
         metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
         float ratio = 4.0f;
@@ -76,10 +76,10 @@ public class LevelSelectTraining extends GameState {
     public void handleInput() {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
-    		if (currentOption < 0) currentOption = totalLevels;
+    		if (currentOption < 0) currentOption = totalItems-1;
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
-    		if (currentOption >= totalLevels+1) currentOption = 0;
+    		if (currentOption >= totalItems) currentOption = 0;
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
@@ -93,9 +93,9 @@ public class LevelSelectTraining extends GameState {
     		gsm.setState(GameStateManager.PEEK, false, "none", currentOption-1, 1);
         }
     	//if (currentOption == 1) currentLevelTxt = "";
-    	if ((currentOption>numLevShow/2) & (currentOption<totalLevels-numLevShow/2)) numMin = currentOption-numLevShow/2;
+    	if ((currentOption>numLevShow/2) & (currentOption<totalItems-numLevShow/2)) numMin = currentOption-numLevShow/2;
     	else if (currentOption<=numLevShow/2) numMin = 0;
-    	else if (currentOption>=totalLevels-numLevShow/2) numMin = totalLevels+1-numLevShow;
+    	else if (currentOption>=totalItems-numLevShow/2) numMin = totalItems-numLevShow;
     }
     
     public void update(float dt) {
