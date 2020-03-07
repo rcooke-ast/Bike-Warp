@@ -62,6 +62,7 @@ public class GameInput {
     public static boolean MBRELEASE = false;
     public static boolean MBDRAG = false;
     public static boolean MBJUSTPRESSED = false;
+    public static boolean MBJUSTDRAGGED = false;
     public static int SCROLL = 0;
     public static String currChar = "";
     
