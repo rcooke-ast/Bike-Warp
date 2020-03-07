@@ -115,7 +115,6 @@ public class MainMenu extends GameState {
         		goToLevel = GameStateManager.MENUTRAINING;
         	} else if (tstName=="Single Player") {
         		goToLevel = GameStateManager.MENULEVELS;
-        	} else if (tstName=="Multiplayer") {
         	} else if (tstName=="World Records") {
         		goToLevel = GameStateManager.MENURECORDS;
         	} else if (tstName=="Watch Replays") {
