@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 32; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 33; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -149,6 +149,10 @@ public class LevelsListGame {
     	gameLevelNames[32] = "32. Move!";
     	gameLevelFiles[32] = "data/gamelevels/move.lvl";
     	gameLevelDescr[32] = "Display records";
+    	// Level 33
+    	gameLevelNames[33] = "33. Earthquake";
+    	gameLevelFiles[33] = "data/gamelevels/earthquake.lvl";
+    	gameLevelDescr[33] = "Display records";
     }
 
     public static String getLevelFile(int i) { return gameLevelFiles[i]; }
