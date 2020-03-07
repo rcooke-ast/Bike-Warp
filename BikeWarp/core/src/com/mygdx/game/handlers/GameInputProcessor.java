@@ -130,6 +130,7 @@ public class GameInputProcessor extends InputMultiplexer {
     	GameInput.MBRELEASE = true;
     	GameInput.MBDRAG = false;
     	GameInput.MBJUSTPRESSED = true;
+    	GameInput.MBJUSTDRAGGED = true;
     	return true;
     }
 

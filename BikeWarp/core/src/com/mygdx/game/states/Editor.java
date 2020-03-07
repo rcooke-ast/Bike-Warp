@@ -149,6 +149,8 @@ public class Editor extends GameState {
 	private float[] shapeDraw = null;  // Store the vertices of the new shape
 	private float tempx, tempy; // new vertex to be tested
 	private static final float polyEndThreshold = 0.01f;
+	private ArrayList<Integer> groupPolySelect;
+	private ArrayList<float[]> updateGroupPoly = new ArrayList<float[]>();
 	private int polySelect = -1, vertSelect = -1, segmSelect = -1;
 	private int polyHover = -1, vertHover = -1, segmHover = -1;
 	private int objectSelect = -1, decorSelect = -1, finishObjNumber;
@@ -810,6 +812,7 @@ public class Editor extends GameState {
     	newCoord = new float[2];
     	drawingPoly = false;  // Is a polygon currently being drawn
     	shapeDraw = null;  // Store the vertices of the new shape
+    	groupPolySelect = new ArrayList<Integer>();
     	polySelect = -1;
     	vertSelect = -1;
     	segmSelect = -1;
@@ -976,6 +979,7 @@ public class Editor extends GameState {
         	} catch (Exception e) {}        	
         }
         GameInput.MBJUSTPRESSED = false;
+        GameInput.MBJUSTDRAGGED = false;
 //        if (GameInput.isPressed(GameInput.BUTTON2)) {
 //        	cam.translate(-10,-5,0);
 //        	System.out.println("BUTTON2 pressed");
@@ -1474,6 +1478,14 @@ public class Editor extends GameState {
         				}
         			}
         		}
+        	}
+        }
+        // Draw the updated group polygons
+        if (updateGroupPoly.size() != 0) {
+        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+        	for (int i = 0; i<updateGroupPoly.size()-1; i++){
+        			if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 0) shapeRenderer.polygon(updateGroupPoly.get(i));
+        			else if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 1) shapeRenderer.circle(updateGroupPoly.get(i)[0], updateGroupPoly.get(i)[1], updateGroupPoly.get(i)[2]);        			
         	}
         }
         // Draw the updated polygon
@@ -2993,6 +3005,44 @@ public class Editor extends GameState {
 		    		if (doX) updatePoly[0] += (endX-startX);
 		    		if (doY) updatePoly[1] += (endY-startY);
 		    	}
+			} else if ((GameInput.MBJUSTDRAGGED==true) & (groupPolySelect.size() == 0)) {
+				GroupSelectPolygons();
+				if (groupPolySelect.size() == 0) {
+					warnMessage[warnNumber] = "No polygons inside selection box";
+					warnElapse[warnNumber] = 0.0f;
+					warnType[warnNumber] = 2;
+					warnNumber += 1;
+				} else {
+   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				}
+			} else if ((GameInput.MBJUSTDRAGGED==true) & (groupPolySelect.size() != 0) & (updatePoly!=null)) {
+				if ((startX==endX)&(startY==endY)) {
+					warnMessage[warnNumber] = "Cannot paste platform exactly on top of the copy";
+					warnElapse[warnNumber] = 0.0f;
+					warnType[warnNumber] = 2;
+					warnNumber += 1;
+				} else {
+					// UP TO HERE 1/2!!!
+					CopyGroupPolygon(updateGroupPoly.clone(), groupPolySelect);
+				}
+				groupPolySelect = new ArrayList<Integer>();
+				updateGroupPoly = null;
+			} else if (groupPolySelect.size() != 0) {
+    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			
+    			// UP TO HERE 2/2!!!
+//				updateGroupPoly = allPolygons.get(polySelect).clone();
+//		    	if (allPolygonTypes.get(polySelect)%2 == 0) {
+//		    		for (int i = 0; i<allPolygons.get(polySelect).length; i++){
+//		    			if ((i%2==0)&(doX)) updatePoly[i] += (endX-startX);
+//		    			else if ((i%2==1)&(doY)) updatePoly[i] += (endY-startY);
+//		    		}
+//		    	} else if (allPolygonTypes.get(polySelect)%2 == 1) {
+//		    		if (doX) updatePoly[0] += (endX-startX);
+//		    		if (doY) updatePoly[1] += (endY-startY);
+//		    	}
 			}
 		} else if (modeParent.equals("Object")) {
 			float shiftX = 0.0f;
@@ -4000,6 +4050,27 @@ public class Editor extends GameState {
     		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*scale;
     	}
 	}
+
+    public void GroupSelectPolygons() {
+    	float x1, x2, y1, y2;
+    	float[] meanxy = new float[2];
+    	x1 = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    	y1 = cam.position.x + cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    	x2 = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    	y2 = cam.position.x + cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+		for (int i = 0; i<allPolygons.size(); i++){
+			if (allPolygonTypes.get(i)%2 == 0) {
+				meanxy = PolygonOperations.MeanXY(allPolygons.get(i).clone());
+			} else if (allPolygonTypes.get(i)%2 == 1) {
+				meanxy[0] = allPolygons.get(i)[0];
+				meanxy[1] = allPolygons.get(i)[1];
+			}
+			if ((x1 < meanxy[0]) & (x2 > meanxy[0]) & (y1 > meanxy[1]) & (y2 > meanxy[1])) {
+				// Poly is inside selection
+				groupPolySelect.add(i);
+			}				
+		}
+    }
 
 	public void SelectPolygon(String downup) {
 		if (downup.equals("down")) {
