@@ -120,6 +120,7 @@ public class GameInputProcessor extends InputMultiplexer {
     	GameInput.MBDOWNX = screenX;
     	GameInput.MBDOWNY = screenY;
     	GameInput.MBISDOWN = true;
+    	GameInput.MBRELEASE = false;
     	return true;
     }
 
@@ -128,9 +129,9 @@ public class GameInputProcessor extends InputMultiplexer {
     	GameInput.MBUPY = screenY;
     	GameInput.MBISDOWN = false;
     	GameInput.MBRELEASE = true;
+    	if (GameInput.MBDRAG) GameInput.MBJUSTDRAGGED = true;
+    	else GameInput.MBJUSTPRESSED = true;
     	GameInput.MBDRAG = false;
-    	GameInput.MBJUSTPRESSED = true;
-    	GameInput.MBJUSTDRAGGED = true;
     	return true;
     }
 

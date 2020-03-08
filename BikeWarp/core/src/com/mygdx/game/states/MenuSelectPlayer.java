@@ -10,6 +10,7 @@ import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
+import com.mygdx.game.handlers.LevelsListGame;
 
 public class MenuSelectPlayer extends GameState {
     private int currentOption, numPlyrShow, numMin, numOptions;
@@ -122,6 +123,7 @@ public class MenuSelectPlayer extends GameState {
         } else if (fadeOut==0.0f) {
         	// Go to the main menu
     		fadeOut=-1.0f;
+    		LevelsListGame.initialise();
     		gsm.setState(GameStateManager.MAINMENU, false, "none", -1, 0);
         }
     	if ((currentOption>numPlyrShow/2) & (currentOption<numOptions-numPlyrShow/2)) numMin = currentOption-numPlyrShow/2;
