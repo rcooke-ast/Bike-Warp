@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 36; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 50; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -129,6 +129,48 @@ public class LevelsListGame {
     	// Level 36
     	gameLevelNames[36] = "36. Looper";
     	gameLevelFiles[36] = "data/gamelevels/looper.lvl";
+    	// Level 37
+    	gameLevelNames[37] = "37. Rock Diamond";
+    	gameLevelFiles[37] = "data/gamelevels/diamond.lvl";
+    	// Level 38
+    	gameLevelNames[38] = "38. ";
+    	gameLevelFiles[38] = "data/gamelevels/.lvl";
+    	// Level 39
+    	gameLevelNames[39] = "39. ";
+    	gameLevelFiles[39] = "data/gamelevels/.lvl";
+    	// Level 40
+    	gameLevelNames[40] = "40. ";
+    	gameLevelFiles[40] = "data/gamelevels/.lvl";
+    	// Level 41
+    	gameLevelNames[41] = "41. ";
+    	gameLevelFiles[41] = "data/gamelevels/.lvl";
+    	// Level 42
+    	gameLevelNames[42] = "42. ";
+    	gameLevelFiles[42] = "data/gamelevels/.lvl";
+    	// Level 43
+    	gameLevelNames[43] = "43. ";
+    	gameLevelFiles[43] = "data/gamelevels/.lvl";
+    	// Level 44
+    	gameLevelNames[44] = "44. ";
+    	gameLevelFiles[44] = "data/gamelevels/.lvl";
+    	// Level 45
+    	gameLevelNames[45] = "45. ";
+    	gameLevelFiles[45] = "data/gamelevels/.lvl";
+    	// Level 46
+    	gameLevelNames[46] = "46. ";
+    	gameLevelFiles[46] = "data/gamelevels/.lvl";
+    	// Level 47
+    	gameLevelNames[47] = "47. ";
+    	gameLevelFiles[47] = "data/gamelevels/.lvl";
+    	// Level 48
+    	gameLevelNames[48] = "48. ";
+    	gameLevelFiles[48] = "data/gamelevels/.lvl";
+    	// Level 49
+    	gameLevelNames[49] = "49. ";
+    	gameLevelFiles[49] = "data/gamelevels/.lvl";
+    	// Level 50
+    	gameLevelNames[50] = "50. Finale";
+    	gameLevelFiles[50] = "data/gamelevels/finale.lvl";
 
     	// Finally, initialise the records strings
     	updateRecords();
