@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 35; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 36; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -31,32 +31,32 @@ public class LevelsListGame {
     	gameLevelNames[3] = "3. Whoops";
     	gameLevelFiles[3] = "data/gamelevels/whoops.lvl";
     	// Level 4
-    	gameLevelNames[4] = "4. Suspension";
-    	gameLevelFiles[4] = "data/gamelevels/suspension.lvl";
+    	gameLevelNames[4] = "4. Up and Over";
+    	gameLevelFiles[4] = "data/gamelevels/upandover.lvl";
     	// Level 5
-    	gameLevelNames[5] = "5. Skyjumper";
-    	gameLevelFiles[5] = "data/gamelevels/skyjumper.lvl";
+    	gameLevelNames[5] = "5. Suspension";
+    	gameLevelFiles[5] = "data/gamelevels/suspension.lvl";
     	// Level 6
-    	gameLevelNames[6] = "6. Steve";
-    	gameLevelFiles[6] = "data/gamelevels/steve01.lvl";
+    	gameLevelNames[6] = "6. Skyjumper";
+    	gameLevelFiles[6] = "data/gamelevels/skyjumper.lvl";
     	// Level 7
-    	gameLevelNames[7] = "7. Spikey";
-    	gameLevelFiles[7] = "data/gamelevels/spikey.lvl";
+    	gameLevelNames[7] = "7. Steve";
+    	gameLevelFiles[7] = "data/gamelevels/steve01.lvl";
     	// Level 8
-    	gameLevelNames[8] = "8. Boxed In";
-    	gameLevelFiles[8] = "data/gamelevels/boxedin.lvl";
+    	gameLevelNames[8] = "8. Spikey";
+    	gameLevelFiles[8] = "data/gamelevels/spikey.lvl";
     	// Level 9
-    	gameLevelNames[9] = "9. Looper";
-    	gameLevelFiles[9] = "data/gamelevels/looper.lvl";
+    	gameLevelNames[9] = "9. Boxed In";
+    	gameLevelFiles[9] = "data/gamelevels/boxedin.lvl";
     	// Level 10
-    	gameLevelNames[10] = "10. Downhill Slalom (Part 1)";
-    	gameLevelFiles[10] = "data/gamelevels/downhillslalom1.lvl";
+    	gameLevelNames[10] = "10. Bumpy Battle";
+    	gameLevelFiles[10] = "data/gamelevels/bumpybattle.lvl";
     	// Level 11
-    	gameLevelNames[11] = "11. Downhill Slalom (Part 2)";
-    	gameLevelFiles[11] = "data/gamelevels/downhillslalom2.lvl";
+    	gameLevelNames[11] = "11. Downhill Slalom (Part 1)";
+    	gameLevelFiles[11] = "data/gamelevels/downhillslalom1.lvl";
     	// Level 12
-    	gameLevelNames[12] = "12. Bumpy Battle";
-    	gameLevelFiles[12] = "data/gamelevels/bumpybattle.lvl";
+    	gameLevelNames[12] = "12. Downhill Slalom (Part 2)";
+    	gameLevelFiles[12] = "data/gamelevels/downhillslalom2.lvl";
     	// Level 13
     	gameLevelNames[13] = "13. Halfpipe";
     	gameLevelFiles[13] = "data/gamelevels/halfpipe.lvl";
@@ -112,7 +112,7 @@ public class LevelsListGame {
     	gameLevelNames[30] = "30. X-port";
     	gameLevelFiles[30] = "data/gamelevels/xport.lvl";
     	// Level 31
-    	gameLevelNames[31] = "31. Trip Trap";
+    	gameLevelNames[31] = "31. Trip Trap, Trip Trap";
     	gameLevelFiles[31] = "data/gamelevels/triptrap.lvl";
     	// Level 32
     	gameLevelNames[32] = "32. Move!";
@@ -126,8 +126,10 @@ public class LevelsListGame {
     	// Level 35
     	gameLevelNames[35] = "35. Snakes and Ladders";
     	gameLevelFiles[35] = "data/gamelevels/snakeladder.lvl";
-    	
-    	gameLevelDescr[1] = (String) GetRecordTimes(1);
+    	// Level 36
+    	gameLevelNames[36] = "36. Looper";
+    	gameLevelFiles[36] = "data/gamelevels/looper.lvl";
+
     	// Finally, initialise the records strings
     	updateRecords();
     }
