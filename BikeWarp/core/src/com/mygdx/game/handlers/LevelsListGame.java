@@ -133,8 +133,8 @@ public class LevelsListGame {
     	gameLevelNames[37] = "37. Rock Diamond";
     	gameLevelFiles[37] = "data/gamelevels/diamond.lvl";
     	// Level 38
-    	gameLevelNames[38] = "38. ";
-    	gameLevelFiles[38] = "data/gamelevels/.lvl";
+    	gameLevelNames[38] = "38. Quantum Foam";
+    	gameLevelFiles[38] = "data/gamelevels/quantumfoam.lvl";
     	// Level 39
     	gameLevelNames[39] = "39. ";
     	gameLevelFiles[39] = "data/gamelevels/.lvl";
