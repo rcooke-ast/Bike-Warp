@@ -82,7 +82,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Door (blue)", "Door (green)", "Door (red)", "Gate Switch", "Gravity", "Jewel", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Transport", "Start", "Finish"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Gate Switch", "Gravity", "Jewel", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Transport", "Start", "Finish"};
 	private String[] decorateList = {"Grass",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
@@ -866,6 +866,10 @@ public class Editor extends GameState {
 		enteringFilename = false;
 		saveFName = null;
 		changesMade = false;
+		// Set the starting position of the camera
+		// Perform Zoom
+		cam.zoom = 0.1f/B2DVars.EPPM;
+		//cam.lookAt(1000.0f/B2DVars.EPPM, 1000.0f/B2DVars.EPPM, 0.0f);
     }
 
     public void RestoreLevelDefaults() {
@@ -2404,6 +2408,21 @@ public class Editor extends GameState {
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
+		} else if (modeParent.equals("Diamond")) {
+			if ((modeChild.equals("Put")) & (GameInput.MBJUSTPRESSED)) {
+				objectSelect = 2;
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				newPoly = ObjectVars.objectJewel.clone();
+				ShiftObject(tempx, tempy);
+				updatePoly = allObjects.set(objectSelect, newPoly.clone());
+				newCoord = new float[2];
+				newCoord[0] = tempx;
+				newCoord[1] = tempy;
+				newPoly = allObjectCoords.set(objectSelect, newCoord.clone());
+				updatePoly = null;
+				objectSelect = -1;
+			}
 		} else if ((modeParent.equals("Door (blue)")) | (modeParent.equals("Door (green)")) | (modeParent.equals("Door (red)")) | (modeParent.equals("Key (blue)")) | (modeParent.equals("Key (green)")) | (modeParent.equals("Key (red)"))){
 			if (modeParent.equals("Door (blue)")) ctype = ObjectVars.DoorBlue;
 			else if (modeParent.equals("Door (green)")) ctype = ObjectVars.DoorGreen;
@@ -3194,6 +3213,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Crate")) {
 					listChild.setItems(itemsADMR);
 					pObjectIndex = GetListIndex("Crate",objectList);
+				} else if (modeParent.equals("Diamond")) {
+					listChild.setItems("Put");
+					pObjectIndex = GetListIndex("Jewel",objectList);
 				} else if (modeParent.equals("Door (blue)")) {
 					listChild.setItems(itemsADMR);
 					pObjectIndex = GetListIndex("Door (blue)",objectList);

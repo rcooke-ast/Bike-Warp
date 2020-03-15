@@ -139,8 +139,8 @@ public class LevelsListGame {
     	gameLevelNames[39] = "39. Into Orbit";
     	gameLevelFiles[39] = "data/gamelevels/intoorbit.lvl";
     	// Level 40
-    	gameLevelNames[40] = "40. ";
-    	gameLevelFiles[40] = "data/gamelevels/.lvl";
+    	gameLevelNames[40] = "40. Maze";
+    	gameLevelFiles[40] = "data/gamelevels/maze.lvl";
     	// Level 41
     	gameLevelNames[41] = "41. ";
     	gameLevelFiles[41] = "data/gamelevels/.lvl";
