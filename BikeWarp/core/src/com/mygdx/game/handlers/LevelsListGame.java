@@ -64,8 +64,8 @@ public class LevelsListGame {
     	gameLevelNames[14] = "14. Levitate";
     	gameLevelFiles[14] = "data/gamelevels/levitate.lvl";
     	// Level 15
-    	gameLevelNames[15] = "15. Olympus Mons";
-    	gameLevelFiles[15] = "data/gamelevels/olympusmons.lvl";
+    	gameLevelNames[15] = "15. Curve ball";
+    	gameLevelFiles[15] = "data/gamelevels/curveball.lvl";
     	// Level 16
     	gameLevelNames[16] = "16. Spinner";
     	gameLevelFiles[16] = "data/gamelevels/spinner.lvl";
@@ -145,11 +145,11 @@ public class LevelsListGame {
     	gameLevelNames[41] = "41. Gold Digger";
     	gameLevelFiles[41] = "data/gamelevels/golddigger.lvl";
     	// Level 42
-    	gameLevelNames[42] = "42. ";
-    	gameLevelFiles[42] = "data/gamelevels/.lvl";
+    	gameLevelNames[42] = "42. Mine shaft";
+    	gameLevelFiles[42] = "data/gamelevels/mineshaft.lvl";
     	// Level 43
-    	gameLevelNames[43] = "43. ";
-    	gameLevelFiles[43] = "data/gamelevels/.lvl";
+    	gameLevelNames[43] = "43. Olympus Mons";
+    	gameLevelFiles[43] = "data/gamelevels/olympusmons.lvl";
     	// Level 44
     	gameLevelNames[44] = "44. ";
     	gameLevelFiles[44] = "data/gamelevels/.lvl";
