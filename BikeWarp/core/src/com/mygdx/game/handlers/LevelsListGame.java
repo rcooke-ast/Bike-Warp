@@ -106,8 +106,8 @@ public class LevelsListGame {
     	gameLevelNames[28] = "28. Jigsaw";
     	gameLevelFiles[28] = "data/gamelevels/jigsaw.lvl";
     	// Level 29
-    	gameLevelNames[29] = "29. Boulder Dash";
-    	gameLevelFiles[29] = "data/gamelevels/boulderdash.lvl";
+    	gameLevelNames[29] = "29. Olympus Mons";
+    	gameLevelFiles[29] = "data/gamelevels/olympusmons.lvl";
     	// Level 30
     	gameLevelNames[30] = "30. X-port";
     	gameLevelFiles[30] = "data/gamelevels/xport.lvl";
@@ -148,14 +148,14 @@ public class LevelsListGame {
     	gameLevelNames[42] = "42. Mine shaft";
     	gameLevelFiles[42] = "data/gamelevels/mineshaft.lvl";
     	// Level 43
-    	gameLevelNames[43] = "43. Olympus Mons";
-    	gameLevelFiles[43] = "data/gamelevels/olympusmons.lvl";
+    	gameLevelNames[43] = "43. Boulder Dash";
+    	gameLevelFiles[43] = "data/gamelevels/boulderdash.lvl";
     	// Level 44
     	gameLevelNames[44] = "44. The Great Escape";
     	gameLevelFiles[44] = "data/gamelevels/escape.lvl";
     	// Level 45
-    	gameLevelNames[45] = "45. ";
-    	gameLevelFiles[45] = "data/gamelevels/.lvl";
+    	gameLevelNames[45] = "45. The Martian";
+    	gameLevelFiles[45] = "data/gamelevels/themartian.lvl";
     	// Level 46
     	gameLevelNames[46] = "46. ";
     	gameLevelFiles[46] = "data/gamelevels/.lvl";
