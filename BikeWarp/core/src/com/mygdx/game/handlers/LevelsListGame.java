@@ -88,8 +88,8 @@ public class LevelsListGame {
     	gameLevelNames[22] = "22. Ball Pit";
     	gameLevelFiles[22] = "data/gamelevels/ballpit.lvl";
     	// Level 23
-    	gameLevelNames[23] = "23. Escape";
-    	gameLevelFiles[23] = "data/gamelevels/escape.lvl";
+    	gameLevelNames[23] = "23. Leap Frog";
+    	gameLevelFiles[23] = "data/gamelevels/leapfrog.lvl";
     	// Level 24
     	gameLevelNames[24] = "24. Upside Down";
     	gameLevelFiles[24] = "data/gamelevels/upsidedown.lvl";
@@ -151,8 +151,8 @@ public class LevelsListGame {
     	gameLevelNames[43] = "43. Olympus Mons";
     	gameLevelFiles[43] = "data/gamelevels/olympusmons.lvl";
     	// Level 44
-    	gameLevelNames[44] = "44. ";
-    	gameLevelFiles[44] = "data/gamelevels/.lvl";
+    	gameLevelNames[44] = "44. The Great Escape";
+    	gameLevelFiles[44] = "data/gamelevels/escape.lvl";
     	// Level 45
     	gameLevelNames[45] = "45. ";
     	gameLevelFiles[45] = "data/gamelevels/.lvl";
