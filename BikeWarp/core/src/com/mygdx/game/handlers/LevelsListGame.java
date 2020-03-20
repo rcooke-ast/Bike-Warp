@@ -157,8 +157,8 @@ public class LevelsListGame {
     	gameLevelNames[45] = "45. The Martian";
     	gameLevelFiles[45] = "data/gamelevels/themartian.lvl";
     	// Level 46
-    	gameLevelNames[46] = "46. ";
-    	gameLevelFiles[46] = "data/gamelevels/.lvl";
+    	gameLevelNames[46] = "46. Hoopla!";
+    	gameLevelFiles[46] = "data/gamelevels/hoopla.lvl";
     	// Level 47
     	gameLevelNames[47] = "47. ";
     	gameLevelFiles[47] = "data/gamelevels/.lvl";
