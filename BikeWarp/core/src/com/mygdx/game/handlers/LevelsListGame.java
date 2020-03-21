@@ -52,11 +52,11 @@ public class LevelsListGame {
     	gameLevelNames[10] = "10. Bumpy Battle";
     	gameLevelFiles[10] = "data/gamelevels/bumpybattle.lvl";
     	// Level 11
-    	gameLevelNames[11] = "11. Downhill Slalom (Part 1)";
-    	gameLevelFiles[11] = "data/gamelevels/downhillslalom1.lvl";
+    	gameLevelNames[11] = "11. Ice Slide";
+    	gameLevelFiles[11] = "data/gamelevels/iceslide.lvl";
     	// Level 12
-    	gameLevelNames[12] = "12. Downhill Slalom (Part 2)";
-    	gameLevelFiles[12] = "data/gamelevels/downhillslalom2.lvl";
+    	gameLevelNames[12] = "12. Lunatic";
+    	gameLevelFiles[12] = "data/gamelevels/lunatic.lvl";
     	// Level 13
     	gameLevelNames[13] = "13. Halfpipe";
     	gameLevelFiles[13] = "data/gamelevels/halfpipe.lvl";
@@ -64,8 +64,8 @@ public class LevelsListGame {
     	gameLevelNames[14] = "14. Levitate";
     	gameLevelFiles[14] = "data/gamelevels/levitate.lvl";
     	// Level 15
-    	gameLevelNames[15] = "15. Olympus Mons";
-    	gameLevelFiles[15] = "data/gamelevels/olympusmons.lvl";
+    	gameLevelNames[15] = "15. Curve ball";
+    	gameLevelFiles[15] = "data/gamelevels/curveball.lvl";
     	// Level 16
     	gameLevelNames[16] = "16. Spinner";
     	gameLevelFiles[16] = "data/gamelevels/spinner.lvl";
@@ -88,8 +88,8 @@ public class LevelsListGame {
     	gameLevelNames[22] = "22. Ball Pit";
     	gameLevelFiles[22] = "data/gamelevels/ballpit.lvl";
     	// Level 23
-    	gameLevelNames[23] = "23. Escape";
-    	gameLevelFiles[23] = "data/gamelevels/escape.lvl";
+    	gameLevelNames[23] = "23. Leap Frog";
+    	gameLevelFiles[23] = "data/gamelevels/leapfrog.lvl";
     	// Level 24
     	gameLevelNames[24] = "24. Upside Down";
     	gameLevelFiles[24] = "data/gamelevels/upsidedown.lvl";
@@ -106,8 +106,8 @@ public class LevelsListGame {
     	gameLevelNames[28] = "28. Jigsaw";
     	gameLevelFiles[28] = "data/gamelevels/jigsaw.lvl";
     	// Level 29
-    	gameLevelNames[29] = "29. Boulder Dash";
-    	gameLevelFiles[29] = "data/gamelevels/boulderdash.lvl";
+    	gameLevelNames[29] = "29. Olympus Mons";
+    	gameLevelFiles[29] = "data/gamelevels/olympusmons.lvl";
     	// Level 30
     	gameLevelNames[30] = "30. X-port";
     	gameLevelFiles[30] = "data/gamelevels/xport.lvl";
@@ -139,35 +139,35 @@ public class LevelsListGame {
     	gameLevelNames[39] = "39. Into Orbit";
     	gameLevelFiles[39] = "data/gamelevels/intoorbit.lvl";
     	// Level 40
-    	gameLevelNames[40] = "40. ";
-    	gameLevelFiles[40] = "data/gamelevels/.lvl";
+    	gameLevelNames[40] = "40. Portable Maze";
+    	gameLevelFiles[40] = "data/gamelevels/maze.lvl";
     	// Level 41
-    	gameLevelNames[41] = "41. ";
-    	gameLevelFiles[41] = "data/gamelevels/.lvl";
+    	gameLevelNames[41] = "41. Gold Digger";
+    	gameLevelFiles[41] = "data/gamelevels/golddigger.lvl";
     	// Level 42
-    	gameLevelNames[42] = "42. ";
-    	gameLevelFiles[42] = "data/gamelevels/.lvl";
+    	gameLevelNames[42] = "42. Mine shaft";
+    	gameLevelFiles[42] = "data/gamelevels/mineshaft.lvl";
     	// Level 43
-    	gameLevelNames[43] = "43. ";
-    	gameLevelFiles[43] = "data/gamelevels/.lvl";
+    	gameLevelNames[43] = "43. Boulder Dash";
+    	gameLevelFiles[43] = "data/gamelevels/boulderdash.lvl";
     	// Level 44
-    	gameLevelNames[44] = "44. ";
-    	gameLevelFiles[44] = "data/gamelevels/.lvl";
+    	gameLevelNames[44] = "44. The Great Escape";
+    	gameLevelFiles[44] = "data/gamelevels/escape.lvl";
     	// Level 45
-    	gameLevelNames[45] = "45. ";
-    	gameLevelFiles[45] = "data/gamelevels/.lvl";
+    	gameLevelNames[45] = "45. The Martian";
+    	gameLevelFiles[45] = "data/gamelevels/themartian.lvl";
     	// Level 46
-    	gameLevelNames[46] = "46. ";
-    	gameLevelFiles[46] = "data/gamelevels/.lvl";
+    	gameLevelNames[46] = "46. Hoopla!";
+    	gameLevelFiles[46] = "data/gamelevels/hoopla.lvl";
     	// Level 47
-    	gameLevelNames[47] = "47. ";
-    	gameLevelFiles[47] = "data/gamelevels/.lvl";
+    	gameLevelNames[47] = "47. Downhill Slalom (Part 1)";
+    	gameLevelFiles[47] = "data/gamelevels/downhillslalom1.lvl";
     	// Level 48
-    	gameLevelNames[48] = "48. ";
-    	gameLevelFiles[48] = "data/gamelevels/.lvl";
+    	gameLevelNames[48] = "48. Downhill Slalom (Part 2)";
+    	gameLevelFiles[48] = "data/gamelevels/downhillslalom2.lvl";
     	// Level 49
-    	gameLevelNames[49] = "49. ";
-    	gameLevelFiles[49] = "data/gamelevels/.lvl";
+    	gameLevelNames[49] = "49. Simplicity";
+    	gameLevelFiles[49] = "data/gamelevels/simplicity.lvl";
     	// Level 50
     	gameLevelNames[50] = "50. Finale";
     	gameLevelFiles[50] = "data/gamelevels/finale.lvl";
