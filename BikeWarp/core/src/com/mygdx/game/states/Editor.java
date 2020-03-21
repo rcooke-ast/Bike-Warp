@@ -866,6 +866,10 @@ public class Editor extends GameState {
 		enteringFilename = false;
 		saveFName = null;
 		changesMade = false;
+		// Set the starting position of the camera
+		// Perform Zoom
+		cam.zoom = 0.1f/B2DVars.EPPM;
+		//cam.lookAt(1000.0f/B2DVars.EPPM, 1000.0f/B2DVars.EPPM, 0.0f);
     }
 
     public void RestoreLevelDefaults() {
