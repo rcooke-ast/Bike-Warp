@@ -115,11 +115,13 @@ public class BikeGameTextures {
 		GetTexture("ground_cracked",2);
 		GetTexture("ground_gravel",2);
 		GetTexture("ground_mars",2);
+		GetTexture("ground_moon",2);
 		GetTexture("mountains",2);
 		GetTexture("sky_bluesky",2);
 		GetTexture("sky_evening",2);
 		GetTexture("sky_islands",2);
 		GetTexture("sky_mars",2);
+		GetTexture("sky_moon",2);
 		GetTexture("sky_sunrise",2);
 		GetTexture("trees",2);
 		//GetTexture("cracked_dirt");
