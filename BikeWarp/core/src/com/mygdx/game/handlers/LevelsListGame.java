@@ -55,8 +55,8 @@ public class LevelsListGame {
     	gameLevelNames[11] = "11. Ice Slide";
     	gameLevelFiles[11] = "data/gamelevels/iceslide.lvl";
     	// Level 12
-    	gameLevelNames[12] = "12. Simplicity";
-    	gameLevelFiles[12] = "data/gamelevels/simplicity.lvl";
+    	gameLevelNames[12] = "12. Lunatic";
+    	gameLevelFiles[12] = "data/gamelevels/lunatic.lvl";
     	// Level 13
     	gameLevelNames[13] = "13. Halfpipe";
     	gameLevelFiles[13] = "data/gamelevels/halfpipe.lvl";
@@ -166,8 +166,8 @@ public class LevelsListGame {
     	gameLevelNames[48] = "48. Downhill Slalom (Part 2)";
     	gameLevelFiles[48] = "data/gamelevels/downhillslalom2.lvl";
     	// Level 49
-    	gameLevelNames[49] = "49. ";
-    	gameLevelFiles[49] = "data/gamelevels/.lvl";
+    	gameLevelNames[49] = "49. Simplicity";
+    	gameLevelFiles[49] = "data/gamelevels/simplicity.lvl";
     	// Level 50
     	gameLevelNames[50] = "50. Finale";
     	gameLevelFiles[50] = "data/gamelevels/finale.lvl";
