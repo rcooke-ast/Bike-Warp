@@ -447,6 +447,20 @@ public class PolygonOperations {
 		return inside;
 	}
 
+	public static float[] MeanXY(float[] poly) {
+		float[] meanvals = new float[2];
+		meanvals[0] = 0.0f;
+		meanvals[1] = 0.0f;
+		int szp = poly.length/2;
+		for (int i = 0; i < szp; i++) {
+			meanvals[0] += poly[2*i];
+			meanvals[1] += poly[2*i+1];
+		}
+		meanvals[0] /= szp;
+		meanvals[1] /= szp;		
+		return meanvals;
+	}
+
     public static float SideLength(float xa, float ya, float xb, float yb) {
     	float retv = (float) Math.sqrt((xa-xb)*(xa-xb) + (ya-yb)*(ya-yb));
     	return retv;

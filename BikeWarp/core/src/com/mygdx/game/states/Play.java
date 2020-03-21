@@ -64,6 +64,7 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
+import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.handlers.ObjectVars;
 //import com.mygdx.game.handlers.ReplayRecord;
 //import com.mygdx.game.handlers.ReplayVars;
@@ -471,6 +472,7 @@ public class Play extends GameState {
      	   				} else if (mode == 2) {
      	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID), 0, levelID, timerTotal, false);
      	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID), 0, levelID, timerTotal, true);
+     	   					LevelsListGame.updateRecords();
      	   				}
 	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
@@ -486,6 +488,7 @@ public class Play extends GameState {
 	     	   					// Check the time
 	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID), 1, levelID, timerTotal, false);
 	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID), 1, levelID, timerTotal, true);
+	     	   					LevelsListGame.updateRecords();
 	     	   				}
 	     	   			}
 	     	   			System.out.println(GameVars.getTimeString(timerTotal));

@@ -43,6 +43,7 @@ public class MainMenu extends GameState {
     
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		System.out.println(FilenameUtils.getBaseName("menu_wheel"));
         wheel = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("menu_wheel"),1));
         shaft = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("menu_shaft"),1));
         sky = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("sky_bluesky"),2));

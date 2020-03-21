@@ -330,6 +330,7 @@ public class EditorIO {
         else if (textString.equals("Gravel")) textString = "images/ground_gravel.png";
         else if (textString.equals("Ice")) textString = "images/ground_ice.png";
         else if (textString.equals("Mars")) textString = "images/ground_mars.png";
+        else if (textString.equals("Moon")) textString = "images/ground_moon.png";
         else textString = "images/ground_gravel.png";
         // Determine the grass texture;
         //String textGrass = "images/grass_seamless.png";
@@ -640,6 +641,7 @@ public class EditorIO {
         else if (textSky.equals("Evening")) json.key("string").value("data/images/sky_evening.png");
         else if (textSky.equals("Islands")) json.key("string").value("data/images/sky_islands.png");
         else if (textSky.equals("Mars")) json.key("string").value("data/images/sky_mars.png");
+        else if (textSky.equals("Moon")) json.key("string").value("data/images/sky_moon.png");
         else if (textSky.equals("Sunrise")) json.key("string").value("data/images/sky_sunrise.png");
         else json.key("string").value("data/images/sky_bluesky.png");
         json.endObject();
