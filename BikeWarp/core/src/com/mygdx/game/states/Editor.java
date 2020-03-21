@@ -88,8 +88,8 @@ public class Editor extends GameState {
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
 			"Sign (Stop)"};
     private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture"};
-	private String[] groundTextureList = {"Cracked Mud", "Gravel", "Ice", "Mars"};
-	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Sunrise"};
+	private String[] groundTextureList = {"Cracked Mud", "Gravel", "Ice", "Mars", "Moon"};
+	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] gravityList = {"Earth", "Moon", "Mars"};
 	private String[] loadList = {"Load Level", "New Level"};
 	private String[] jewelNumber;
