@@ -11,9 +11,6 @@ import static com.mygdx.game.handlers.B2DVars.PPM;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-import org.apache.commons.io.FilenameUtils;
-import org.json.JSONException;
-
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -65,7 +62,9 @@ import com.mygdx.game.handlers.LevelVars;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.utilities.BayazitDecomposer;
 import com.mygdx.game.utilities.EditorIO;
+import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
+import com.mygdx.game.utilities.json.JSONException;
 
 /**
  *
@@ -874,7 +873,7 @@ public class Editor extends GameState {
 
     public void RestoreLevelDefaults() {
     	// Set the level name in the save textbox
-		saveFName = FilenameUtils.getBaseName((String) selectLoadLevel.getSelected());
+		saveFName = FileUtils.getBaseName((String) selectLoadLevel.getSelected());
 		textInputSave.setText(saveFName);
 		// Determine the number of jewels in the level
 		numJewels = 1;

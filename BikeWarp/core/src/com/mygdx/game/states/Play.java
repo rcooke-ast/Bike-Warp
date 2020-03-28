@@ -14,8 +14,6 @@ import java.util.concurrent.Executors;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-import org.apache.commons.io.FilenameUtils;
-
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.Gdx;
@@ -66,6 +64,7 @@ import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.handlers.ObjectVars;
+import com.mygdx.game.utilities.FileUtils;
 //import com.mygdx.game.handlers.ReplayRecord;
 //import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.PolygonOperations;
@@ -1110,7 +1109,7 @@ public class Play extends GameState {
        startAngle = (Float) mScene.getCustom(gameInfo, "startAngle", 0.0f);
        collectJewel = (Integer) mScene.getCustom(gameInfo, "numJewel", 0);
        String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
-       sky = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName(skyTextureName),2));
+       sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName),2));
        bikeDirc = startDirection; // 1=right, -1=left
        bikeScale = startDirection;
        bikeScaleLev *= startDirection;
@@ -1650,11 +1649,11 @@ public class Play extends GameState {
     			//texture = mTextureMap.get(textureFileName);
 //    			if (texture == null)
 //    			{
-				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FilenameUtils.getBaseName(textureFileName),0));
+				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),0));
 //    			} else {
 //    				texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 //    			}
-    			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName(textureFileName),0), image.flip, image.body, image.color, mTmp, image.center, image.angleInRads * MathUtils.radiansToDegrees);
+    			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),0), image.flip, image.body, image.color, mTmp, image.center, image.angleInRads * MathUtils.radiansToDegrees);
 //             	if (image.name.startsWith("Jewel")) {
 //          	  	 spatial = new SimpleSpatial(jewelSprites[0], image.flip, image.body, image.color, mTmp, image.center,
 //         	   			 image.angleInRads * MathUtils.radiansToDegrees);
@@ -1688,7 +1687,7 @@ public class Play extends GameState {
     			RubeDecor decor = decors.get(i);
     			mTmp.set(decor.width, decor.height);
     			String textureFileName = "data/" + decor.file;
-				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FilenameUtils.getBaseName(textureFileName),2));
+				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2));
 //    			texture = mTextureMap.get(textureFileName);
 //    			if (texture == null)
 //    			{
@@ -1698,7 +1697,7 @@ public class Play extends GameState {
 //    			} else {
 //    				texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 //    			}
-    			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName(textureFileName),2), decor.flip, null, decor.color, mTmp, decor.center, decor.angleInRads * MathUtils.radiansToDegrees);
+    			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2), decor.flip, null, decor.color, mTmp, decor.center, decor.angleInRads * MathUtils.radiansToDegrees);
     			mSpatials.add(spatial);
     		}
     	}

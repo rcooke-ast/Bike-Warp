@@ -20,10 +20,8 @@ import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.utilities.EditorImageIO;
 import com.mygdx.game.utilities.EditorJointIO;
 import com.mygdx.game.utilities.EditorObjectIO;
-
-import org.apache.commons.io.FilenameUtils;
-import org.json.JSONException;
-import org.json.JSONStringer;
+import com.mygdx.game.utilities.json.JSONException;
+import com.mygdx.game.utilities.json.JSONStringer;
 
 
 public class EditorIO {
@@ -282,7 +280,7 @@ public class EditorIO {
 			if (fileEntry.isFile()) {
 				temp = fileEntry.getName();
 				if ((temp.substring(temp.lastIndexOf('.') + 1, temp.length()).toLowerCase()).equals("lvl")) {
-					allLevels[numFiles] =  FilenameUtils.getBaseName(fileEntry.getName());
+					allLevels[numFiles] =  FileUtils.getBaseName(fileEntry.getName());
 					numFiles +=1;
 				}
 			}
