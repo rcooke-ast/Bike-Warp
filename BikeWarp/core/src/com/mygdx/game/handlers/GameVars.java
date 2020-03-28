@@ -39,7 +39,7 @@ public class GameVars implements Serializable {
 	public static ArrayList<int[]> plyrControls = new ArrayList<int[]>();
 	public static ArrayList<boolean[]> plyrColDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<boolean[]> plyrColTrainDmnd = new ArrayList<boolean[]>();
-	public static ArrayList<boolean[]> plyrSkipLevel = new ArrayList<boolean[]>();
+	public static ArrayList<int[]> plyrLevelComplete = new ArrayList<int[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
 	// World records
 	public static ArrayList<String[]> worldNames = new ArrayList<String[]>();
@@ -68,7 +68,7 @@ public class GameVars implements Serializable {
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamondsTrain() {return plyrColTrainDmnd.get(currentPlayer);}
-	public static boolean[] GetPlayerSkipLevel() {return plyrSkipLevel.get(currentPlayer);}
+	public static int[] GetPlayerSkipLevel() {return plyrLevelComplete.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
 	public static int[] GetPlayerTimesTrainDmnd(int lvl) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl);}
 	// Get the world record times and aliases
@@ -161,15 +161,40 @@ public class GameVars implements Serializable {
 	// Is options
 	public static boolean IsDiamondCollected(int lvl) {return plyrColDmnd.get(currentPlayer)[lvl];}
 	public static boolean IsDiamondCollectedTrain(int lvl) {return plyrColTrainDmnd.get(currentPlayer)[lvl];}
-	public static boolean IsSkipLevel(int lvl) {return plyrSkipLevel.get(currentPlayer)[lvl];}
+	public static boolean IsSkipLevel(int lvl) {
+		if (plyrLevelComplete.get(currentPlayer)[lvl] == 2) return true;
+		else return false;
+	}
 	
 	// Set options
-	public static void SetDiamond(int lvl) {plyrColDmnd.get(currentPlayer)[lvl]=true;}
-	public static void SetDiamondTrain(int lvl) {plyrColTrainDmnd.get(currentPlayer)[lvl]=true;}
+	public static void SetDiamond(int lvl) {
+		boolean[] copyDmnd = plyrColDmnd.get(currentPlayer);
+		copyDmnd[lvl] = true;
+		plyrColDmnd.set(currentPlayer, copyDmnd);
+		SavePlayers();
+	}
+
+	public static void SetDiamondTrain(int lvl) {
+		boolean[] copyDmnd = plyrColTrainDmnd.get(currentPlayer);
+		copyDmnd[lvl] = true;
+		plyrColTrainDmnd.set(currentPlayer, copyDmnd);
+		SavePlayers();
+	}
+	
 	public static void SetSkipLevel(int lvl) {
 		if (CanSkip()) {
-			plyrSkipLevel.get(currentPlayer)[lvl]=true;}
+			int[] copyLevComp = plyrLevelComplete.get(currentPlayer);
+			copyLevComp[lvl] = 2;
+			plyrLevelComplete.set(currentPlayer, copyLevComp);
+			SavePlayers();
 		}
+	}
+	public static void SetLevelComplete(int lvl) {
+		int[] copyLevComp = plyrLevelComplete.get(currentPlayer);
+		copyLevComp[lvl] = 1;
+		plyrLevelComplete.set(currentPlayer, copyLevComp);
+		SavePlayers();
+	}
 
 	// Add Player
 	public static void AddPlayer(String name) {
@@ -190,7 +215,7 @@ public class GameVars implements Serializable {
 		// Add an empty diamonds training array
 		plyrColTrainDmnd.add(FalseBoolean(LevelsListTraining.NUMTRAINLEVELS));
 		// Add an empty level skip array
-		plyrSkipLevel.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
+		plyrLevelComplete.add(ZeroInt(LevelsListGame.NUMGAMELEVELS));
 		// Add a default Bike color
 		plyrBikeColor.add(GetDefaultBikeColor());
 	}
@@ -198,8 +223,8 @@ public class GameVars implements Serializable {
 	// Methods
 	public static boolean CanSkip() {
 		int numSkips=0;
-		for (int i=0; i<plyrSkipLevel.get(currentPlayer).length; i++) {
-			if (plyrSkipLevel.get(currentPlayer)[i]) numSkips += 1;
+		for (int i=0; i<plyrLevelComplete.get(currentPlayer).length; i++) {
+			if (plyrLevelComplete.get(currentPlayer)[i]==2) numSkips += 1;
 		}
 		if (numSkips<skipsAllowed) return true;
 		else return false;
@@ -207,12 +232,25 @@ public class GameVars implements Serializable {
 
 	public static int SkipsLeft() {
 		int numSkips=0;
-		for (int i=0; i<plyrSkipLevel.get(currentPlayer).length; i++) {
-			if (plyrSkipLevel.get(currentPlayer)[i]) numSkips += 1;
+		for (int i=0; i<plyrLevelComplete.get(currentPlayer).length; i++) {
+			if (plyrLevelComplete.get(currentPlayer)[i]==2) numSkips += 1;
 		}
 		return (skipsAllowed-numSkips);
 	}
 
+	public static int GetNumLevels() {
+		int numLevels=2;
+		for (int i=0; i<plyrLevelComplete.get(currentPlayer).length; i++) {
+			if (plyrLevelComplete.get(currentPlayer)[i]>0) numLevels += 1;
+		}
+		return numLevels;
+	}
+
+	public static int GetLevelStatus(int lev) {
+		if (lev == -1) return -1;
+		return plyrLevelComplete.get(currentPlayer)[lev];
+	}
+	
 	public static float[] GetDefaultBikeColor() {
 		float[] color = new float[]{0.1f,0.5f,1.0f,1.0f};
 		return color.clone();
@@ -244,7 +282,7 @@ public class GameVars implements Serializable {
 			plyrControls = (ArrayList<int[]>) oi.readObject();
 			plyrColDmnd = (ArrayList<boolean[]>) oi.readObject();
 			plyrColTrainDmnd = (ArrayList<boolean[]>) oi.readObject();
-			plyrSkipLevel = (ArrayList<boolean[]>) oi.readObject();
+			plyrLevelComplete = (ArrayList<int[]>) oi.readObject();
 			plyrBikeColor = (ArrayList<float[]>) oi.readObject();
 
 			// Close files
@@ -274,7 +312,7 @@ public class GameVars implements Serializable {
 			o.writeObject(plyrControls);
 			o.writeObject(plyrColDmnd);
 			o.writeObject(plyrColTrainDmnd);
-			o.writeObject(plyrSkipLevel);
+			o.writeObject(plyrLevelComplete);
 			o.writeObject(plyrBikeColor);
 
 			// Close the file
@@ -376,6 +414,12 @@ public class GameVars implements Serializable {
 	public static boolean[] FalseBoolean(int num) {
 		boolean[] empty = new boolean[num];
 		for (int i=0; i<num; i++) empty[i]=false;
+		return empty.clone();
+	}
+
+	public static int[] ZeroInt(int num) {
+		int[] empty = new int[num];
+		for (int i=0; i<num; i++) empty[i]=0;
 		return empty.clone();
 	}
 }

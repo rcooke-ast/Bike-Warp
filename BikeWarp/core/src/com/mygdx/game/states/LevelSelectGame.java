@@ -16,6 +16,7 @@ import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.utilities.EditorIO;
 
@@ -41,7 +42,7 @@ public class LevelSelectGame extends GameState {
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
-        totalLevels = LevelsListGame.gameLevelNames.length;
+        totalLevels = GameVars.GetNumLevels();
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         float scaleVal = 1.0f;
@@ -54,8 +55,7 @@ public class LevelSelectGame extends GameState {
         menuText.setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuHeight = menuText.getBounds("My").height;
-        numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
-        if (numLevShow > totalLevels) numLevShow = totalLevels;
+        SetNumLevShow();
         // Load the background metal grid
         metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
         float ratio = 4.0f;
@@ -71,6 +71,11 @@ public class LevelSelectGame extends GameState {
         fadeIn = 0.0f;
     }
 
+    private void SetNumLevShow() {
+        numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
+        if (numLevShow > totalLevels) numLevShow = totalLevels;
+    }
+
     public void handleInput() {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
@@ -80,6 +85,10 @@ public class LevelSelectGame extends GameState {
     		if (currentOption >= totalLevels) currentOption = 0;
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu
+        } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(currentOption-1)==0)) {
+        	GameVars.SetSkipLevel(currentOption-1); // Skip this level
+        	totalLevels = GameVars.GetNumLevels();
+        	SetNumLevShow();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
         	else {
@@ -107,7 +116,11 @@ public class LevelSelectGame extends GameState {
     		if (fadeOut < 0.0f) fadeOut = 0.0f;
     	} else if (fadeIn <= 1.0f) {
     		fadeIn += dt/fadeTime;
-    		if (fadeIn > 1.0f) fadeIn = 2.0f;
+    		if (fadeIn > 1.0f) {
+    			fadeIn = 2.0f;
+            	totalLevels = GameVars.GetNumLevels();
+            	SetNumLevShow();
+    		}
     	}
     }
     

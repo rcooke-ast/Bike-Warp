@@ -22,7 +22,7 @@ public class GameStateLoader {
 		public ArrayList<int[]> controls;
 		public ArrayList<boolean[]> collectDiamond;
 		public ArrayList<boolean[]> collectTrainDiamond;
-		public ArrayList<boolean[]> skipLevel;
+		public ArrayList<boolean[]> levelComplete;
 		public ArrayList<float[]> optBikeColor;
 	}
 
@@ -38,7 +38,7 @@ public class GameStateLoader {
 		jWorld.controls = (ArrayList<int[]>) GameVars.plyrControls.clone();
 		jWorld.collectDiamond = (ArrayList<boolean[]>) GameVars.plyrColDmnd.clone();
 		jWorld.collectTrainDiamond = (ArrayList<boolean[]>) GameVars.plyrColTrainDmnd.clone();
-		jWorld.skipLevel = (ArrayList<boolean[]>) GameVars.plyrSkipLevel.clone();
+		jWorld.levelComplete = (ArrayList<boolean[]>) GameVars.plyrLevelComplete.clone();
 		jWorld.optBikeColor = (ArrayList<float[]>) GameVars.plyrBikeColor.clone();
 
 		Json json = new Json();
@@ -60,7 +60,7 @@ public class GameStateLoader {
 			GameVars.plyrControls = (ArrayList<int[]>) jWorld.controls.clone();
 			GameVars.plyrColDmnd = (ArrayList<boolean[]>) jWorld.collectDiamond.clone();
 			GameVars.plyrColTrainDmnd = (ArrayList<boolean[]>) jWorld.collectTrainDiamond.clone();
-			GameVars.plyrSkipLevel = (ArrayList<boolean[]>) jWorld.skipLevel.clone();
+			GameVars.plyrLevelComplete = (ArrayList<int[]>) jWorld.levelComplete.clone();
 			GameVars.plyrBikeColor = (ArrayList<float[]>) jWorld.optBikeColor.clone();
 		} else {
 			// File could not be found, start again with the default settings

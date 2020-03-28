@@ -177,8 +177,17 @@ public class LevelsListGame {
     }
 
     public static String GetRecordTimes(int levid) {
-    	String pb  = String.format("Personal Best\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimes(levid-1, 0)));
-    	String pbd = String.format("Personal Best (diamond)\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimesDmnd(levid-1, 0)));
+    	String pb, pbd;
+    	if (GameVars.GetLevelStatus(levid-1)==0) {
+    		pb = "Level not yet complete!\n";
+    		pbd = "Press 's' to skip this level\n\n";
+    	} else if (GameVars.GetLevelStatus(levid-1)==2) {
+    		pb = "Level skipped!";
+    		pbd = "\n\n";
+    	} else {
+        	pb  = String.format("Personal Best\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimes(levid-1, 0)));
+        	pbd = String.format("Personal Best (diamond)\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimesDmnd(levid-1, 0)));    		
+    	}
     	String wr  = String.format("World Record\n%s\n\n", GameVars.getTimeString(GameVars.GetWorldTimes(levid-1, 0)));
     	String wrd = String.format("World Record (diamond)\n%s", GameVars.getTimeString(GameVars.GetWorldTimesDmnd(levid-1, 0)));
     	return pb+pbd+wr+wrd;
