@@ -55,7 +55,6 @@ public class GameVars implements Serializable {
 	public static void SetCurrentPlayer(int i) {
 		currentPlayer = i;
 		// Set the keys of this user
-		System.out.println("Need to set the user controls!!!");
 	}
 
 	public static int GetCurrentPlayer() {return currentPlayer;}
