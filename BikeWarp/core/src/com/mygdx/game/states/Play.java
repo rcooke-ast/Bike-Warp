@@ -490,7 +490,9 @@ public class Play extends GameState {
 	     	   					LevelsListGame.updateRecords();
 	     	   				}
 	     	   			}
-	     	   			System.out.println(GameVars.getTimeString(timerTotal));
+	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
+	     	   			GameVars.SetLevelComplete(levelID);
+	     	   			LevelsListGame.updateRecords();
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();

@@ -46,6 +46,7 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.ENTER) GameInput.setKey(GameInput.KEY_ENTER, true);
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, true);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, true);
+        if (k == Keys.S) GameInput.setKey(GameInput.KEY_S, true);
         if (k == Keys.Z) GameInput.setKey(GameInput.KEY_Z, true);
         if (k == Keys.T) GameInput.setKey(GameInput.KEY_T, true);
         if (k == Keys.C) GameInput.setKey(GameInput.KEY_C, true);
@@ -88,6 +89,7 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, false);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, false);
         if (k == Keys.Z) GameInput.setKey(GameInput.KEY_Z, false);
+    	if (k == Keys.S) GameInput.setKey(GameInput.KEY_S, false);
         if (k == Keys.T) GameInput.setKey(GameInput.KEY_T, false);
         if (k == Keys.C) GameInput.setKey(GameInput.KEY_C, false);
         if (k == Keys.D) GameInput.setKey(GameInput.KEY_D, false);
