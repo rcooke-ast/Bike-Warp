@@ -6,8 +6,6 @@
 
 package com.mygdx.game.states;
 
-import org.apache.commons.io.FilenameUtils;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -17,6 +15,7 @@ import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.OptionsMainMenu;
+import com.mygdx.game.utilities.FileUtils;
 
 /**
  *
@@ -43,12 +42,12 @@ public class MainMenu extends GameState {
     
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
-		System.out.println(FilenameUtils.getBaseName("menu_wheel"));
-        wheel = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("menu_wheel"),1));
-        shaft = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("menu_shaft"),1));
-        sky = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("sky_bluesky"),2));
-        grass = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("grass_smooth_linrep"),2));
-        dirt = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("cracked_dirt_linrep"),2));
+		System.out.println(FileUtils.getBaseName("menu_wheel"));
+        wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_wheel"),1));
+        shaft = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_shaft"),1));
+        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky"),2));
+        grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep"),2));
+        dirt = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("cracked_dirt_linrep"),2));
         groundTimer = 0.0f;
         fadeOut = -1.0f;
         fadeIn = 0.0f;

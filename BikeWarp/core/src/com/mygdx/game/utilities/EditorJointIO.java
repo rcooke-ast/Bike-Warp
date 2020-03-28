@@ -2,14 +2,13 @@ package com.mygdx.game.utilities;
 
 import java.util.ArrayList;
 
-import org.json.JSONException;
-import org.json.JSONStringer;
-
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.handlers.B2DVars;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.utilities.NewJoint;
+import com.mygdx.game.utilities.json.JSONException;
+import com.mygdx.game.utilities.json.JSONStringer;
 
 public class EditorJointIO {
 

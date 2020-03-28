@@ -1,7 +1,5 @@
 package com.mygdx.game.states;
 
-import org.apache.commons.io.FilenameUtils;
-
 import java.awt.Color;
 
 import com.badlogic.gdx.Gdx;
@@ -14,6 +12,7 @@ import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 
 public class OptionColorSelect extends GameState {
@@ -38,16 +37,16 @@ public class OptionColorSelect extends GameState {
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		// Prepare the Sprites to be used on this screen
-		arrow = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("menu_arrow"),1));
-		black = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("menu_black"),1));
-		wheel = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("bikewheel"),0));
-        fsusp = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("front_suspension"),0));
-        rsusp = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("rear_suspension"),0));
-        bwite = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("bike_white"),0));
-        bolay = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("bike_overlay"),0));
-        sky = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("sky_bluesky"),2));
-        grass = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("grass_smooth_linrep"),2));
-        dirt = new Sprite(BikeGameTextures.LoadTexture(FilenameUtils.getBaseName("cracked_dirt_linrep"),2));
+		arrow = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_arrow"),1));
+		black = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_black"),1));
+		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bikewheel"),0));
+        fsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("front_suspension"),0));
+        rsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("rear_suspension"),0));
+        bwite = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_white"),0));
+        bolay = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_overlay"),0));
+        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky"),2));
+        grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep"),2));
+        dirt = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("cracked_dirt_linrep"),2));
         groundTimer = 0.0f;
         fadeOut = -1.0f;
         fadeIn = 0.0f;
