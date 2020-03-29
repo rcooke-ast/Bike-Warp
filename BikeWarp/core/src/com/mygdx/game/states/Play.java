@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.math.EarClippingTriangulator;
+import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -64,6 +65,7 @@ import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.handlers.ObjectVars;
+import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.FileUtils;
 //import com.mygdx.game.handlers.ReplayRecord;
 //import com.mygdx.game.handlers.ReplayVars;
@@ -97,6 +99,8 @@ public class Play extends GameState {
     private GameContactListener cl;
     private String editorString = null;
     private int levelID, mode;
+    private boolean isReplay;
+    private float replayTime;
     private int mVelocityIter = 8;
     private int mPositionIter = 3;
 
@@ -219,6 +223,12 @@ public class Play extends GameState {
         editorString = editorScene;
         levelID = levID;
         mode = modeValue;
+        System.out.println("DELETE THIS REPLAY CODE!");
+        isReplay = false;
+        if (isReplay) {
+        	// Prepare the Replay splines?
+        	ReplayVars.LoadReplay("replay.rpl");
+        }
         create();
     }
     
@@ -369,6 +379,12 @@ public class Play extends GameState {
 
     	playerJump = 100.0f;
     	lrIsDown = false;
+    	
+    	// Set the replay in motion
+    	replayTime = 0.0f;
+    	if (!isReplay) {
+    		ReplayVars.Reset();
+    	}
     }
     
     public void handleInput() {
@@ -493,6 +509,8 @@ public class Play extends GameState {
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 	     	   			GameVars.SetLevelComplete(levelID);
 	     	   			LevelsListGame.updateRecords();
+	     	   			System.out.println("REMOVE THE AUTO REPLAY SAVING!!!");
+	     	   			ReplayVars.SaveReplay("replay.rpl");
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
@@ -513,7 +531,10 @@ public class Play extends GameState {
 	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	            	break;
 	     	   }
-        	   updateBike(dt);
+	       	   // Update the bike position
+	       	   if (isReplay) updateBikeReplay(dt);
+	       	   else updateBike(dt);       
+	       	   // Update the other elements in the scene
         	   updateCollect();
         	   updateFallingBodies(dt);
         	   updateKinematicBodies(dt);
@@ -595,6 +616,48 @@ public class Play extends GameState {
 	    // Switch the texture
 	}
 
+	private void updateBikeReplay(float dt) {
+		replayTime += dt;
+		int rIndex = ReplayVars.GetIndex(replayTime);
+		float time1 = ReplayVars.replayTime.get(rIndex);
+		float time2 = ReplayVars.replayTime.get(rIndex+1);
+		float mid = (replayTime-time1)/(time2-time1);
+		float bike_x = Interpolation.fade.apply(ReplayVars.replayBike_X.get(rIndex), ReplayVars.replayBike_X.get(rIndex+1), mid);
+		float bike_y = Interpolation.fade.apply(ReplayVars.replayBike_Y.get(rIndex), ReplayVars.replayBike_Y.get(rIndex+1), mid);
+		float bike_a = Interpolation.fade.apply(ReplayVars.replayBike_A.get(rIndex), ReplayVars.replayBike_A.get(rIndex+1), mid);
+		bikeBodyC.setTransform(bike_x, bike_y, bike_a);
+		float lw_x = Interpolation.fade.apply(ReplayVars.replayLW_X.get(rIndex), ReplayVars.replayLW_X.get(rIndex+1), mid);
+		float lw_y = Interpolation.fade.apply(ReplayVars.replayLW_Y.get(rIndex), ReplayVars.replayLW_Y.get(rIndex+1), mid);
+		float lw_a = Interpolation.fade.apply(ReplayVars.replayLW_A.get(rIndex), ReplayVars.replayLW_A.get(rIndex+1), mid);
+		bikeBodyLW.setTransform(lw_x, lw_y, 0.0f);
+		bikeBodyLW.setAngularVelocity(lw_a);
+		float rw_x = Interpolation.fade.apply(ReplayVars.replayRW_X.get(rIndex), ReplayVars.replayRW_X.get(rIndex+1), mid);
+		float rw_y = Interpolation.fade.apply(ReplayVars.replayRW_Y.get(rIndex), ReplayVars.replayRW_Y.get(rIndex+1), mid);
+		float rw_a = Interpolation.fade.apply(ReplayVars.replayRW_A.get(rIndex), ReplayVars.replayRW_A.get(rIndex+1), mid);
+		bikeBodyRW.setTransform(rw_x, rw_y, 0.0f);
+		bikeBodyRW.setAngularVelocity(rw_a);
+		// Update the camera position...
+		updateCameraPostion();
+	}
+
+	private void storeReplay(float dt) {
+		replayTime += dt;
+		Vector2 bikeCen = bikeBodyC.getWorldCenter();
+		Vector2 LWCen = bikeBodyLW.getWorldCenter();
+		Vector2 RWCen = bikeBodyRW.getWorldCenter();
+		// Store all of the information
+		ReplayVars.replayTime.add(replayTime);
+		ReplayVars.replayBike_X.add(bikeCen.x);
+		ReplayVars.replayBike_Y.add(bikeCen.y);
+		ReplayVars.replayBike_A.add(bikeBodyC.getAngle());
+		ReplayVars.replayLW_X.add(LWCen.x);
+		ReplayVars.replayLW_Y.add(LWCen.y);
+		ReplayVars.replayLW_A.add(bikeBodyLW.getAngularVelocity());
+		ReplayVars.replayRW_X.add(RWCen.x);
+		ReplayVars.replayRW_Y.add(RWCen.y);
+		ReplayVars.replayRW_A.add(bikeBodyRW.getAngularVelocity());
+	}
+	
 	private void updateBike(float dt) {
 		if (motorTorque != 0.0f) {
 			if (bikeDirc == 1.0f) {
@@ -640,15 +703,12 @@ public class Play extends GameState {
 				playerJump = 0;
 			}
 		}
-		Vector3 pos = new Vector3(bikeBodyC.getWorldCenter(), 0);
-//		Vector2 posShft;
-//		if (gravityScale == -1.0f) posShft = mWorld.getGravity().nor().scl(-(float)Math.sin(bikeScale*Math.PI/2)*B2DVars.SCRWIDTH/4.0f);
-//		else {
-//			posShft = (mWorld.getGravity().nor().scl((float)Math.sin(gravityScale*Math.PI/2)).add(gravityPrev.scl(1.0f-(float)Math.sin(gravityScale*Math.PI/2)))).nor().scl(-(float)Math.sin(bikeScale*Math.PI/2)*B2DVars.SCRWIDTH/4.0f);
-//			gravityScale += 0.001f;
-//			if (gravityScale > 1.0f) gravityScale = -1.0f;
-//		}
 		// Update the camera position...
+		updateCameraPostion();
+	}
+
+	private void updateCameraPostion() {
+		Vector3 pos = new Vector3(bikeBodyC.getWorldCenter(), 0);
 		Vector2 posShft, gravVect;
 		float angleGrav;
 		if (gravityScale == -1.0f) posShft = mWorld.getGravity().nor().scl(-B2DVars.SCRWIDTH/8.0f);
@@ -666,9 +726,9 @@ public class Play extends GameState {
 		pos.x += posShft.x - shftCpy.y;
 		pos.y += posShft.y + shftCpy.x;
 		b2dCam.position.set(pos);
-		b2dCam.update();
+		b2dCam.update();		
 	}
-
+	
     private void updateCollect() {
     	// check for collected keys or jewels
     	Array<Body> bodies = cl.getBodies();
