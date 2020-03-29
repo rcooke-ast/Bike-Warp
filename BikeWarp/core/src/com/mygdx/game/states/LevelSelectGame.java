@@ -33,6 +33,7 @@ public class LevelSelectGame extends GameState {
     private float menuHeight, menuWidth, lvlWidth;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f;
     private int currentOption, numMin, numLevShow, totalLevels;
+    private float checkLevels = 0.0f;
 
     public LevelSelectGame(GameStateManager gsm) {
         super(gsm);
@@ -42,20 +43,11 @@ public class LevelSelectGame extends GameState {
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
-        totalLevels = GameVars.GetNumLevels();
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
-        float scaleVal = 1.0f;
-        menuText.setScale(scaleVal);
-        menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[0]).width;
-        for (int i=1; i<totalLevels; i++) {
-        	if (menuText.getBounds(LevelsListGame.gameLevelNames[i]).width > menuWidth) menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[i]).width;
-        }
-        scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
-        menuText.setScale(scaleVal);
-        menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuHeight = menuText.getBounds("My").height;
-        SetNumLevShow();
+        // Update the menu
+        UpdateMenu();
+        checkLevels = 0.0f;
         // Load the background metal grid
         metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
         float ratio = 4.0f;
@@ -71,6 +63,21 @@ public class LevelSelectGame extends GameState {
         fadeIn = 0.0f;
     }
 
+    private void UpdateMenu() {
+    	totalLevels = GameVars.GetNumLevels();
+        float scaleVal = 1.0f;
+        menuText.setScale(scaleVal);
+        menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[0]).width;
+        for (int i=1; i<totalLevels; i++) {
+        	if (menuText.getBounds(LevelsListGame.gameLevelNames[i]).width > menuWidth) menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[i]).width;
+        }
+        scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
+        menuText.setScale(scaleVal);
+        menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+        menuHeight = menuText.getBounds("My").height;
+        SetNumLevShow();
+    }
+    
     private void SetNumLevShow() {
         numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
         if (numLevShow > totalLevels) numLevShow = totalLevels;
@@ -88,7 +95,7 @@ public class LevelSelectGame extends GameState {
         } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(currentOption-1)==0)) {
         	GameVars.SetSkipLevel(currentOption-1); // Skip this level
         	totalLevels = GameVars.GetNumLevels();
-        	SetNumLevShow();
+        	UpdateMenu();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
         	else {
@@ -98,6 +105,7 @@ public class LevelSelectGame extends GameState {
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(GameStateManager.PEEK, false, "none", currentOption-1, 2);
+    		checkLevels=0.0f;
         }
     	//if (currentOption == 1) currentLevelTxt = "";
     	if ((currentOption>numLevShow/2) & (currentOption<totalLevels-numLevShow/2)) numMin = currentOption-numLevShow/2;
@@ -111,6 +119,12 @@ public class LevelSelectGame extends GameState {
 		cam.zoom = 1.0f;
     	cam.update();
 		handleInput();
+		// Update how many levels should be shown
+		if (checkLevels > 1.0f) {
+	    	UpdateMenu();
+	    	checkLevels = 0.0f;
+		} else checkLevels += dt;
+		// Set the fading
     	if (fadeOut > 0.0f) {
     		fadeOut -= dt/fadeTime;
     		if (fadeOut < 0.0f) fadeOut = 0.0f;
@@ -118,8 +132,6 @@ public class LevelSelectGame extends GameState {
     		fadeIn += dt/fadeTime;
     		if (fadeIn > 1.0f) {
     			fadeIn = 2.0f;
-            	totalLevels = GameVars.GetNumLevels();
-            	SetNumLevShow();
     		}
     	}
     }
