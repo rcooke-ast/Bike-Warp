@@ -8,6 +8,7 @@ package com.mygdx.game.handlers;
 
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.states.GameState;
+import com.mygdx.game.states.LevelOptions;
 import com.mygdx.game.states.LevelSelectGame;
 import com.mygdx.game.states.LevelSelectTraining;
 import com.mygdx.game.states.MenuSelectPlayer;
@@ -39,6 +40,7 @@ public class GameStateManager {
     public static final int MENUPLAYER = 100006;
     public static final int PLAY = 200000;
     public static final int LEVELSELECT = 300000;
+    public static final int LEVELOPTIONS = 300001;
     public static final int EDITOR = 400000;
     public static final int PEEK = 1;
 
@@ -73,6 +75,7 @@ public class GameStateManager {
         else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
         else if (state == MENUTRAINING) return new LevelSelectTraining(this);
         else if (state == MENULEVELS) return new LevelSelectGame(this);
+        else if (state == LEVELOPTIONS) return new LevelOptions(this, levelID);
         else if (state == PLAY) return new Play(this, editorScene, levelID, train);
         else if (state == EDITOR) return new Editor(this);
         //else if (state == LEVELSELECT) return new LevelSelect(this);

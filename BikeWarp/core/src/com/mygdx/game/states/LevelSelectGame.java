@@ -95,12 +95,14 @@ public class LevelSelectGame extends GameState {
         } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(currentOption-1)==0)) {
         	GameVars.SetSkipLevel(currentOption-1); // Skip this level
         	totalLevels = GameVars.GetNumLevels();
+        	LevelsListGame.updateRecords();
         	UpdateMenu();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
         	else {
         		// Load the level
-        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[currentOption])), currentOption-1, 2);
+        		gsm.setState(GameStateManager.LEVELOPTIONS, true, "", currentOption-1, -1);
+        		//gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[currentOption])), currentOption-1, 2);
         	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
