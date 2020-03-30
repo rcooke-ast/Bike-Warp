@@ -128,6 +128,7 @@ public class MenuRecords extends GameState {
         	}
         	else {
         		levelNumber = tLevelNumber*10 + numPress;
+        		if (levelNumber > totalLevels) levelNumber = 0;
         		tLevelNumber = -1;
         		levnum = 0.0f;
         	}

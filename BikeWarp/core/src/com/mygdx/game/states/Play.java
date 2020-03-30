@@ -412,6 +412,7 @@ public class Play extends GameState {
         }
         // Change Direction
         if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
+        	if (!isReplay) ReplayVars.replayChangeDir.add(replayTime);
         	switchBikeDirection();
         }
         //playerTorque = 0.0f;
@@ -533,7 +534,10 @@ public class Play extends GameState {
 	     	   }
 	       	   // Update the bike position
 	       	   if (isReplay) updateBikeReplay(dt);
-	       	   else updateBike(dt);       
+	       	   else {
+	       		   storeReplay(dt);
+	       		   updateBike(dt);       
+	       	   }
 	       	   // Update the other elements in the scene
         	   updateCollect();
         	   updateFallingBodies(dt);
@@ -629,13 +633,23 @@ public class Play extends GameState {
 		float lw_x = Interpolation.fade.apply(ReplayVars.replayLW_X.get(rIndex), ReplayVars.replayLW_X.get(rIndex+1), mid);
 		float lw_y = Interpolation.fade.apply(ReplayVars.replayLW_Y.get(rIndex), ReplayVars.replayLW_Y.get(rIndex+1), mid);
 		float lw_a = Interpolation.fade.apply(ReplayVars.replayLW_A.get(rIndex), ReplayVars.replayLW_A.get(rIndex+1), mid);
-		bikeBodyLW.setTransform(lw_x, lw_y, 0.0f);
-		bikeBodyLW.setAngularVelocity(lw_a);
+		bikeBodyLW.setTransform(lw_x, lw_y, lw_a);
+//		bikeBodyLW.setAngularVelocity(lw_a);
 		float rw_x = Interpolation.fade.apply(ReplayVars.replayRW_X.get(rIndex), ReplayVars.replayRW_X.get(rIndex+1), mid);
 		float rw_y = Interpolation.fade.apply(ReplayVars.replayRW_Y.get(rIndex), ReplayVars.replayRW_Y.get(rIndex+1), mid);
 		float rw_a = Interpolation.fade.apply(ReplayVars.replayRW_A.get(rIndex), ReplayVars.replayRW_A.get(rIndex+1), mid);
-		bikeBodyRW.setTransform(rw_x, rw_y, 0.0f);
-		bikeBodyRW.setAngularVelocity(rw_a);
+		bikeBodyRW.setTransform(rw_x, rw_y, rw_a);
+//		bikeBodyRW.setAngularVelocity(rw_a);
+		// Check if the bike direction needs to be switched
+		if (ReplayVars.CheckSwitchDirection(rIndex)) switchBikeDirection();
+		if ((bikeScale > -1.0f) & (bikeScale < 1.0f)) {
+			bikeScale += bikeScaleLev;
+			if (bikeScale < -1.0f) {
+				bikeScale = -1.0f;
+			} else if (bikeScale > 1.0f) {
+				bikeScale = 1.0f;
+			}
+		}
 		// Update the camera position...
 		updateCameraPostion();
 	}
@@ -646,16 +660,17 @@ public class Play extends GameState {
 		Vector2 LWCen = bikeBodyLW.getWorldCenter();
 		Vector2 RWCen = bikeBodyRW.getWorldCenter();
 		// Store all of the information
+//		ReplayVars.AddSnapshot(replayTime, bikeCen.x, bikeCen.y, bikeBodyC.getAngle(), LWCen.x, LWCen.y, bikeBodyLW.getAngularVelocity(), RWCen.x, RWCen.y, bikeBodyRW.getAngularVelocity(), false);
 		ReplayVars.replayTime.add(replayTime);
 		ReplayVars.replayBike_X.add(bikeCen.x);
 		ReplayVars.replayBike_Y.add(bikeCen.y);
 		ReplayVars.replayBike_A.add(bikeBodyC.getAngle());
 		ReplayVars.replayLW_X.add(LWCen.x);
 		ReplayVars.replayLW_Y.add(LWCen.y);
-		ReplayVars.replayLW_A.add(bikeBodyLW.getAngularVelocity());
+		ReplayVars.replayLW_A.add(bikeBodyLW.getAngle());
 		ReplayVars.replayRW_X.add(RWCen.x);
 		ReplayVars.replayRW_Y.add(RWCen.y);
-		ReplayVars.replayRW_A.add(bikeBodyRW.getAngularVelocity());
+		ReplayVars.replayRW_A.add(bikeBodyRW.getAngle());
 	}
 	
 	private void updateBike(float dt) {
