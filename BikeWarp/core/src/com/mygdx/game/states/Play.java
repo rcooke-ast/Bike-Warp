@@ -219,15 +219,19 @@ public class Play extends GameState {
     private int mRubeFileIndex;
     
     public Play(GameStateManager gsm, String editorScene, int levID, int modeValue) {
+    	// Mode values:
+    	// 0 = Editor play
+    	// 1 = Play Train
+    	// 2 = Play Game
+    	// 3 = Replay Train
+    	// 4 = Replay Game
         super(gsm);
         editorString = editorScene;
         levelID = levID;
         mode = modeValue;
-        System.out.println("DELETE THIS REPLAY CODE!");
-        isReplay = false;
-        if (isReplay) {
-        	// Prepare the Replay splines?
-        	ReplayVars.LoadReplay("replay.rpl");
+        if ((mode==3) | (mode==4)) {
+        	// TODO :: Need to load a saved replay from file, if needed
+            isReplay = true;
         }
         create();
     }
@@ -392,6 +396,7 @@ public class Play extends GameState {
         if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	forcequit = true;
         }
+        if (isReplay) return;
         // Accelerate
         if (GameInput.isDown(GameInput.KEY_ACCEL)) motorTorque = 10.0f;
         else motorTorque = 0.0f;
@@ -510,8 +515,6 @@ public class Play extends GameState {
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 	     	   			GameVars.SetLevelComplete(levelID);
 	     	   			LevelsListGame.updateRecords();
-	     	   			System.out.println("REMOVE THE AUTO REPLAY SAVING!!!");
-	     	   			ReplayVars.SaveReplay("replay.rpl");
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
@@ -528,7 +531,6 @@ public class Play extends GameState {
 //	     	   			bikeBodyC.setTransform(bikeBodyCpos, bikeBodyCang);
 //	     	   			mState=GAME_STATE.LOADING;
 //	     	   		}
-	     		   	//ReplayRecord.convertToPNG();
 	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	            	break;
 	     	   }
@@ -660,7 +662,6 @@ public class Play extends GameState {
 		Vector2 LWCen = bikeBodyLW.getWorldCenter();
 		Vector2 RWCen = bikeBodyRW.getWorldCenter();
 		// Store all of the information
-//		ReplayVars.AddSnapshot(replayTime, bikeCen.x, bikeCen.y, bikeBodyC.getAngle(), LWCen.x, LWCen.y, bikeBodyLW.getAngularVelocity(), RWCen.x, RWCen.y, bikeBodyRW.getAngularVelocity(), false);
 		ReplayVars.replayTime.add(replayTime);
 		ReplayVars.replayBike_X.add(bikeCen.x);
 		ReplayVars.replayBike_Y.add(bikeCen.y);
@@ -1432,8 +1433,6 @@ public class Play extends GameState {
     
     @Override
     public void dispose() {
-    	//ReplayVars.SaveReplay("replay.rpl");
-    	//ReplayVars.RestartKeys();
     	GameInputProcessor.Disable(false);
     	if (mBatch != null) mBatch.dispose();
     	if (mPolyBatch != null) mPolyBatch.dispose();

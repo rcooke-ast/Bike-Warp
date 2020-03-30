@@ -18,13 +18,14 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
+import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.EditorIO;
 
 /**
  *
  * @author rcooke
  */
-public class LevelSelectGame extends GameState {
+public class LevelOptions extends GameState {
 	private float SCRWIDTH;
 	private BitmapFont menuText;
     private Sprite metalpole, metalcorner;
@@ -32,17 +33,21 @@ public class LevelSelectGame extends GameState {
     private float uRight, vTop, sheight;
     private float menuHeight, menuWidth, lvlWidth;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f;
-    private int currentOption, numMin, numLevShow, totalLevels;
+    private int levelNumber, currentOption, totalOptions;
     private float checkLevels = 0.0f;
+    private String[] allOptions;
 
-    public LevelSelectGame(GameStateManager gsm) {
+    public LevelOptions(GameStateManager gsm, int levNum) {
         super(gsm);
+    	levelNumber = levNum;
+    	ReplayVars.Reset();
         create();
     }
     
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
+        SetTotalOptions();
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         // Update the menu
@@ -57,60 +62,77 @@ public class LevelSelectGame extends GameState {
         metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black",1));
         metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner",1));
         // Set the starting option
-        currentOption = 0;
-        numMin = 0;
+        currentOption = 1;
         fadeOut = -1.0f;
         fadeIn = 0.0f;
     }
 
+    private void SetTotalOptions() {
+    	allOptions = new String[] {LevelsListGame.gameLevelNames[levelNumber+1], "Play level", "Select another level"};
+    	String[] tmp;
+    	// Can skip level
+    	if ((GameVars.CanSkip()) & (GameVars.GetLevelStatus(levelNumber) == 0)) {
+    		tmp = new String[allOptions.length+1];
+    		for (int ii=0; ii<allOptions.length; ii++) {
+    			tmp[ii] = allOptions[ii];
+    		}
+    		tmp[allOptions.length] = "Skip Level";
+    		allOptions = tmp.clone();
+    	}
+    	// Watch or Save replay
+    	if (ReplayVars.replayTime.size() != 0) {
+    		tmp = new String[allOptions.length+2];
+    		for (int ii=0; ii<allOptions.length; ii++) {
+    			tmp[ii] = allOptions[ii];
+    		}
+    		tmp[allOptions.length] = "Watch Replay";
+    		tmp[allOptions.length+1] = "Save Replay";
+    		allOptions = tmp.clone();
+    	}
+    	totalOptions = allOptions.length;
+    }
+    
     private void UpdateMenu() {
-    	totalLevels = GameVars.GetNumLevels();
         float scaleVal = 1.0f;
         menuText.setScale(scaleVal);
-        menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[0]).width;
-        for (int i=1; i<totalLevels; i++) {
-        	if (menuText.getBounds(LevelsListGame.gameLevelNames[i]).width > menuWidth) menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[i]).width;
+        menuWidth = menuText.getBounds(allOptions[0]).width;
+        for (int i=1; i<totalOptions; i++) {
+        	if (menuText.getBounds(allOptions[i]).width > menuWidth) menuWidth = menuText.getBounds(allOptions[i]).width;
         }
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
         menuText.setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuHeight = menuText.getBounds("My").height;
-        SetNumLevShow();
     }
     
-    private void SetNumLevShow() {
-        numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
-        if (numLevShow > totalLevels) numLevShow = totalLevels;
-    }
-
     public void handleInput() {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
-    		if (currentOption < 0) currentOption = totalLevels-1;
+    		if (currentOption < 1) currentOption = totalOptions-1;
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
-    		if (currentOption >= totalLevels) currentOption = 0;
+    		if (currentOption >= totalOptions) currentOption = 1;
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
-        	fadeOut=1.0f; // Return to Main Menu
-        } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(currentOption-1)==0)) {
-        	GameVars.SetSkipLevel(currentOption-1); // Skip this level
-        	totalLevels = GameVars.GetNumLevels();
-        	UpdateMenu();
+        	fadeOut=1.0f; // Return to level selector
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
-        	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
-        	else {
+        	if (currentOption == 1) {
         		// Load the level
-        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[currentOption])), currentOption-1, 2);
+        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1])), levelNumber, 2);
+        	} else if (currentOption==2) fadeOut=1.0f; // Return to level selector
+        	else if (allOptions[currentOption].equalsIgnoreCase("Skip Level")) {
+            	GameVars.SetSkipLevel(levelNumber); // Skip this level
+            	fadeOut=1.0f; // Return to level selector
+        	} else if (allOptions[currentOption] == "Watch Replay"){
+        		// Load the replay
+        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1])), levelNumber, 4);
+        	} else if (allOptions[currentOption] == "Save Replay"){
+ 	   			ReplayVars.SaveReplay("replay.rpl");
         	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.PEEK, false, "none", currentOption-1, 2);
+    		gsm.setState(GameStateManager.PEEK, false, "none", levelNumber, 2);
     		checkLevels=0.0f;
         }
-    	//if (currentOption == 1) currentLevelTxt = "";
-    	if ((currentOption>numLevShow/2) & (currentOption<totalLevels-numLevShow/2)) numMin = currentOption-numLevShow/2;
-    	else if (currentOption<=numLevShow/2) numMin = 0;
-    	else if (currentOption>=totalLevels-numLevShow/2) numMin = totalLevels-numLevShow;
     }
     
     public void update(float dt) {
@@ -121,6 +143,7 @@ public class LevelSelectGame extends GameState {
 		handleInput();
 		// Update how many levels should be shown
 		if (checkLevels > 1.0f) {
+			SetTotalOptions();
 	    	UpdateMenu();
 	    	checkLevels = 0.0f;
 		} else checkLevels += dt;
@@ -162,16 +185,17 @@ public class LevelSelectGame extends GameState {
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;
     	else alpha=1.0f;
-        for (int i=numMin; i<numMin+numLevShow; i++) {
+        for (int i=0; i<totalOptions; i++) {
         	if (currentOption == i) menuText.setColor(1, 1, 1, alpha);
         	else menuText.setColor(1, 1, 1, alpha/2);
-        	lvlWidth = menuText.getBounds(LevelsListGame.gameLevelNames[i]).width;
-        	menuText.draw(sb, LevelsListGame.gameLevelNames[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*numLevShow)/2 - 1.5f*(i-numMin)*menuHeight);
+        	lvlWidth = menuText.getBounds(allOptions[i]).width;
+        	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
+        	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1)*menuHeight);
         }
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
-        lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[currentOption], 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
-        menuText.drawWrapped(sb, LevelsListGame.gameLevelDescr[currentOption], cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
+        lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[levelNumber+1], 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
+        menuText.drawWrapped(sb, LevelsListGame.gameLevelDescr[levelNumber+1], cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
         sb.end();
     }
     

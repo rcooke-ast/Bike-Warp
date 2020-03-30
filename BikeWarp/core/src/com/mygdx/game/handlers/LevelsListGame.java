@@ -180,7 +180,8 @@ public class LevelsListGame {
     	String pb, pbd;
     	if (GameVars.GetLevelStatus(levid-1)==0) {
     		pb = "Level not yet complete!\n";
-    		pbd = "Press 's' to skip this level\n\n";
+    		if (GameVars.CanSkip()) pbd = "Press 's' to skip this level\n\n";
+    		else pbd = "No skips left!\n\n";
     	} else if (GameVars.GetLevelStatus(levid-1)==2) {
     		pb = "Level skipped!";
     		pbd = "\n\n";
