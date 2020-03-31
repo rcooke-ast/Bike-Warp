@@ -241,8 +241,8 @@ public class Play extends GameState {
         // Set the contact listener
         cl = new GameContactListener();
 
-        // Set the replay
-        //executor = Executors.newFixedThreadPool(25);
+        // Restart the timerTotal
+        GameVars.SetTimerTotal(-1);
         
         // Set up box2d camera
         float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);
@@ -486,13 +486,14 @@ public class Play extends GameState {
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
+	     	   			GameVars.SetTimerTotal(timerTotal);
 	     	   			// Check the records
      	   				if (mode == 1) {
-     	   					GameVars.CheckTimes(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID), 2, levelID, timerTotal, false);
-     	   					GameVars.CheckTimes(GameVars.worldTimesTrain.get(levelID), 2, levelID, timerTotal, true);
+     	   					GameVars.CheckTimes(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID).clone(), 2, levelID, timerTotal, false);
+     	   					GameVars.CheckTimes(GameVars.worldTimesTrain.get(levelID).clone(), 2, levelID, timerTotal, true);
      	   				} else if (mode == 2) {
-     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID), 0, levelID, timerTotal, false);
-     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID), 0, levelID, timerTotal, true);
+     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
+     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
      	   					LevelsListGame.updateRecords();
      	   				}
 	     	   			// Check the records with a diamond
@@ -501,14 +502,14 @@ public class Play extends GameState {
 	     	   					// Set the Diamond
 	     	   					GameVars.SetDiamondTrain(levelID);
 	     	   					// Check the time
-	     	   					GameVars.CheckTimes(GameVars.plyrTimesTrainDmnd.get(GameVars.currentPlayer).get(levelID), 3, levelID, timerTotal, false);
-	     	   					GameVars.CheckTimes(GameVars.worldTimesTrainDmnd.get(levelID), 3, levelID, timerTotal, true);
+	     	   					GameVars.CheckTimes(GameVars.plyrTimesTrainDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 3, levelID, timerTotal, false);
+	     	   					GameVars.CheckTimes(GameVars.worldTimesTrainDmnd.get(levelID).clone(), 3, levelID, timerTotal, true);
 	     	   				} else if (mode == 2) {
 	     	   					// Set the Diamond
 	     	   					GameVars.SetDiamond(levelID);
 	     	   					// Check the time
-	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID), 1, levelID, timerTotal, false);
-	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID), 1, levelID, timerTotal, true);
+	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
+	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
 	     	   					LevelsListGame.updateRecords();
 	     	   				}
 	     	   			}
@@ -531,6 +532,7 @@ public class Play extends GameState {
 //	     	   			bikeBodyC.setTransform(bikeBodyCpos, bikeBodyCang);
 //	     	   			mState=GAME_STATE.LOADING;
 //	     	   		}
+    	   			GameVars.SetTimerTotal(-1);
 	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	            	break;
 	     	   }
