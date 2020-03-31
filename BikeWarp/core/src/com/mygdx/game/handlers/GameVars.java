@@ -98,6 +98,7 @@ public class GameVars implements Serializable {
 		// indx = 0, 1, 2, 3 = plyrTimes, plyrTimesDmnd, plyrTimesTrain, plyrTimesTrainDmnd
 		// Need to fetch names for the world records
 		String[] names = new String[numStore];
+		String plyrName = GetPlayerName();
 		if (world) {
 			if (indx == 0) names = worldNames.get(lvl);
 			else if (indx == 1) names = worldNamesDmnd.get(lvl);
@@ -108,11 +109,29 @@ public class GameVars implements Serializable {
 		int[] tempTime = new int[numStore];
 		for (int i=0; i<numStore; i++) {
 			if (saveTimes) {
-				// Shifting down times
-				tempTime[i] = times[i-1];
+				// Shifting down times, as long as a player doesn't already have a world record
+				if (world) {
+					tempTime[i] = times[i-1];
+					if (indx == 0) {
+						names[i] = worldNames.get(lvl)[i-1];
+						if (plyrName == worldNames.get(lvl)[i]) break;
+					}
+					else if (indx == 1) {
+						names[i] = worldNamesDmnd.get(lvl)[i-1];
+						if (plyrName == worldNamesDmnd.get(lvl)[i]) break;
+					}
+					else if (indx == 2) {
+						names[i] = worldNamesTrain.get(lvl)[i-1];
+						if (plyrName == worldNamesTrain.get(lvl)[i]) break;						
+					}
+					else if (indx == 3) {
+						names[i] = worldNamesTrainDmnd.get(lvl)[i-1];
+						if (plyrName == worldNamesTrainDmnd.get(lvl)[i]) break;
+					}
+				}
 			} else if ((timerTotal < times[i]) | (times[i] == -1)) {
 				tempTime[i] = timerTotal;
-				if (world) names[i] = GetPlayerName();
+				if (world) names[i] = plyrName;
 				saveTimes = true;
 			} else tempTime[i] = times[i];
 		}
