@@ -134,6 +134,8 @@ public class MenuRecords extends GameState {
         	}
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
+        } else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut==-1.0f)) {
+        	fadeOut=1.0f; // Return to Main Menu
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);

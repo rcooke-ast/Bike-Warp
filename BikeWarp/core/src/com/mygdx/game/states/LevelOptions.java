@@ -47,6 +47,7 @@ public class LevelOptions extends GameState {
     public void create() {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
+		GameVars.SetTimerTotal(-2);
         SetTotalOptions();
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
@@ -194,8 +195,12 @@ public class LevelOptions extends GameState {
         }
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
-        lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[levelNumber+1], 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
-        menuText.drawWrapped(sb, LevelsListGame.gameLevelDescr[levelNumber+1], cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
+        String dispText = "";
+        if (GameVars.timerTotal == -1) dispText = "Did not finish\n\n";
+        else if (GameVars.timerTotal>0) dispText = "Your time: " + GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
+        dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
+        lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
+        menuText.drawWrapped(sb, dispText, cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
         sb.end();
     }
     

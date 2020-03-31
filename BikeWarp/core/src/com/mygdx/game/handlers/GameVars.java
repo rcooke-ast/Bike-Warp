@@ -29,6 +29,8 @@ public class GameVars implements Serializable {
 	// How many level skips are allowed
 	public static final int skipsAllowed = 3; // Allow players to skip 3 levels
 	public static final int numStore = 10; // Store the top 10 times of each level
+	// Latest time
+	public static int timerTotal = -1;
 	// Player arrays
 	public static int currentPlayer = -1;
 	public static String[] plyrNames = new String[0];
@@ -50,11 +52,16 @@ public class GameVars implements Serializable {
 	public static ArrayList<int[]> worldTimesTrain = new ArrayList<int[]>();
 	public static ArrayList<String[]> worldNamesTrainDmnd = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimesTrainDmnd = new ArrayList<int[]>();
-	
+
 	// Get and Set options
 	public static void SetCurrentPlayer(int i) {
 		currentPlayer = i;
 		// Set the keys of this user
+	}
+
+	// Get and Set options
+	public static void SetTimerTotal(int i) {
+		timerTotal = i;
 	}
 
 	public static int GetCurrentPlayer() {return currentPlayer;}
@@ -100,40 +107,48 @@ public class GameVars implements Serializable {
 		String[] names = new String[numStore];
 		String plyrName = GetPlayerName();
 		if (world) {
-			if (indx == 0) names = worldNames.get(lvl);
-			else if (indx == 1) names = worldNamesDmnd.get(lvl);
-			else if (indx == 2) names = worldNamesTrain.get(lvl);
-			else if (indx == 3) names = worldNamesTrainDmnd.get(lvl);
+			if (indx == 0) names = worldNames.get(lvl).clone();
+			else if (indx == 1) names = worldNamesDmnd.get(lvl).clone();
+			else if (indx == 2) names = worldNamesTrain.get(lvl).clone();
+			else if (indx == 3) names = worldNamesTrainDmnd.get(lvl).clone();
 		}
 		boolean saveTimes = false;
-		int[] tempTime = new int[numStore];
+		int[] tempTime = times.clone();
 		for (int i=0; i<numStore; i++) {
 			if (saveTimes) {
 				// Shifting down times, as long as a player doesn't already have a world record
+				tempTime[i] = times[i-1];
 				if (world) {
-					tempTime[i] = times[i-1];
 					if (indx == 0) {
-						names[i] = worldNames.get(lvl)[i-1];
-						if (plyrName == worldNames.get(lvl)[i]) break;
+						names[i] = worldNames.get(lvl).clone()[i-1];
+						if (plyrName.compareTo(worldNames.get(lvl)[i])==0) break;
 					}
 					else if (indx == 1) {
-						names[i] = worldNamesDmnd.get(lvl)[i-1];
-						if (plyrName == worldNamesDmnd.get(lvl)[i]) break;
+						names[i] = worldNamesDmnd.get(lvl).clone()[i-1];
+						if (plyrName.compareTo(worldNamesDmnd.get(lvl)[i])==0) break;
 					}
 					else if (indx == 2) {
-						names[i] = worldNamesTrain.get(lvl)[i-1];
-						if (plyrName == worldNamesTrain.get(lvl)[i]) break;						
+						names[i] = worldNamesTrain.get(lvl).clone()[i-1];
+						if (plyrName.compareTo(worldNamesTrain.get(lvl)[i])==0) break;						
 					}
 					else if (indx == 3) {
-						names[i] = worldNamesTrainDmnd.get(lvl)[i-1];
-						if (plyrName == worldNamesTrainDmnd.get(lvl)[i]) break;
+						names[i] = worldNamesTrainDmnd.get(lvl).clone()[i-1];
+						if (plyrName.compareTo(worldNamesTrainDmnd.get(lvl)[i])==0) break;
 					}
 				}
 			} else if ((timerTotal < times[i]) | (times[i] == -1)) {
 				tempTime[i] = timerTotal;
-				if (world) names[i] = plyrName;
 				saveTimes = true;
-			} else tempTime[i] = times[i];
+				if (world) names[i] = plyrName;
+			}
+			// If the current Player has a previous record that's faster, don't add their name to the list
+			if (world) {
+				if ((indx == 0) & (plyrName.compareTo(worldNames.get(lvl)[i])==0)) break;
+				else if ((indx == 1) & (plyrName.compareTo(worldNamesDmnd.get(lvl)[i])==0)) break;
+				else if ((indx == 2) & (plyrName.compareTo(worldNamesTrain.get(lvl)[i])==0)) break;
+				else if ((indx == 3) & (plyrName.compareTo(worldNamesTrainDmnd.get(lvl)[i])==0)) break;
+			}
+
 		}
 		if (saveTimes) {
 			if (world) {
