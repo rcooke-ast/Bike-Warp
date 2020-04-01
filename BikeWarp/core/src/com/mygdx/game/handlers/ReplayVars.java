@@ -53,6 +53,19 @@ public class ReplayVars implements Serializable {
     }
 
     // Check the player and world record times
+	public static ArrayList<String> GetReplayList() {
+		File f = new File(replayDir);
+		String[] fils = f.list();
+		ArrayList<String> files = new ArrayList<String>();
+		for (int ff=0; ff<fils.length; ff++) {
+			if (fils[ff].endsWith(replayExt)) {
+				files.add(fils[ff]);
+			}
+		}
+		return files;
+	}
+
+    // Check the player and world record times
 	public static int GetIndex(float repTimer) {
 		for (int i=replayCntr; i<replayTime.size()-1; i++) {
 			if ((repTimer >= replayTime.get(i)) & (repTimer < replayTime.get(i+1))) {
