@@ -36,6 +36,8 @@ public class LevelOptions extends GameState {
     private int levelNumber, currentOption, totalOptions;
     private float checkLevels = 0.0f;
     private String[] allOptions;
+    private boolean saveReplay, fileExists;
+    private String replayFilename;
 
     public LevelOptions(GameStateManager gsm, int levNum) {
         super(gsm);
@@ -48,6 +50,9 @@ public class LevelOptions extends GameState {
 		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
 		GameVars.SetTimerTotal(-2);
+		saveReplay = false;
+		replayFilename = "";
+		fileExists = false;
         SetTotalOptions();
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
@@ -107,16 +112,25 @@ public class LevelOptions extends GameState {
     }
     
     public void handleInput() {
-    	if (GameInput.isPressed(GameInput.KEY_UP)) {
+    	if ((GameInput.isPressed(GameInput.KEY_UP)) & (!saveReplay)) {
     		currentOption--;
     		if (currentOption < 1) currentOption = totalOptions-1;
-        } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
+        } else if ((GameInput.isPressed(GameInput.KEY_DOWN)) & (!saveReplay)) {
     		currentOption++;
     		if (currentOption >= totalOptions) currentOption = 1;
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
-        	fadeOut=1.0f; // Return to level selector
+        	if (saveReplay) saveReplay = false;
+        	else fadeOut=1.0f; // Return to level selector
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
-        	if (currentOption == 1) {
+        	if (saveReplay) {
+        		// Check that a valid name has been supplied, then write to file
+        		if (replayFilename.equals("")) {
+        			saveReplay = false;
+        		} else if (!fileExists) {
+        			ReplayVars.SaveReplay(replayFilename);
+        			saveReplay = false;
+        		}
+        	} else if (currentOption == 1) {
         		// Load the level
         		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1])), levelNumber, 2);
         	} else if (currentOption==2) fadeOut=1.0f; // Return to level selector
@@ -127,7 +141,7 @@ public class LevelOptions extends GameState {
         		// Load the replay
         		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1])), levelNumber, 4);
         	} else if (allOptions[currentOption] == "Save Replay"){
- 	   			ReplayVars.SaveReplay("replay.rpl");
+        		saveReplay = true;
         	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
@@ -193,14 +207,27 @@ public class LevelOptions extends GameState {
         	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
         	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1)*menuHeight);
         }
-        // Draw level description
-        menuText.setColor(1, 1, 1, alpha/2);
         String dispText = "";
-        if (GameVars.timerTotal == -1) dispText = "Did not finish\n\n";
-        else if (GameVars.timerTotal>0) dispText = "Your time: " + GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
-        dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
-        lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
-        menuText.drawWrapped(sb, dispText, cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
+        if (saveReplay) {
+	        // Check if a new character is available
+        	if (GameInput.currChar != "") {
+        		if ((replayFilename.length() > 0) & (GameInput.currChar == "\b")) replayFilename = replayFilename.substring(0, replayFilename.length() - 1);
+        		else if (replayFilename.length() <= 20) replayFilename += GameInput.currChar;
+        		GameInput.setCharacter("");
+        		fileExists = ReplayVars.CheckExists(replayFilename);
+        	}
+        	dispText = "Press ESC to return to options\n\nEnter a filename:\n";
+        	dispText += replayFilename;
+        	if (fileExists) dispText += "\n\nFile exists!";
+        } else {
+	        // Draw level description
+	        menuText.setColor(1, 1, 1, alpha/2);
+	        if (GameVars.timerTotal == -1) dispText = "Did not finish\n\n";
+	        else if (GameVars.timerTotal>0) dispText = "Your time: " + GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
+	        dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
+        }
+	    lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
+	    menuText.drawWrapped(sb, dispText, cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
         sb.end();
     }
     

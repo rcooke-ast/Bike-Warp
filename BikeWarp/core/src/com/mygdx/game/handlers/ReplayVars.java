@@ -25,6 +25,8 @@ import java.io.ObjectOutputStream;
 public class ReplayVars implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final String replayDir = "replays/";
+	private static final String replayExt = ".rpl";
 
     public static ArrayList<Float> replayTime;
     public static ArrayList<Float> replayBike_X, replayBike_Y, replayBike_A;
@@ -82,7 +84,7 @@ public class ReplayVars implements Serializable {
 		replayCntr = 0;
 		replayCDCntr = 0;
 		try {
-			FileInputStream fi = new FileInputStream(new File(filename));
+			FileInputStream fi = new FileInputStream(new File(replayDir+filename));
 			ObjectInputStream oi = new ObjectInputStream(fi);
 
 			// Read objects
@@ -111,9 +113,13 @@ public class ReplayVars implements Serializable {
 	}
 
 	public static void SaveReplay(String filename) {
+		// First check if the directory structure exists
+		File directory = new File(replayDir);
+	    if (!directory.exists()) directory.mkdir();
+		// Now write out the file
 		FileOutputStream f;
 		try {
-			f = new FileOutputStream(new File(filename));
+			f = new FileOutputStream(new File(replayDir+filename+replayExt));
 			ObjectOutputStream o = new ObjectOutputStream(f);
 			// Write objects to file
 			o.writeObject(replayTime);
@@ -136,5 +142,11 @@ public class ReplayVars implements Serializable {
 		} catch (IOException e) {
 			System.out.println("Error initializing stream for replay file");
 		}
+	}
+
+	public static boolean CheckExists(String filename) {
+		File f = new File(replayDir+filename+replayExt);
+		if(f.exists() && !f.isDirectory()) return true;
+		return false;
 	}
 }
