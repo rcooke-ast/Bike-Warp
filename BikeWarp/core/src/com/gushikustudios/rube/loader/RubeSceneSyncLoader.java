@@ -16,7 +16,7 @@ public class RubeSceneSyncLoader extends SynchronousAssetLoader<RubeScene, RubeS
    
    static public class RubeSceneParameters extends AssetLoaderParameters<RubeScene>
    {
-      // TODO: Add any special parameter definitions here
+
    }
    
    public RubeSceneSyncLoader(FileHandleResolver resolver)

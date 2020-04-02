@@ -64,6 +64,7 @@ import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
+import com.mygdx.game.handlers.LevelsListTraining;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.FileUtils;
@@ -170,6 +171,7 @@ public class Play extends GameState {
     private Texture texture;
     private Sprite sky, mountains, trees, finishFG, openDoor, switchGL, switchRL, metalBar;
     private Sprite bikeColour, bikeOverlay, suspensionRear, suspensionFront;
+    private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
     private int timerStart, timerCurrent, timerTotal, timerMSecs, timerSecs, timerMins;
     private String worldRecord, personalRecord;
@@ -297,6 +299,7 @@ public class Play extends GameState {
         rightRopeR = new RopeJointDef();
 
         // Load the suspension textures
+        bikeCol = GameVars.GetPlayerBikeColor();
         bikeColour = new Sprite(BikeGameTextures.LoadTexture("bike_white",0));
         bikeOverlay = new Sprite(BikeGameTextures.LoadTexture("bike_overlay",0));
         suspensionRear = new Sprite(BikeGameTextures.LoadTexture("rear_suspension",0));
@@ -487,6 +490,7 @@ public class Play extends GameState {
      	   				if (mode == 1) {
      	   					GameVars.CheckTimes(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID).clone(), 2, levelID, timerTotal, false);
      	   					GameVars.CheckTimes(GameVars.worldTimesTrain.get(levelID).clone(), 2, levelID, timerTotal, true);
+     	   					LevelsListTraining.updateRecords();
      	   				} else if (mode == 2) {
      	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
      	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
@@ -512,6 +516,7 @@ public class Play extends GameState {
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 	     	   			GameVars.SetLevelComplete(levelID);
 	     	   			LevelsListGame.updateRecords();
+	     	   			LevelsListTraining.updateRecords();
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
@@ -1619,8 +1624,7 @@ public class Play extends GameState {
        bcy = bikeBodyC.getPosition().y;
        angle = bikeBodyC.getAngle();
        // Change the colour of the bike
-       //mBatch.setColor(1, 0, 1, 1); // Magenta
-       mBatch.setColor(0.1f, 0.5f, 1, 1); // Blue
+       mBatch.setColor(bikeCol[0], bikeCol[1], bikeCol[2], 1);
        mBatch.draw(bikeColour, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
        mBatch.setColor(1, 1, 1, 1);
        bcx = bikeBodyC.getPosition().x;

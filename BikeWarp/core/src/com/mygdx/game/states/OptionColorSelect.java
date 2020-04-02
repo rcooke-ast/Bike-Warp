@@ -12,6 +12,8 @@ import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.handlers.GameVars;
+import com.mygdx.game.utilities.ColorUtils;
 import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 
@@ -67,10 +69,8 @@ public class OptionColorSelect extends GameState {
         currentOption=0;
         // Get current user Bike color
         hsb = new float[3];
-        rgb = new float[] {0.1f, 0.5f, 1.0f};
-        //rgb = GameVars.GetPlayerBikeColor().clone();
+        rgb = GameVars.GetPlayerBikeColor().clone();
         Color.RGBtoHSB((int)(rgb[0]*255.0f), (int)(rgb[1]*255.0f), (int)(rgb[2]*255.0f), hsb);
-        hsb[0] /= 360.0f;
         // Calculate the coordinates for the Rear Suspension
         float bcx, bcy, wcx, wcy, mtopix = wwidth*(968.0f/446.0f);
         // Prepare the rear suspension (Left wheel)
@@ -153,6 +153,8 @@ public class OptionColorSelect extends GameState {
     		bikeScaleLev *= -1.0f;
     		bikeScale += bikeScaleLev;
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (currentOption==0) & (fadeOut==-1.0f)) {
+        	GameVars.SetPlayerBikeColor(ColorUtils.hsbToRgb(hsb[0], hsb[1], hsb[2]));
+        	GameVars.SavePlayers();
         	fadeOut=1.0f;
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;

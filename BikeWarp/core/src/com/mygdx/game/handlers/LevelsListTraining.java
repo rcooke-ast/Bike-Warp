@@ -18,7 +18,7 @@ public class LevelsListTraining {
     public static String[] trainingLevelTimes = new String[NUMTRAINLEVELS+1];
 
     // Set the training levels
-    static {
+    public static void initialise() {
     	// Return to Main Menu
     	trainingLevelNames[0] = "Return to Main Menu";
     	trainingLevelFiles[0] = null;
@@ -71,7 +71,10 @@ public class LevelsListTraining {
     	trainingLevelNames[12] = "12. The Diamond";
     	trainingLevelFiles[12] = "data/gamelevels/train12.lvl";
     	trainingLevelDescr[12] = "Every level contains a diamond jewel that is hard to find and difficult to collect. If you collect a diamond jewel, you will not need to collect any more golden jewels, just go straight to the exit warp. To successfully collect the diamond jewel in each level, you must finish by exiting through the warp. Try to find the diamonds in all of these training levels.";
-    }
+
+    	// Finally, initialise the records strings
+    	updateRecords();
+}
 
     public static String GetRecordTimes(int levid) {
     	String pb  = String.format("Personal Best\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimesTrain(levid-1, 0)));
