@@ -71,12 +71,12 @@ public class GameVars implements Serializable {
 	public static int GetPlayerTimes(int lvl, int indx) {return plyrTimes.get(currentPlayer).get(lvl)[indx];}
 	public static int GetPlayerTimesDmnd(int lvl, int indx) {return plyrTimesDmnd.get(currentPlayer).get(lvl)[indx];}
 	public static int GetPlayerTimesTrain(int lvl, int indx) {return plyrTimesTrain.get(currentPlayer).get(lvl)[indx];}
+	public static int GetPlayerTimesTrainDmnd(int lvl, int indx) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl)[indx];}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamondsTrain() {return plyrColTrainDmnd.get(currentPlayer);}
 	public static int[] GetPlayerSkipLevel() {return plyrLevelComplete.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
-	public static int[] GetPlayerTimesTrainDmnd(int lvl) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl);}
 	// Get the world record times and aliases
 	public static int GetWorldTimes(int lvl, int indx) {return worldTimes.get(lvl)[indx];}
 	public static int GetWorldTimesDmnd(int lvl, int indx) {return worldTimesDmnd.get(lvl)[indx];}

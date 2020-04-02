@@ -15,6 +15,7 @@ public class LevelsListTraining {
     public static String[] trainingLevelNames = new String[NUMTRAINLEVELS+1];
     public static String[] trainingLevelDescr = new String[NUMTRAINLEVELS+1];
     public static String[] trainingLevelFiles = new String[NUMTRAINLEVELS+1];
+    public static String[] trainingLevelTimes = new String[NUMTRAINLEVELS+1];
 
     // Set the training levels
     static {
@@ -25,7 +26,7 @@ public class LevelsListTraining {
     	// Level 1
     	trainingLevelNames[1] = "1. Jewels and The Warp";
     	trainingLevelFiles[1] = "data/gamelevels/train01.lvl";
-    	trainingLevelDescr[1] = "Collect all the golden jewels and then go to the exit warp. The exit warp will only open once you have collected enough golden jewels. Jewels can be collected with your head or your tires. Do not hit your head on the ground, or you will have to start again! Pressing the Esc key will cause the level to be restarted.";
+    	trainingLevelDescr[1] = "Collect all the golden jewels and then go to the exit warp. The exit warp will only open once you have collected enough golden jewels. Jewels can be collected with your helmet or your tires. Do not hit your helmet on the ground, or you will have to start again! Pressing the Esc key will cause the level to be restarted.";
     	// Level 2
     	trainingLevelNames[2] = "2. Keys and Gates";
     	trainingLevelFiles[2] = "data/gamelevels/train02.lvl";
@@ -72,7 +73,21 @@ public class LevelsListTraining {
     	trainingLevelDescr[12] = "Every level contains a diamond jewel that is hard to find and difficult to collect. If you collect a diamond jewel, you will not need to collect any more golden jewels, just go straight to the exit warp. To successfully collect the diamond jewel in each level, you must finish by exiting through the warp. Try to find the diamonds in all of these training levels.";
     }
 
+    public static String GetRecordTimes(int levid) {
+    	String pb  = String.format("Personal Best\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimesTrain(levid-1, 0)));
+    	String pbd = String.format("Personal Best (diamond)\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimesTrainDmnd(levid-1, 0)));    		
+    	String wr  = String.format("World Record\n%s\n\n", GameVars.getTimeString(GameVars.GetWorldTimesTrain(levid-1, 0)));
+    	String wrd = String.format("World Record (diamond)\n%s", GameVars.getTimeString(GameVars.GetWorldTimesTrainDmnd(levid-1, 0)));
+    	return pb+pbd+wr+wrd;
+    }
+
     public static String getLevelFile(int i) { return trainingLevelFiles[i]; }
     public static String getLevelName(int i) { return trainingLevelNames[i]; }
+
+    public static void updateRecords() {
+    	for (int i=0; i<NUMTRAINLEVELS; i++) {
+    		trainingLevelTimes[i+1] = GetRecordTimes(i+1);
+    	}
+    }
 
 }
