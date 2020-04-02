@@ -16,6 +16,7 @@ import com.mygdx.game.states.MainMenu;
 import com.mygdx.game.states.Editor;
 import com.mygdx.game.states.MenuExit;
 import com.mygdx.game.states.MenuRecords;
+import com.mygdx.game.states.MenuReplay;
 import com.mygdx.game.states.OptionColorSelect;
 import com.mygdx.game.states.Play;
 
@@ -38,6 +39,7 @@ public class GameStateManager {
     public static final int MENUTRAINING = 100004;
     public static final int MENULEVELS = 100005;
     public static final int MENUPLAYER = 100006;
+    public static final int MENUREPLAY = 100007;
     public static final int PLAY = 200000;
     public static final int LEVELSELECT = 300000;
     public static final int LEVELOPTIONS = 300001;
@@ -66,7 +68,7 @@ public class GameStateManager {
         this.dispose();
     }
 
-    private GameState getState(int state, String editorScene, int levelID, int train) {
+    private GameState getState(int state, String editorScene, int levelID, int modeValue) {
         if (state == MENUPLAYER) return new MenuSelectPlayer(this);
         else if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
@@ -75,8 +77,9 @@ public class GameStateManager {
         else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
         else if (state == MENUTRAINING) return new LevelSelectTraining(this);
         else if (state == MENULEVELS) return new LevelSelectGame(this);
-        else if (state == LEVELOPTIONS) return new LevelOptions(this, levelID);
-        else if (state == PLAY) return new Play(this, editorScene, levelID, train);
+        else if (state == LEVELOPTIONS) return new LevelOptions(this, levelID, modeValue);
+        else if (state == MENUREPLAY) return new MenuReplay(this);
+        else if (state == PLAY) return new Play(this, editorScene, levelID, modeValue);
         else if (state == EDITOR) return new Editor(this);
         //else if (state == LEVELSELECT) return new LevelSelect(this);
         return null;
