@@ -117,6 +117,7 @@ public class MainMenu extends GameState {
         	} else if (tstName=="World Records") {
         		goToLevel = GameStateManager.MENURECORDS;
         	} else if (tstName=="Watch Replays") {
+        		goToLevel = GameStateManager.MENUREPLAY;
         	} else if (tstName=="Design Level") {
         		goToLevel = GameStateManager.EDITOR;
         	} else if (tstName=="Options") {

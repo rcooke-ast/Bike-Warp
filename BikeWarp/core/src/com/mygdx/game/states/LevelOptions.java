@@ -39,10 +39,13 @@ public class LevelOptions extends GameState {
     private boolean saveReplay, fileExists;
     private String replayFilename;
 
-    public LevelOptions(GameStateManager gsm, int levNum) {
+    public LevelOptions(GameStateManager gsm, int levNum, int mode) {
         super(gsm);
     	levelNumber = levNum;
-    	ReplayVars.Reset();
+    	System.out.println(mode);
+    	System.out.println(levNum);
+    	System.out.println("-----");
+    	ReplayVars.Reset(levNum, mode);
         create();
     }
     

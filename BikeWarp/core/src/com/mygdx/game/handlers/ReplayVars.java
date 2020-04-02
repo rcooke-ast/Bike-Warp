@@ -33,10 +33,10 @@ public class ReplayVars implements Serializable {
     public static ArrayList<Float> replayLW_X, replayLW_Y, replayLW_A;
     public static ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A;
     public static ArrayList<Float> replayChangeDir;
-    public static int replayCntr = 0, replayCDCntr = 0;
+    public static int replayCntr = 0, replayCDCntr = 0, levelNumber=-1, replayMode=-1;
 
     // Reset the variables, ready for a new replay
-    public static void Reset() {
+    public static void Reset(int levNum, int mode) {
     	replayTime = new ArrayList<Float>();
     	replayBike_X = new ArrayList<Float>();
     	replayBike_Y = new ArrayList<Float>();
@@ -50,6 +50,8 @@ public class ReplayVars implements Serializable {
     	replayChangeDir = new ArrayList<Float>();
     	replayCntr = 0;
     	replayCDCntr = 0;
+    	levelNumber = levNum;
+    	replayMode = mode+2;
     }
 
     // Check the player and world record times
@@ -101,6 +103,8 @@ public class ReplayVars implements Serializable {
 			ObjectInputStream oi = new ObjectInputStream(fi);
 
 			// Read objects
+			replayMode = (int) oi.readObject();
+			levelNumber = (int) oi.readObject();
 	    	replayTime = (ArrayList<Float>) oi.readObject();
 	    	replayBike_X = (ArrayList<Float>) oi.readObject();
 	    	replayBike_Y = (ArrayList<Float>) oi.readObject();
@@ -135,6 +139,8 @@ public class ReplayVars implements Serializable {
 			f = new FileOutputStream(new File(replayDir+filename+replayExt));
 			ObjectOutputStream o = new ObjectOutputStream(f);
 			// Write objects to file
+			o.writeObject(replayMode);
+			o.writeObject(levelNumber);
 			o.writeObject(replayTime);
 			o.writeObject(replayBike_X);
 			o.writeObject(replayBike_Y);

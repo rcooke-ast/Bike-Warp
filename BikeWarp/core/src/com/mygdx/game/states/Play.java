@@ -230,7 +230,6 @@ public class Play extends GameState {
         levelID = levID;
         mode = modeValue;
         if ((mode==3) | (mode==4)) {
-        	// TODO :: Need to load a saved replay from file, if needed
             isReplay = true;
         }
         create();
@@ -386,9 +385,6 @@ public class Play extends GameState {
     	
     	// Set the replay in motion
     	replayTime = 0.0f;
-    	if (!isReplay) {
-    		ReplayVars.Reset();
-    	}
     }
     
     public void handleInput() {
