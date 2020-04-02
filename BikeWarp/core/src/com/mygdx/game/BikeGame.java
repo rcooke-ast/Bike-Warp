@@ -8,6 +8,12 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 
+// TODO ITEMS before game is finished
+// Check world total times in GameVars
+// Display total times in MenuRecords
+// Make option to display train/diamond times in MenuRecords
+
+
 public class BikeGame implements ApplicationListener {
 	public static final String TITLE = "Bike Warp";
 	public static final int V_WIDTH = 512;//480;

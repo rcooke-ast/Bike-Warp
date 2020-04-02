@@ -137,6 +137,7 @@ public class LevelOptions extends GameState {
         		// Load the level
         		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
         		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[levelNumber+1]));
+            	ReplayVars.Reset(levelNumber, modeValue);
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue);
         	} else if (currentOption==2) fadeOut=1.0f; // Return to level selector
         	else if (allOptions[currentOption].equalsIgnoreCase("Skip Level")) {

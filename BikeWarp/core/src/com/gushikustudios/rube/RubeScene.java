@@ -285,7 +285,6 @@ public class RubeScene
       }
       else
       {
-         //TODO: Sort based on render order of the image
          images.add(image);
       }
    }

@@ -105,6 +105,9 @@ public class MenuRecords extends GameState {
         tLevelNumber = -1; // Only positive when a new level is being entered
         levnum = -1.0f; // Once levnum reaches levnumTime, LevelNumber will be set to the tLevelNumber
         totalLevels = LevelsListGame.NUMGAMELEVELS;
+        // Finally, calculate the best total times;
+        // TODO
+        
     }
 
     public void handleInput() {
