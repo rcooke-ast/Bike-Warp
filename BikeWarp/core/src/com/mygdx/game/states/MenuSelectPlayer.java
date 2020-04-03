@@ -126,6 +126,7 @@ public class MenuSelectPlayer extends GameState {
     		fadeOut=-1.0f;
     		LevelsListGame.initialise();
     		LevelsListTraining.initialise();
+    		GameVars.UpdateTotalTimes();
     		gsm.setState(GameStateManager.MAINMENU, false, "none", -1, 0);
         }
     	if ((currentOption>numPlyrShow/2) & (currentOption<numOptions-numPlyrShow/2)) numMin = currentOption-numPlyrShow/2;

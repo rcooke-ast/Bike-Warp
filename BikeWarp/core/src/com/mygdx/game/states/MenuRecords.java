@@ -106,7 +106,7 @@ public class MenuRecords extends GameState {
         levnum = -1.0f; // Once levnum reaches levnumTime, LevelNumber will be set to the tLevelNumber
         totalLevels = LevelsListGame.NUMGAMELEVELS;
         // Finally, calculate the best total times;
-        // TODO
+        GameVars.UpdateTotalTimes();
         
     }
 
@@ -237,7 +237,17 @@ public class MenuRecords extends GameState {
         	else textcarve.draw(sb, nmbrString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	// Get the name and time
         	if (levelNumber == 0) {
-        		// Total times
+	        	if (currentOption == 2) {
+	        		// TODO add in TRAIN times and DIAMOND times
+	        		int timeval = GameVars.plyrTotalTimes.get(GameVars.currentPlayer)[9-i];
+	        		if (timeval != -1) aliasString = GameVars.GetPlayerName();
+	        		else aliasString = "";
+	        		timeString = GameVars.getTimeString(timeval);
+	        	} else if (currentOption == 3) {
+	        		// TODO WORLD TOTAL TIMES
+//	        		aliasString = GameVars.GetWorldNames(levelNumber-1, 9-i);
+//	        		timeString = GameVars.getTimeString(GameVars.GetWorldTimes(levelNumber-1, 9-i));
+	        	}
         	} else {
 	        	if (currentOption == 2) {
 	        		if (GameVars.GetPlayerTimes(levelNumber-1, 9-i) != -1) aliasString = GameVars.GetPlayerName();
