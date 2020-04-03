@@ -7,6 +7,8 @@
 package com.mygdx.game.handlers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 import java.io.Serializable;
 import com.badlogic.gdx.Input.Keys;
 
@@ -43,6 +45,10 @@ public class GameVars implements Serializable {
 	public static ArrayList<boolean[]> plyrColTrainDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<int[]> plyrLevelComplete = new ArrayList<int[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
+	public static ArrayList<int[]> plyrTotalTimes = new ArrayList<int[]>();
+	public static ArrayList<int[]> plyrTotalTimesTrain = new ArrayList<int[]>();
+	public static ArrayList<int[]> plyrTotalTimesDmnd = new ArrayList<int[]>();
+	public static ArrayList<int[]> plyrTotalTimesTrainDmnd = new ArrayList<int[]>();
 	// World records
 	public static ArrayList<String[]> worldNames = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimes = new ArrayList<int[]>();
@@ -91,23 +97,41 @@ public class GameVars implements Serializable {
 	public static String GetWorldNamesTrain(int lvl, int indx) {return worldNamesTrain.get(lvl)[indx];}
 	public static String GetWorldNamesTrainDmnd(int lvl, int indx) {return worldNamesTrainDmnd.get(lvl)[indx];}
 
+	public static void UpdateTotalTimes() {
+		// Do the Player total times first
+		plyrTotalTimes.set(currentPlayer, GetTotalTimes(false, false, false));
+		plyrTotalTimesTrain.set(currentPlayer, GetTotalTimes(true, false, false));
+		plyrTotalTimesDmnd.set(currentPlayer, GetTotalTimes(false, false, true));
+		plyrTotalTimesTrainDmnd.set(currentPlayer, GetTotalTimes(true, false, true));
+		// TODO :: update world total times
+//		worldTotalNames = (String[]) oi.readObject();
+//		worldTotalTimes = (int[]) oi.readObject();
+//		worldTotalNamesDmnd = (String[]) oi.readObject();
+//		worldTotalTimesDmnd = (int[]) oi.readObject();
+//		worldTotalNamesTrain = (String[]) oi.readObject();
+//		worldTotalTimesTrain = (int[]) oi.readObject();
+//		worldTotalNamesTrainDmnd = (String[]) oi.readObject();
+//		worldTotalTimesTrainDmnd = (int[]) oi.readObject();
+		SavePlayers();
+	}
+	
 	public static int[] GetTotalTimes(boolean train, boolean world, boolean diamond) {
 		int[] totalTimes = new int[numStore];
 		int timeVal;
 		int numLevels = LevelsListGame.NUMGAMELEVELS;
 		if (train) numLevels = LevelsListTraining.NUMTRAINLEVELS;
-		for (int nn=0; nn<numLevels; nn++) {
+		for (int nn=0; nn<numStore; nn++) {
 			for (int ll=0; ll<numLevels; ll++) {
 				// First get the relevant time
 				timeVal = -1;
-				if (world & train & diamond) timeVal = GetWorldTimesTrainDmnd(ll, nn);
-				else if (world & train & !diamond) timeVal = GetWorldTimesTrain(ll, nn);
-				else if (world & !train & diamond) timeVal = GetWorldTimesDmnd(ll, nn);
-				else if (world & !train & !diamond) timeVal = GetWorldTimes(ll, nn);
-				else if (!world & train & diamond) timeVal = GetPlayerTimesTrainDmnd(ll, nn);
-				else if (!world & train & !diamond) timeVal = GetPlayerTimesTrain(ll, nn);
-				else if (!world & !train & diamond) timeVal = GetPlayerTimesDmnd(ll, nn);
-				else if (!world & !train & !diamond) timeVal = GetPlayerTimes(ll, nn);
+				if (world && train && diamond) timeVal = GetWorldTimesTrainDmnd(ll, nn);
+				else if (world && train && !diamond) timeVal = GetWorldTimesTrain(ll, nn);
+				else if (world && !train && diamond) timeVal = GetWorldTimesDmnd(ll, nn);
+				else if (world && !train && !diamond) timeVal = GetWorldTimes(ll, nn);
+				else if (!world && train && diamond) timeVal = GetPlayerTimesTrainDmnd(ll, nn);
+				else if (!world && train && !diamond) timeVal = GetPlayerTimesTrain(ll, nn);
+				else if (!world && !train && diamond) timeVal = GetPlayerTimesDmnd(ll, nn);
+				else if (!world && !train && !diamond) timeVal = GetPlayerTimes(ll, nn);
 				// Check the time is valid
 				if (timeVal != -1) totalTimes[nn] += timeVal;
 				else {
@@ -175,10 +199,10 @@ public class GameVars implements Serializable {
 			}
 			// If the current Player has a previous record that's faster, don't add their name to the list
 			if (world) {
-				if ((indx == 0) & (plyrName.compareTo(worldNames.get(lvl)[i])==0)) break;
-				else if ((indx == 1) & (plyrName.compareTo(worldNamesDmnd.get(lvl)[i])==0)) break;
-				else if ((indx == 2) & (plyrName.compareTo(worldNamesTrain.get(lvl)[i])==0)) break;
-				else if ((indx == 3) & (plyrName.compareTo(worldNamesTrainDmnd.get(lvl)[i])==0)) break;
+				if ((indx == 0) && (plyrName.compareTo(worldNames.get(lvl)[i])==0)) break;
+				else if ((indx == 1) && (plyrName.compareTo(worldNamesDmnd.get(lvl)[i])==0)) break;
+				else if ((indx == 2) && (plyrName.compareTo(worldNamesTrain.get(lvl)[i])==0)) break;
+				else if ((indx == 3) && (plyrName.compareTo(worldNamesTrainDmnd.get(lvl)[i])==0)) break;
 			}
 
 		}
@@ -283,6 +307,11 @@ public class GameVars implements Serializable {
 		plyrLevelComplete.add(ZeroInt(LevelsListGame.NUMGAMELEVELS));
 		// Add a default Bike color
 		plyrBikeColor.add(GetDefaultBikeColor());
+		// Add the total times
+		plyrTotalTimes.add(ValueInt(numStore, -1));
+		plyrTotalTimesTrain.add(ValueInt(numStore, -1));
+		plyrTotalTimesDmnd.add(ValueInt(numStore, -1));
+		plyrTotalTimesTrainDmnd.add(ValueInt(numStore, -1));
 	}
 
 	// Methods
@@ -346,6 +375,10 @@ public class GameVars implements Serializable {
 			plyrTimesDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrTimesTrain = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrTimesTrainDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
+			plyrTotalTimes = (ArrayList<int[]>) oi.readObject();
+			plyrTotalTimesTrain = (ArrayList<int[]>) oi.readObject();
+			plyrTotalTimesDmnd = (ArrayList<int[]>) oi.readObject();
+			plyrTotalTimesTrainDmnd = (ArrayList<int[]>) oi.readObject();
 			plyrControls = (ArrayList<int[]>) oi.readObject();
 			plyrColDmnd = (ArrayList<boolean[]>) oi.readObject();
 			plyrColTrainDmnd = (ArrayList<boolean[]>) oi.readObject();
@@ -376,6 +409,10 @@ public class GameVars implements Serializable {
 			o.writeObject(plyrTimesDmnd);
 			o.writeObject(plyrTimesTrain);
 			o.writeObject(plyrTimesTrainDmnd);
+			o.writeObject(plyrTotalTimes);
+			o.writeObject(plyrTotalTimesTrain);
+			o.writeObject(plyrTotalTimesDmnd);
+			o.writeObject(plyrTotalTimesTrainDmnd);
 			o.writeObject(plyrControls);
 			o.writeObject(plyrColDmnd);
 			o.writeObject(plyrColTrainDmnd);
@@ -430,23 +467,25 @@ public class GameVars implements Serializable {
 			e.printStackTrace();
 		}
 		if (failed) {
-			worldNames = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
-			worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
-			worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
-			worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
-			worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-			worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
-			worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-			worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+			GenerateFakeTimes();
+			return;
+//			worldNames = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
+//			worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+//			worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
+//			worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+//			worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
+//			worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+//			worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
+//			worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
 			// Now the total times
-			worldTotalNames = GetEmptyStringArray(numStore);
-			worldTotalTimes = GetEmptyIntArray(numStore);
-			worldTotalNamesDmnd = GetEmptyStringArray(numStore);
-			worldTotalTimesDmnd = GetEmptyIntArray(numStore);
-			worldTotalNamesTrain = GetEmptyStringArray(numStore);
-			worldTotalTimesTrain = GetEmptyIntArray(numStore);
-			worldTotalNamesTrainDmnd = GetEmptyStringArray(numStore);
-			worldTotalTimesTrainDmnd = GetEmptyIntArray(numStore);
+//			worldTotalNames = GetEmptyStringArray(numStore);
+//			worldTotalTimes = GetEmptyIntArray(numStore);
+//			worldTotalNamesDmnd = GetEmptyStringArray(numStore);
+//			worldTotalTimesDmnd = GetEmptyIntArray(numStore);
+//			worldTotalNamesTrain = GetEmptyStringArray(numStore);
+//			worldTotalTimesTrain = GetEmptyIntArray(numStore);
+//			worldTotalNamesTrainDmnd = GetEmptyStringArray(numStore);
+//			worldTotalTimesTrainDmnd = GetEmptyIntArray(numStore);
 		}
 	}
 
@@ -527,5 +566,106 @@ public class GameVars implements Serializable {
 		int[] empty = new int[num];
 		for (int i=0; i<num; i++) empty[i]=0;
 		return empty.clone();
+	}
+
+	public static int[] ValueInt(int num, int val) {
+		int[] empty = new int[num];
+		for (int i=0; i<num; i++) empty[i]=val;
+		return empty.clone();
+	}
+
+	private static void GenerateFakeTimes() {
+		AddFakePlayer("Ryan");
+		AddFakePlayer("Steve");
+		AddFakePlayer("Who");
+		AddFakePlayer("Else");
+		AddFakePlayer("Wants");
+		AddFakePlayer("To");
+		AddFakePlayer("Play");
+		// Initialise the world records
+		worldNames = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
+		worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+		worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
+		worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+		worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
+		worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+		worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
+		worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+		// Now the total times
+		worldTotalNames = GetEmptyStringArray(numStore);
+		worldTotalTimes = GetEmptyIntArray(numStore);
+		worldTotalNamesDmnd = GetEmptyStringArray(numStore);
+		worldTotalTimesDmnd = GetEmptyIntArray(numStore);
+		worldTotalNamesTrain = GetEmptyStringArray(numStore);
+		worldTotalTimesTrain = GetEmptyIntArray(numStore);
+		worldTotalNamesTrainDmnd = GetEmptyStringArray(numStore);
+		worldTotalTimesTrainDmnd = GetEmptyIntArray(numStore);
+//
+//		CheckTimes(int[] times, int indx, int lvl, int timerTotal, boolean world) {
+//		times = plyrTimes.get(currentPlayer).get(lvl)
+//		indx = 0, 1, 2, 3 = plyrTimes, plyrTimesDmnd, plyrTimesTrain, plyrTimesTrainDmnd
+//
+		// Now apply all world records
+		int timerTotal;
+		for (int p=0; p<plyrNames.length; p++) {
+			SetCurrentPlayer(p);
+			UpdateTotalTimes();
+			// For all game levels
+			for (int l=0; l<LevelsListGame.NUMGAMELEVELS; l++) {
+				timerTotal = plyrTimes.get(currentPlayer).get(l)[0];
+				CheckTimes(worldTimes.get(l), 0, l, timerTotal, true);
+			}
+		}
+
+	}
+
+	private static void AddFakePlayer(String name) {
+		String[] oldNames = plyrNames.clone();
+		plyrNames = new String[1+oldNames.length];
+		for (int i=0;i<oldNames.length;i++) plyrNames[i] = oldNames[i];
+		plyrNames[oldNames.length] = name;
+		// Add the player times
+		plyrTimes.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
+		plyrTimesDmnd.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
+		plyrTimesTrain.add(RandomTimes(LevelsListTraining.NUMTRAINLEVELS));
+		plyrTimesTrainDmnd.add(RandomTimes(LevelsListTraining.NUMTRAINLEVELS));
+		// Add the player controls
+		plyrControls.add(GetDefaultControls());
+		// Add an empty diamonds array
+		plyrColDmnd.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
+		// Add an empty diamonds training array
+		plyrColTrainDmnd.add(FalseBoolean(LevelsListTraining.NUMTRAINLEVELS));
+		// Add a completed levels array
+		plyrLevelComplete.add(ValueInt(LevelsListGame.NUMGAMELEVELS, 1));
+		// Add a default Bike color
+		plyrBikeColor.add(GetDefaultBikeColor());
+		// Add the total times
+		plyrTotalTimes.add(ValueInt(numStore, -1));
+		plyrTotalTimesTrain.add(ValueInt(numStore, -1));
+		plyrTotalTimesDmnd.add(ValueInt(numStore, -1));
+		plyrTotalTimesTrainDmnd.add(ValueInt(numStore, -1));
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static ArrayList<int[]> RandomTimes(int numLevels) {
+		int min = 60000, max = 70000;
+		ArrayList<int[]> times = new ArrayList<int[]>();
+		int[] emptyTimes = new int[numStore]; // Store the top 10 times in each level
+		for (int l=0; l<numLevels; l++) {
+			for (int i=0; i<numStore; i++) emptyTimes[i] = getRandomNumberInRange(min, max);
+			Arrays.sort(emptyTimes);
+			times.add(emptyTimes.clone());
+		}
+		return (ArrayList<int[]>) times.clone();
+	}
+	
+	private static int getRandomNumberInRange(int min, int max) {
+
+		if (min >= max) {
+			throw new IllegalArgumentException("max must be greater than min");
+		}
+
+		Random r = new Random();
+		return r.nextInt((max - min) + 1) + min;
 	}
 }
