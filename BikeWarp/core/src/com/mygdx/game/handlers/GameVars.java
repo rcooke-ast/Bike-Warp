@@ -140,6 +140,7 @@ public class GameVars implements Serializable {
 				}
 			}
 		}
+		// TODO : Check if the total time is greater than 99:99.999
 		return totalTimes.clone();
 	}
 	
