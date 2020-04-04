@@ -98,6 +98,7 @@ public class GameVars implements Serializable {
 	public static String GetWorldNamesTrainDmnd(int lvl, int indx) {return worldNamesTrainDmnd.get(lvl)[indx];}
 
 	public static void UpdateTotalTimes() {
+		// TODO :: Need to make this more general, so all players get updated, not just the current player.
 		// Do the Player total times first
 		plyrTotalTimes.set(currentPlayer, GetTotalTimes(false, false, false));
 		plyrTotalTimesTrain.set(currentPlayer, GetTotalTimes(true, false, false));
