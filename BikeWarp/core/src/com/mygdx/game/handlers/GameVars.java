@@ -645,23 +645,25 @@ public class GameVars implements Serializable {
 		AddFakePlayer("To");
 		AddFakePlayer("Play");
 		// Initialise the world records
-		worldNames = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
-		worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
-		worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
-		worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
-		worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-		worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
-		worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-		worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
-		// Now the total times
-		worldTotalNames = GetEmptyStringArray(numStore);
-		worldTotalTimes = GetEmptyIntArray(numStore);
-		worldTotalNamesDmnd = GetEmptyStringArray(numStore);
-		worldTotalTimesDmnd = GetEmptyIntArray(numStore);
-		worldTotalNamesTrain = GetEmptyStringArray(numStore);
-		worldTotalTimesTrain = GetEmptyIntArray(numStore);
-		worldTotalNamesTrainDmnd = GetEmptyStringArray(numStore);
-		worldTotalTimesTrainDmnd = GetEmptyIntArray(numStore);
+		worldNames = RandomNames(LevelsListGame.NUMGAMELEVELS);
+		worldTimes = RandomTimes(LevelsListGame.NUMGAMELEVELS);
+		worldNamesDmnd = RandomNames(LevelsListGame.NUMGAMELEVELS);
+		worldTimesDmnd = RandomTimes(LevelsListGame.NUMGAMELEVELS);
+		worldNamesTrain = RandomNames(LevelsListTraining.NUMTRAINLEVELS);
+		worldTimesTrain = RandomTimes(LevelsListTraining.NUMTRAINLEVELS);
+		worldNamesTrainDmnd = RandomNames(LevelsListTraining.NUMTRAINLEVELS);
+		worldTimesTrainDmnd = RandomTimes(LevelsListTraining.NUMTRAINLEVELS);
+		//GetTotalTimes(boolean train, boolean world, boolean diamond)
+		// Now generate all of the total times
+		UpdateTotalTimes();
+		worldTotalNames = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+		worldTotalTimes = GetTotalTimes(false, true, false);
+		worldTotalNamesDmnd = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+		worldTotalTimesDmnd = GetTotalTimes(false, true, true);
+		worldTotalNamesTrain = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+		worldTotalTimesTrain = GetTotalTimes(true, true, false);
+		worldTotalNamesTrainDmnd = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
+		worldTotalTimesTrainDmnd = GetTotalTimes(true, true, true);
 //
 //		CheckTimes(int[] times, int indx, int lvl, int timerTotal, boolean world) {
 //		times = plyrTimes.get(currentPlayer).get(lvl)
@@ -720,7 +722,17 @@ public class GameVars implements Serializable {
 		}
 		return (ArrayList<int[]>) times.clone();
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	private static ArrayList<String[]> RandomNames(int numLevels) {
+		ArrayList<String[]> names = new ArrayList<String[]>();
+		String[] emptyNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}; // Generate 10 names
+		for (int l=0; l<numLevels; l++) {
+			names.add(emptyNames.clone());
+		}
+		return (ArrayList<String[]>) names.clone();
+	}
+
 	private static int getRandomNumberInRange(int min, int max) {
 
 		if (min >= max) {
