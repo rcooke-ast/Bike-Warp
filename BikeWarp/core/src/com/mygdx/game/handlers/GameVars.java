@@ -338,6 +338,8 @@ public class GameVars implements Serializable {
 		for (int i=0; i<plyrLevelComplete.get(currentPlayer).length; i++) {
 			if (plyrLevelComplete.get(currentPlayer)[i]>0) numLevels += 1;
 		}
+		// Reduce by one if all levels are complete
+		if (numLevels==2+LevelsListGame.NUMGAMELEVELS) numLevels--; 
 		return numLevels;
 	}
 
@@ -649,7 +651,7 @@ public class GameVars implements Serializable {
 	
 	@SuppressWarnings("unchecked")
 	private static ArrayList<int[]> RandomTimes(int numLevels) {
-		int min = 60000, max = 70000;
+		int min = 1160000, max = 1170000;
 		ArrayList<int[]> times = new ArrayList<int[]>();
 		int[] emptyTimes = new int[numStore]; // Store the top 10 times in each level
 		for (int l=0; l<numLevels; l++) {

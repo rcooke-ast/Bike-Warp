@@ -17,6 +17,7 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
+import com.mygdx.game.handlers.LevelsListTraining;
 
 /**
  *
@@ -26,13 +27,15 @@ public class MenuRecords extends GameState {
 	private float SCRWIDTH;
 	//private Texture texture;
 	private BitmapFont times, textcarve, textcarveglow, menuText;
-    private Sprite grass, dirt, menu, sky, stone;
+    private Sprite grass, dirt, menu, sky, stone, diamond;
     private float wwidth, wheight, sheight;//, mwidth, mheight, mxcen, mycen, swidth;
     private float dscale, gscale, numScale;
     private float nmbrWidth, timesWidth, timesHeight, carveHeight, menuHeight, menuWidth, lvlWidth;
     private int gnwrap, dnwrapx, dnwrapy;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f, levnumTime = 1.0f, levnum;
     private int currentOption, levelNumber, tLevelNumber, totalLevels;
+    private int dispOptVal;
+    private final String[] displayOptions = {"Single Player", "Single Player", "Training", "Training"};
 
     public MenuRecords(GameStateManager gsm) {
         super(gsm);
@@ -84,6 +87,9 @@ public class MenuRecords extends GameState {
         menu = new Sprite(BikeGameTextures.LoadTexture("records_stone_menu",2));
         fadeOut = -1.0f;
         fadeIn = 0.0f;
+        // Get the highlight/diamond/training textures
+        diamond = new Sprite(BikeGameTextures.LoadTexture("gem_diamond",0));
+        dispOptVal = 0;
         // Set the widths and heights of the textures
         wheight = 0.6f*BikeGame.V_HEIGHT;
         wwidth  = wheight;
@@ -110,19 +116,38 @@ public class MenuRecords extends GameState {
         
     }
 
+    public void UpdateTotalLevels() {
+    	if ((dispOptVal == 0) || (dispOptVal == 1)) totalLevels = LevelsListGame.NUMGAMELEVELS;
+    	else totalLevels = LevelsListTraining.NUMTRAINLEVELS;
+    	if (levelNumber > totalLevels) levelNumber = totalLevels;
+    }
+    
     public void handleInput() {
+    	UpdateTotalLevels();
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
-    		if (currentOption < 0) currentOption = 3;
+    		if (currentOption < 0) currentOption = 4;
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
-    		if (currentOption > 3) currentOption = 0;
+    		if (currentOption > 4) currentOption = 0;
         } else if (GameInput.isPressed(GameInput.KEY_RIGHT)) {
-    		levelNumber++;
-    		if (levelNumber > totalLevels) levelNumber = 0;
+        	if (currentOption==4) {
+            	dispOptVal++;
+            	if (dispOptVal >= displayOptions.length) dispOptVal = 0;
+            	UpdateTotalLevels();
+        	} else {
+	    		levelNumber++;
+	    		if (levelNumber > totalLevels) levelNumber = 0;
+        	}
         } else if (GameInput.isPressed(GameInput.KEY_LEFT)) {
-    		levelNumber--;
-    		if (levelNumber < 0) levelNumber = totalLevels;
+        	if (currentOption==4) {
+            	dispOptVal--;
+            	if (dispOptVal < 0) dispOptVal = displayOptions.length-1;
+            	UpdateTotalLevels();
+        	} else {
+	    		levelNumber--;
+	    		if (levelNumber < 0) levelNumber = totalLevels;
+        	}
         } else if ((GameInput.isNumberPressed()) & (currentOption==1)) {
         	int numPress = GameInput.whatNumberPressed();
         	if (tLevelNumber == -1) {
@@ -205,6 +230,13 @@ public class MenuRecords extends GameState {
     	if (currentOption == 3) menuText.setColor(1, 1, 1, alpha);
     	else menuText.setColor(1, 1, 1, alpha/2);
     	menuText.draw(sb, "World Records", cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 6.0f*menuHeight);
+    	if (currentOption == 4) menuText.setColor(1, 1, 1, alpha);
+    	else menuText.setColor(1, 1, 1, alpha/2);
+    	menuText.draw(sb, displayOptions[dispOptVal], cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 7.5f*menuHeight);
+    	if ((dispOptVal==1) || (dispOptVal==3)) {
+    		float widthVal = menuText.getBounds(displayOptions[dispOptVal]).width;
+    		sb.draw(diamond, cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f+1.03f*widthVal, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 8.75f*menuHeight, 0, 0, 1.6f*menuHeight, 1.6f*menuHeight, 1.0f, 1.0f, 0.0f);
+    	}
     	// Draw the level number on the menu
     	String numtxt = "--";
     	if (tLevelNumber != -1) {
@@ -237,25 +269,55 @@ public class MenuRecords extends GameState {
         	else textcarve.draw(sb, nmbrString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
         	// Get the name and time
         	if (levelNumber == 0) {
-	        	if (currentOption == 2) {
-	        		// TODO add in TRAIN times and DIAMOND times
-	        		int timeval = GameVars.plyrTotalTimes.get(GameVars.currentPlayer)[9-i];
+	        	if (currentOption == 3) {
+	        		int timeval = -1;
+	        		aliasString = "";
+	        		if (dispOptVal==0) {
+	        			timeval = GameVars.worldTotalTimes[9-i];
+	        			aliasString = GameVars.worldTotalNames[9-i];
+	        		} else if (dispOptVal==1) {
+	        			timeval = GameVars.worldTotalTimesDmnd[9-i];
+	        			aliasString = GameVars.worldTotalNamesDmnd[9-i];
+	        		} else if (dispOptVal==2) {
+	        			timeval = GameVars.worldTotalTimesTrain[9-i];
+	        			aliasString = GameVars.worldTotalNamesTrain[9-i];
+	        		} else if (dispOptVal==3) {
+	        			timeval = GameVars.worldTotalTimesTrainDmnd[9-i];
+	        			aliasString = GameVars.worldTotalNamesTrainDmnd[9-i];
+	        		}
+	        		timeString = GameVars.getTimeString(timeval);
+	        	} else { // Display personal best times as the default
+	        		int timeval = -1;
+	        		if (dispOptVal==0) timeval = GameVars.plyrTotalTimes.get(GameVars.currentPlayer)[9-i];
+	        		else if (dispOptVal==1) timeval = GameVars.plyrTotalTimesDmnd.get(GameVars.currentPlayer)[9-i];
+	        		else if (dispOptVal==2) timeval = GameVars.plyrTotalTimesTrain.get(GameVars.currentPlayer)[9-i];
+	        		else if (dispOptVal==3) timeval = GameVars.plyrTotalTimesTrainDmnd.get(GameVars.currentPlayer)[9-i];
 	        		if (timeval != -1) aliasString = GameVars.GetPlayerName();
 	        		else aliasString = "";
 	        		timeString = GameVars.getTimeString(timeval);
-	        	} else if (currentOption == 3) {
-	        		// TODO WORLD TOTAL TIMES
-//	        		aliasString = GameVars.GetWorldNames(levelNumber-1, 9-i);
-//	        		timeString = GameVars.getTimeString(GameVars.GetWorldTimes(levelNumber-1, 9-i));
 	        	}
         	} else {
-	        	if (currentOption == 2) {
+	        	if (currentOption == 3) {
+	        		if (dispOptVal == 0) {
+		        		aliasString = GameVars.GetWorldNames(levelNumber-1, 9-i);
+		        		timeString = GameVars.getTimeString(GameVars.GetWorldTimes(levelNumber-1, 9-i));
+	        		} else if (dispOptVal == 1) {
+		        		aliasString = GameVars.GetWorldNamesDmnd(levelNumber-1, 9-i);
+		        		timeString = GameVars.getTimeString(GameVars.GetWorldTimesDmnd(levelNumber-1, 9-i));
+	        		} else if (dispOptVal == 2) {
+		        		aliasString = GameVars.GetWorldNamesTrain(levelNumber-1, 9-i);
+		        		timeString = GameVars.getTimeString(GameVars.GetWorldTimesTrain(levelNumber-1, 9-i));
+	        		} else if (dispOptVal == 3) {
+		        		aliasString = GameVars.GetWorldNamesTrainDmnd(levelNumber-1, 9-i);
+		        		timeString = GameVars.getTimeString(GameVars.GetWorldTimesTrainDmnd(levelNumber-1, 9-i));
+	        		}
+	        	} else { // Display personal best times as default
 	        		if (GameVars.GetPlayerTimes(levelNumber-1, 9-i) != -1) aliasString = GameVars.GetPlayerName();
 	        		else aliasString = "";
-	        		timeString = GameVars.getTimeString(GameVars.GetPlayerTimes(levelNumber-1, 9-i));
-	        	} else if (currentOption == 3) {
-	        		aliasString = GameVars.GetWorldNames(levelNumber-1, 9-i);
-	        		timeString = GameVars.getTimeString(GameVars.GetWorldTimes(levelNumber-1, 9-i));
+	        		if (dispOptVal == 0) timeString = GameVars.getTimeString(GameVars.GetPlayerTimes(levelNumber-1, 9-i));
+	        		else if (dispOptVal == 1) timeString = GameVars.getTimeString(GameVars.GetPlayerTimesDmnd(levelNumber-1, 9-i));
+	        		else if (dispOptVal == 2) timeString = GameVars.getTimeString(GameVars.GetPlayerTimesTrain(levelNumber-1, 9-i));
+	        		else if (dispOptVal == 3) timeString = GameVars.getTimeString(GameVars.GetPlayerTimesTrainDmnd(levelNumber-1, 9-i));
 	        	}
         	}
         	if ((10-i) <= 3) textcarveglow.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f + 1.25f*nmbrWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);
@@ -265,7 +327,10 @@ public class MenuRecords extends GameState {
         }
         // Draw Level Number and Name
         if (levelNumber == 0) aliasString = "Total Times";
-        else aliasString = LevelsListGame.gameLevelNames[levelNumber];
+        else {
+        	if ((dispOptVal == 0) || (dispOptVal == 1)) aliasString = LevelsListGame.gameLevelNames[levelNumber];
+        	else aliasString = LevelsListTraining.trainingLevelNames[levelNumber];
+        }
         textcarve.setScale(numScale);
         float numWid = textcarve.getBounds(aliasString).width;
         float numOff = 0.0f; // Offset the level string so that it appears in the centre of the board 
@@ -276,8 +341,8 @@ public class MenuRecords extends GameState {
         textcarve.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + 0.10955f*sheight + numOff, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.85166f*sheight);
         textcarve.setScale(numScale);        
         // Draw records type
-        aliasString = "";
-        if (currentOption == 2) aliasString = "Your Best Times"; 
+        aliasString = "Your Best Times";
+//        if (currentOption == 2) aliasString = "Your Best Times"; 
         if (currentOption == 3) aliasString = "World Records"; 
         numWid = textcarve.getBounds(aliasString).width;
         numWid = (0.4f*sheight)/numWid;
