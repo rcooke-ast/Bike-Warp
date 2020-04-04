@@ -103,16 +103,15 @@ public class GameVars implements Serializable {
 		plyrTotalTimesTrain.set(currentPlayer, GetTotalTimes(true, false, false));
 		plyrTotalTimesDmnd.set(currentPlayer, GetTotalTimes(false, false, true));
 		plyrTotalTimesTrainDmnd.set(currentPlayer, GetTotalTimes(true, false, true));
-		// TODO :: update world total times
-//		worldTotalNames = (String[]) oi.readObject();
-//		worldTotalTimes = (int[]) oi.readObject();
-//		worldTotalNamesDmnd = (String[]) oi.readObject();
-//		worldTotalTimesDmnd = (int[]) oi.readObject();
-//		worldTotalNamesTrain = (String[]) oi.readObject();
-//		worldTotalTimesTrain = (int[]) oi.readObject();
-//		worldTotalNamesTrainDmnd = (String[]) oi.readObject();
-//		worldTotalTimesTrainDmnd = (int[]) oi.readObject();
+		// Check if every player's best total time beats any of the world total times
+		for (int pp=0; pp<plyrNames.length; pp++) {
+			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimes.clone(), 0, plyrTotalTimes.get(pp)[0]);
+			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesDmnd.clone(), 1, plyrTotalTimesDmnd.get(pp)[0]);
+			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrain.clone(), 2, plyrTotalTimesTrain.get(pp)[0]);
+			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrainDmnd.clone(), 3, plyrTotalTimesTrainDmnd.get(pp)[0]);
+		}
 		SavePlayers();
+		SaveWorldRecords();
 	}
 	
 	public static int[] GetTotalTimes(boolean train, boolean world, boolean diamond) {
@@ -140,7 +139,6 @@ public class GameVars implements Serializable {
 				}
 			}
 		}
-		// TODO : Check if the total time is greater than 99:99.999
 		return totalTimes.clone();
 	}
 	
@@ -244,6 +242,67 @@ public class GameVars implements Serializable {
 					plyrTimesTrainDmnd.set(currentPlayer, copyTimes);
 				}
 				SavePlayers();
+			}
+		}
+	}
+
+	// Check the player and world record times
+	public static void CheckWorldTotalTimes(String plyrName, int[] times, int indx, int timerTotal) {
+		// times = plyrTotalTimes.get(currentPlayer)
+		// indx = 0, 1, 2, 3 = plyrTimes, plyrTimesDmnd, plyrTimesTrain, plyrTimesTrainDmnd
+		// Need to fetch names for the world records
+		String[] names = new String[numStore];
+		if (indx == 0) names = worldTotalNames.clone();
+		else if (indx == 1) names = worldTotalNamesDmnd.clone();
+		else if (indx == 2) names = worldTotalNamesTrain.clone();
+		else if (indx == 3) names = worldTotalNamesTrainDmnd.clone();
+		boolean saveTimes = false;
+		int[] tempTime = times.clone();
+		for (int i=0; i<numStore; i++) {
+			if (saveTimes) {
+				// Shifting down times, as long as a player doesn't already have a world record
+				tempTime[i] = times[i-1];
+				if (indx == 0) {
+					names[i] = worldTotalNames.clone()[i-1];
+					if (plyrName.compareTo(worldTotalNames[i])==0) break;
+				}
+				else if (indx == 1) {
+					names[i] = worldTotalNamesDmnd.clone()[i-1];
+					if (plyrName.compareTo(worldTotalNamesDmnd[i])==0) break;
+				}
+				else if (indx == 2) {
+					names[i] = worldTotalNamesTrain.clone()[i-1];
+					if (plyrName.compareTo(worldTotalNamesTrain[i])==0) break;						
+				}
+				else if (indx == 3) {
+					names[i] = worldTotalNamesTrainDmnd.clone()[i-1];
+					if (plyrName.compareTo(worldTotalNamesTrainDmnd[i])==0) break;
+				}
+			} else if ((timerTotal < times[i]) | (times[i] == -1)) {
+				tempTime[i] = timerTotal;
+				saveTimes = true;
+				names[i] = plyrName;
+			}
+			// If the current Player has a previous record that's faster, don't add their name to the list
+			if ((indx == 0) && (plyrName.compareTo(worldTotalNames[i])==0)) break;
+			else if ((indx == 1) && (plyrName.compareTo(worldTotalNamesDmnd[i])==0)) break;
+			else if ((indx == 2) && (plyrName.compareTo(worldTotalNamesTrain[i])==0)) break;
+			else if ((indx == 3) && (plyrName.compareTo(worldTotalNamesTrainDmnd[i])==0)) break;
+		}
+		if (saveTimes) {
+			// First update the arrays
+			if (indx == 0) {
+				worldTotalNames = names.clone();
+				worldTotalTimes = tempTime.clone();
+			} else if (indx == 1) {
+				worldTotalNamesDmnd = names.clone();
+				worldTotalTimesDmnd = tempTime.clone();
+			} else if (indx == 2) {
+				worldTotalNamesTrain = names.clone();
+				worldTotalTimesTrain = tempTime.clone();
+			} else if (indx == 3) {
+				worldTotalNamesTrainDmnd = names.clone();
+				worldTotalTimesTrainDmnd = tempTime.clone();
 			}
 		}
 	}
