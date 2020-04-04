@@ -125,6 +125,9 @@ public class MainMenu extends GameState {
         	} else if (tstName=="Exit") {
         		goToLevel = GameStateManager.MENUEXIT;
         	}
+        } else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (sGoal==0) & (fadeOut==-1.0f)) {
+        	fadeOut=1.0f;
+        	goToLevel = GameStateManager.MENUEXIT;
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(goToLevel, true, "none", -1, 0);

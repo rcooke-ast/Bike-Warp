@@ -11,7 +11,6 @@ import com.mygdx.game.handlers.GameStateManager;
 // TODO ITEMS before game is finished
 // Check world total times in GameVars
 // Display total times in MenuRecords
-// Make option to display train/diamond times in MenuRecords
 
 
 public class BikeGame implements ApplicationListener {

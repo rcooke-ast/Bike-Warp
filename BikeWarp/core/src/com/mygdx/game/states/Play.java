@@ -486,16 +486,6 @@ public class Play extends GameState {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
 	     	   			GameVars.SetTimerTotal(timerTotal);
-	     	   			// Check the records
-     	   				if (mode == 1) {
-     	   					GameVars.CheckTimes(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID).clone(), 2, levelID, timerTotal, false);
-     	   					GameVars.CheckTimes(GameVars.worldTimesTrain.get(levelID).clone(), 2, levelID, timerTotal, true);
-     	   					LevelsListTraining.updateRecords();
-     	   				} else if (mode == 2) {
-     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
-     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
-     	   					LevelsListGame.updateRecords();
-     	   				}
 	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
 	     	   				if (mode == 1) {
@@ -510,8 +500,16 @@ public class Play extends GameState {
 	     	   					// Check the time
 	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
 	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
-	     	   					LevelsListGame.updateRecords();
 	     	   				}
+	     	   			} else {
+		     	   			// Check the records without the diamond
+	     	   				if (mode == 1) {
+	     	   					GameVars.CheckTimes(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID).clone(), 2, levelID, timerTotal, false);
+	     	   					GameVars.CheckTimes(GameVars.worldTimesTrain.get(levelID).clone(), 2, levelID, timerTotal, true);
+	     	   				} else if (mode == 2) {
+	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
+	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
+	     	   				}	     	   				
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 	     	   			GameVars.SetLevelComplete(levelID);
