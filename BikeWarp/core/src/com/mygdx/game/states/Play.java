@@ -497,6 +497,7 @@ public class Play extends GameState {
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
+	     	   			BikeGameSounds.PlaySound(soundFinish);
 	     	   			GameVars.SetTimerTotal(timerTotal);
 	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
@@ -775,7 +776,7 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-        				//Game.res.getSound("opendoor").play();
+    					BikeGameSounds.PlaySound(soundDoor);
     				} else noKeys = true;
     			} else if (collectID.equals("DoorGreen")) {
     				if (collectKeyGreen > 0) {
@@ -787,7 +788,7 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-        				//Game.res.getSound("opendoor").play();
+    					BikeGameSounds.PlaySound(soundDoor);
     				} else noKeys = true;
     			} else if (collectID.equals("DoorBlue")) {
     				if (collectKeyBlue > 0) {
@@ -799,7 +800,7 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-        				//Game.res.getSound("opendoor").play();
+    					BikeGameSounds.PlaySound(soundDoor);
     				} else noKeys = true;
     			} else if (collectID.equals("Gravity")) {
     				float angleGrav;
@@ -816,26 +817,27 @@ public class Play extends GameState {
     				dircGrav = gravityPrev.x*gravNext.y - gravityPrev.y*gravNext.x;
     				gravityScale = 0.0f;
     				mWorld.setGravity(gravNext);
-    				//Game.res.getSound("gravity").play();
+    				BikeGameSounds.PlaySound(soundGravity);
     			} else if (collectID.equals("KeyRed")) {
     				collectKeyRed += 1;
-    				//Game.res.getSound("key").play();
+    				BikeGameSounds.PlaySound(soundKey);
     			} else if (collectID.equals("KeyGreen")) {
     				collectKeyGreen += 1;
-    				//Game.res.getSound("key").play();
+    				BikeGameSounds.PlaySound(soundKey);
     			} else if (collectID.equals("KeyBlue")) {
     				collectKeyBlue += 1;
-    				//Game.res.getSound("key").play();
+    				BikeGameSounds.PlaySound(soundKey);
     			} else if (collectID.equals("Nitrous")) {
     				if ((collectNitrous == 0) & (nitrousLevel == 0.0f)) nitrousLevel = 1.0f;
     				collectNitrous += 1;
-    				//Game.res.getSound("jewel").play();
+    				BikeGameSounds.PlaySound(soundNitrous);
     			} else if (collectID.equals("Jewel")) {
     				if (collectJewel != 0) collectJewel -= 1;
     				BikeGameSounds.PlaySound(soundGem);
     			} else if (collectID.equals("Diamond")) {
     				collectJewel = 0;
     				collectDiamond = true; // The player has collected the diamond
+    				BikeGameSounds.PlaySound(soundDiamond);
     			}
     			if (!noKeys) {
 	        		// Remove the collected item from the loop
@@ -974,6 +976,7 @@ public class Play extends GameState {
         			if (switchArr[8] == 0.0f) switchArr[9] = 1.0f;
         			else switchArr[9] = -1.0f;
         			switchGate.set(switchIdx,switchArr.clone());
+        			BikeGameSounds.PlaySound(soundSwitch);
         		}
     		}
     	}
@@ -1056,6 +1059,7 @@ public class Play extends GameState {
     			bikeBodyRW.setLinearVelocity(cCoord[0],cCoord[1]);
     			// Force transporters to be inactive
     			canTransport = 0.0f;
+    			BikeGameSounds.PlaySound(soundTransport);
     		}
     	}
     	bodies.clear();
@@ -1521,7 +1525,7 @@ public class Play extends GameState {
     			ycen = gateArr[1] + gateArr[2]*(float)Math.sin(gateArr[4])/2 - ObjectVars.objectDoor[5]*B2DVars.EPPM + ObjectVars.objectDoor[4]*B2DVars.EPPM*(float)Math.sin(gateArr[4]);
     			mBatch.draw(openDoor, xcen, ycen, gateArr[2]/2, gateArr[3]/2, gateArr[2], gateArr[3], 1, 1, MathUtils.radiansToDegrees*gateArr[4]);
     			if (-gateArr[2] < gateArr[3]/2) {
-    				gateArr[2] -= 0.01f;
+    				gateArr[2] -= 0.0037f;
     				doorImages.set(i, gateArr.clone());
     			}
     		} else {
@@ -1529,7 +1533,7 @@ public class Play extends GameState {
     			ycen = gateArr[1] + gateArr[2]*(float)Math.sin(gateArr[4])/2 - ObjectVars.objectDoor[5]*B2DVars.EPPM - ObjectVars.objectDoor[4]*B2DVars.EPPM*(float)Math.sin(gateArr[4]);
     			mBatch.draw(openDoor, xcen, ycen, gateArr[2]/2, gateArr[3]/2, gateArr[2], gateArr[3], 1, 1, MathUtils.radiansToDegrees*gateArr[4]);
     			if (gateArr[2] < gateArr[3]/2) {
-    				gateArr[2] += 0.01f;
+    				gateArr[2] += 0.0037f;
     				doorImages.set(i, gateArr.clone());
     			}
     		}
