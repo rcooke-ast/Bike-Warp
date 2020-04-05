@@ -183,7 +183,7 @@ public class BikeGameTextures {
 		return null;
 	}
 
-	public void dispose () {
+	public static void dispose () {
 		for (int i=0; i<textures.size(); i++) {
 			textures.get(i).dispose();
 		}

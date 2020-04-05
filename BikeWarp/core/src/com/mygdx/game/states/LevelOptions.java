@@ -232,8 +232,8 @@ public class LevelOptions extends GameState {
 	        menuText.setColor(1, 1, 1, alpha/2);
 	        if (GameVars.timerTotal == -1) dispText = "Did not finish\n\n";
 	        else if (GameVars.timerTotal>0) {
-	        	if (GameVars.personalBest) dispText = "New personal best time!\n";
-	        	else if (GameVars.worldRecord) dispText = "New world record!\n";
+	        	if (GameVars.worldRecord) dispText = "New World Record!\n";
+	        	else if (GameVars.personalBest) dispText = "New Personal Best time!\n";
 	        	else dispText = "Your time:\n";
 	        	// Apend the time
 	        	dispText += GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
