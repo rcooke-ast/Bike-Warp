@@ -244,6 +244,8 @@ public class Play extends GameState {
 
         // Restart the timerTotal
         GameVars.SetTimerTotal(-1);
+        GameVars.SetPersonalBest(false);
+        GameVars.SetWorldRecord(false);
         
         // Set up box2d camera
         float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);

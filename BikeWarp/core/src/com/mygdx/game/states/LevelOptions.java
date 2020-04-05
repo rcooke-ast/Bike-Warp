@@ -231,7 +231,13 @@ public class LevelOptions extends GameState {
 	        // Draw level description
 	        menuText.setColor(1, 1, 1, alpha/2);
 	        if (GameVars.timerTotal == -1) dispText = "Did not finish\n\n";
-	        else if (GameVars.timerTotal>0) dispText = "Your time: " + GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
+	        else if (GameVars.timerTotal>0) {
+	        	if (GameVars.personalBest) dispText = "New personal best time!\n";
+	        	else if (GameVars.worldRecord) dispText = "New world record!\n";
+	        	else dispText = "Your time:\n";
+	        	// Apend the time
+	        	dispText += GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
+	        }
 	        if (modeValue == 1) dispText += LevelsListTraining.trainingLevelTimes[levelNumber+1];
 	        else if (modeValue == 2) dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
         }
