@@ -35,6 +35,8 @@ public class GameVars implements Serializable {
 	public static int timerTotal = -1;
 	// Player arrays
 	public static int currentPlayer = -1;
+	public static boolean personalBest = false;
+	public static boolean worldRecord = false;
 	public static String[] plyrNames = new String[0];
 	public static ArrayList<ArrayList<int[]>> plyrTimes = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<ArrayList<int[]>> plyrTimesDmnd = new ArrayList<ArrayList<int[]>>();
@@ -69,9 +71,9 @@ public class GameVars implements Serializable {
 	}
 
 	// Get and Set options
-	public static void SetTimerTotal(int i) {
-		timerTotal = i;
-	}
+	public static void SetTimerTotal(int i) {timerTotal = i;}
+	public static void SetWorldRecord(boolean wr) {worldRecord = wr;}
+	public static void SetPersonalBest(boolean pb) {personalBest = pb;}
 
 	public static int GetCurrentPlayer() {return currentPlayer;}
 
@@ -98,7 +100,6 @@ public class GameVars implements Serializable {
 	public static String GetWorldNamesTrainDmnd(int lvl, int indx) {return worldNamesTrainDmnd.get(lvl)[indx];}
 
 	public static void UpdateTotalTimes() {
-		// TODO :: Need to make this more general, so all players get updated, not just the current player.
 		// Do the Player total times first
 		plyrTotalTimes.set(currentPlayer, GetTotalTimes(false, false, false));
 		plyrTotalTimesTrain.set(currentPlayer, GetTotalTimes(true, false, false));
@@ -114,7 +115,26 @@ public class GameVars implements Serializable {
 		SavePlayers();
 		SaveWorldRecords();
 	}
-	
+
+	public static void UpdateTotalTimesAllPlayers(boolean world) {
+		// Check if every player's best total time beats any of the world total times
+		for (int pp=0; pp<plyrNames.length; pp++) {
+			// Do the Player total times first
+			plyrTotalTimes.set(pp, GetTotalTimesPlayer(pp, false, false, false));
+			plyrTotalTimesTrain.set(pp, GetTotalTimesPlayer(pp, true, false, false));
+			plyrTotalTimesDmnd.set(pp, GetTotalTimesPlayer(pp, false, false, true));
+			plyrTotalTimesTrainDmnd.set(pp, GetTotalTimesPlayer(pp, true, false, true));
+			if (world) {
+				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimes.clone(), 0, plyrTotalTimes.get(pp)[0]);
+				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesDmnd.clone(), 1, plyrTotalTimesDmnd.get(pp)[0]);
+				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrain.clone(), 2, plyrTotalTimesTrain.get(pp)[0]);
+				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrainDmnd.clone(), 3, plyrTotalTimesTrainDmnd.get(pp)[0]);
+			}
+		}
+		SavePlayers();
+		if (world) SaveWorldRecords();
+	}
+
 	public static int[] GetTotalTimes(boolean train, boolean world, boolean diamond) {
 		int[] totalTimes = new int[numStore];
 		int timeVal;
@@ -132,6 +152,34 @@ public class GameVars implements Serializable {
 				else if (!world && train && !diamond) timeVal = GetPlayerTimesTrain(ll, nn);
 				else if (!world && !train && diamond) timeVal = GetPlayerTimesDmnd(ll, nn);
 				else if (!world && !train && !diamond) timeVal = GetPlayerTimes(ll, nn);
+				// Check the time is valid
+				if (timeVal != -1) totalTimes[nn] += timeVal;
+				else {
+					totalTimes[nn] = -1;
+					break;
+				}
+			}
+		}
+		return totalTimes.clone();
+	}
+
+	public static int[] GetTotalTimesPlayer(int plyr, boolean train, boolean world, boolean diamond) {
+		int[] totalTimes = new int[numStore];
+		int timeVal;
+		int numLevels = LevelsListGame.NUMGAMELEVELS;
+		if (train) numLevels = LevelsListTraining.NUMTRAINLEVELS;
+		for (int nn=0; nn<numStore; nn++) {
+			for (int ll=0; ll<numLevels; ll++) {
+				// First get the relevant time
+				timeVal = -1;
+				if (world && train && diamond) timeVal = GetWorldTimesTrainDmnd(ll, nn);
+				else if (world && train && !diamond) timeVal = GetWorldTimesTrain(ll, nn);
+				else if (world && !train && diamond) timeVal = GetWorldTimesDmnd(ll, nn);
+				else if (world && !train && !diamond) timeVal = GetWorldTimes(ll, nn);
+				else if (!world && train && diamond) timeVal = plyrTimesTrainDmnd.get(plyr).get(ll)[nn];
+				else if (!world && train && !diamond) timeVal = plyrTimesTrain.get(plyr).get(ll)[nn];
+				else if (!world && !train && diamond) timeVal = plyrTimesDmnd.get(plyr).get(ll)[nn];
+				else if (!world && !train && !diamond) timeVal = plyrTimes.get(plyr).get(ll)[nn];
 				// Check the time is valid
 				if (timeVal != -1) totalTimes[nn] += timeVal;
 				else {
@@ -193,9 +241,13 @@ public class GameVars implements Serializable {
 					}
 				}
 			} else if ((timerTotal < times[i]) | (times[i] == -1)) {
+				if (i==0) SetPersonalBest(true);
 				tempTime[i] = timerTotal;
 				saveTimes = true;
-				if (world) names[i] = plyrName;
+				if (world) {
+					names[i] = plyrName;
+					if (i==0) SetWorldRecord(true);
+				}
 			}
 			// If the current Player has a previous record that's faster, don't add their name to the list
 			if (world) {
@@ -656,7 +708,7 @@ public class GameVars implements Serializable {
 		worldTimesTrainDmnd = RandomTimes(LevelsListTraining.NUMTRAINLEVELS);
 		//GetTotalTimes(boolean train, boolean world, boolean diamond)
 		// Now generate all of the total times
-		UpdateTotalTimes();
+		UpdateTotalTimesAllPlayers(false);
 		worldTotalNames = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
 		worldTotalTimes = GetTotalTimes(false, true, false);
 		worldTotalNamesDmnd = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
