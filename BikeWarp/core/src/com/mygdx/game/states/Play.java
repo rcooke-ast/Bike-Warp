@@ -178,7 +178,7 @@ public class Play extends GameState {
     private boolean forcequit, lrIsDown, paintBackdrop;
     
     // Index of sounds to be played
-    private int soundGem, soundDiamond, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
+    private int soundGem, soundDiamond, soundCollide, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
 
     // Some items to be displayed on the HUD
     //private Sprite panelShadeA, panelShadeB;//, panelShadeC;
@@ -332,6 +332,7 @@ public class Play extends GameState {
         // Load the sounds
         soundGem = BikeGameSounds.GetSoundIndex("gem_collect");
         soundDiamond = BikeGameSounds.GetSoundIndex("diamond_collect");
+        soundCollide = BikeGameSounds.GetSoundIndex("collide");
         soundNitrous = BikeGameSounds.GetSoundIndex("nitrous");
         soundKey = BikeGameSounds.GetSoundIndex("key_collect");
         soundGravity = BikeGameSounds.GetSoundIndex("gravity");
