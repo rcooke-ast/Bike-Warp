@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
@@ -69,7 +70,11 @@ public class MenuExit extends GameState {
         	action = currentOption;
         	fadeOut=1.0f;
         } else if (fadeOut==0.0f) {
-    		if (action==0) Gdx.app.exit(); // Exit game
+    		if (action==0) {
+    			BikeGameSounds.dispose();
+    			BikeGameTextures.dispose();
+    			Gdx.app.exit(); // Exit game
+    		}
     		else gsm.setState(GameStateManager.PEEK, false, "none", -1, 0); // Return to menu
         }
 	}

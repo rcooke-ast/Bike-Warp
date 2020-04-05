@@ -9,15 +9,11 @@ package com.mygdx.game.states;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -53,6 +49,7 @@ import com.badlogic.gdx.physics.box2d.joints.RopeJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WheelJoint;
 import com.badlogic.gdx.physics.box2d.joints.WheelJointDef;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
 
@@ -68,8 +65,6 @@ import com.mygdx.game.handlers.LevelsListTraining;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.FileUtils;
-//import com.mygdx.game.handlers.ReplayRecord;
-//import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.PolygonOperations;
 import com.gushikustudios.rube.PolySpatial;
 import com.gushikustudios.rube.RubeScene;
@@ -104,9 +99,6 @@ public class Play extends GameState {
     private float replayTime;
     private int mVelocityIter = 8;
     private int mPositionIter = 3;
-
-    // For replays
-    private ExecutorService executor;
 
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
@@ -173,7 +165,7 @@ public class Play extends GameState {
     private Sprite bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
-    private int timerStart, timerCurrent, timerTotal, timerMSecs, timerSecs, timerMins;
+    private int timerStart, timerCurrent, timerTotal;
     private String worldRecord, personalRecord;
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight;
     private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0;
@@ -185,6 +177,9 @@ public class Play extends GameState {
     private int nullvar;
     private boolean forcequit, lrIsDown, paintBackdrop;
     
+    // Index of sounds to be played
+    private int soundGem, soundDiamond, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
+
     // Some items to be displayed on the HUD
     //private Sprite panelShadeA, panelShadeB;//, panelShadeC;
     //private NinePatchDrawable panelContainer;
@@ -334,7 +329,22 @@ public class Play extends GameState {
 		//	jewelSprites[i] = new TextureRegion(tex, i * 128, 0, 128, 128);
 		//}
 
-        // Load the items to be displayed on the HUD
+        // Load the sounds
+        soundGem = BikeGameSounds.GetSoundIndex("gem_collect");
+        soundDiamond = BikeGameSounds.GetSoundIndex("diamond_collect");
+        soundNitrous = BikeGameSounds.GetSoundIndex("nitrous");
+        soundKey = BikeGameSounds.GetSoundIndex("key_collect");
+        soundGravity = BikeGameSounds.GetSoundIndex("gravity");
+        soundDoor = BikeGameSounds.GetSoundIndex("door");
+        soundSwitch = BikeGameSounds.GetSoundIndex("switch");
+        soundTransport = BikeGameSounds.GetSoundIndex("transport");
+        soundFinish = BikeGameSounds.GetSoundIndex("finish");
+
+//        soundBikeSwitch
+//        soundBikeMotor
+//        collisions?
+
+        		// Load the items to be displayed on the HUD
         keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red",0));
         keyBlue = new Sprite(BikeGameTextures.LoadTexture("key_blue",0));
         keyGreen = new Sprite(BikeGameTextures.LoadTexture("key_green",0));
@@ -822,11 +832,10 @@ public class Play extends GameState {
     				//Game.res.getSound("jewel").play();
     			} else if (collectID.equals("Jewel")) {
     				if (collectJewel != 0) collectJewel -= 1;
-    				//Game.res.getSound("jewel").play();
+    				BikeGameSounds.PlaySound(soundGem);
     			} else if (collectID.equals("Diamond")) {
     				collectJewel = 0;
     				collectDiamond = true; // The player has collected the diamond
-    				//Game.res.getSound("jewel").play();
     			}
     			if (!noKeys) {
 	        		// Remove the collected item from the loop

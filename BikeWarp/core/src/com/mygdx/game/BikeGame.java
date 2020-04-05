@@ -8,6 +8,10 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 
+// TODO ITEMS before game is finished
+// TODO Game Sounds
+// TODO Anything else needs to be disposed upon exit?
+
 public class BikeGame implements ApplicationListener {
 	public static final String TITLE = "Bike Warp";
 	public static final int V_WIDTH = 512;//480;
@@ -29,8 +33,9 @@ public class BikeGame implements ApplicationListener {
 	
 	@Override
 	public void create () {
-		// Load the textures
+		// Load the textures and sounds
 		BikeGameTextures.InitiateTextures();
+		BikeGameSounds.InitiateSounds();
 
 		// Set the Input Processor to the key input I've written
 		Gdx.input.setInputProcessor(new GameInputProcessor());
