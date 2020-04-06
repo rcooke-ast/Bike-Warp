@@ -336,7 +336,7 @@ public class Play extends GameState {
         soundGem = BikeGameSounds.GetSoundIndex("gem_collect");
         soundDiamond = BikeGameSounds.GetSoundIndex("diamond_collect");
         soundCollide = BikeGameSounds.GetSoundIndex("collide");
-        soundHit = BikeGameSounds.GetSoundIndex("bike_start");
+        soundHit = BikeGameSounds.GetSoundIndex("hit");
         soundNitrous = BikeGameSounds.GetSoundIndex("nitrous");
         soundKey = BikeGameSounds.GetSoundIndex("key_collect");
         soundGravity = BikeGameSounds.GetSoundIndex("gravity");
