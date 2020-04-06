@@ -178,7 +178,9 @@ public class Play extends GameState {
     private boolean forcequit, lrIsDown, paintBackdrop;
     
     // Index of sounds to be played
-    private int soundGem, soundDiamond, soundCollide, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
+    private int soundGem, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
+    private Sound soundBikeIdle;
+    private long soundIDBikeIdle;
 
     // Some items to be displayed on the HUD
     //private Sprite panelShadeA, panelShadeB;//, panelShadeC;
@@ -330,9 +332,11 @@ public class Play extends GameState {
 		//}
 
         // Load the sounds
+//        soundBikeIdle.setVolume(soundIDBikeIdle,0.2f);
         soundGem = BikeGameSounds.GetSoundIndex("gem_collect");
         soundDiamond = BikeGameSounds.GetSoundIndex("diamond_collect");
         soundCollide = BikeGameSounds.GetSoundIndex("collide");
+        soundHit = BikeGameSounds.GetSoundIndex("bike_start");
         soundNitrous = BikeGameSounds.GetSoundIndex("nitrous");
         soundKey = BikeGameSounds.GetSoundIndex("key_collect");
         soundGravity = BikeGameSounds.GetSoundIndex("gravity");
@@ -498,7 +502,8 @@ public class Play extends GameState {
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
-	     	   			BikeGameSounds.PlaySound(soundFinish);
+		       		    soundBikeIdle.setLooping(soundIDBikeIdle, false);
+	     	   			BikeGameSounds.PlaySound(soundFinish, 1.0f);
 	     	   			GameVars.SetTimerTotal(timerTotal);
 	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
@@ -533,7 +538,8 @@ public class Play extends GameState {
 	     	   			break;
 	     	   		} else cl.notFinished();
 	     	   } else if ((cl.isPlayerDead()) | (forcequit)) {
-	            	//Game.res.getSound("hit").play();
+	       		    soundBikeIdle.setLooping(soundIDBikeIdle, false);
+	       		    BikeGameSounds.PlaySound(soundHit, 0.3f);
 //	     	   		gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
 //	     	   		System.out.println("NEED TO CORRECT THIS!!!");
 //	     	   		if (forcequit) gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
@@ -777,7 +783,7 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-    					BikeGameSounds.PlaySound(soundDoor);
+    					BikeGameSounds.PlaySound(soundDoor, 1.0f);
     				} else noKeys = true;
     			} else if (collectID.equals("DoorGreen")) {
     				if (collectKeyGreen > 0) {
@@ -789,7 +795,7 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-    					BikeGameSounds.PlaySound(soundDoor);
+    					BikeGameSounds.PlaySound(soundDoor, 1.0f);
     				} else noKeys = true;
     			} else if (collectID.equals("DoorBlue")) {
     				if (collectKeyBlue > 0) {
@@ -801,7 +807,7 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-    					BikeGameSounds.PlaySound(soundDoor);
+    					BikeGameSounds.PlaySound(soundDoor, 1.0f);
     				} else noKeys = true;
     			} else if (collectID.equals("Gravity")) {
     				float angleGrav;
@@ -818,27 +824,27 @@ public class Play extends GameState {
     				dircGrav = gravityPrev.x*gravNext.y - gravityPrev.y*gravNext.x;
     				gravityScale = 0.0f;
     				mWorld.setGravity(gravNext);
-    				BikeGameSounds.PlaySound(soundGravity);
+    				BikeGameSounds.PlaySound(soundGravity, 1.0f);
     			} else if (collectID.equals("KeyRed")) {
     				collectKeyRed += 1;
-    				BikeGameSounds.PlaySound(soundKey);
+    				BikeGameSounds.PlaySound(soundKey, 1.0f);
     			} else if (collectID.equals("KeyGreen")) {
     				collectKeyGreen += 1;
-    				BikeGameSounds.PlaySound(soundKey);
+    				BikeGameSounds.PlaySound(soundKey, 1.0f);
     			} else if (collectID.equals("KeyBlue")) {
     				collectKeyBlue += 1;
-    				BikeGameSounds.PlaySound(soundKey);
+    				BikeGameSounds.PlaySound(soundKey, 1.0f);
     			} else if (collectID.equals("Nitrous")) {
     				if ((collectNitrous == 0) & (nitrousLevel == 0.0f)) nitrousLevel = 1.0f;
     				collectNitrous += 1;
-    				BikeGameSounds.PlaySound(soundNitrous);
+    				BikeGameSounds.PlaySound(soundNitrous, 1.0f);
     			} else if (collectID.equals("Jewel")) {
     				if (collectJewel != 0) collectJewel -= 1;
-    				BikeGameSounds.PlaySound(soundGem);
+    				BikeGameSounds.PlaySound(soundGem, 1.0f);
     			} else if (collectID.equals("Diamond")) {
     				collectJewel = 0;
     				collectDiamond = true; // The player has collected the diamond
-    				BikeGameSounds.PlaySound(soundDiamond);
+    				BikeGameSounds.PlaySound(soundDiamond, 1.0f);
     			}
     			if (!noKeys) {
 	        		// Remove the collected item from the loop
@@ -977,7 +983,7 @@ public class Play extends GameState {
         			if (switchArr[8] == 0.0f) switchArr[9] = 1.0f;
         			else switchArr[9] = -1.0f;
         			switchGate.set(switchIdx,switchArr.clone());
-        			BikeGameSounds.PlaySound(soundSwitch);
+        			BikeGameSounds.PlaySound(soundSwitch, 1.0f);
         		}
     		}
     	}
@@ -1060,7 +1066,7 @@ public class Play extends GameState {
     			bikeBodyRW.setLinearVelocity(cCoord[0],cCoord[1]);
     			// Force transporters to be inactive
     			canTransport = 0.0f;
-    			BikeGameSounds.PlaySound(soundTransport);
+    			BikeGameSounds.PlaySound(soundTransport, 1.0f);
     		}
     	}
     	bodies.clear();
@@ -1087,6 +1093,12 @@ public class Play extends GameState {
         	   break;
            case LOADED:
         	   mNextState = GAME_STATE.RUNNING;
+               // Start the bike sound loops
+        	   //int bikeStart = BikeGameSounds.GetSoundIndex("bike_start");
+        	   //BikeGameSounds.PlaySound(bikeStart, 1.0f);
+               soundBikeIdle = BikeGameSounds.LoadBikeIdle();
+               soundIDBikeIdle = soundBikeIdle.play(0.2f);
+               soundBikeIdle.setLooping(soundIDBikeIdle, true);
                // Start the timer
                timerStart = (int) (TimeUtils.millis());
         	   break;
@@ -1480,6 +1492,7 @@ public class Play extends GameState {
     	if (fallingJoints != null) fallingJoints.clear();
     	if (fallingJointsTime != null) fallingJointsTime.clear();
     	if (mScene != null) mScene.clear();
+    	if (soundBikeIdle != null) soundBikeIdle.dispose();
     	mScene = null;
     }
 
