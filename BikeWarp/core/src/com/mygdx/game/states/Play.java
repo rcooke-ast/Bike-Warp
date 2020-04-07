@@ -179,8 +179,10 @@ public class Play extends GameState {
     
     // Index of sounds to be played
     private int soundGem, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
-    private Sound soundBikeIdle;
-    private long soundIDBikeIdle;
+    private Sound soundBikeIdle, soundBikeMove;
+    private long soundIDBikeIdle, soundIDBikeMove;
+    private final float bikeMaxVolume = 0.1f;
+    private float bikeVolume, bikePitch;
 
     // Some items to be displayed on the HUD
     //private Sprite panelShadeA, panelShadeB;//, panelShadeC;
@@ -332,7 +334,6 @@ public class Play extends GameState {
 		//}
 
         // Load the sounds
-//        soundBikeIdle.setVolume(soundIDBikeIdle,0.2f);
         soundGem = BikeGameSounds.GetSoundIndex("gem_collect");
         soundDiamond = BikeGameSounds.GetSoundIndex("diamond_collect");
         soundCollide = BikeGameSounds.GetSoundIndex("collide");
@@ -345,8 +346,8 @@ public class Play extends GameState {
         soundTransport = BikeGameSounds.GetSoundIndex("transport");
         soundFinish = BikeGameSounds.GetSoundIndex("finish");
 
+        // TODO : Some extra sounds?
 //        soundBikeSwitch
-//        soundBikeMotor
 //        collisions?
 
         		// Load the items to be displayed on the HUD
@@ -656,13 +657,17 @@ public class Play extends GameState {
 		float lw_x = Interpolation.fade.apply(ReplayVars.replayLW_X.get(rIndex), ReplayVars.replayLW_X.get(rIndex+1), mid);
 		float lw_y = Interpolation.fade.apply(ReplayVars.replayLW_Y.get(rIndex), ReplayVars.replayLW_Y.get(rIndex+1), mid);
 		float lw_a = Interpolation.fade.apply(ReplayVars.replayLW_A.get(rIndex), ReplayVars.replayLW_A.get(rIndex+1), mid);
+		float lw_v = Interpolation.fade.apply(ReplayVars.replayLW_V.get(rIndex), ReplayVars.replayLW_V.get(rIndex+1), mid);
 		bikeBodyLW.setTransform(lw_x, lw_y, lw_a);
-//		bikeBodyLW.setAngularVelocity(lw_a);
+		bikeBodyLW.setAngularVelocity(lw_v);
 		float rw_x = Interpolation.fade.apply(ReplayVars.replayRW_X.get(rIndex), ReplayVars.replayRW_X.get(rIndex+1), mid);
 		float rw_y = Interpolation.fade.apply(ReplayVars.replayRW_Y.get(rIndex), ReplayVars.replayRW_Y.get(rIndex+1), mid);
 		float rw_a = Interpolation.fade.apply(ReplayVars.replayRW_A.get(rIndex), ReplayVars.replayRW_A.get(rIndex+1), mid);
+		float rw_v = Interpolation.fade.apply(ReplayVars.replayLW_V.get(rIndex), ReplayVars.replayLW_V.get(rIndex+1), mid);
 		bikeBodyRW.setTransform(rw_x, rw_y, rw_a);
-//		bikeBodyRW.setAngularVelocity(rw_a);
+		bikeBodyRW.setAngularVelocity(rw_v);
+		// Update the Bike Sound
+		UpdateBikeSound();
 		// Check if the bike direction needs to be switched
 		if (ReplayVars.CheckSwitchDirection(rIndex)) switchBikeDirection();
 		if ((bikeScale > -1.0f) & (bikeScale < 1.0f)) {
@@ -673,7 +678,7 @@ public class Play extends GameState {
 				bikeScale = 1.0f;
 			}
 		}
-		// Update the camera position...
+		// Update the camera position
 		updateCameraPostion();
 	}
 
@@ -690,19 +695,49 @@ public class Play extends GameState {
 		ReplayVars.replayLW_X.add(LWCen.x);
 		ReplayVars.replayLW_Y.add(LWCen.y);
 		ReplayVars.replayLW_A.add(bikeBodyLW.getAngle());
+		ReplayVars.replayLW_V.add(bikeBodyLW.getAngularVelocity());
 		ReplayVars.replayRW_X.add(RWCen.x);
 		ReplayVars.replayRW_Y.add(RWCen.y);
 		ReplayVars.replayRW_A.add(bikeBodyRW.getAngle());
+		ReplayVars.replayRW_V.add(bikeBodyRW.getAngularVelocity());
+	}
+	
+	private void UpdateBikeSound() {
+		if (bikeDirc == 1.0f) {
+			if (bikeBodyLW.getAngularVelocity() > -100.0f) {
+				bikePitch = 1.0f - 1.0f*bikeBodyLW.getAngularVelocity()/100.0f;
+				bikeVolume = -bikeMaxVolume*bikeBodyLW.getAngularVelocity()/5.0f;
+			}
+		} else {
+			if (bikeBodyRW.getAngularVelocity() < 100.0f) {
+				bikePitch = 1.0f + 1.0f*bikeBodyRW.getAngularVelocity()/100.0f;				
+				bikeVolume = bikeMaxVolume*bikeBodyRW.getAngularVelocity()/5.0f;
+			}
+		}
+		// Update Bike Volume
+		if (bikeVolume > bikeMaxVolume) bikeVolume = bikeMaxVolume;
+		else if (bikeVolume < 0.0f) bikeVolume = 0.0f;
+		soundBikeIdle.setVolume(soundIDBikeIdle, bikeMaxVolume-bikeVolume);
+		soundBikeMove.setVolume(soundIDBikeMove, bikeVolume);
+		// Update Bike Pitch
+		if (bikePitch > 2.0f) bikeVolume = 2.0f;
+		else if (bikePitch < 0.5f) bikePitch = 0.5f;
+		soundBikeMove.setPitch(soundIDBikeMove, bikePitch);
 	}
 	
 	private void updateBike(float dt) {
 		if (motorTorque != 0.0f) {
 			if (bikeDirc == 1.0f) {
-				if (bikeBodyLW.getAngularVelocity() > -100.0f) bikeBodyLW.applyTorque(-1.0f*(3*applyNitrous+1.0f)*Math.max(motorTorque, 500.0f/(1.0f+Math.abs(bikeBodyLW.getAngularVelocity()))), false);
+				if (bikeBodyLW.getAngularVelocity() > -100.0f) {
+					bikeBodyLW.applyTorque(-1.0f*(3*applyNitrous+1.0f)*Math.max(motorTorque, 500.0f/(1.0f+Math.abs(bikeBodyLW.getAngularVelocity()))), false);
+				}
 			} else {
-				if (bikeBodyRW.getAngularVelocity() < 100.0f) bikeBodyRW.applyTorque((3*applyNitrous+1.0f)*Math.max(motorTorque, 500.0f/(1.0f+Math.abs(bikeBodyRW.getAngularVelocity()))), false);
+				if (bikeBodyRW.getAngularVelocity() < 100.0f) {
+					bikeBodyRW.applyTorque((3*applyNitrous+1.0f)*Math.max(motorTorque, 500.0f/(1.0f+Math.abs(bikeBodyRW.getAngularVelocity()))), false);
+				}
 			}
 		}
+		UpdateBikeSound();
 		if ((bikeScale > -1.0f) & (bikeScale < 1.0f)) {
 			bikeScale += bikeScaleLev;
 			if (bikeScale < -1.0f) {
@@ -1097,8 +1132,14 @@ public class Play extends GameState {
         	   //int bikeStart = BikeGameSounds.GetSoundIndex("bike_start");
         	   //BikeGameSounds.PlaySound(bikeStart, 1.0f);
                soundBikeIdle = BikeGameSounds.LoadBikeIdle();
-               soundIDBikeIdle = soundBikeIdle.play(0.2f);
+               soundIDBikeIdle = soundBikeIdle.play(bikeMaxVolume);
                soundBikeIdle.setLooping(soundIDBikeIdle, true);
+               soundBikeIdle.setPitch(soundIDBikeIdle, 1.0f);
+               // sound of the bike moving
+               soundBikeMove = BikeGameSounds.LoadBikeMove();
+               soundIDBikeMove = soundBikeIdle.play(0.0f);
+               soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
+               soundBikeMove.setLooping(soundIDBikeMove, true);
                // Start the timer
                timerStart = (int) (TimeUtils.millis());
         	   break;
@@ -1493,6 +1534,7 @@ public class Play extends GameState {
     	if (fallingJointsTime != null) fallingJointsTime.clear();
     	if (mScene != null) mScene.clear();
     	if (soundBikeIdle != null) soundBikeIdle.dispose();
+    	if (soundBikeMove != null) soundBikeMove.dispose();
     	mScene = null;
     }
 

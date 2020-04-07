@@ -9,7 +9,6 @@ import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 
 // TODO ITEMS before game is finished
-// TODO Game Sounds
 // TODO Anything else needs to be disposed upon exit?
 
 public class BikeGame implements ApplicationListener {

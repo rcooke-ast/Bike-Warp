@@ -95,7 +95,6 @@ public class MenuReplay extends GameState {
         		// Load the replay
         		ReplayVars.LoadReplay(replayFiles.get(currentOption-1));
         		int mode = ReplayVars.replayMode; // Determine if it's a training or game level
-        		System.out.println(mode);
         		int levelNumber = ReplayVars.levelNumber;
         		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
         		if (mode==3) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[levelNumber+1]));
