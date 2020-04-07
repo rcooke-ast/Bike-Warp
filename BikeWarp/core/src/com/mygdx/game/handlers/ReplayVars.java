@@ -30,8 +30,8 @@ public class ReplayVars implements Serializable {
 
     public static ArrayList<Float> replayTime;
     public static ArrayList<Float> replayBike_X, replayBike_Y, replayBike_A;
-    public static ArrayList<Float> replayLW_X, replayLW_Y, replayLW_A;
-    public static ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A;
+    public static ArrayList<Float> replayLW_X, replayLW_Y, replayLW_A, replayLW_V;
+    public static ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A, replayRW_V;
     public static ArrayList<Float> replayChangeDir;
     public static int replayCntr = 0, replayCDCntr = 0, levelNumber=-1, replayMode=-1;
 
@@ -44,9 +44,11 @@ public class ReplayVars implements Serializable {
     	replayLW_X = new ArrayList<Float>();
     	replayLW_Y = new ArrayList<Float>();
     	replayLW_A = new ArrayList<Float>();
+    	replayLW_V = new ArrayList<Float>();
     	replayRW_X = new ArrayList<Float>();
     	replayRW_Y = new ArrayList<Float>();
     	replayRW_A = new ArrayList<Float>();
+    	replayRW_V = new ArrayList<Float>();
     	replayChangeDir = new ArrayList<Float>();
     	replayCntr = 0;
     	replayCDCntr = 0;
@@ -112,9 +114,11 @@ public class ReplayVars implements Serializable {
 	    	replayLW_X = (ArrayList<Float>) oi.readObject();
 	    	replayLW_Y = (ArrayList<Float>) oi.readObject();
 	    	replayLW_A = (ArrayList<Float>) oi.readObject();
+	    	replayLW_V = (ArrayList<Float>) oi.readObject();
 	    	replayRW_X = (ArrayList<Float>) oi.readObject();
 	    	replayRW_Y = (ArrayList<Float>) oi.readObject();
 	    	replayRW_A = (ArrayList<Float>) oi.readObject();
+	    	replayRW_V = (ArrayList<Float>) oi.readObject();
 	    	replayChangeDir = (ArrayList<Float>) oi.readObject();
 
 			// Close files
@@ -148,9 +152,11 @@ public class ReplayVars implements Serializable {
 			o.writeObject(replayLW_X);
 			o.writeObject(replayLW_Y);
 			o.writeObject(replayLW_A);
+			o.writeObject(replayLW_V);
 			o.writeObject(replayRW_X);
 			o.writeObject(replayRW_Y);
 			o.writeObject(replayRW_A);
+			o.writeObject(replayRW_V);
 			o.writeObject(replayChangeDir);
 
 			// Close the file
