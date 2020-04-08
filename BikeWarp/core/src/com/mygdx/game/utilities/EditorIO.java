@@ -265,7 +265,6 @@ public class EditorIO {
 		File folder = new File("data/levels");
 		String temp = "";
 		int numFiles = 0;
-		System.out.println("Default Folder = "+folder.getAbsolutePath());
 		for (File fileEntry : folder.listFiles()) {
 			if (fileEntry.isFile()) {
 				temp = fileEntry.getName();

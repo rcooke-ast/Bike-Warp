@@ -446,35 +446,7 @@ public class Editor extends GameState {
 						listParent.setItems(nullList);
 						SetChildList();
 						mode = -999;
-						// Check for vertices that are too close
-						float[] chkVertices = PolygonOperations.CheckVertexSizes(allPolygons, allPolygonTypes, allDecors, allDecorTypes);
-						// Check for intersecting segments
-						float[] chkIntsct = PolygonOperations.CheckIntersections(allPolygons, allPolygonTypes, allDecors, allDecorTypes);
-						if (chkVertices!=null) {
-							// Go to the intersection
-							MoveCameraTo(chkVertices[0],chkVertices[1],true);
-							// Print a warning message
-							warnMessage[warnNumber] = "File not saved -- Two vertices are too close together (maybe a duplicate?)";
-							warnElapse[warnNumber] = 0.0f;
-							warnType[warnNumber] = 2;
-							warnNumber += 1;
-							warnMessage[warnNumber] = "Fix the polygon first, and then save the level";
-							warnElapse[warnNumber] = 0.0f;
-							warnType[warnNumber] = 1;
-							warnNumber += 1;
-						} else if (chkIntsct!=null) {
-							// Go to the intersection
-							MoveCameraTo(chkIntsct[0],chkIntsct[1],true);
-							// Print a warning message
-							warnMessage[warnNumber] = "File not saved -- There was an intersection between these segments";
-							warnElapse[warnNumber] = 0.0f;
-							warnType[warnNumber] = 2;
-							warnNumber += 1;
-							warnMessage[warnNumber] = "Fix the polygon first, and then save the level";
-							warnElapse[warnNumber] = 0.0f;
-							warnType[warnNumber] = 1;
-							warnNumber += 1;
-						} else {
+						if (!CheckVertInt()) {
 							// No intersections were found, so the level can be saved without errors
 							try {
 								String temptext = textInputSave.getText();
@@ -555,49 +527,52 @@ public class Editor extends GameState {
 				if (!hideToolbar) {
 					if (!drawingPoly) {
 						UncheckButtons(false);
-						try {
-							jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
-							if (jsonLevelString.startsWith("CU")) {
-								warnMessage[warnNumber] = "Unable to play level!";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 2;
-								warnNumber += 1;
-								try {
-									int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
-									float xcen=0.0f, ycen=0.0f;
-									if (jsonLevelString.split(" ")[2].equals("P")) {
-										for (int i=0; i<allPolygons.get(gotoPoly).length/2; i++) {
-											xcen += allPolygons.get(gotoPoly)[2*i];
-											ycen += allPolygons.get(gotoPoly)[2*i+1];
+						if (!CheckVertInt()) {
+							// No intersections were found, so let's do some more checks...
+							try {
+								jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
+								if (jsonLevelString.startsWith("CU")) {
+									warnMessage[warnNumber] = "Unable to play level!";
+									warnElapse[warnNumber] = 0.0f;
+									warnType[warnNumber] = 2;
+									warnNumber += 1;
+									try {
+										int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
+										float xcen=0.0f, ycen=0.0f;
+										if (jsonLevelString.split(" ")[2].equals("P")) {
+											for (int i=0; i<allPolygons.get(gotoPoly).length/2; i++) {
+												xcen += allPolygons.get(gotoPoly)[2*i];
+												ycen += allPolygons.get(gotoPoly)[2*i+1];
+											}
+											xcen /= (allPolygons.get(gotoPoly).length/2);
+											ycen /= (allPolygons.get(gotoPoly).length/2);
+											MoveCameraTo(xcen,ycen,true);
+											warnMessage[warnNumber] = "Two vertices in this polygon are too close together";
+											warnElapse[warnNumber] = 0.0f;
+											warnType[warnNumber] = 1;
+											warnNumber += 1;
+										} else if (jsonLevelString.split(" ")[2].equals("D")) {
+											for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
+												xcen += allDecors.get(gotoPoly)[2*i];
+												ycen += allDecors.get(gotoPoly)[2*i+1];
+											}
+											xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
+											ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
+											MoveCameraTo(xcen,ycen,true);
+											warnMessage[warnNumber] = "Two vertices in the grass are too close together";
+											warnElapse[warnNumber] = 0.0f;
+											warnType[warnNumber] = 1;
+											warnNumber += 1;
 										}
-										xcen /= (allPolygons.get(gotoPoly).length/2);
-										ycen /= (allPolygons.get(gotoPoly).length/2);
-										MoveCameraTo(xcen,ycen,true);
-										warnMessage[warnNumber] = "Two vertices in this polygon are too close together";
-										warnElapse[warnNumber] = 0.0f;
-										warnType[warnNumber] = 1;
-										warnNumber += 1;
-									} else if (jsonLevelString.split(" ")[2].equals("D")) {
-										for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
-											xcen += allDecors.get(gotoPoly)[2*i];
-											ycen += allDecors.get(gotoPoly)[2*i+1];
-										}
-										xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
-										ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
-										MoveCameraTo(xcen,ycen,true);
-										warnMessage[warnNumber] = "Two vertices in the grass are too close together";
-										warnElapse[warnNumber] = 0.0f;
-										warnType[warnNumber] = 1;
-										warnNumber += 1;
-									}
-								} catch (Exception e) {}
-							} else {
-								enteringFilename = false;
-								stage.setKeyboardFocus(null);
-								gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
+									} catch (Exception e) {}
+								} else {
+									enteringFilename = false;
+									stage.setKeyboardFocus(null);
+									gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
 							}
-						} catch (JSONException e) {
-							e.printStackTrace();
 						}
 				    	// When we come back from the level, make sure we reset the hudCam (used for messages)
 				        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
@@ -706,6 +681,14 @@ public class Editor extends GameState {
 						SetChildList();
 						ResetHoverSelect();
 						buttonCopyPaste.setChecked(true);
+						warnMessage[warnNumber] = "Click an object to select it, then click again to paste a copy of it, or,";
+						warnElapse[warnNumber] = 0.0f;
+						warnType[warnNumber] = 0;
+						warnNumber += 1;
+						warnMessage[warnNumber] = "click and drag over multiple platforms to select multiple platforms. Click again to paste";
+						warnElapse[warnNumber] = 0.0f;
+						warnType[warnNumber] = 0;
+						warnNumber += 1;
 					}
 				}
 			}
@@ -775,7 +758,45 @@ public class Editor extends GameState {
 							tempArr[2] *= -1;
 							allPolygonPaths.set(polySelect, tempArr.clone());
 						}
+						if (listChild.getItems().size != 0) {
+							String chldMd = listChild.getSelected().toString();
+							if (chldMd.equals("Delete")) {
+								warnMessage[warnNumber] = "First select object, then press 'd' to delete";
+								warnElapse[warnNumber] = 0.0f;
+								warnType[warnNumber] = 0;
+								warnNumber += 1;
+							} else if ((modeParent.equals("Polygon")) && (chldMd.equals("Rotate"))) {
+								warnMessage[warnNumber] = "Polygons will rotate about the red circle (a.k.a. the 'cursor')";
+								warnElapse[warnNumber] = 0.0f;
+								warnType[warnNumber] = 0;
+								warnNumber += 1;
+								warnMessage[warnNumber] = "Press 'c' first and then click at the position you want to set the cursor";
+								warnElapse[warnNumber] = 0.0f;
+								warnType[warnNumber] = 0;
+								warnNumber += 1;
+							} else if ((modeParent.equals("Polygon")) && (chldMd.equals("Scale"))) {
+								warnMessage[warnNumber] = "Polygons will scale about the red circle (a.k.a. the 'cursor')";
+								warnElapse[warnNumber] = 0.0f;
+								warnType[warnNumber] = 0;
+								warnNumber += 1;
+								warnMessage[warnNumber] = "Press 'c' first and then click at the position you want to set the cursor";
+								warnElapse[warnNumber] = 0.0f;
+								warnType[warnNumber] = 0;
+								warnNumber += 1;
+							} else if (chldMd.equals("Rotate")) {
+								warnMessage[warnNumber] = "Click and drag the object to rotate it";
+								warnElapse[warnNumber] = 0.0f;
+								warnType[warnNumber] = 0;
+								warnNumber += 1;								
+							} else if (chldMd.equals("Delete Vertex")) {
+								warnMessage[warnNumber] = "First select vertex, then press 'd' to delete";
+								warnElapse[warnNumber] = 0.0f;
+								warnType[warnNumber] = 0;
+								warnNumber += 1;
+							} 
+						}
 					}
+
 					if (!drawingPoly) {
 						objectSelect = -1;
 						decorSelect = -1;
@@ -883,6 +904,41 @@ public class Editor extends GameState {
 		//
     }
 
+    public boolean CheckVertInt() {
+		// Check for vertices that are too close
+		float[] chkVertices = PolygonOperations.CheckVertexSizes(allPolygons, allPolygonTypes, allDecors, allDecorTypes);
+		// Check for intersecting segments
+		float[] chkIntsct = PolygonOperations.CheckIntersections(allPolygons, allPolygonTypes, allDecors, allDecorTypes);
+		if (chkVertices!=null) {
+			// Go to the intersection
+			MoveCameraTo(chkVertices[0],chkVertices[1],true);
+			// Print a warning message
+			warnMessage[warnNumber] = "Level not saved/executed -- Two vertices are too close together (maybe a duplicate?)";
+			warnElapse[warnNumber] = 0.0f;
+			warnType[warnNumber] = 2;
+			warnNumber += 1;
+			warnMessage[warnNumber] = "Fix the polygon first, and then save the level";
+			warnElapse[warnNumber] = 0.0f;
+			warnType[warnNumber] = 1;
+			warnNumber += 1;
+			return true;
+		} else if (chkIntsct!=null) {
+			// Go to the intersection
+			MoveCameraTo(chkIntsct[0],chkIntsct[1],true);
+			// Print a warning message
+			warnMessage[warnNumber] = "Level not saved/executed -- There was an intersection between these segments";
+			warnElapse[warnNumber] = 0.0f;
+			warnType[warnNumber] = 2;
+			warnNumber += 1;
+			warnMessage[warnNumber] = "Fix the polygon first, and then save the level";
+			warnElapse[warnNumber] = 0.0f;
+			warnType[warnNumber] = 1;
+			warnNumber += 1;
+			return true;
+		}
+    	return false;
+    }
+    
     public void handleInput() {
 		if (GameInput.isPressed(GameInput.KEY_T)) hideToolbar = !hideToolbar;
 		if (GameInput.isPressed(GameInput.KEY_C)) setCursor = true;
