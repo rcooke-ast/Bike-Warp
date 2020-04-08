@@ -9,7 +9,7 @@ import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 
 // TODO ITEMS before game is finished
-// TODO Anything else needs to be disposed upon exit?
+// TODO Some sound for collisions between GROUND?
 
 public class BikeGame implements ApplicationListener {
 	public static final String TITLE = "Bike Warp";

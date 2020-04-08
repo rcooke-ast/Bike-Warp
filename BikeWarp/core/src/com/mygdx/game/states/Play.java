@@ -178,7 +178,7 @@ public class Play extends GameState {
     private boolean forcequit, lrIsDown, paintBackdrop;
     
     // Index of sounds to be played
-    private int soundGem, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
+    private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
@@ -335,9 +335,10 @@ public class Play extends GameState {
 
         // Load the sounds
         soundGem = BikeGameSounds.GetSoundIndex("gem_collect");
+        soundBikeSwitch = BikeGameSounds.GetSoundIndex("bike_switch");
         soundDiamond = BikeGameSounds.GetSoundIndex("diamond_collect");
         soundCollide = BikeGameSounds.GetSoundIndex("collide");
-        soundHit = BikeGameSounds.GetSoundIndex("hit");
+        soundHit = BikeGameSounds.GetSoundIndex("bike_crash");
         soundNitrous = BikeGameSounds.GetSoundIndex("nitrous");
         soundKey = BikeGameSounds.GetSoundIndex("key_collect");
         soundGravity = BikeGameSounds.GetSoundIndex("gravity");
@@ -345,10 +346,6 @@ public class Play extends GameState {
         soundSwitch = BikeGameSounds.GetSoundIndex("switch");
         soundTransport = BikeGameSounds.GetSoundIndex("transport");
         soundFinish = BikeGameSounds.GetSoundIndex("finish");
-
-        // TODO : Some extra sounds?
-//        soundBikeSwitch
-//        collisions?
 
         		// Load the items to be displayed on the HUD
         keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red",0));
@@ -434,7 +431,7 @@ public class Play extends GameState {
         }
         // Change Direction
         if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
-        	if (!isReplay) ReplayVars.replayChangeDir.add(replayTime);
+        	if ((mode != 0) && (!isReplay)) ReplayVars.replayChangeDir.add(replayTime);
         	switchBikeDirection();
         }
         //playerTorque = 0.0f;
@@ -532,15 +529,17 @@ public class Play extends GameState {
 	     	   				}	     	   				
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
-	     	   			GameVars.SetLevelComplete(levelID);
-	     	   			LevelsListGame.updateRecords();
-	     	   			LevelsListTraining.updateRecords();
+	     	   			if (mode != 0) {
+		     	   			GameVars.SetLevelComplete(levelID);
+		     	   			LevelsListGame.updateRecords();
+		     	   			LevelsListTraining.updateRecords();
+	     	   			}
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
 	     	   } else if ((cl.isPlayerDead()) | (forcequit)) {
+	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
 	       		    soundBikeIdle.setLooping(soundIDBikeIdle, false);
-	       		    BikeGameSounds.PlaySound(soundHit, 0.3f);
 //	     	   		gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
 //	     	   		System.out.println("NEED TO CORRECT THIS!!!");
 //	     	   		if (forcequit) gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
@@ -559,7 +558,7 @@ public class Play extends GameState {
 	       	   // Update the bike position
 	       	   if (isReplay) updateBikeReplay(dt);
 	       	   else {
-	       		   storeReplay(dt);
+	       		   if (mode != 0) storeReplay(dt);
 	       		   updateBike(dt);       
 	       	   }
 	       	   // Update the other elements in the scene
@@ -607,6 +606,7 @@ public class Play extends GameState {
 //    }
 
 	private void switchBikeDirection() {
+		BikeGameSounds.PlaySound(soundBikeSwitch, 0.1f);
 		// Change the Bike Direction
 		bikeDirc *= -1.0f;
 		bikeScaleLev *= -1.0f;
