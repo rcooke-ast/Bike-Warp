@@ -112,6 +112,7 @@ public class BikeGameTextures {
 
 	private static void GetDecorations() {
 		GetTexture("grass_smooth",2);
+		GetTexture("ground_bubbles",2);
 		GetTexture("ground_cracked",2);
 		GetTexture("ground_gravel",2);
 		GetTexture("ground_mars",2);

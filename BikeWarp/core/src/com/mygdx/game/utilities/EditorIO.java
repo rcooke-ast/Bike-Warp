@@ -324,6 +324,7 @@ public class EditorIO {
     	// Determine what texture to be used for the ground
     	String textString = LevelVars.get(LevelVars.PROP_GROUND_TEXTURE);
         if (textString.equals("Cracked Mud")) textString = "images/ground_cracked.png";
+        else if (textString.equals("Bubbles")) textString = "images/ground_bubbles.png";
         else if (textString.equals("Gravel")) textString = "images/ground_gravel.png";
         else if (textString.equals("Ice")) textString = "images/ground_ice.png";
         else if (textString.equals("Mars")) textString = "images/ground_mars.png";
