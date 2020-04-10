@@ -22,10 +22,10 @@ public class LevelsListGame {
     	gameLevelFiles[0] = null;
     	gameLevelDescr[0] = "Return to the Main Menu (or press Esc).";
     	// Level 1
-    	gameLevelNames[1] = "1. Start your engine";
+    	gameLevelNames[1] = "1. Start Your Engine";
     	gameLevelFiles[1] = "data/gamelevels/startengine.lvl";
     	// Level 2
-    	gameLevelNames[2] = "2. Hang tight!";
+    	gameLevelNames[2] = "2. Hang Tight!";
     	gameLevelFiles[2] = "data/gamelevels/hangtight.lvl";
     	// Level 3
     	gameLevelNames[3] = "3. Whoops";
@@ -37,8 +37,8 @@ public class LevelsListGame {
     	gameLevelNames[5] = "5. Suspension";
     	gameLevelFiles[5] = "data/gamelevels/suspension.lvl";
     	// Level 6
-    	gameLevelNames[6] = "6. Skyjumper";
-    	gameLevelFiles[6] = "data/gamelevels/skyjumper.lvl";
+    	gameLevelNames[6] = "6. Pock Ding!";
+    	gameLevelFiles[6] = "data/gamelevels/switchdownhill.lvl";
     	// Level 7
     	gameLevelNames[7] = "7. Steve";
     	gameLevelFiles[7] = "data/gamelevels/steve01.lvl";
@@ -46,8 +46,8 @@ public class LevelsListGame {
     	gameLevelNames[8] = "8. Spikey";
     	gameLevelFiles[8] = "data/gamelevels/spikey.lvl";
     	// Level 9
-    	gameLevelNames[9] = "9. Boxed In";
-    	gameLevelFiles[9] = "data/gamelevels/boxedin.lvl";
+    	gameLevelNames[9] = "9. Levitate";
+    	gameLevelFiles[9] = "data/gamelevels/levitate.lvl";
     	// Level 10
     	gameLevelNames[10] = "10. Bumpy Battle";
     	gameLevelFiles[10] = "data/gamelevels/bumpybattle.lvl";
@@ -58,22 +58,22 @@ public class LevelsListGame {
     	gameLevelNames[12] = "12. Lunatic";
     	gameLevelFiles[12] = "data/gamelevels/lunatic.lvl";
     	// Level 13
-    	gameLevelNames[13] = "13. Halfpipe";
-    	gameLevelFiles[13] = "data/gamelevels/halfpipe.lvl";
+    	gameLevelNames[13] = "13. X Marks the Spot";
+    	gameLevelFiles[13] = "data/gamelevels/xmarks.lvl";
     	// Level 14
-    	gameLevelNames[14] = "14. Levitate";
-    	gameLevelFiles[14] = "data/gamelevels/levitate.lvl";
+    	gameLevelNames[14] = "14. Move It!";
+    	gameLevelFiles[14] = "data/gamelevels/move.lvl";
     	// Level 15
-    	gameLevelNames[15] = "15. Curve ball";
+    	gameLevelNames[15] = "15. Curve Ball";
     	gameLevelFiles[15] = "data/gamelevels/curveball.lvl";
     	// Level 16
-    	gameLevelNames[16] = "16. Spinner";
-    	gameLevelFiles[16] = "data/gamelevels/spinner.lvl";
+    	gameLevelNames[16] = "16. Halfpipe";
+    	gameLevelFiles[16] = "data/gamelevels/halfpipe.lvl";
     	// Level 17
-    	gameLevelNames[17] = "17. X marks the spot";
-    	gameLevelFiles[17] = "data/gamelevels/xmarks.lvl";
+    	gameLevelNames[17] = "17. Boxed In";
+    	gameLevelFiles[17] = "data/gamelevels/boxedin.lvl";
     	// Level 18
-    	gameLevelNames[18] = "18. Fine tooth comb";
+    	gameLevelNames[18] = "18. Fine Tooth Comb";
     	gameLevelFiles[18] = "data/gamelevels/steve02.lvl";
     	// Level 19
     	gameLevelNames[19] = "19. Underground (Part 1)";
@@ -97,7 +97,7 @@ public class LevelsListGame {
     	gameLevelNames[25] = "25. Mineshaft";
     	gameLevelFiles[25] = "data/gamelevels/mineshaft.lvl";
     	// Level 26
-    	gameLevelNames[26] = "26. Throttle up!";
+    	gameLevelNames[26] = "26. Throttle Up!";
     	gameLevelFiles[26] = "data/gamelevels/throttle.lvl";
     	// Level 27
     	gameLevelNames[27] = "27. Downhill";
@@ -115,14 +115,14 @@ public class LevelsListGame {
     	gameLevelNames[31] = "31. Trip Trap, Trip Trap";
     	gameLevelFiles[31] = "data/gamelevels/triptrap.lvl";
     	// Level 32
-    	gameLevelNames[32] = "32. Move!";
-    	gameLevelFiles[32] = "data/gamelevels/move.lvl";
+    	gameLevelNames[32] = "32. Hoopla!";
+    	gameLevelFiles[32] = "data/gamelevels/hoopla.lvl";
     	// Level 33
     	gameLevelNames[33] = "33. Earthquake";
     	gameLevelFiles[33] = "data/gamelevels/earthquake.lvl";
     	// Level 34
-    	gameLevelNames[34] = "34. Loop the Loop";
-    	gameLevelFiles[34] = "data/gamelevels/looptheloop.lvl";
+    	gameLevelNames[34] = "34. Skyjumper";
+    	gameLevelFiles[34] = "data/gamelevels/skyjumper.lvl";
     	// Level 35
     	gameLevelNames[35] = "35. Snakes and Ladders";
     	gameLevelFiles[35] = "data/gamelevels/snakeladder.lvl";
@@ -130,8 +130,8 @@ public class LevelsListGame {
     	gameLevelNames[36] = "36. Looper";
     	gameLevelFiles[36] = "data/gamelevels/looper.lvl";
     	// Level 37
-    	gameLevelNames[37] = "37. Rock Diamond";
-    	gameLevelFiles[37] = "data/gamelevels/diamond.lvl";
+    	gameLevelNames[37] = "37. Loop the Loop";
+    	gameLevelFiles[37] = "data/gamelevels/looptheloop.lvl";
     	// Level 38
     	gameLevelNames[38] = "38. Quantum Foam";
     	gameLevelFiles[38] = "data/gamelevels/quantumfoam.lvl";
@@ -145,8 +145,8 @@ public class LevelsListGame {
     	gameLevelNames[41] = "41. Gold Digger";
     	gameLevelFiles[41] = "data/gamelevels/golddigger.lvl";
     	// Level 42
-    	gameLevelNames[42] = "42. Mine shaft";
-    	gameLevelFiles[42] = "data/gamelevels/mineshaft.lvl";
+    	gameLevelNames[42] = "42. Spinner";
+    	gameLevelFiles[42] = "data/gamelevels/spinner.lvl";
     	// Level 43
     	gameLevelNames[43] = "43. Boulder Dash";
     	gameLevelFiles[43] = "data/gamelevels/boulderdash.lvl";
@@ -157,8 +157,8 @@ public class LevelsListGame {
     	gameLevelNames[45] = "45. The Martian";
     	gameLevelFiles[45] = "data/gamelevels/themartian.lvl";
     	// Level 46
-    	gameLevelNames[46] = "46. Hoopla!";
-    	gameLevelFiles[46] = "data/gamelevels/hoopla.lvl";
+    	gameLevelNames[46] = "46. Rock Diamond";
+    	gameLevelFiles[46] = "data/gamelevels/diamond.lvl";
     	// Level 47
     	gameLevelNames[47] = "47. Downhill Slalom (Part 1)";
     	gameLevelFiles[47] = "data/gamelevels/downhillslalom1.lvl";
