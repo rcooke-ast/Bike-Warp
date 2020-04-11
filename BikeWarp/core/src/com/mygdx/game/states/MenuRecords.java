@@ -312,12 +312,14 @@ public class MenuRecords extends GameState {
 		        		timeString = GameVars.getTimeString(GameVars.GetWorldTimesTrainDmnd(levelNumber-1, 9-i));
 	        		}
 	        	} else { // Display personal best times as default
-	        		if (GameVars.GetPlayerTimes(levelNumber-1, 9-i) != -1) aliasString = GameVars.GetPlayerName();
+	        		int timeval = -1;
+	        		if (dispOptVal == 0) timeval = GameVars.GetPlayerTimes(levelNumber-1, 9-i);
+	        		else if (dispOptVal == 1) timeval = GameVars.GetPlayerTimesDmnd(levelNumber-1, 9-i);
+	        		else if (dispOptVal == 2) timeval = GameVars.GetPlayerTimesTrain(levelNumber-1, 9-i);
+	        		else if (dispOptVal == 3) timeval = GameVars.GetPlayerTimesTrainDmnd(levelNumber-1, 9-i);
+	        		if (timeval != -1) aliasString = GameVars.GetPlayerName();
 	        		else aliasString = "";
-	        		if (dispOptVal == 0) timeString = GameVars.getTimeString(GameVars.GetPlayerTimes(levelNumber-1, 9-i));
-	        		else if (dispOptVal == 1) timeString = GameVars.getTimeString(GameVars.GetPlayerTimesDmnd(levelNumber-1, 9-i));
-	        		else if (dispOptVal == 2) timeString = GameVars.getTimeString(GameVars.GetPlayerTimesTrain(levelNumber-1, 9-i));
-	        		else if (dispOptVal == 3) timeString = GameVars.getTimeString(GameVars.GetPlayerTimesTrainDmnd(levelNumber-1, 9-i));
+	        		timeString = GameVars.getTimeString(timeval);
 	        	}
         	}
         	if ((10-i) <= 3) textcarveglow.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + sheight/15.0f + 1.25f*nmbrWidth, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + (i+2.5f)*carveHeight);

@@ -124,6 +124,10 @@ public class LevelOptions extends GameState {
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	if (saveReplay) saveReplay = false;
         	else fadeOut=1.0f; // Return to level selector
+        } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(levelNumber)==0)) {
+        	GameVars.SetSkipLevel(levelNumber); // Skip this level
+        	fadeOut=1.0f;
+        	LevelsListGame.updateRecords();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (saveReplay) {
         		// Check that a valid name has been supplied, then write to file
@@ -143,10 +147,13 @@ public class LevelOptions extends GameState {
         	else if (allOptions[currentOption].equalsIgnoreCase("Skip Level")) {
             	GameVars.SetSkipLevel(levelNumber); // Skip this level
             	fadeOut=1.0f; // Return to level selector
+            	LevelsListGame.updateRecords();
         	} else if (allOptions[currentOption] == "Watch Replay"){
         		// Load the replay
         		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
         		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[levelNumber+1]));
+        		ReplayVars.replayCntr = 0;
+        		ReplayVars.replayCDCntr = 0;
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue+2);
         	} else if (allOptions[currentOption] == "Save Replay"){
         		saveReplay = true;

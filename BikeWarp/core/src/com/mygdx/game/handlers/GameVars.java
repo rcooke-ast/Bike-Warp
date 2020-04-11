@@ -303,6 +303,7 @@ public class GameVars implements Serializable {
 	public static void CheckWorldTotalTimes(String plyrName, int[] times, int indx, int timerTotal) {
 		// times = plyrTotalTimes.get(currentPlayer)
 		// indx = 0, 1, 2, 3 = plyrTimes, plyrTimesDmnd, plyrTimesTrain, plyrTimesTrainDmnd
+		if (timerTotal==-1) return;
 		// Need to fetch names for the world records
 		String[] names = new String[numStore];
 		if (indx == 0) names = worldTotalNames.clone();
@@ -582,25 +583,25 @@ public class GameVars implements Serializable {
 			e.printStackTrace();
 		}
 		if (failed) {
-			GenerateFakeTimes();
-			return;
-//			worldNames = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
-//			worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
-//			worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
-//			worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
-//			worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-//			worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
-//			worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-//			worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
-			// Now the total times
-//			worldTotalNames = GetEmptyStringArray(numStore);
-//			worldTotalTimes = GetEmptyIntArray(numStore);
-//			worldTotalNamesDmnd = GetEmptyStringArray(numStore);
-//			worldTotalTimesDmnd = GetEmptyIntArray(numStore);
-//			worldTotalNamesTrain = GetEmptyStringArray(numStore);
-//			worldTotalTimesTrain = GetEmptyIntArray(numStore);
-//			worldTotalNamesTrainDmnd = GetEmptyStringArray(numStore);
-//			worldTotalTimesTrainDmnd = GetEmptyIntArray(numStore);
+//			GenerateFakeTimes();
+//			return;
+			worldNames = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
+			worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+			worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
+			worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
+			worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
+			worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+			worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
+			worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
+//			 Now the total times
+			worldTotalNames = GetEmptyStringArray(numStore);
+			worldTotalTimes = GetEmptyIntArray(numStore);
+			worldTotalNamesDmnd = GetEmptyStringArray(numStore);
+			worldTotalTimesDmnd = GetEmptyIntArray(numStore);
+			worldTotalNamesTrain = GetEmptyStringArray(numStore);
+			worldTotalTimesTrain = GetEmptyIntArray(numStore);
+			worldTotalNamesTrainDmnd = GetEmptyStringArray(numStore);
+			worldTotalTimesTrainDmnd = GetEmptyIntArray(numStore);
 		}
 	}
 

@@ -1,5 +1,7 @@
 package com.mygdx.game.states;
 
+import java.io.File;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -12,6 +14,8 @@ import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.handlers.LevelsListTraining;
+import com.mygdx.game.handlers.ReplayVars;
+import com.mygdx.game.utilities.EditorIO;
 
 public class MenuSelectPlayer extends GameState {
     private int currentOption, numPlyrShow, numMin, numOptions;
@@ -33,6 +37,11 @@ public class MenuSelectPlayer extends GameState {
 	        // Set the starting option
 	        currentOption = GameVars.GetCurrentPlayer();
 		}
+		// Make sure the necessary game directories exist
+		File directory = new File(ReplayVars.replayDir);
+	    if (!directory.exists()) directory.mkdir();
+	    directory = new File(EditorIO.levelDir);
+		if (!directory.exists()) directory.mkdir();
 		// Create the canvas
         create();
 	}

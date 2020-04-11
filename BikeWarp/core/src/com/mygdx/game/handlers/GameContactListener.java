@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.game.BikeGameSounds;
 
 /**
  *
@@ -47,7 +48,6 @@ public class GameContactListener implements ContactListener {
         Fixture fb = c.getFixtureB();
 
         if(fa == null || fb == null) return;
-        
         short bitA = fa.getFilterData().categoryBits;
         short bitB = fb.getFilterData().categoryBits;
 
@@ -133,6 +133,7 @@ public class GameContactListener implements ContactListener {
         } else if ((fb.getUserData().equals("RightWheel"))&(fa.getUserData().equals("GroundFall"))) {
         	if (fa.getBody().getJointList().size != 0) jointsToRemove.add(fa.getBody());
         }
+
     }
 
     @Override
@@ -152,11 +153,11 @@ public class GameContactListener implements ContactListener {
         } else if ((fa.getUserData().equals("RightWheel"))|(fb.getUserData().equals("RightWheel"))) {
         	if ((bitA == B2DVars.BIT_GROUND) | (bitB == B2DVars.BIT_GROUND)) bikeGroundR--;
         }
-}
+    }
 
     @Override
     public void preSolve(Contact c, Manifold m) {
-        Fixture fa = c.getFixtureA();
+    	Fixture fa = c.getFixtureA();
         Fixture fb = c.getFixtureB();
 
         if(fa == null || fb == null) return;
@@ -180,10 +181,31 @@ public class GameContactListener implements ContactListener {
         	else if (fa.getUserData().equals("DoorGreen") & (hasGreenKey)) c.setEnabled(false);
         	else if (fa.getUserData().equals("DoorBlue") & (hasBlueKey)) c.setEnabled(false);
         }
+        // Tire Collision -> Ground
+//        if ((fa.getUserData().equals("LeftWheel"))|(fb.getUserData().equals("LeftWheel"))) {
+//        	if ((bitA == B2DVars.BIT_GROUND) | (bitB == B2DVars.BIT_GROUND)) bikeStartGroundL++;
+//        } else if ((fa.getUserData().equals("RightWheel"))|(fb.getUserData().equals("RightWheel"))) {
+//        	if ((bitA == B2DVars.BIT_GROUND) | (bitB == B2DVars.BIT_GROUND)) bikeStartGroundR++;
+//        }
     }
 
     @Override
-    public void postSolve(Contact c, ContactImpulse ci) {}
+    public void postSolve(Contact c, ContactImpulse ci) {
+        Fixture fa = c.getFixtureA();
+        Fixture fb = c.getFixtureB();
+
+        if(fa == null || fb == null) return;
+        
+        short bitA = fa.getFilterData().categoryBits;
+        short bitB = fb.getFilterData().categoryBits;
+
+        // Tire Collision -> Ground
+//        if ((fa.getUserData().equals("LeftWheel"))|(fb.getUserData().equals("LeftWheel"))) {
+//        	if ((bitA == B2DVars.BIT_GROUND) | (bitB == B2DVars.BIT_GROUND)) bikeStartGroundL--;
+//        } else if ((fa.getUserData().equals("RightWheel"))|(fb.getUserData().equals("RightWheel"))) {
+//        	if ((bitA == B2DVars.BIT_GROUND) | (bitB == B2DVars.BIT_GROUND)) bikeStartGroundR--;
+//        }
+    }
 
     public Array<Body> getBodies() { return bodiesToRemove; }
     public Array<Body> getJoints() { return jointsToRemove; }

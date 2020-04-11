@@ -242,9 +242,11 @@ public class Play extends GameState {
         cl = new GameContactListener();
 
         // Restart the timerTotal
-        GameVars.SetTimerTotal(-1);
-        GameVars.SetPersonalBest(false);
-        GameVars.SetWorldRecord(false);
+        if (!isReplay) {
+	        GameVars.SetTimerTotal(-1);
+	        GameVars.SetPersonalBest(false);
+	        GameVars.SetWorldRecord(false);
+        }
         
         // Set up box2d camera
         float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);
@@ -502,7 +504,7 @@ public class Play extends GameState {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
 		       		    soundBikeIdle.setLooping(soundIDBikeIdle, false);
 	     	   			BikeGameSounds.PlaySound(soundFinish, 1.0f);
-	     	   			GameVars.SetTimerTotal(timerTotal);
+	     	   			if (!isReplay) GameVars.SetTimerTotal(timerTotal);
 	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
 	     	   				if (mode == 1) {
@@ -529,10 +531,10 @@ public class Play extends GameState {
 	     	   				}	     	   				
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
-	     	   			if (mode != 0) {
+	     	   			if (mode == 1) LevelsListTraining.updateRecords();
+	     	   			else if (mode == 2) {
 		     	   			GameVars.SetLevelComplete(levelID);
 		     	   			LevelsListGame.updateRecords();
-		     	   			LevelsListTraining.updateRecords();
 	     	   			}
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
@@ -558,7 +560,7 @@ public class Play extends GameState {
 	       	   // Update the bike position
 	       	   if (isReplay) updateBikeReplay(dt);
 	       	   else {
-	       		   if (mode != 0) storeReplay(dt);
+	       		   if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	       		   updateBike(dt);       
 	       	   }
 	       	   // Update the other elements in the scene
