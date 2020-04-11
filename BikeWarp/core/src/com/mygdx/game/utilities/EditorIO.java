@@ -31,6 +31,7 @@ public class EditorIO {
 	private static ArrayList<ArrayList<Vector2>> convexVectorPolygons;
 	private static ArrayList<Vector2> concaveVertices;
 	private static ArrayList<NewJoint> jointList;
+	public static final String levelDir = "levels/";
 
 	public static String levelFilename = "";
 
@@ -64,7 +65,7 @@ public class EditorIO {
 			ArrayList<Integer> allDecorPolys,
 			String aOutputFileName) throws FileNotFoundException, JSONException {
 		try{
-			ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream ("data/levels/"+aOutputFileName));
+			ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream (levelDir+aOutputFileName));
 			outputStream.writeObject(allPolygons);
 			outputStream.writeObject(allPolygonTypes);
 			outputStream.writeObject(allPolygonPaths);
@@ -117,7 +118,7 @@ public class EditorIO {
 		String[] levelVarProps = null;
 		ArrayList<Object> retarr = new ArrayList<Object>();
 		try{
-			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream ("data/levels/"+aInputFileName));
+			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream (levelDir+aInputFileName));
 			allPolygons = (ArrayList<float[]>)inputStream.readObject();
 			allPolygonTypes = (ArrayList<Integer>)inputStream.readObject();
 			allPolygonPaths = (ArrayList<float[]>)inputStream.readObject();
@@ -262,7 +263,8 @@ public class EditorIO {
 	public static void SetLevelFilename(String name) { levelFilename = name; };
 
 	public static String[] LoadLevelNames(String[] defaultStr) {
-		File folder = new File("data/levels");
+		File folder = new File(levelDir);
+		//File folder = new File("data/levels");
 		String temp = "";
 		int numFiles = 0;
 		for (File fileEntry : folder.listFiles()) {

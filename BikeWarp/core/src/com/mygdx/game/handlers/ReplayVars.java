@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 public class ReplayVars implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final String replayDir = "replays/";
+	public static final String replayDir = "replays/";
 	private static final String replayExt = ".rpl";
 
     public static ArrayList<Float> replayTime;
@@ -59,6 +59,7 @@ public class ReplayVars implements Serializable {
     // Check the player and world record times
 	public static ArrayList<String> GetReplayList() {
 		File f = new File(replayDir);
+		if (!f.exists()) f.mkdir();
 		String[] fils = f.list();
 		ArrayList<String> files = new ArrayList<String>();
 		for (int ff=0; ff<fils.length; ff++) {

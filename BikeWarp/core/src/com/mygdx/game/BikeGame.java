@@ -8,18 +8,15 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 
-// TODO ITEMS before game is finished
-// TODO Some sound for collisions between GROUND?
-
 public class BikeGame implements ApplicationListener {
 	public static final String TITLE = "Bike Warp";
 	public static final int V_WIDTH = 512;//480;
 	public static final int V_HEIGHT = 384;//360;
 	public static final int SCALE = 2;
-        
+
 	public static final float STEP = 1 / 100f;
 	public float accum;
-        
+	
 	private SpriteBatch sb;
 	private OrthographicCamera cam;
 	private OrthographicCamera hudCam;
