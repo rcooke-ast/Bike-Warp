@@ -385,7 +385,7 @@ public class GameVars implements Serializable {
 	}
 	
 	public static void SetSkipLevel(int lvl) {
-		if (CanSkip()) {
+		if (CanSkip() && (lvl < LevelsListGame.NUMGAMELEVELS-1)) {
 			int[] copyLevComp = plyrLevelComplete.get(currentPlayer);
 			copyLevComp[lvl] = 2;
 			plyrLevelComplete.set(currentPlayer, copyLevComp);

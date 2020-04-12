@@ -80,7 +80,7 @@ public class LevelOptions extends GameState {
     	else if (modeValue == 2) allOptions = new String[] {LevelsListGame.gameLevelNames[levelNumber+1], "Play level", "Select another level"};
     	String[] tmp;
     	// Can skip level
-    	if ((GameVars.CanSkip()) & (GameVars.GetLevelStatus(levelNumber) == 0) & (modeValue==2)) {
+    	if ((GameVars.CanSkip()) && (GameVars.GetLevelStatus(levelNumber) == 0) && (modeValue==2) && (levelNumber != LevelsListGame.NUMGAMELEVELS-1)) {
     		tmp = new String[allOptions.length+1];
     		for (int ii=0; ii<allOptions.length; ii++) {
     			tmp[ii] = allOptions[ii];
@@ -124,7 +124,7 @@ public class LevelOptions extends GameState {
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	if (saveReplay) saveReplay = false;
         	else fadeOut=1.0f; // Return to level selector
-        } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(levelNumber)==0)) {
+        } else if ((GameInput.isPressed(GameInput.KEY_S)) && (GameVars.GetLevelStatus(levelNumber)==0) && (levelNumber != LevelsListGame.NUMGAMELEVELS-1)) {
         	GameVars.SetSkipLevel(levelNumber); // Skip this level
         	fadeOut=1.0f;
         	LevelsListGame.updateRecords();
