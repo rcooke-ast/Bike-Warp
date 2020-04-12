@@ -553,7 +553,7 @@ public class Play extends GameState {
 //	     	   			bikeBodyC.setTransform(bikeBodyCpos, bikeBodyCang);
 //	     	   			mState=GAME_STATE.LOADING;
 //	     	   		}
-    	   			GameVars.SetTimerTotal(-1);
+    	   			if (!isReplay) GameVars.SetTimerTotal(-1);
 	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	            	break;
 	     	   }
