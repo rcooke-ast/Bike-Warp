@@ -128,10 +128,7 @@ public class LevelSelectGame extends GameState {
     	cam.update();
 		handleInput();
 		// Update how many levels should be shown
-		if (checkLevels > 1.0f) {
-	    	UpdateMenu();
-	    	checkLevels = 0.0f;
-		} else checkLevels += dt;
+	    UpdateMenu();
 		// Set the fading
     	if (fadeOut > 0.0f) {
     		fadeOut -= dt/fadeTime;
