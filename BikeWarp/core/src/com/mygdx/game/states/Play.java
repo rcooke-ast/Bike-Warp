@@ -161,17 +161,18 @@ public class Play extends GameState {
     private float startDirection;
     private float startAngle;
     private Texture texture;
-    private Sprite sky, mountains, trees, finishFG, openDoor, switchGL, switchRL, metalBar;
+    private Sprite blackScreen, sky, mountains, trees, finishFG, openDoor, switchGL, switchRL, metalBar;
     private Sprite bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
     private int timerStart, timerCurrent, timerTotal;
     private String worldRecord, personalRecord;
-    private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight;
+    private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight, infoWidth;
     private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0;
     //private int[] animateJewel;
     private float SCRWIDTH;
     private BitmapFont keyRedCntr, keyGreenCntr, keyBlueCntr, jewelCntr, nitrousCntr;
+    private BitmapFont infoText;
     private int collectJewel;
     private boolean collectDiamond;
     private int nullvar;
@@ -349,7 +350,7 @@ public class Play extends GameState {
         soundTransport = BikeGameSounds.GetSoundIndex("transport");
         soundFinish = BikeGameSounds.GetSoundIndex("finish");
 
-        		// Load the items to be displayed on the HUD
+        // Load the items to be displayed on the HUD
         keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red",0));
         keyBlue = new Sprite(BikeGameTextures.LoadTexture("key_blue",0));
         keyGreen = new Sprite(BikeGameTextures.LoadTexture("key_green",0));
@@ -391,7 +392,15 @@ public class Play extends GameState {
         nitrousCntr.setColor(0.2f, 0.2f, 1, 1);
         jcntrWidth = jewelCntr.getBounds("00").width;
         jcntrHeight = jewelCntr.getBounds("00").height;
-        
+        // Information text at the beginning of the game
+        infoText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
+        float scaleVal = 1.0f;
+        infoText.setScale(scaleVal);
+        infoWidth = infoText.getBounds("Press ESC to return to menu").width;
+        scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/infoWidth;
+        infoText.setScale(scaleVal);
+        infoWidth = infoText.getBounds("Press ESC to return to menu").width;
+
         // Initiate some arrays
         switchGate = new Array<float[]>();
         kinematicBodies = new Array<Body>();
@@ -410,72 +419,93 @@ public class Play extends GameState {
     public void handleInput() {
     	// ESC is pressed
         if (GameInput.isPressed(GameInput.KEY_ESC)) {
+        	mNextState = GAME_STATE.RUNNING;  // Ensure that forcequit can be applied
         	forcequit = true;
         }
-        if (isReplay) return;
-        // Accelerate
-        if (GameInput.isDown(GameInput.KEY_ACCEL)) motorTorque = 10.0f;
-        else motorTorque = 0.0f;
-        // Brake
-        if (GameInput.isDown(GameInput.KEY_BRAKE)) {
-        	if (bikeDirc == 1.0f) {
-        		bikeBodyLW.setAngularVelocity(0.0f);
-        		bikeBodyLW.setFixedRotation(true);
-        		bikeBodyRW.setAngularVelocity(0.9f*bikeBodyRW.getAngularVelocity());
-        	} else {
-        		bikeBodyRW.setAngularVelocity(0.0f);
-        		bikeBodyRW.setFixedRotation(true);
-        		bikeBodyLW.setAngularVelocity(0.9f*bikeBodyLW.getAngularVelocity());
-        	}
-        } else {
-    		bikeBodyLW.setFixedRotation(false);        	
-    		bikeBodyRW.setFixedRotation(false);        	
-        }
-        // Change Direction
-        if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
-        	if ((mode != 0) && (!isReplay)) ReplayVars.replayChangeDir.add(replayTime);
-        	switchBikeDirection();
-        }
-        //playerTorque = 0.0f;
-        float torqueVal = 180.0f;
-        if (GameInput.isDown(GameInput.KEY_SPINL)) {
-        	lrIsDown = true;
-        	if ((applyTorque<0.0f) & (applyJump<0.0f)) {
-        		if (bikeDirc == 1.0f) playerTorque = torqueVal;
-        		else playerTorque = torqueVal;//1500.0f;
-        		applyTorque = 0.0f;
-        		if (cl.isBikeOnGround()) playerTorque *= 0.95f;
-        	}
-        } else if (GameInput.isDown(GameInput.KEY_SPINR)) {
-        	lrIsDown = true;
-        	if ((applyTorque<0.0f) & (applyJump<0.0f)) {
-        		if (bikeDirc == 1.0f) playerTorque = -torqueVal;//-1500.0f;
-        		else playerTorque = -torqueVal;
-        		applyTorque = 0.0f;
-        		if (cl.isBikeOnGround()) playerTorque *= 0.95f;
-        	}
-        } else lrIsDown = false;
-        // Tricks
-        if ((GameInput.isPressed(GameInput.KEY_BUNNY)) & (cl.isBikeOnGround()) & (applyJump<0.0f) & (applyTorque<0.0f)) {
-        	playerJump = 0;
-        	applyJump = 0.0f;
-        } else if (GameInput.isDown(GameInput.KEY_NITROUS)) {
-        	if ((collectNitrous > 0) | (nitrousLevel > 0.0f)) {
-        		applyNitrous = 1;
-        		nitrousLevel -= 0.002f;
-        		if ((nitrousLevel < 0.0f) & (collectNitrous > 1)) {
-        			nitrousLevel = 1.0f;
-        			collectNitrous -= 1;
-        		} else if (nitrousLevel < 0.0f) {
-        			nitrousLevel = 0.0f;
-        			collectNitrous -= 1;
-        		}
-        	}
-        } else if (GameInput.isDown(GameInput.KEY_NITROUS)==false) {
-        	applyNitrous = 0;
-        }
-        //if ((applyTorque<0.0f) & (applyJump<0.0f)) bikeAngle = bikeBodyC.getAngle();
-
+        // Check for all input if the game is running - make sure replay is not set
+        if ((mState.equals(GAME_STATE.RUNNING)) && (!isReplay)) {
+            // Accelerate
+            if (GameInput.isDown(GameInput.KEY_ACCEL)) motorTorque = 10.0f;
+            else motorTorque = 0.0f;
+            // Brake
+            if (GameInput.isDown(GameInput.KEY_BRAKE)) {
+            	if (bikeDirc == 1.0f) {
+            		bikeBodyLW.setAngularVelocity(0.0f);
+            		bikeBodyLW.setFixedRotation(true);
+            		bikeBodyRW.setAngularVelocity(0.9f*bikeBodyRW.getAngularVelocity());
+            	} else {
+            		bikeBodyRW.setAngularVelocity(0.0f);
+            		bikeBodyRW.setFixedRotation(true);
+            		bikeBodyLW.setAngularVelocity(0.9f*bikeBodyLW.getAngularVelocity());
+            	}
+            } else {
+        		bikeBodyLW.setFixedRotation(false);        	
+        		bikeBodyRW.setFixedRotation(false);        	
+            }
+            // Change Direction
+            if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
+            	if ((mode != 0) && (!isReplay)) ReplayVars.replayChangeDir.add(replayTime);
+            	switchBikeDirection();
+            }
+            //playerTorque = 0.0f;
+            float torqueVal = 180.0f;
+            if (GameInput.isDown(GameInput.KEY_SPINL)) {
+            	lrIsDown = true;
+            	if ((applyTorque<0.0f) & (applyJump<0.0f)) {
+            		if (bikeDirc == 1.0f) playerTorque = torqueVal;
+            		else playerTorque = torqueVal;//1500.0f;
+            		applyTorque = 0.0f;
+            		if (cl.isBikeOnGround()) playerTorque *= 0.95f;
+            	}
+            } else if (GameInput.isDown(GameInput.KEY_SPINR)) {
+            	lrIsDown = true;
+            	if ((applyTorque<0.0f) & (applyJump<0.0f)) {
+            		if (bikeDirc == 1.0f) playerTorque = -torqueVal;//-1500.0f;
+            		else playerTorque = -torqueVal;
+            		applyTorque = 0.0f;
+            		if (cl.isBikeOnGround()) playerTorque *= 0.95f;
+            	}
+            } else lrIsDown = false;
+            // Tricks
+            if ((GameInput.isPressed(GameInput.KEY_BUNNY)) & (cl.isBikeOnGround()) & (applyJump<0.0f) & (applyTorque<0.0f)) {
+            	playerJump = 0;
+            	applyJump = 0.0f;
+            } else if (GameInput.isDown(GameInput.KEY_NITROUS)) {
+            	if ((collectNitrous > 0) | (nitrousLevel > 0.0f)) {
+            		applyNitrous = 1;
+            		nitrousLevel -= 0.002f;
+            		if ((nitrousLevel < 0.0f) & (collectNitrous > 1)) {
+            			nitrousLevel = 1.0f;
+            			collectNitrous -= 1;
+            		} else if (nitrousLevel < 0.0f) {
+            			nitrousLevel = 0.0f;
+            			collectNitrous -= 1;
+            		}
+            	}
+            } else if (GameInput.isDown(GameInput.KEY_NITROUS)==false) {
+            	applyNitrous = 0;
+            }
+            //if ((applyTorque<0.0f) & (applyJump<0.0f)) bikeAngle = bikeBodyC.getAngle();
+        } else if (mState.equals(GAME_STATE.LOADED)) {
+        	if ((GameInput.isPressed(GameInput.KEY_ENTER)) | (isReplay)) {
+                mPrevState = mState;
+	            // Start the bike sound loops
+	    	    //int bikeStart = BikeGameSounds.GetSoundIndex("bike_start");
+	    	    //BikeGameSounds.PlaySound(bikeStart, 1.0f);
+	            soundBikeIdle = BikeGameSounds.LoadBikeIdle();
+	            soundIDBikeIdle = soundBikeIdle.play(bikeMaxVolume);
+	            soundBikeIdle.setLooping(soundIDBikeIdle, true);
+	            soundBikeIdle.setPitch(soundIDBikeIdle, 1.0f);
+	            // sound of the bike moving
+	            soundBikeMove = BikeGameSounds.LoadBikeMove();
+	            soundIDBikeMove = soundBikeIdle.play(0.0f);
+	            soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
+	            soundBikeMove.setLooping(soundIDBikeMove, true);
+                mNextState = GAME_STATE.RUNNING;
+	            // Start the timer
+	            timerStart = (int) (TimeUtils.millis());
+        	} else return;
+        } else return;
     }
     
     public void update(float dt) {
@@ -490,7 +520,7 @@ public class Play extends GameState {
                break;
 
            case LOADED:
-               // Include a "press any key to begin"
+        	   handleInput();
                break;
               
            case RUNNING:
@@ -541,7 +571,7 @@ public class Play extends GameState {
 	     	   		} else cl.notFinished();
 	     	   } else if ((cl.isPlayerDead()) | (forcequit)) {
 	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
-	       		    soundBikeIdle.setLooping(soundIDBikeIdle, false);
+	       		    if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
 //	     	   		gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
 //	     	   		System.out.println("NEED TO CORRECT THIS!!!");
 //	     	   		if (forcequit) gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
@@ -1129,21 +1159,7 @@ public class Play extends GameState {
 //              }
         	   break;
            case LOADED:
-        	   mNextState = GAME_STATE.RUNNING;
-               // Start the bike sound loops
-        	   //int bikeStart = BikeGameSounds.GetSoundIndex("bike_start");
-        	   //BikeGameSounds.PlaySound(bikeStart, 1.0f);
-               soundBikeIdle = BikeGameSounds.LoadBikeIdle();
-               soundIDBikeIdle = soundBikeIdle.play(bikeMaxVolume);
-               soundBikeIdle.setLooping(soundIDBikeIdle, true);
-               soundBikeIdle.setPitch(soundIDBikeIdle, 1.0f);
-               // sound of the bike moving
-               soundBikeMove = BikeGameSounds.LoadBikeMove();
-               soundIDBikeMove = soundBikeIdle.play(0.0f);
-               soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
-               soundBikeMove.setLooping(soundIDBikeMove, true);
-               // Start the timer
-               timerStart = (int) (TimeUtils.millis());
+        	   renderWorld();
         	   break;
            case RUNNING:
         	   renderWorld();
@@ -1193,6 +1209,7 @@ public class Play extends GameState {
         	  }
           }
           processScene();
+          updateCameraPostion();
           mNextState = GAME_STATE.LOADED;
        }
        else if (mAssetManager.update())
@@ -1260,6 +1277,7 @@ public class Play extends GameState {
        collectJewel = (Integer) mScene.getCustom(gameInfo, "numJewel", 0);
        String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName),2));
+       blackScreen = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("data/images/sky_moon.png"),2));
        bikeDirc = startDirection; // 1=right, -1=left
        bikeScale = startDirection;
        bikeScaleLev *= startDirection;
@@ -1506,6 +1524,7 @@ public class Play extends GameState {
     @Override
     public void dispose() {
     	GameInputProcessor.Disable(false);
+    	if (infoText != null) infoText.dispose();
     	if (mBatch != null) mBatch.dispose();
     	if (mPolyBatch != null) mPolyBatch.dispose();
     	if (b2dr != null) b2dr.dispose();
@@ -1720,6 +1739,15 @@ public class Play extends GameState {
        // Render some items onto the HUD
        renderHUD();
 
+       // If the game is loaded, but paused, render a foreground transparency with text
+       if (mState == GAME_STATE.LOADED) {
+    	   mBatch.begin();
+    	   mBatch.setColor(1, 1, 1, 0.6f);
+    	   mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+    	   infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress ESC to return to menu", hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
+    	   mBatch.end();
+       }
+       
        if (debug) b2dr.render(mWorld, b2dCam.combined);
     }
 
