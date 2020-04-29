@@ -524,14 +524,12 @@ public class Play extends GameState {
                break;
               
            case RUNNING:
-        	   //ReplayRecord worker = new ReplayRecord();
-        	   //worker.prepare();			// grab screenshot
-        	   //executor.execute(worker);	// delayed save in other thread
         	   handleInput();
         	   mWorld.step(dt, mVelocityIter, mPositionIter);
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
+	     	   			if ((!isReplay) && (mode != 0)) ReplayVars.replayTimer = timerTotal;
 		       		    soundBikeIdle.setLooping(soundIDBikeIdle, false);
 	     	   			BikeGameSounds.PlaySound(soundFinish, 1.0f);
 	     	   			if (!isReplay) GameVars.SetTimerTotal(timerTotal);
@@ -570,6 +568,7 @@ public class Play extends GameState {
 	     	   			break;
 	     	   		} else cl.notFinished();
 	     	   } else if ((cl.isPlayerDead()) | (forcequit)) {
+	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
 	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
 	       		    if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
 //	     	   		gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
@@ -588,10 +587,10 @@ public class Play extends GameState {
 	            	break;
 	     	   }
 	       	   // Update the bike position
-	       	   if (isReplay) updateBikeReplay(dt);
-	       	   else {
-	       		   if ((mode == 1) || (mode == 2)) storeReplay(dt);
+        	   if (isReplay) updateBikeReplay(dt);
+        	   else {
 	       		   updateBike(dt);       
+	       		   if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	       	   }
 	       	   // Update the other elements in the scene
         	   updateCollect();
@@ -678,14 +677,14 @@ public class Play extends GameState {
 
 	private void updateBikeReplay(float dt) {
 		replayTime += dt;
-		int rIndex = ReplayVars.GetIndex(replayTime);
+		int rIndex = ReplayVars.GetIndex(replayTime);		
 		float time1 = ReplayVars.replayTime.get(rIndex);
 		float time2 = ReplayVars.replayTime.get(rIndex+1);
 		float mid = (replayTime-time1)/(time2-time1);
 		float bike_x = Interpolation.fade.apply(ReplayVars.replayBike_X.get(rIndex), ReplayVars.replayBike_X.get(rIndex+1), mid);
 		float bike_y = Interpolation.fade.apply(ReplayVars.replayBike_Y.get(rIndex), ReplayVars.replayBike_Y.get(rIndex+1), mid);
 		float bike_a = Interpolation.fade.apply(ReplayVars.replayBike_A.get(rIndex), ReplayVars.replayBike_A.get(rIndex+1), mid);
-		bikeBodyC.setTransform(bike_x, bike_y, bike_a);
+		bikeBodyH.setTransform(bike_x, bike_y, bike_a);
 		float lw_x = Interpolation.fade.apply(ReplayVars.replayLW_X.get(rIndex), ReplayVars.replayLW_X.get(rIndex+1), mid);
 		float lw_y = Interpolation.fade.apply(ReplayVars.replayLW_Y.get(rIndex), ReplayVars.replayLW_Y.get(rIndex+1), mid);
 		float lw_a = Interpolation.fade.apply(ReplayVars.replayLW_A.get(rIndex), ReplayVars.replayLW_A.get(rIndex+1), mid);
@@ -695,11 +694,12 @@ public class Play extends GameState {
 		float rw_x = Interpolation.fade.apply(ReplayVars.replayRW_X.get(rIndex), ReplayVars.replayRW_X.get(rIndex+1), mid);
 		float rw_y = Interpolation.fade.apply(ReplayVars.replayRW_Y.get(rIndex), ReplayVars.replayRW_Y.get(rIndex+1), mid);
 		float rw_a = Interpolation.fade.apply(ReplayVars.replayRW_A.get(rIndex), ReplayVars.replayRW_A.get(rIndex+1), mid);
-		float rw_v = Interpolation.fade.apply(ReplayVars.replayLW_V.get(rIndex), ReplayVars.replayLW_V.get(rIndex+1), mid);
+		float rw_v = Interpolation.fade.apply(ReplayVars.replayRW_V.get(rIndex), ReplayVars.replayRW_V.get(rIndex+1), mid);
 		bikeBodyRW.setTransform(rw_x, rw_y, rw_a);
 		bikeBodyRW.setAngularVelocity(rw_v);
 		// Update the Bike Sound
 		UpdateBikeSound();
+
 		// Check if the bike direction needs to be switched
 		if (ReplayVars.CheckSwitchDirection(rIndex)) switchBikeDirection();
 		if ((bikeScale > -1.0f) & (bikeScale < 1.0f)) {
@@ -712,11 +712,16 @@ public class Play extends GameState {
 		}
 		// Update the camera position
 		updateCameraPostion();
+		
+		// Check if escape was pressed - if so, end the replay
+		if (1000.0f*replayTime + dt > ReplayVars.replayTimer) {
+			forcequit = true;
+		}
 	}
 
 	private void storeReplay(float dt) {
 		replayTime += dt;
-		Vector2 bikeCen = bikeBodyC.getWorldCenter();
+		Vector2 bikeCen = bikeBodyH.getWorldCenter();
 		Vector2 LWCen = bikeBodyLW.getWorldCenter();
 		Vector2 RWCen = bikeBodyRW.getWorldCenter();
 		// Store all of the information
@@ -1434,7 +1439,7 @@ public class Play extends GameState {
        bikeBodyRW.setTransform(bikeBodyRW.getPosition().add(startPosition), bikeBodyRW.getAngle());
        bikeBodyH.setTransform(bikeBodyH.getPosition().add(startPosition), bikeBodyH.getAngle());
        bikeBodyC.setTransform(bikeBodyC.getPosition().add(startPosition), bikeBodyC.getAngle());
-
+       
        // Get all references to switches
        // Gate switches
        int gcntr = 0;

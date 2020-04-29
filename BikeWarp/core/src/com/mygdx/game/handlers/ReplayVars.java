@@ -33,7 +33,7 @@ public class ReplayVars implements Serializable {
     public static ArrayList<Float> replayLW_X, replayLW_Y, replayLW_A, replayLW_V;
     public static ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A, replayRW_V;
     public static ArrayList<Float> replayChangeDir;
-    public static int replayCntr = 0, replayCDCntr = 0, levelNumber=-1, replayMode=-1;
+    public static int replayCntr = 0, replayCDCntr = 0, levelNumber=-1, replayMode=-1, replayTimer;
 
     // Reset the variables, ready for a new replay
     public static void Reset(int levNum, int mode) {
@@ -72,6 +72,7 @@ public class ReplayVars implements Serializable {
 
     // Check the player and world record times
 	public static int GetIndex(float repTimer) {
+		boolean updated = false;
 		for (int i=replayCntr; i<replayTime.size()-1; i++) {
 			if ((repTimer >= replayTime.get(i)) & (repTimer < replayTime.get(i+1))) {
 				replayCntr = i;
@@ -121,6 +122,7 @@ public class ReplayVars implements Serializable {
 	    	replayRW_A = (ArrayList<Float>) oi.readObject();
 	    	replayRW_V = (ArrayList<Float>) oi.readObject();
 	    	replayChangeDir = (ArrayList<Float>) oi.readObject();
+	    	replayTimer = (int) oi.readObject();
 
 			// Close files
 			oi.close();
@@ -159,6 +161,7 @@ public class ReplayVars implements Serializable {
 			o.writeObject(replayRW_A);
 			o.writeObject(replayRW_V);
 			o.writeObject(replayChangeDir);
+			o.writeObject(replayTimer);
 
 			// Close the file
 			o.close();
