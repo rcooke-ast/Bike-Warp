@@ -38,7 +38,7 @@ public class LevelsListGame {
     	gameLevelFiles[5] = "data/gamelevels/suspension.lvl";
     	// Level 6
     	gameLevelNames[6] = "6. Pock Ding!";
-    	gameLevelFiles[6] = "data/gamelevels/switchdownhill.lvl";
+    	gameLevelFiles[6] = "data/gamelevels/pockding.lvl";
     	// Level 7
     	gameLevelNames[7] = "7. Steve";
     	gameLevelFiles[7] = "data/gamelevels/steve01.lvl";
