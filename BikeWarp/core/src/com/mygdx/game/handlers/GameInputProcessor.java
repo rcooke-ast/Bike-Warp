@@ -23,7 +23,7 @@ public class GameInputProcessor extends InputMultiplexer {
 
 	public boolean keyDown(int k) {
     	// Check the escape key first (we always need escape)
-        if (k == Keys.ESCAPE) {
+        if ((k == Keys.ESCAPE) | (k == Keys.Q)) {
         	GameInput.setKey(GameInput.KEY_ESC, true);
         	if (disable_keys) return true;
         }
@@ -66,7 +66,7 @@ public class GameInputProcessor extends InputMultiplexer {
 
     public boolean keyUp(int k) {
     	// Check the escape key first (we always need escape)
-        if (k == Keys.ESCAPE) {
+        if ((k == Keys.ESCAPE) | (k == Keys.Q)) {
         	GameInput.setKey(GameInput.KEY_ESC, false);
         	if (disable_keys) return true;
         }
