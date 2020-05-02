@@ -96,13 +96,13 @@ public class LevelOptions extends GameState {
     	} else if ((modeValue == 1) && (levelNumber+1 != LevelsListTraining.NUMTRAINLEVELS)) {
     		tmp = new String[allOptions.length+1];
     		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
-    		tmp[allOptions.length] = "Play Next Level";
+    		tmp[allOptions.length] = "Next Level";
     		allOptions = tmp.clone();
     	}
     	// Go back to level selector
 		tmp = new String[allOptions.length+1];
 		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
-		tmp[allOptions.length] = "Select Another Level";
+		tmp[allOptions.length] = "Level Select";
 		allOptions = tmp.clone();
     	// Can skip level
     	if ((GameVars.CanSkip()) && (GameVars.GetLevelStatus(levelNumber) == 0) && (modeValue==2) && (levelNumber != LevelsListGame.NUMGAMELEVELS-1)) {
@@ -166,7 +166,7 @@ public class LevelOptions extends GameState {
         		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[levelNumber+1]));
             	ReplayVars.Reset(levelNumber, modeValue);
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue);
-        	} else if (allOptions[currentOption].equalsIgnoreCase("Select Another Level")) fadeOut=1.0f; // Return to level selector
+        	} else if (allOptions[currentOption].equalsIgnoreCase("Level Select")) fadeOut=1.0f; // Return to level selector
         	else if (allOptions[currentOption].equalsIgnoreCase("Skip Level")) {
             	GameVars.SetSkipLevel(levelNumber); // Skip this level
             	goToNext=true;
@@ -181,7 +181,7 @@ public class LevelOptions extends GameState {
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue+2);
         	} else if (allOptions[currentOption].equalsIgnoreCase("Save Replay")){
         		saveReplay = true;
-	    	} else if (allOptions[currentOption].equalsIgnoreCase("Play Next Level")) {
+	    	} else if (allOptions[currentOption].equalsIgnoreCase("Next Level")) {
             	fadeOut=1.0f; // Select next level
             	goToNext=true;
 	    	}
@@ -241,12 +241,14 @@ public class LevelOptions extends GameState {
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;
     	else alpha=1.0f;
+    	float shift = 0.0f;
         for (int i=0; i<totalOptions; i++) {
         	if (currentOption == i) menuText.setColor(1, 1, 1, alpha);
         	else menuText.setColor(1, 1, 1, alpha/2);
         	lvlWidth = menuText.getBounds(allOptions[i]).width;
+        	if (allOptions[i].equalsIgnoreCase("Watch Replay")) shift = 0.6f;
         	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
-        	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1)*menuHeight);
+        	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1+shift)*menuHeight);
         }
         String dispText = "";
         if (saveReplay) {

@@ -176,7 +176,7 @@ public class Play extends GameState {
     private int collectJewel;
     private boolean collectDiamond;
     private int nullvar;
-    private boolean forcequit, lrIsDown, paintBackdrop;
+    private boolean forcequit, forceRestart, lrIsDown, paintBackdrop;
     
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
@@ -239,6 +239,7 @@ public class Play extends GameState {
     
     public void create() {
     	forcequit = false;
+    	forceRestart = false;
         // Set the contact listener
         cl = new GameContactListener();
 
@@ -421,6 +422,9 @@ public class Play extends GameState {
         if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	mNextState = GAME_STATE.RUNNING;  // Ensure that forcequit can be applied
         	forcequit = true;
+        } else if (GameInput.isPressed(GameInput.KEY_RESTART)) {
+        	mNextState = GAME_STATE.RUNNING;  // Ensure that forceRestart can be applied
+        	forceRestart = true;
         }
         // Check for all input if the game is running - make sure replay is not set
         if ((mState.equals(GAME_STATE.RUNNING)) && (!isReplay)) {
@@ -567,23 +571,26 @@ public class Play extends GameState {
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			break;
 	     	   		} else cl.notFinished();
-	     	   } else if ((cl.isPlayerDead()) | (forcequit)) {
-	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
+	     	   } else if ((cl.isPlayerDead()) | (forcequit) | (forceRestart)) {
 	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
 	       		    if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
-//	     	   		gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
-//	     	   		System.out.println("NEED TO CORRECT THIS!!!");
-//	     	   		if (forcequit) gsm.setState(GameStateManager.PEEK, false, null);//Gdx.app.exit();
-//	     	   		else {
-//	     	   			cl.playerDead=false;
-//	     	   			bikeBodyLW.setTransform(bikeBodyLWpos, bikeBodyLWang);
-//	     	   			bikeBodyRW.setTransform(bikeBodyRWpos, bikeBodyRWang);
-//	     	   			bikeBodyH.setTransform(bikeBodyHpos, bikeBodyHang);
-//	     	   			bikeBodyC.setTransform(bikeBodyCpos, bikeBodyCang);
-//	     	   			mState=GAME_STATE.LOADING;
-//	     	   		}
-    	   			if (!isReplay) GameVars.SetTimerTotal(-1);
-	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+    	   			if (!isReplay) {
+    	   				GameVars.SetTimerTotal(-1);
+    	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
+    	   			}
+    	   			if (forceRestart) {
+    	   				replayTime = 0.0f;
+    	   				ReplayVars.replayCntr = 0;
+    	   				ReplayVars.replayCDCntr = 0;
+    	            	// If it's not a replay, reset the replay variables
+    	            	if (!isReplay) ReplayVars.Reset(levelID, mode);
+    	   				// Exit the current level
+    	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+    	            	// Start it again
+    	        		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
+    	   			} else {
+    	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);    	   				
+    	   			}
 	            	break;
 	     	   }
 	       	   // Update the bike position
@@ -1749,7 +1756,7 @@ public class Play extends GameState {
     	   mBatch.begin();
     	   mBatch.setColor(1, 1, 1, 0.6f);
     	   mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-    	   infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress ESC to return to menu", hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
+    	   infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\nTip: A tip will be included here (sometimes)!", hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
     	   mBatch.end();
        }
        
