@@ -14,9 +14,11 @@ public class LevelsListGame {
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
+    public static String[] gameLevelTips = new String[1+NUMGAMELEVELS];
 
     // Set the levels
     public static void initialise() {
+    	InitialiseTips();
     	// Return to Main Menu
     	gameLevelNames[0] = "Return to Main Menu";
     	gameLevelFiles[0] = null;
@@ -24,9 +26,11 @@ public class LevelsListGame {
     	// Level 1
     	gameLevelNames[1] = "1. Start Your Engine";
     	gameLevelFiles[1] = "data/gamelevels/startengine.lvl";
+    	gameLevelTips[1] = "Tip: Collect the gold jewel and head to the exit warp";
     	// Level 2
     	gameLevelNames[2] = "2. Hang Tight!";
     	gameLevelFiles[2] = "data/gamelevels/hangtight.lvl";
+    	gameLevelTips[2] = "Tip: Use the 'b' key to bunny hop";
     	// Level 3
     	gameLevelNames[3] = "3. Whoops";
     	gameLevelFiles[3] = "data/gamelevels/whoops.lvl";
@@ -176,6 +180,12 @@ public class LevelsListGame {
     	updateRecords();
     }
 
+    private static void InitialiseTips() {
+    	for (int ll=0; ll < 1+NUMGAMELEVELS; ll++) {
+        	gameLevelTips[ll] = "";    		
+    	}
+    }
+    
     public static String GetRecordTimes(int levid) {
     	String pb, pbd;
     	if (GameVars.GetLevelStatus(levid-1)==0) {

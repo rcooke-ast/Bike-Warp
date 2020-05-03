@@ -1756,7 +1756,7 @@ public class Play extends GameState {
     	   mBatch.begin();
     	   mBatch.setColor(1, 1, 1, 0.6f);
     	   mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-    	   infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\nTip: A tip will be included here (sometimes)!", hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
+    	   infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n"+LevelsListGame.gameLevelTips[levelID+1], hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
     	   mBatch.end();
        }
        

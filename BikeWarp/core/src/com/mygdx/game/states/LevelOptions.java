@@ -90,7 +90,7 @@ public class LevelOptions extends GameState {
     		if ((GameVars.GetLevelStatus(levelNumber) == 1) | (GameVars.GetLevelStatus(levelNumber) == 2)) {
 	    		tmp = new String[allOptions.length+1];
 	    		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
-	    		tmp[allOptions.length] = "Play Next Level";
+	    		tmp[allOptions.length] = "Next Level";
 	    		allOptions = tmp.clone();
     		}
     	} else if ((modeValue == 1) && (levelNumber+1 != LevelsListTraining.NUMTRAINLEVELS)) {
