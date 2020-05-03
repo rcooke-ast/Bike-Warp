@@ -153,7 +153,8 @@ public class Editor extends GameState {
 	private int polySelect = -1, vertSelect = -1, segmSelect = -1;
 	private int polyHover = -1, vertHover = -1, segmHover = -1;
 	private int objectSelect = -1, decorSelect = -1, finishObjNumber;
-	private int pLevelIndex = 0, pStaticIndex = 0, pKinematicIndex = 0, pFallingIndex = 0, pObjectIndex = 0;
+	private int pLevelIndex = 0, pStaticIndex = 0, pKinematicIndex = 0, pFallingIndex = 0, pTriggerIndex = 0, pObjectIndex = 0;
+	private boolean triggerSelect = false;
 	private int numJewels = 0; // Number of jewels currently inserted
 	private int ctype;  // The color of the door/key
 	private int tentry; // The transport entry (which entry point is currently being investigated)
@@ -172,6 +173,7 @@ public class Editor extends GameState {
 	private TextButton buttonAddStatic;
 	private TextButton buttonAddKinetic;
 	private TextButton buttonAddFalling;
+	private TextButton buttonAddTrigger;
 	private TextButton buttonCopyPaste;
 	private TextButton buttonAddObject;
 	private TextButton buttonDecorate;
@@ -191,6 +193,20 @@ public class Editor extends GameState {
 	 * = 5  -->  add object
 	 * = 6  -->  add decoration
 	 */
+
+	// Modes:
+	// 1 = Pan/Zoom
+	// 2 = Level Properties
+	// 3 = static platform
+	// 4 = kinetic (moving) platform
+	// 5 = Object
+	// 6 = Decorate
+	// 7 = Falling platform (controlled by 3)
+	// 8 = copy/paste
+	// 9 = Trigger platform (controlled by 3)  <-- this is the same as a falling platform, but there's a different trigger
+	// 999 = Execute level
+	// -999 = Load/Save level
+
 	private int mode = 1;
 	private String modeParent = "";
 	private String modeChild = "";
@@ -251,6 +267,7 @@ public class Editor extends GameState {
 		buttonAddStatic = new TextButton("Static Platform", skin);
 		buttonAddKinetic = new TextButton("Moving Platform", skin);
 		buttonAddFalling = new TextButton("Falling Platform", skin);
+		buttonAddTrigger = new TextButton("Trigger Platform", skin);
 		buttonAddObject = new TextButton("Object", skin);
 		buttonDecorate = new TextButton("Decorate", skin);
 		buttonPan.setChecked(true);
@@ -308,6 +325,8 @@ public class Editor extends GameState {
 		window.add(buttonAddKinetic);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonAddFalling);
+		window.row().fill().expandX().colspan(2);
+		window.add(buttonAddTrigger);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonAddObject);
 		window.row().fill().expandX().colspan(2);
@@ -671,6 +690,22 @@ public class Editor extends GameState {
 			}
 		});
 
+		buttonAddTrigger.addListener(new ClickListener() {
+			public void clicked (InputEvent event, float x, float y) {
+				if (!hideToolbar) {
+					if (!drawingPoly) {
+						mode = 9;
+						UncheckButtons(false);
+						listParent.setItems(itemsPRC);
+						listParent.setSelectedIndex(pTriggerIndex);
+						SetChildList();
+						ResetHoverSelect();
+						buttonAddTrigger.setChecked(true);
+					}
+				}
+			}
+		});
+
 		buttonCopyPaste.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
@@ -709,7 +744,7 @@ public class Editor extends GameState {
 				}
 			}
 		});
-
+		
 		buttonDecorate.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
@@ -1015,7 +1050,7 @@ public class Editor extends GameState {
     		} catch (Exception e) {}
         } else if (mode==3) {
         	try {
-        		ControlMode3(false);
+        		ControlMode3(0);
         	} catch (Exception e) {}
         } else if (mode==4) {
         	try {
@@ -1031,13 +1066,17 @@ public class Editor extends GameState {
         	} catch (Exception e) {}
         } else if (mode==7) {
         	try {
-        		ControlMode3(true); // Use Control Mode 3, but set the platform to be a falling platform (i.e. set the argument to true)
+        		ControlMode3(1); // Use Control Mode 3, but set the platform to be a falling platform (i.e. set the argument to 1)
         	} catch (Exception e) {}
         } else if (mode==8) {
         	ControlMode8();
 //        	try {
 //        		ControlMode8();
 //        	} catch (Exception e) {}        	
+        } else if (mode==9) {
+        	try {
+        		ControlMode3(2); // Use Control Mode 3, but set the platform to be a falling platform (i.e. set the argument to 1)
+        	} catch (Exception e) {}        	
         }
         GameInput.MBJUSTPRESSED = false;
         GameInput.MBJUSTDRAGGED = false;
@@ -1125,6 +1164,8 @@ public class Editor extends GameState {
         shapeRenderer.begin(ShapeType.Line);
         Gdx.gl20.glLineWidth(2);
         // Draw the polygons (not including the current polygon)
+        float rxcen, rycen, rangle;
+        float[] rCoord;
         float[] extraPoly;
         if (allPolygons.size() != 0) {
 	        for (int i = 0; i<allPolygons.size(); i++) {
@@ -1293,12 +1334,30 @@ public class Editor extends GameState {
 		        	// Draw the damping arrow
 		        	shapeRenderer.line(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM);
 		        	shapeRenderer.line(allPolygonPaths.get(i)[2]-10, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM, allPolygonPaths.get(i)[2]+10, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM);
+	        	} else if (allPolygonTypes.get(i) <= 7) {
+	        		// Trigger Polygons
+	        		if (polySelect == i) shapeRenderer.setColor(1, 0, 1, 1);
+	        		else shapeRenderer.setColor(1, 0, 1, 0.5f);
+	        		// Draw the trigger polygon
+		        	if (allPolygonTypes.get(i) == 6) {
+		        		shapeRenderer.polygon(allPolygons.get(i));
+		        	} else if (allPolygonTypes.get(i) == 7) {
+		        		shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
+		        	}
+		        	// Draw a line between the body and the centre of the trigger
+		        	shapeRenderer.setColor(0.9f, 0.5f, 0.9f, opacity);
+		        	shapeRenderer.line(allPolygonPaths.get(i)[0], allPolygonPaths.get(i)[1], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
+	        		// Draw Trigger
+		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
+		        	PolygonOperations.RotateXYArray(extraPoly, (allPolygonPaths.get(i)[5])*MathUtils.degreesToRadians, allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
+		        	shapeRenderer.polygon(extraPoly);
 	        	}
 	        }
         }
         // Draw the objects
-        float rxcen, rycen, rangle;
-        float[] rCoord;
         if (allObjects.size() != 0) {
 	        for (int i = 0; i<allObjects.size(); i++){
 	        	if (objectSelect == i) opacity=1.0f;
@@ -1718,7 +1777,8 @@ public class Editor extends GameState {
 		}
 	}
 
-	public void ControlMode3(boolean falling) {
+	public void ControlMode3(int falling) {
+		// Ordinary platforms - if falling is true, this becomes a falling platform
 		if (listChild.getSelected() == null) return;
 		modeChild = listChild.getSelected().toString(); 
     	if (modeParent.equals("Polygon")) {
@@ -1850,6 +1910,7 @@ public class Editor extends GameState {
         			vertSelect = -1;
         		} else FindNearestVertex(true);
     		} else if (mode==7) { // Some options that are only relevant to falling platforms
+    			// Falling platform
     			if ((modeChild.equals("Set Sign")) & (GameInput.MBDRAG==true)) {
     				if (polySelect == -1) SelectPolygon("down");
         			else {
@@ -1893,8 +1954,66 @@ public class Editor extends GameState {
         			UpdatePath(polySelect);
         			polySelect = -1;
                 	GameInput.MBRELEASE=false;
-    				
     			}
+    		} else if (mode == 9) {
+    			// Trigger platform
+    			if ((modeChild.equals("Move Trigger")) & (GameInput.MBDRAG==true)) {
+    				if (polySelect == -1) {
+        				SelectPolygon("down");
+    					startX = GameInput.MBDOWNX*scrscale;
+    					startY = GameInput.MBDOWNY;
+    				} else {
+    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+    		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+    		    		MovePath(polySelect, endX, endY);
+    				}
+        		} else if ((modeChild.equals("Move Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1)) {
+        			UpdatePath(polySelect);
+        			polySelect = -1;
+        			triggerSelect = false;
+    			} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBDRAG==true)) {
+        			if (polySelect == -1) {
+        				SelectPolygon("down");
+        				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+        				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+        			} else {
+    					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    		    		nullvarA = (float) (Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy))/Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy)));
+    	            	ScalePath(polySelect, nullvarA);
+        			}
+        		} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1)) {
+        			UpdatePath(polySelect);
+        			polySelect = -1;
+        			triggerSelect = false;
+        		} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBDRAG==true)) {
+        			if (polySelect == -1) {
+        				SelectPolygon("down");
+        				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+        				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+        			} else {
+    					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    		    		nullvarA = (float) Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy));
+    		    		nullvarB = (float) Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy));
+    		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
+    		    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
+    		    		if ((startX == cursposx) & (startY == cursposy)) return; // No rotation
+    		    		else if (startX == cursposx) {
+    		    			if (endX>startX) nullvarD *= -1.0f;
+    		    			if (startY<cursposy) nullvarD *= -1.0f;
+    		    		} else {
+    		    			if (endY < endX*((startY-cursposy)/(startX-cursposx)) + (startY - startX*((startY-cursposy)/(startX-cursposx)))) nullvarD *= -1.0f;
+    		    			if (startX < cursposx) nullvarD *= -1.0f;
+    		    		}
+    	            	RotatePath(polySelect, nullvarD);
+        			}
+        		} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBRELEASE==true) & (polySelect != -1)) {
+        			UpdatePath(polySelect);
+        			polySelect = -1;
+        			triggerSelect = false;
+                	GameInput.MBRELEASE=false;
+        		}
     		}
     	} else if (modeParent.equals("Rectangle")) {
     		if (modeChild.equals("Add")) {
@@ -1908,8 +2027,9 @@ public class Editor extends GameState {
     	    			shapeDraw[5] = tempy;
     	    			shapeDraw[6] = shapeDraw[0];
     	    			shapeDraw[7] = tempy;
-    	    			if (falling==false) AddPolygon(shapeDraw, 0, 8);
-    	    			else AddPolygon(shapeDraw, 4, 8);
+    	    			if (falling == 0) AddPolygon(shapeDraw, 0, 8);
+    	    			else if (falling == 1) AddPolygon(shapeDraw, 4, 8);
+    	    			else if (falling == 2) AddPolygon(shapeDraw, 6, 8);
     			    	drawingPoly = false;
     			    	shapeDraw = null;
     	        	} else {
@@ -1927,8 +2047,9 @@ public class Editor extends GameState {
     	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
     	    			shapeDraw[2] = (float) Math.sqrt((tempx-shapeDraw[0])*(tempx-shapeDraw[0]) + (tempy-shapeDraw[1])*(tempy-shapeDraw[1]));
-    	    			if (falling==false) AddPolygon(shapeDraw, 1, 3);
-    	    			else AddPolygon(shapeDraw, 5, 3);
+    	    			if (falling == 0) AddPolygon(shapeDraw, 1, 3);
+    	    			else if (falling == 1) AddPolygon(shapeDraw, 5, 3);
+    	    			else if (falling == 2) AddPolygon(shapeDraw, 7, 3);
     			    	drawingPoly = false;
     			    	shapeDraw = null;
     	        	} else {
@@ -3356,6 +3477,18 @@ public class Editor extends GameState {
 					listChild.setItems(itemsXYonly);
 				}
 				break;
+			case 9 :
+				if (modeParent.equals("Polygon")) {
+					listChild.setItems("Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex", "Move Trigger", "Rotate Trigger", "Scale Trigger");
+					pTriggerIndex = GetListIndex("Polygon",itemsPRC);
+				} else if (modeParent.equals("Rectangle")) {
+					listChild.setItems("Add");
+					pTriggerIndex = GetListIndex("Rectangle",itemsPRC);
+				} else if (modeParent.equals("Circle")) {
+					listChild.setItems("Add");
+					pTriggerIndex = GetListIndex("Circle",itemsPRC);
+				}
+				break;
 			default :
 				listChild.setItems(nullList);
 				break;
@@ -3390,6 +3523,7 @@ public class Editor extends GameState {
 			float[] newArr = {0.0f,100.0f,1.0f,1.0f,xcenp,ycenp};
 			allPolygonPaths.add(newArr.clone());
 		} else if (mode==7) {
+			// Falling platform
 			int imax = 0;
 			float maxv = -10000.0f;
 			if (ptype==4) {
@@ -3406,6 +3540,26 @@ public class Editor extends GameState {
 				ycenp = newPoly[1]+newPoly[2];				
 			}
 			float[] newArr = {5.0f, 0.5f, xcenp, ycenp};
+			allPolygonPaths.add(newArr.clone());
+		} else if (mode==9) {
+			// Trigger platform
+			int imax = 0;
+			float maxv = -10000.0f;
+			if (ptype==6) {
+				for (int i=0; i<newPoly.length/2; i++) {
+					if (newPoly[2*i+1] > maxv) {
+						imax = i;
+						maxv = newPoly[2*i+1]; 
+					}
+				}
+				xcenp = newPoly[2*imax];
+				ycenp = newPoly[2*imax+1];
+			} else {
+				xcenp = newPoly[0];
+				ycenp = newPoly[1];				
+			}
+			// (x, y of point on platform), (x, y of middle of trigger), (length, angle) of trigger
+			float[] newArr = {xcenp, ycenp, xcenp-100.0f, ycenp-1000.0f, 500.0f, 0.0f};
 			allPolygonPaths.add(newArr.clone());
 		} else allPolygonPaths.add(null);
 	}
@@ -3460,7 +3614,7 @@ public class Editor extends GameState {
 		if (allPolygonPaths.get(idx)==null) {
 			allPolygonPaths.add(null);
 		} else {
-			if ((allPolygonTypes.get(idx)==4) | (allPolygonTypes.get(idx)==5)) {
+			if ((allPolygonTypes.get(idx)==4) | (allPolygonTypes.get(idx)==5) | (allPolygonTypes.get(idx)==6) | (allPolygonTypes.get(idx)==7)) {
 				float[] newArr = allPolygonPaths.get(idx).clone();
 				newArr[2] += (newPoly[0]-allPolygons.get(idx)[0]);
 				newArr[3] += (newPoly[1]-allPolygons.get(idx)[1]);
@@ -3552,6 +3706,7 @@ public class Editor extends GameState {
 				if (mode == 3) AddPolygon(newPoly, 0, polyDraw.size());
 				else if (mode == 4) AddPolygon(newPoly, 2, polyDraw.size());
 				else if (mode == 7) AddPolygon(newPoly, 4, polyDraw.size());
+				else if (mode == 9) AddPolygon(newPoly, 6, polyDraw.size());
 		    	drawingPoly = false;
 			} else { 
 			    newCoord[0] = tempx;
@@ -3585,8 +3740,10 @@ public class Editor extends GameState {
 				if ((allPolygonTypes.get(j) != 2) & (allPolygonTypes.get(j) != 3)) continue;
 			} else if (mode==7) {
 				if ((allPolygonTypes.get(j) != 4) & (allPolygonTypes.get(j) != 5)) continue;
+			} else if (mode==9) {
+				if ((allPolygonTypes.get(j) != 6) & (allPolygonTypes.get(j) != 7)) continue;
 			}
-			if ((allPolygonTypes.get(j) == 0) | (allPolygonTypes.get(j) == 2) | (allPolygonTypes.get(j) == 4)) {
+			if ((allPolygonTypes.get(j) == 0) | (allPolygonTypes.get(j) == 2) | (allPolygonTypes.get(j) == 4) | (allPolygonTypes.get(j) == 6)) {
 				arraySegm = allPolygons.get(j).clone();
 				for (int i=0; i<arraySegm.length/2; i++) {
 					idxa = i;
@@ -3644,7 +3801,7 @@ public class Editor extends GameState {
 						flag=1;
 					}
 				}
-			} else if ((allPolygonTypes.get(j) == 1) | (allPolygonTypes.get(j) == 3) | (allPolygonTypes.get(j) == 5)) {
+			} else if ((allPolygonTypes.get(j) == 1) | (allPolygonTypes.get(j) == 3) | (allPolygonTypes.get(j) == 5) | (allPolygonTypes.get(j) == 7)) {
 				// Do nothing
 			}
 		}
@@ -3798,8 +3955,8 @@ public class Editor extends GameState {
 		} else {
 			// Polygons
 			for (int i = 0; i < allPolygons.size(); i++){
-				if ((mode == 3) | (mode == 4) | (mode == 7)) {
-					if (((allPolygonTypes.get(i) == 0)&(mode==3)) | ((allPolygonTypes.get(i) == 2)&(mode==4)) | ((allPolygonTypes.get(i) == 4)&(mode==7))) {
+				if ((mode == 3) | (mode == 4) | (mode == 7) | (mode == 9)) {
+					if (((allPolygonTypes.get(i) == 0)&(mode==3)) | ((allPolygonTypes.get(i) == 2)&(mode==4)) | ((allPolygonTypes.get(i) == 4)&(mode==7)) | ((allPolygonTypes.get(i) == 6)&(mode==9))) {
 						for (int j = 0; j < allPolygons.get(i).length/2; j++){
 							if (bestval == -1.0f) {
 								bestval = (float) Math.sqrt((tempx-allPolygons.get(i)[2*j])*(tempx-allPolygons.get(i)[2*j]) + (tempy-allPolygons.get(i)[2*j+1])*(tempy-allPolygons.get(i)[2*j+1]));
@@ -3823,7 +3980,7 @@ public class Editor extends GameState {
 									}
 								}
 						}
-					} else if (((allPolygonTypes.get(i) == 1)&(mode==3)) | ((allPolygonTypes.get(i) == 3)&(mode==4)) | ((allPolygonTypes.get(i) == 5)&(mode==7))) {
+					} else if (((allPolygonTypes.get(i) == 1)&(mode==3)) | ((allPolygonTypes.get(i) == 3)&(mode==4)) | ((allPolygonTypes.get(i) == 5)&(mode==7)) | ((allPolygonTypes.get(i) == 7)&(mode==9))) {
 						// Don't do anything
 					}
 				}
@@ -3882,7 +4039,7 @@ public class Editor extends GameState {
 
     public void FlipPolygon(int idx, String flip) {
     	updatePoly = allPolygons.get(idx).clone();
-    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 2)&(mode==4)) | ((allPolygonTypes.get(idx) == 4)&(mode==7))) {
+    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 2)&(mode==4)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
     		float avx = 0.0f;
     		float avy = 0.0f;
     		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
@@ -3900,7 +4057,7 @@ public class Editor extends GameState {
 	    			updatePoly[2*i+1] = 2*avy - updatePoly[2*i+1];
 	    		}
     		}
-    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 3)&(mode==4)) | ((allPolygonTypes.get(idx) == 5)&(mode==7))) {
+    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 3)&(mode==4)) | ((allPolygonTypes.get(idx) == 5)&(mode==7)) | ((allPolygonTypes.get(idx) == 7)&(mode==9))) {
     		// A circle shape --> Do nothing
     	}
 	}
@@ -4011,21 +4168,27 @@ public class Editor extends GameState {
 
     public void MovePath(int idx, float shiftX, float shiftY) {
     	updatePath = allPolygonPaths.get(idx).clone();
-    	for (int i = 4; i<allPolygonPaths.get(idx).length; i++) {
-    		if (i%2==0) updatePath[i] += shiftX;
-    		else updatePath[i] += shiftY;
+    	if (mode == 9) {
+    		// Trigger platforms
+    		updatePath[2] += shiftX;
+    		updatePath[3] += shiftX;
+    	} else {
+	    	for (int i = 4; i<allPolygonPaths.get(idx).length; i++) {
+	    		if (i%2==0) updatePath[i] += shiftX;
+	    		else updatePath[i] += shiftY;
+	    	}
     	}
 	}
 
     public void MovePolygon(int idx, float shiftX, float shiftY) {
     	updatePoly = allPolygons.get(idx).clone();
-    	if ((mode == 3) | (mode == 4) | (mode == 7)) {
-	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 2)&(mode==4)) | ((allPolygonTypes.get(idx) == 4)&(mode==7))) {
+    	if ((mode == 3) | (mode == 4) | (mode == 7) | (mode == 9)) {
+	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 2)&(mode==4)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
 	    		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
 	    			updatePoly[2*i] += shiftX;
 	    			updatePoly[2*i+1] += shiftY;
 	    		}
-	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 3)&(mode==4)) | ((allPolygonTypes.get(idx) == 5)&(mode==7))) {
+	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 3)&(mode==4)) | ((allPolygonTypes.get(idx) == 5)&(mode==7)) | ((allPolygonTypes.get(idx) == 7)&(mode==9))) {
 	    		updatePoly[0] += shiftX;
 	    		updatePoly[1] += shiftY;
 	    	}
@@ -4038,11 +4201,11 @@ public class Editor extends GameState {
     	if (mode == 6) {
     		updatePoly[2*vert] += shiftX;
     		updatePoly[2*vert+1] += shiftY;    		
-    	} else if ((mode == 3) | (mode == 7)) {
-	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 4)&(mode==7))) {
+    	} else if ((mode == 3) | (mode == 7) | (mode == 9)) {
+	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
 	    		updatePoly[2*vert] += shiftX;
 	    		updatePoly[2*vert+1] += shiftY;
-	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 5)&(mode==7))) {
+	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 5)&(mode==7)) | ((allPolygonTypes.get(idx) == 7)&(mode==9))) {
 	    		// Do nothing
 	    	}
     	} else if (mode == 4) {
@@ -4063,13 +4226,13 @@ public class Editor extends GameState {
 
     public void RotatePolygon(int idx, float angle) {
     	updatePoly = allPolygons.get(idx).clone();
-    	if ((mode == 3) | (mode == 7)) {
-	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 4)&(mode==7))) {
+    	if ((mode == 3) | (mode == 7) | (mode == 9)) {
+	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
 	    		for (int i = 0; i<allPolygons.get(idx).length; i++){
 	    			if (i%2==0) updatePoly[i] = cursposx + (allPolygons.get(idx)[i]-cursposx)*(float) Math.cos(angle) - (allPolygons.get(idx)[i+1]-cursposy)*(float) Math.sin(angle);
 	    			else updatePoly[i] = cursposy + (allPolygons.get(idx)[i-1]-cursposx)*(float) Math.sin(angle) + (allPolygons.get(idx)[i]-cursposy)*(float) Math.cos(angle);
 	    		}
-	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 5)&(mode==7))) {
+	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 5)&(mode==7)) | ((allPolygonTypes.get(idx) == 7)&(mode==9))) {
 	    		updatePoly[0] = cursposx + (allPolygons.get(idx)[0]-cursposx)*(float) Math.cos(angle) - (allPolygons.get(idx)[1]-cursposy)*(float) Math.sin(angle);
 	    		updatePoly[1] = cursposy + (allPolygons.get(idx)[0]-cursposx)*(float) Math.sin(angle) + (allPolygons.get(idx)[1]-cursposy)*(float) Math.cos(angle);
 	    	}
@@ -4087,18 +4250,22 @@ public class Editor extends GameState {
 	}
 
 	public void RotatePath(int idx, float angle) {
-    	updatePath = allPolygonPaths.get(idx).clone();
-    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++){
-    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*(float) Math.cos(angle) - (allPolygonPaths.get(idx)[i+1]-allPolygonPaths.get(idx)[5])*(float) Math.sin(angle);
-    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i-1]-allPolygonPaths.get(idx)[4])*(float) Math.sin(angle) + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*(float) Math.cos(angle);
+    	if (mode == 9) {
+    		// TODO here!
+    	} else {
+	    	updatePath = allPolygonPaths.get(idx).clone();
+	    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++){
+	    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*(float) Math.cos(angle) - (allPolygonPaths.get(idx)[i+1]-allPolygonPaths.get(idx)[5])*(float) Math.sin(angle);
+	    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i-1]-allPolygonPaths.get(idx)[4])*(float) Math.sin(angle) + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*(float) Math.cos(angle);
+	    	}
     	}
 	}
 
     public void ScalePolygon(int idx, float scale) {
     	if (scale < 0.0f) scale *= -1.0f;
     	updatePoly = allPolygons.get(idx).clone();
-    	if ((mode == 3) | (mode==7)) {
-	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 4)&(mode==7))) {
+    	if ((mode == 3) | (mode==7) | (mode==9)) {
+	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
 	    		for (int i = 0; i<allPolygons.get(idx).length; i++){
 	    			if (i%2==0) {
 	    				updatePoly[i] = cursposx + (allPolygons.get(idx)[i]-cursposx)*scale;
@@ -4106,7 +4273,7 @@ public class Editor extends GameState {
 	    				updatePoly[i] = cursposy + (allPolygons.get(idx)[i]-cursposy)*scale;
 	    			}
 	    		}
-	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 5)&(mode==7))) {
+	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 5)&(mode==7)) | ((allPolygonTypes.get(idx) == 7)&(mode==9))) {
 	    		updatePoly[0] = cursposx + (allPolygons.get(idx)[0]-cursposx)*scale;
 	    		updatePoly[1] = cursposy + (allPolygons.get(idx)[1]-cursposy)*scale;
 	    		updatePoly[2] *= scale;
@@ -4129,11 +4296,15 @@ public class Editor extends GameState {
 	}
 
     public void ScalePath(int idx, float scale) {
-    	if (scale < 0.0f) scale *= -1.0f;
-    	updatePath = allPolygonPaths.get(idx).clone();
-    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++) {
-    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*scale;
-    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*scale;
+    	if (mode == 9) {
+    		// TODO here!
+    	} else {
+	    	if (scale < 0.0f) scale *= -1.0f;
+	    	updatePath = allPolygonPaths.get(idx).clone();
+	    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++) {
+	    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*scale;
+	    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*scale;
+	    	}
     	}
 	}
 
@@ -4179,14 +4350,26 @@ public class Editor extends GameState {
 			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);			
 		}
 		boolean inside = false;
+		triggerSelect = false;
+		float [] extraPoly;
 		for (int i = 0; i<allPolygons.size(); i++){
-			if ((mode == 3) | (mode == 4) | (mode == 7)) {
-				if (((allPolygonTypes.get(i) == 0)&(mode==3)) | ((allPolygonTypes.get(i) == 2)&(mode==4)) | ((allPolygonTypes.get(i) == 4)&(mode==7))) {
+			if ((mode == 3) | (mode == 4) | (mode == 7) | (mode == 9)) {
+				if (((allPolygonTypes.get(i) == 0)&(mode==3)) | ((allPolygonTypes.get(i) == 2)&(mode==4)) | ((allPolygonTypes.get(i) == 4)&(mode==7)) | ((allPolygonTypes.get(i) == 6)&(mode==9))) {
 					inside = PolygonOperations.PointInPolygon(allPolygons.get(i).clone(),tempx,tempy);
-				} else if (((allPolygonTypes.get(i) == 1)&(mode==3)) | ((allPolygonTypes.get(i) == 3)&(mode==4)) | ((allPolygonTypes.get(i) == 5)&(mode==7))) {
+				} else if (((allPolygonTypes.get(i) == 1)&(mode==3)) | ((allPolygonTypes.get(i) == 3)&(mode==4)) | ((allPolygonTypes.get(i) == 5)&(mode==7)) | ((allPolygonTypes.get(i) == 7)&(mode==9))) {
 					if (Math.sqrt((tempx-allPolygons.get(i)[0])*(tempx-allPolygons.get(i)[0]) + (tempy-allPolygons.get(i)[1])*(tempy-allPolygons.get(i)[1])) < allPolygons.get(i)[2]) {
 						inside = true;
 					}
+				} else if (mode == 9) {
+					// Check if the user has clicked inside the trigger of a trigger platform
+					// Make the trigger box
+		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
+		        	PolygonOperations.RotateXYArray(extraPoly, (allPolygonPaths.get(i)[5])*MathUtils.degreesToRadians, allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
+					inside = PolygonOperations.PointInPolygon(extraPoly.clone(),tempx,tempy);
+					if (inside) triggerSelect = true;
 				}
 			} else if (mode == 8) {
 				if (allPolygonTypes.get(i)%2 == 0) {
@@ -4228,6 +4411,21 @@ public class Editor extends GameState {
 			}
 			updatePath[2] = updatePoly[2*imax];
 			updatePath[3] = updatePoly[2*imax+1];
+			allPolygonPaths.set(idx, updatePath.clone());
+			updatePath=null;
+		} else if (mode == 9) {
+			// Update the path properties for a trigger platform
+			updatePath = allPolygonPaths.get(polySelect).clone();
+			int imax = 0;
+			float maxv = -10000.0f;
+			for (int i=0; i<updatePoly.length/2; i++) {
+				if (updatePoly[2*i+1] > maxv) {
+					imax = i;
+					maxv = updatePoly[2*i+1]; 
+				}
+			}
+			updatePath[0] = updatePoly[2*imax];
+			updatePath[1] = updatePoly[2*imax+1];
 			allPolygonPaths.set(idx, updatePath.clone());
 			updatePath=null;
 		}
@@ -4967,7 +5165,7 @@ public class Editor extends GameState {
 		}
 		// Nullify the update Polygon
 		updatePoly = null;
-	}
+	} 
 
 	 /////////////////////////////////
 	///                           ///
