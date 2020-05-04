@@ -1723,7 +1723,6 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         json.key("angle").value(0);
         json.key("angularVelocity").value(0);
         json.key("awake").value(true);
-        json.key("userData").value("GroundTrigger");
         json.key("customProperties");
         // Set GameInfo
         json.array();
@@ -1750,7 +1749,6 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	            json.key("friction").value(friction);
 	            json.key("restitution").value(restitution);
 	            json.key("name").value("fixture8");
-	            json.key("userData").value("GroundTrigger");
 	            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
 	            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
 	            // Set the (background) ground texture
@@ -1828,7 +1826,6 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
             json.key("friction").value(friction);
             json.key("restitution").value(restitution);
             json.key("name").value("fixture8");
-            json.key("userData").value("GroundFall");
             json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
             json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
             // Set the (background) ground texture

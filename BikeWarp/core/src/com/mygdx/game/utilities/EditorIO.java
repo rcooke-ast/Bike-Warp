@@ -517,9 +517,10 @@ public class EditorIO {
             	if (!retval.equals("")) return retval;
             	EditorJointIO.JointFalling(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
             	cntFalling += 1;
-            } else if ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 6)) {
+            } else if ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 7)) {
             	retval = EditorObjectIO.AddTriggerPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textString,textGrass,friction,restitution,cntTrigger,i);
             	if (!retval.equals("")) return retval;
+            	// TODO :: Add Trigger with userData: "GroundTrigger"
             	EditorJointIO.JointTrigger(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
             	cntTrigger += 1;
             }
