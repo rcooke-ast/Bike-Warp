@@ -578,7 +578,10 @@ public class Play extends GameState {
     	   				GameVars.SetTimerTotal(-1);
     	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
     	   			}
-    	   			if (forceRestart) {
+    	   			if (forcequit) {
+    	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);    	   				
+    	   			} else {
+    	   				// forceRestart is true, or the player died in the level
     	   				replayTime = 0.0f;
     	   				ReplayVars.replayCntr = 0;
     	   				ReplayVars.replayCDCntr = 0;
@@ -588,8 +591,6 @@ public class Play extends GameState {
     	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
     	            	// Start it again
     	        		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
-    	   			} else {
-    	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);    	   				
     	   			}
 	            	break;
 	     	   }
