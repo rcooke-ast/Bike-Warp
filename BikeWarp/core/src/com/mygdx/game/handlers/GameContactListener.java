@@ -29,6 +29,7 @@ public class GameContactListener implements ContactListener {
 	private int bikeGroundR=0;
 	private Array<Body> bodiesToRemove;
 	private Array<Body> jointsToRemove; // This is indexed as a body, so that we get the body the joints are associated with
+	private Array<Body> jointsTriggerToRemove; // This is indexed as a body, so that we get the body the joints are associated with
 	private Array<Body> bikeBodyCollide;
 	private Array<Body> transportBody;
 	private Array<Body> switchBody;
@@ -133,7 +134,16 @@ public class GameContactListener implements ContactListener {
         } else if ((fb.getUserData().equals("RightWheel"))&(fa.getUserData().equals("GroundFall"))) {
         	if (fa.getBody().getJointList().size != 0) jointsToRemove.add(fa.getBody());
         }
-
+        // Tire Collision -> Trigger Ground
+        if ((fa.getUserData().equals("LeftWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
+        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
+        } else if ((fb.getUserData().equals("LeftWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
+        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
+        } else if ((fa.getUserData().equals("RightWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
+        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
+        } else if ((fb.getUserData().equals("RightWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
+        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
+        }
     }
 
     @Override
@@ -209,6 +219,7 @@ public class GameContactListener implements ContactListener {
 
     public Array<Body> getBodies() { return bodiesToRemove; }
     public Array<Body> getJoints() { return jointsToRemove; }
+    public Array<Body> getTriggerJoints() { return jointsTriggerToRemove; }
     public Array<Body> getTransportBody() { return transportBody; }
     public Array<Body> getSwitchBody() { return switchBody; }
     public Array<Body> getBikeBodyCollide() { return bikeBodyCollide; }
