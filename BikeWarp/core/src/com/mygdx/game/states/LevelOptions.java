@@ -125,8 +125,8 @@ public class LevelOptions extends GameState {
     public void UpdateMenu() {
         float scaleVal = 1.0f;
         menuText.setScale(scaleVal);
-        menuWidth = menuText.getBounds(allOptions[0]).width;
-        for (int i=1; i<totalOptions; i++) {
+        menuWidth = menuText.getBounds("XXXXXXXXXXXXXXX").width;
+        for (int i=0; i<totalOptions; i++) {
         	if (menuText.getBounds(allOptions[i]).width > menuWidth) menuWidth = menuText.getBounds(allOptions[i]).width;
         }
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
