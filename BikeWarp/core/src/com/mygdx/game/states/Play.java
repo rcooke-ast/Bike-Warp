@@ -143,7 +143,7 @@ public class Play extends GameState {
     private float bikeScale = 1.0f;
     private float bikeScaleLev = 0.05f;
     private float gravityScale = -1.0f;
-    private Vector2 gravityPrev = new Vector2();
+    private Vector2 gravityPrev = new Vector2(), gravityNew = new Vector2(), gravityOld = new Vector2();
     private float motorTorque = 0.0f;
     private float playerTorque = 0.0f;
     private float applyTorque = -1.0f;
@@ -590,7 +590,9 @@ public class Play extends GameState {
     	   				// Exit the current level
     	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
     	            	// Start it again
-    	        		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
+    	            	if (mode != 0) {
+    	            		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
+    	            	}
     	   			}
 	            	break;
 	     	   }
@@ -828,16 +830,22 @@ public class Play extends GameState {
 		Vector3 pos = new Vector3(bikeBodyC.getWorldCenter(), 0);
 		Vector2 posShft, gravVect;
 		float angleGrav;
-		if (gravityScale == -1.0f) posShft = mWorld.getGravity().nor().scl(-B2DVars.SCRWIDTH/8.0f);
+		if (gravityScale == -1.0f) posShft = gravityNew.cpy().nor().scl(-B2DVars.SCRWIDTH/8.0f);
 		else {
 			//posShft = (mWorld.getGravity().nor().scl((float)Math.sin(gravityScale*Math.PI/2)).add(gravityPrev.scl(1.0f-(float)Math.sin(gravityScale*Math.PI/2)))).nor().scl(-B2DVars.SCRWIDTH/8.0f);
-			angleGrav = (float) (Math.acos(gravityPrev.cpy().nor().dot(mWorld.getGravity().cpy().nor())));
+			angleGrav = (float) (Math.acos(gravityPrev.cpy().nor().dot(gravityNew.cpy().nor())));
 			gravVect = gravityPrev.cpy().nor().scl(-B2DVars.SCRWIDTH/8.0f);//.scl(gravityNext.len() * (float) (Math.cos(angleGrav*0.5f)/Math.cos(angleGrav*(0.5f - gravityScale))));
 			angleGrav *= (float)Math.sin(gravityScale*Math.PI/2);
 			if (dircGrav < 0.0f) angleGrav *= -1.0f; // Rotate clockwise
 			posShft = new Vector2((float)(gravVect.x*Math.cos(angleGrav) - gravVect.y*Math.sin(angleGrav)), (float)(gravVect.x*Math.sin(angleGrav) + gravVect.y*Math.cos(angleGrav)));
-			gravityScale += 0.005f;
-			if (gravityScale > 1.0f) gravityScale = -1.0f;
+			gravityScale += 0.01f;
+			if (gravityScale > 1.0f) {
+				mWorld.setGravity(gravityNew.cpy());
+				gravityScale = -1.0f;
+			} else if (gravityScale >= 0.0f) {
+				gravVect = gravityOld.cpy().scl(1.0f-gravityScale).add(gravityNew.cpy().scl(gravityScale));
+				mWorld.setGravity(gravVect.cpy());
+			}
 		}
 		Vector2 shftCpy = posShft.cpy().scl(-(float)Math.sin(bikeScale*Math.PI/2)); 
 		pos.x += posShft.x - shftCpy.y;
@@ -898,12 +906,13 @@ public class Play extends GameState {
     					if (dircGrav < 0.0f) angleGrav *= -1.0f; // Rotate clockwise
     					gravityPrev = new Vector2((float)(gravVect.x*Math.cos(angleGrav) - gravVect.y*Math.sin(angleGrav)), (float)(gravVect.x*Math.sin(angleGrav) + gravVect.y*Math.cos(angleGrav)));
     					//gravityPrev = mWorld.getGravity().cpy().nor();
-    				
     				} else gravityPrev = mWorld.getGravity().cpy().nor();
     				Vector2 gravNext = (Vector2)mScene.getCustom(bodies.get(i), "gravityVector", mWorld.getGravity());
     				dircGrav = gravityPrev.x*gravNext.y - gravityPrev.y*gravNext.x;
     				gravityScale = 0.0f;
-    				mWorld.setGravity(gravNext);
+					gravityOld = mWorld.getGravity().cpy();
+    				gravityNew = gravNext.cpy();
+    				//mWorld.setGravity(gravNext);
     				BikeGameSounds.PlaySound(soundGravity, 1.0f);
     			} else if (collectID.equals("KeyRed")) {
     				collectKeyRed += 1;
@@ -1222,6 +1231,8 @@ public class Play extends GameState {
         	  }
           }
           processScene();
+	   	  gravityOld = mWorld.getGravity().cpy();
+	   	  gravityNew = mWorld.getGravity().cpy();
           updateCameraPostion();
           mNextState = GAME_STATE.LOADED;
        }
