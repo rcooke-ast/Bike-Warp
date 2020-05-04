@@ -1714,6 +1714,160 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         return "";
 	}
 
+	public static String AddTriggerPolygon(JSONStringer json, float[] poly, float[] path, int pType, ArrayList<float[]> allDecors, ArrayList<Integer> allDecorTypes, ArrayList<Integer> allDecorPolys, String textString, String textGrass, float friction, float restitution, int cnt, int pNumb) throws JSONException {
+		ArrayList<float[]> convexPolygons;
+		ArrayList<ArrayList<Vector2>> convexVectorPolygons;
+		ArrayList<Vector2> concaveVertices;
+		// Begin the Falling Body definition
+        json.object();
+        json.key("angle").value(0);
+        json.key("angularVelocity").value(0);
+        json.key("awake").value(true);
+        json.key("userData").value("GroundTrigger");
+        json.key("customProperties");
+        // Set GameInfo
+        json.array();
+        json.object();
+        json.key("name").value("GameInfo");
+        json.key("string").value("SURFACE");
+        json.endObject();
+        json.endArray();
+        // Add the fixtures
+        json.key("fixture");
+        json.array();
+		// Add fixtures
+		if (pType==6) {
+        	// Decompose each polygon into a series of convex polygons
+			concaveVertices = PolygonOperations.MakeVertices(poly);
+			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+			for (int k = 0; k<convexPolygons.size(); k++){
+				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
+				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" P"; // polygon is not convex
+            	json.object();
+	            // Specify other properties of this fixture
+	        	json.key("density").value(250);
+	            json.key("friction").value(friction);
+	            json.key("restitution").value(restitution);
+	            json.key("name").value("fixture8");
+	            json.key("userData").value("GroundTrigger");
+	            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+	            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+	            // Set the (background) ground texture
+	            json.key("customProperties");
+	            json.array();
+	            json.object();
+	            json.key("name").value("TextureMask");
+	            json.key("string").value(textString);
+	            json.endObject();
+	            json.endArray();
+    			json.key("polygon");
+                json.object(); // Begin polygon object
+                json.key("vertices");
+                json.object(); // Begin vertices object
+                json.key("x");
+                json.array();
+                for (int j = 0; j<convexPolygons.get(k).length/2; j++) json.value(B2DVars.EPPM*(convexPolygons.get(k)[2*j]-poly[0]));
+                json.endArray();
+                json.key("y");
+                json.array();
+                for (int j = 0; j<convexPolygons.get(k).length/2; j++) json.value(B2DVars.EPPM*(convexPolygons.get(k)[2*j+1]-poly[1]));
+                json.endArray();
+                json.endObject(); // End the vertices object
+                json.endObject(); // End polygon object
+                json.endObject(); // End this fixture
+			}
+			// Check if any grass needs to be added to this polygon
+	        for (int i = 0; i<allDecors.size(); i++) {
+	        	// Decompose each polygon into a series of convex polygons
+	            if ((allDecorTypes.get(i) == DecorVars.Grass) & (allDecorPolys.get(i)==pNumb)) {
+	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
+	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+	    			for (int k = 0; k<convexPolygons.size(); k++){
+	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
+	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" G"; // polygon is not convex
+	                	json.object();
+			            // Specify other properties of this fixture
+			        	json.key("density").value(1);
+			            json.key("friction").value(0);
+			            json.key("restitution").value(0);
+			            json.key("name").value("fixture8");
+			            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+			            json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+			            // Set the (background) ground texture
+			            json.key("customProperties");
+			            json.array();
+			            json.object();
+			            json.key("name").value("TextureMask");
+			            json.key("string").value(textGrass);
+			            json.endObject();
+			            json.endArray();
+		    			json.key("polygon");
+		                json.object(); // Begin polygon object
+		                json.key("vertices");
+		                json.object(); // Begin vertices object
+		                json.key("x");
+		                json.array();
+		                for (int j = 0; j<convexPolygons.get(k).length/2; j++) json.value(B2DVars.EPPM*(convexPolygons.get(k)[2*j]-poly[0]));
+		                json.endArray();
+		                json.key("y");
+		                json.array();
+		                for (int j = 0; j<convexPolygons.get(k).length/2; j++) json.value(B2DVars.EPPM*(convexPolygons.get(k)[2*j+1]-poly[1]));
+		                json.endArray();
+		                json.endObject(); // End the vertices object
+		                json.endObject(); // End polygon object
+		                json.endObject(); // End this fixture
+	    			}
+	            }
+	        }
+		} else if (pType==7) {
+        	json.object();
+            // Specify other properties of this fixture
+        	json.key("density").value(1);
+            json.key("friction").value(friction);
+            json.key("restitution").value(restitution);
+            json.key("name").value("fixture8");
+            json.key("userData").value("GroundFall");
+            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+            // Set the (background) ground texture
+            json.key("customProperties");
+            json.array();
+            json.object();
+            json.key("name").value("TextureMask");
+            json.key("string").value(textString);
+            json.endObject();
+            json.endArray();
+            json.key("circle");
+            // Begin circle object
+            json.object();
+            // Specify the center of the circle
+            json.key("center");
+            json.object();
+            json.key("x").value(0);
+            json.key("y").value(0);
+            json.endObject();
+            // Specify the radius of the circle
+            json.key("radius").value(B2DVars.EPPM*poly[2]);
+            json.endObject(); // End circle object
+            json.endObject(); // End this fixture
+		}
+        json.endArray(); // End of the fixtures for this Falling body
+        // Add some final properties for the ground body
+        //json.key("linearDamping").value(path[1]);
+		json.key("linearVelocity").value(0);
+		json.key("name").value("Trigger"+cnt);
+		json.key("position");
+		json.object();
+		json.key("x").value(B2DVars.EPPM*poly[0]);
+		json.key("y").value(B2DVars.EPPM*poly[1]);
+		json.endObject();
+		json.key("type").value(2);
+        json.endObject(); // End of this trigger body
+        return "";
+	}
+
 	public static String AddKinematicPolygon(JSONStringer json, float[] poly, float[] path, int pType, ArrayList<float[]> allDecors, ArrayList<Integer> allDecorTypes, ArrayList<Integer> allDecorPolys, String textString, String textGrass, float friction, float restitution, int pNumb) throws JSONException {
 		ArrayList<float[]> convexPolygons;
 		ArrayList<ArrayList<Vector2>> convexVectorPolygons;

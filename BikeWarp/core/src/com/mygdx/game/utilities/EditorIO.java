@@ -37,6 +37,7 @@ public class EditorIO {
 
 	private static int cntKinematic;
 	private static int cntFalling;
+	private static int cntTrigger;
 	private static int cntBallChain;
 	private static int cntBoulder;
 	private static int cntBridge;
@@ -309,6 +310,7 @@ public class EditorIO {
     	// Reset the counters
     	cntKinematic = 0;
     	cntFalling = 0;
+    	cntTrigger = 0;
     	cntBallChain = 0;
     	cntBoulder = 0;
     	cntBridge = 0;
@@ -513,13 +515,18 @@ public class EditorIO {
             } else if ((allPolygonTypes.get(i) == 4) | (allPolygonTypes.get(i) == 5)) {
             	retval = EditorObjectIO.AddFallingPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textString,textGrass,friction,restitution,cntFalling,i);
             	if (!retval.equals("")) return retval;
-            	EditorJointIO.JointFalling(jointList, allPolygons.get(i), cntFalling+cntKinematic+1);
+            	EditorJointIO.JointFalling(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
             	cntFalling += 1;
+            } else if ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 6)) {
+            	retval = EditorObjectIO.AddTriggerPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textString,textGrass,friction,restitution,cntTrigger,i);
+            	if (!retval.equals("")) return retval;
+            	EditorJointIO.JointTrigger(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
+            	cntTrigger += 1;
             }
         }
 
         // Add Objects
-        int bodyIdx = cntKinematic+cntFalling+1;
+        int bodyIdx = cntKinematic+cntFalling+cntTrigger+1;
         int addBodies;
         // Add Diamond Jewel
         EditorObjectIO.AddJewelDiamond(json, allObjects.get(2), 0);
@@ -684,6 +691,8 @@ public class EditorIO {
             	bodyIdx += 1;
             } else if ((allPolygonTypes.get(i) == 4) | (allPolygonTypes.get(i) == 5)) {
             	addBodies = EditorImageIO.ImageFallingSign(json, allPolygons.get(i), allPolygonPaths.get(i), bodyIdx, 1);
+            	bodyIdx += 1;
+            } else if ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 7)) {
             	bodyIdx += 1;
             }
         }

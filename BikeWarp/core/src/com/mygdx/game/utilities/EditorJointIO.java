@@ -255,4 +255,12 @@ public class EditorJointIO {
 		jointList.add(new NewJoint("weld", vecA, vecB, 0, bodyIndex, 0.0f));
 		return;
 	}
+
+	public static void JointTrigger(ArrayList<NewJoint> jointList, float[] fs, int bodyIndex) {
+		// Set the weld joint for the trigger body
+		Vector2 vecA = new Vector2(B2DVars.EPPM*fs[0], B2DVars.EPPM*fs[1]);
+		Vector2 vecB = new Vector2(0.0f, 0.0f);
+		jointList.add(new NewJoint("weld", vecA, vecB, 0, bodyIndex, 0.0f));
+		return;
+	}
 }

@@ -121,6 +121,7 @@ public class Play extends GameState {
     private Array<Body> fallingJoints;
     private Array<Float> fallingJointsFallTime;
     private Array<Float> fallingJointsTime;
+    private Array<Body> triggerJoints;
     private float[] doorArr = new float[5];
 
     private static final Vector2 mTmp = new Vector2(); // shared by all objects
@@ -409,6 +410,7 @@ public class Play extends GameState {
         fallingJoints = new Array<Body>();
         fallingJointsFallTime = new Array<Float>();
         fallingJointsTime = new Array<Float>();
+        triggerJoints = new Array<Body>();
 
     	playerJump = 100.0f;
     	lrIsDown = false;
@@ -605,6 +607,7 @@ public class Play extends GameState {
 	       	   // Update the other elements in the scene
         	   updateCollect();
         	   updateFallingBodies(dt);
+        	   updateTriggerBodies(dt);
         	   updateKinematicBodies(dt);
         	   updateSwitches();
         	   if (canTransport < 0.0f) updateTransport();
@@ -992,6 +995,14 @@ public class Play extends GameState {
     	joints.clear();
     }
 
+    private void updateTriggerBodies(float dt) {
+    	// TODO :: haven't started this routine yet!
+    	Array<Body> joints = cl.getTriggerJoints();
+    	for (int i = 0; i < joints.size; i++) {
+    		mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
+    	}
+    	joints.clear();
+    }
     private void updateKinematicBodies(float dt) {
     	// Step each kinematic body along by the specified amount
     	float moveBy, gotoScale, speed, tval;
@@ -1576,6 +1587,7 @@ public class Play extends GameState {
     	if (kinematicBodies != null) kinematicBodies.clear();
     	if (kinematicPath != null) kinematicPath.clear();
     	if (fallingJoints != null) fallingJoints.clear();
+    	if (triggerJoints != null) triggerJoints.clear();
     	if (fallingJointsTime != null) fallingJointsTime.clear();
     	if (mScene != null) mScene.clear();
     	if (soundBikeIdle != null) soundBikeIdle.dispose();

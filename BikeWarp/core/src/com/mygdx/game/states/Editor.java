@@ -1352,7 +1352,7 @@ public class Editor extends GameState {
 		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
 		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
 		        			allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
-		        	PolygonOperations.RotateXYArray(extraPoly, (allPolygonPaths.get(i)[5])*MathUtils.degreesToRadians, allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
+		        	PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 		        	shapeRenderer.polygon(extraPoly);
 	        	}
 	        }
@@ -1647,6 +1647,13 @@ public class Editor extends GameState {
 		        	// Draw the damping arrow
 		        	shapeRenderer.line(updatePath[2], updatePath[3], updatePath[2], updatePath[3]+updatePath[1]/B2DVars.EPPM);
 		        	shapeRenderer.line(updatePath[2]-10, updatePath[3]+updatePath[1]/B2DVars.EPPM, updatePath[2]+10, updatePath[3]+updatePath[1]/B2DVars.EPPM);
+        		} else if (mode==9) {
+		        	extraPoly = new float[] {updatePath[2]-5.0f, updatePath[3]-updatePath[4]/2,
+		        			updatePath[2]+5.0f, updatePath[3]-updatePath[4]/2,
+		        			updatePath[2]+5.0f, updatePath[3]+updatePath[4]/2,
+		        			updatePath[2]-5.0f, updatePath[3]+updatePath[4]/2};
+		        	PolygonOperations.RotateXYArray(extraPoly, updatePath[5], updatePath[2], updatePath[3]);
+		        	shapeRenderer.polygon(extraPoly);
         		}
         	}
         }
@@ -1967,7 +1974,7 @@ public class Editor extends GameState {
     		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
     		    		MovePath(polySelect, endX, endY);
     				}
-        		} else if ((modeChild.equals("Move Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1)) {
+        		} else if ((modeChild.equals("Move Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (triggerSelect)) {
         			UpdatePath(polySelect);
         			polySelect = -1;
         			triggerSelect = false;
@@ -1976,13 +1983,13 @@ public class Editor extends GameState {
         				SelectPolygon("down");
         				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
         				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-        			} else {
+        			} else if (triggerSelect) {
     					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    		    		nullvarA = (float) (Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy))/Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy)));
+    		    		nullvarA = (float) (Math.sqrt((endX-allPolygonPaths.get(polySelect)[2])*(endX-allPolygonPaths.get(polySelect)[2]) + (endY-allPolygonPaths.get(polySelect)[3])*(endY-allPolygonPaths.get(polySelect)[3]))/Math.sqrt((startX-allPolygonPaths.get(polySelect)[2])*(startX-allPolygonPaths.get(polySelect)[2]) + (startY-allPolygonPaths.get(polySelect)[3])*(startY-allPolygonPaths.get(polySelect)[3])));
     	            	ScalePath(polySelect, nullvarA);
         			}
-        		} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1)) {
+        		} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (triggerSelect)) {
         			UpdatePath(polySelect);
         			polySelect = -1;
         			triggerSelect = false;
@@ -1994,21 +2001,23 @@ public class Editor extends GameState {
         			} else {
     					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    		    		nullvarA = (float) Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy));
-    		    		nullvarB = (float) Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy));
+    		    		float trigx = allPolygonPaths.get(polySelect)[2];
+    		    		float trigy = allPolygonPaths.get(polySelect)[3];
+    		    		nullvarA = (float) Math.sqrt((endX-trigx)*(endX-trigx) + (endY-trigy)*(endY-trigy));
+    		    		nullvarB = (float) Math.sqrt((startX-trigx)*(startX-trigx) + (startY-trigy)*(startY-trigy));
     		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
     		    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
-    		    		if ((startX == cursposx) & (startY == cursposy)) return; // No rotation
-    		    		else if (startX == cursposx) {
+    		    		if ((startX == trigx) & (startY == trigy)) return; // No rotation
+    		    		else if (startX == trigx) {
     		    			if (endX>startX) nullvarD *= -1.0f;
-    		    			if (startY<cursposy) nullvarD *= -1.0f;
+    		    			if (startY<trigy) nullvarD *= -1.0f;
     		    		} else {
-    		    			if (endY < endX*((startY-cursposy)/(startX-cursposx)) + (startY - startX*((startY-cursposy)/(startX-cursposx)))) nullvarD *= -1.0f;
-    		    			if (startX < cursposx) nullvarD *= -1.0f;
+    		    			if (endY < endX*((startY-trigy)/(startX-trigx)) + (startY - startX*((startY-trigy)/(startX-trigx)))) nullvarD *= -1.0f;
+    		    			if (startX < trigx) nullvarD *= -1.0f;
     		    		}
     	            	RotatePath(polySelect, nullvarD);
         			}
-        		} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBRELEASE==true) & (polySelect != -1)) {
+        		} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBRELEASE==true) & (polySelect != -1) & (triggerSelect)) {
         			UpdatePath(polySelect);
         			polySelect = -1;
         			triggerSelect = false;
@@ -4171,7 +4180,7 @@ public class Editor extends GameState {
     	if (mode == 9) {
     		// Trigger platforms
     		updatePath[2] += shiftX;
-    		updatePath[3] += shiftX;
+    		updatePath[3] += shiftY;
     	} else {
 	    	for (int i = 4; i<allPolygonPaths.get(idx).length; i++) {
 	    		if (i%2==0) updatePath[i] += shiftX;
@@ -4250,10 +4259,10 @@ public class Editor extends GameState {
 	}
 
 	public void RotatePath(int idx, float angle) {
+    	updatePath = allPolygonPaths.get(idx).clone();
     	if (mode == 9) {
-    		// TODO here!
+    		updatePath[5] = angle;
     	} else {
-	    	updatePath = allPolygonPaths.get(idx).clone();
 	    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++){
 	    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*(float) Math.cos(angle) - (allPolygonPaths.get(idx)[i+1]-allPolygonPaths.get(idx)[5])*(float) Math.sin(angle);
 	    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i-1]-allPolygonPaths.get(idx)[4])*(float) Math.sin(angle) + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*(float) Math.cos(angle);
@@ -4296,11 +4305,11 @@ public class Editor extends GameState {
 	}
 
     public void ScalePath(int idx, float scale) {
+    	if (scale < 0.0f) scale *= -1.0f;
+    	updatePath = allPolygonPaths.get(idx).clone();
     	if (mode == 9) {
-    		// TODO here!
+    		updatePath[4] *= scale;
     	} else {
-	    	if (scale < 0.0f) scale *= -1.0f;
-	    	updatePath = allPolygonPaths.get(idx).clone();
 	    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++) {
 	    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*scale;
 	    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*scale;
@@ -4360,14 +4369,15 @@ public class Editor extends GameState {
 					if (Math.sqrt((tempx-allPolygons.get(i)[0])*(tempx-allPolygons.get(i)[0]) + (tempy-allPolygons.get(i)[1])*(tempy-allPolygons.get(i)[1])) < allPolygons.get(i)[2]) {
 						inside = true;
 					}
-				} else if (mode == 9) {
+				}
+				if ((mode == 9) & (!inside)) {
 					// Check if the user has clicked inside the trigger of a trigger platform
 					// Make the trigger box
 		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
 		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
 		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
 		        			allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
-		        	PolygonOperations.RotateXYArray(extraPoly, (allPolygonPaths.get(i)[5])*MathUtils.degreesToRadians, allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
+		        	PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 					inside = PolygonOperations.PointInPolygon(extraPoly.clone(),tempx,tempy);
 					if (inside) triggerSelect = true;
 				}
