@@ -182,12 +182,13 @@ public class GameContactListener implements ContactListener {
         	else if (fa.getUserData().equals("DoorGreen") & (hasGreenKey)) c.setEnabled(false);
         	else if (fa.getUserData().equals("DoorBlue") & (hasBlueKey)) c.setEnabled(false);
         }
-        if ( ((bitA == B2DVars.BIT_HEAD) & (bitB == B2DVars.BIT_SWITCH)) |
-        		((bitA == B2DVars.BIT_WHEEL) & (bitB == B2DVars.BIT_SWITCH)) ) {
+        if ( ((bitA == B2DVars.BIT_HEAD) & (bitB == B2DVars.BIT_BODY)) |
+        		((bitA == B2DVars.BIT_WHEEL) & (bitB == B2DVars.BIT_BODY)) ) {
 	        // Trigger Body
 	        if ((fa.getUserData().equals("LeftWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
 	        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
 	    		bodiesToRemove.add(fb.getBody());
+	    		// TODO :: UpdateCollect won't remove these bodies.. it needs to be removed by update trigger. If that doesn't work, the trigger should probably be a separate body, too...
 	    		c.setEnabled(false);
 	        } else if ((fb.getUserData().equals("LeftWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
 	        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
@@ -202,8 +203,8 @@ public class GameContactListener implements ContactListener {
 	    		bodiesToRemove.add(fa.getBody());
 	    		c.setEnabled(false);
 	        }
-        } else if ( ((bitB == B2DVars.BIT_HEAD) & (bitA == B2DVars.BIT_SWITCH)) |
-        		((bitB == B2DVars.BIT_WHEEL) & (bitA == B2DVars.BIT_SWITCH)) ) {
+        } else if ( ((bitB == B2DVars.BIT_HEAD) & (bitA == B2DVars.BIT_BODY)) |
+        		((bitB == B2DVars.BIT_WHEEL) & (bitA == B2DVars.BIT_BODY)) ) {
 	        // Trigger Body
 	        if ((fa.getUserData().equals("LeftWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
 	        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
