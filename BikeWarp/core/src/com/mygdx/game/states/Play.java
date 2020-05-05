@@ -995,7 +995,9 @@ public class Play extends GameState {
 
     private void updateTriggerBodies(float dt) {
     	Array<Body> joints = cl.getTriggerJoints();
-    	for (int i = 0; i < joints.size; i++) mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
+    	for (int i = 0; i < joints.size; i++) {
+    		mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
+    	}
     	joints.clear();
     }
     private void updateKinematicBodies(float dt) {

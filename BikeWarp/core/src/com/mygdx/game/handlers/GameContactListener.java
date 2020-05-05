@@ -38,6 +38,7 @@ public class GameContactListener implements ContactListener {
 		super();
 		bodiesToRemove = new Array<Body>();
 		jointsToRemove = new Array<Body>();
+		jointsTriggerToRemove = new Array<Body>();
 		bikeBodyCollide = new Array<Body>();
 		transportBody = new Array<Body>();
 		switchBody = new Array<Body>();
@@ -134,16 +135,6 @@ public class GameContactListener implements ContactListener {
         } else if ((fb.getUserData().equals("RightWheel"))&(fa.getUserData().equals("GroundFall"))) {
         	if (fa.getBody().getJointList().size != 0) jointsToRemove.add(fa.getBody());
         }
-        // Tire Collision -> Trigger Ground
-        if ((fa.getUserData().equals("LeftWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
-        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
-        } else if ((fb.getUserData().equals("LeftWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
-        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
-        } else if ((fa.getUserData().equals("RightWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
-        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
-        } else if ((fb.getUserData().equals("RightWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
-        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
-        }
     }
 
     @Override
@@ -190,6 +181,47 @@ public class GameContactListener implements ContactListener {
         	if (fa.getUserData().equals("DoorRed") & (hasRedKey)) c.setEnabled(false);
         	else if (fa.getUserData().equals("DoorGreen") & (hasGreenKey)) c.setEnabled(false);
         	else if (fa.getUserData().equals("DoorBlue") & (hasBlueKey)) c.setEnabled(false);
+        }
+        if ( ((bitA == B2DVars.BIT_HEAD) & (bitB == B2DVars.BIT_SWITCH)) |
+        		((bitA == B2DVars.BIT_WHEEL) & (bitB == B2DVars.BIT_SWITCH)) ) {
+	        // Trigger Body
+	        if ((fa.getUserData().equals("LeftWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
+	        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
+	    		bodiesToRemove.add(fb.getBody());
+	    		c.setEnabled(false);
+	        } else if ((fb.getUserData().equals("LeftWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
+	        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
+	    		bodiesToRemove.add(fa.getBody());
+	    		c.setEnabled(false);
+	        } else if ((fa.getUserData().equals("RightWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
+	        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
+	    		bodiesToRemove.add(fb.getBody());
+	    		c.setEnabled(false);
+	        } else if ((fb.getUserData().equals("RightWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
+	        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
+	    		bodiesToRemove.add(fa.getBody());
+	    		c.setEnabled(false);
+	        }
+        } else if ( ((bitB == B2DVars.BIT_HEAD) & (bitA == B2DVars.BIT_SWITCH)) |
+        		((bitB == B2DVars.BIT_WHEEL) & (bitA == B2DVars.BIT_SWITCH)) ) {
+	        // Trigger Body
+	        if ((fa.getUserData().equals("LeftWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
+	        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
+	    		bodiesToRemove.add(fb.getBody());
+	    		c.setEnabled(false);
+	        } else if ((fb.getUserData().equals("LeftWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
+	        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
+	    		bodiesToRemove.add(fa.getBody());
+	    		c.setEnabled(false);
+	        } else if ((fa.getUserData().equals("RightWheel"))&(fb.getUserData().equals("GroundTrigger"))) {
+	        	if (fb.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fb.getBody());
+	    		bodiesToRemove.add(fb.getBody());
+	    		c.setEnabled(false);
+	        } else if ((fb.getUserData().equals("RightWheel"))&(fa.getUserData().equals("GroundTrigger"))) {
+	        	if (fa.getBody().getJointList().size != 0) jointsTriggerToRemove.add(fa.getBody());
+	    		bodiesToRemove.add(fa.getBody());
+	    		c.setEnabled(false);
+	        }
         }
         // Tire Collision -> Ground
 //        if ((fa.getUserData().equals("LeftWheel"))|(fb.getUserData().equals("LeftWheel"))) {
