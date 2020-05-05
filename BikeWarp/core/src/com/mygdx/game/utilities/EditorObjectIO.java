@@ -1850,7 +1850,46 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
             json.endObject(); // End circle object
             json.endObject(); // End this fixture
 		}
-        json.endArray(); // End of the fixtures for this Falling body
+		// Add the trigger - first make the poly
+    	float[] triggerPoly = new float[] {path[2]-5.0f, path[3]-path[4]/2,
+    			path[2]+5.0f, path[3]-path[4]/2,
+    			path[2]+5.0f, path[3]+path[4]/2,
+    			path[2]-5.0f, path[3]+path[4]/2};
+    	PolygonOperations.RotateXYArray(triggerPoly, path[5], path[2], path[3]);
+    	// Decompose each polygon into a series of convex polygons
+		concaveVertices = PolygonOperations.MakeVertices(triggerPoly);
+		convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+		convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+		for (int k = 0; k<convexPolygons.size(); k++){
+			if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
+			//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" P"; // polygon is not convex
+        	json.object();
+            // Specify other properties of this fixture
+        	json.key("density").value(250);
+            json.key("friction").value(friction);
+            json.key("restitution").value(restitution);
+            json.key("name").value("fixture8");
+            json.key("userData").value("GroundTrigger");
+            json.key("filter-categoryBits").value(B2DVars.BIT_SWITCH);
+            json.key("filter-maskBits").value(B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL);
+			json.key("polygon");
+            json.object(); // Begin polygon object
+            json.key("vertices");
+            json.object(); // Begin vertices object
+            json.key("x");
+            json.array();
+            for (int j = 0; j<convexPolygons.get(k).length/2; j++) json.value(B2DVars.EPPM*(convexPolygons.get(k)[2*j]-poly[0]));
+            json.endArray();
+            json.key("y");
+            json.array();
+            for (int j = 0; j<convexPolygons.get(k).length/2; j++) json.value(B2DVars.EPPM*(convexPolygons.get(k)[2*j+1]-poly[1]));
+            json.endArray();
+            json.endObject(); // End the vertices object
+            json.endObject(); // End polygon object
+            json.endObject(); // End this fixture
+		}
+		// End of the fixtures for this Trigger body
+		json.endArray();
         // Add some final properties for the ground body
         //json.key("linearDamping").value(path[1]);
 		json.key("linearVelocity").value(0);
