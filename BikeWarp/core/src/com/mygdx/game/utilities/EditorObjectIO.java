@@ -1870,7 +1870,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
             json.key("restitution").value(restitution);
             json.key("name").value("fixture8");
             json.key("userData").value("GroundTrigger");
-            json.key("filter-categoryBits").value(B2DVars.BIT_SWITCH);
+            json.key("filter-categoryBits").value(B2DVars.BIT_BODY);
             json.key("filter-maskBits").value(B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL);
 			json.key("polygon");
             json.object(); // Begin polygon object
