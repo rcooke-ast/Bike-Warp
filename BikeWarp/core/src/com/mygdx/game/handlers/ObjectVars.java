@@ -47,6 +47,7 @@ public class ObjectVars {
     public static final float[] objectLog = {0.0f,0.0f,25.0f};
     public static final float[] objectNitrous = {-30.0f,-15.0f,30.0f,-15.0f,30.0f,15.0f,-30.0f,15.0f};
     public static final float objectPadlock = 18.0f;
+    public static final float objectTriggerWidth = 5.0f;
     
     // Define the global properties for some of the objects
     public static final float ChainLinkSize = 1.0f; // Size of a single link in a chain (in metres)
