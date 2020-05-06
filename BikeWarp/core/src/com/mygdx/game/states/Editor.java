@@ -587,7 +587,14 @@ public class Editor extends GameState {
 								} else {
 									enteringFilename = false;
 									stage.setKeyboardFocus(null);
+									// Get the user toolbar setting (is it displayed or not), then hide the toolbar
+									boolean tbarSetting = hideToolbar;
+									hideToolbar = true;
+									stage.act(Gdx.graphics.getDeltaTime());
+									stage.draw();
+									// Now launch the level!
 									gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
+									hideToolbar = tbarSetting;
 								}
 							} catch (JSONException e) {
 								e.printStackTrace();
@@ -849,6 +856,17 @@ public class Editor extends GameState {
 		});
     }
 
+    public void ResetSelect() {
+    	polySelect = -1;
+    	vertSelect = -1;
+    	segmSelect = -1;
+    	polyHover = -1;
+    	vertHover = -1;
+    	segmHover = -1;
+    	objectSelect = -1;
+    	decorSelect = -1;
+    }
+    
     public void ResetLevelDefaults() {
 		allObjects = new ArrayList<float[]>();
 		allObjectArrows = new ArrayList<float[]>();
@@ -869,14 +887,7 @@ public class Editor extends GameState {
     	drawingPoly = false;  // Is a polygon currently being drawn
     	shapeDraw = null;  // Store the vertices of the new shape
     	groupPolySelect = new ArrayList<Integer>();
-    	polySelect = -1;
-    	vertSelect = -1;
-    	segmSelect = -1;
-    	polyHover = -1;
-    	vertHover = -1;
-    	segmHover = -1;
-    	objectSelect = -1;
-    	decorSelect = -1;
+    	ResetSelect();
     	pLevelIndex = 0;
     	pStaticIndex = 0;
     	pKinematicIndex = 0;
@@ -1345,7 +1356,8 @@ public class Editor extends GameState {
 		        		shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
 		        	}
 		        	// Draw a line between the body and the centre of the trigger
-		        	shapeRenderer.setColor(0.9f, 0.5f, 0.9f, opacity);
+	        		if (polySelect == i) shapeRenderer.setColor(0.9f, 0.5f, 0.9f, 1);
+	        		else shapeRenderer.setColor(0.9f, 0.5f, 0.9f, 0.5f);
 		        	shapeRenderer.line(allPolygonPaths.get(i)[0], allPolygonPaths.get(i)[1], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 	        		// Draw Trigger
 		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
@@ -3318,7 +3330,8 @@ public class Editor extends GameState {
 		vertHover = -1;
 		segmHover = -1;
 		updatePathVertex = null;
-		tentry = 0;	
+		tentry = 0;
+		triggerSelect = false;
 	}
 
 	public void SetChildList() {
@@ -4326,6 +4339,7 @@ public class Editor extends GameState {
 	}
 
     public void SelectGroupPolygons() {
+    	ResetSelect();
     	float x1, x2, y1, y2, tmp;
     	float[] meanxy = new float[2];
 		x1 = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
@@ -4359,6 +4373,7 @@ public class Editor extends GameState {
     }
 
 	public void SelectPolygon(String downup) {
+		ResetSelect();
 		if (downup.equals("down")) {
 			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -4743,6 +4758,7 @@ public class Editor extends GameState {
 	}
 
 	public void SelectObject(String downup, int otype, boolean rotate, boolean circle) {
+		ResetSelect();
 		if (downup.equals("down")) {
 			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -4822,6 +4838,7 @@ public class Editor extends GameState {
 	}
 
 	public void SelectObjectAny(String downup) {
+		ResetSelect();
 		if (downup.equals("down")) {
 			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -5132,6 +5149,7 @@ public class Editor extends GameState {
 	}
 
 	public void SelectDecor(String downup, int otype, boolean rotate, boolean circle) {
+		ResetSelect();
 		if (downup.equals("down")) {
 			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
