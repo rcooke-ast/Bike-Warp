@@ -1348,10 +1348,10 @@ public class Editor extends GameState {
 		        	shapeRenderer.setColor(0.9f, 0.5f, 0.9f, opacity);
 		        	shapeRenderer.line(allPolygonPaths.get(i)[0], allPolygonPaths.get(i)[1], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 	        		// Draw Trigger
-		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
+		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
 		        	PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 		        	shapeRenderer.polygon(extraPoly);
 	        	}
@@ -3297,6 +3297,7 @@ public class Editor extends GameState {
 		buttonAddStatic.setChecked(false);
 		buttonAddKinetic.setChecked(false);
 		buttonAddFalling.setChecked(false);
+		buttonAddTrigger.setChecked(false);
 		buttonCopyPaste.setChecked(false);
 		buttonAddObject.setChecked(false);
 		buttonDecorate.setChecked(false);
@@ -3623,8 +3624,15 @@ public class Editor extends GameState {
 		if (allPolygonPaths.get(idx)==null) {
 			allPolygonPaths.add(null);
 		} else {
-			if ((allPolygonTypes.get(idx)==4) | (allPolygonTypes.get(idx)==5) | (allPolygonTypes.get(idx)==6) | (allPolygonTypes.get(idx)==7)) {
+			if ((allPolygonTypes.get(idx)==4) | (allPolygonTypes.get(idx)==5)) {
 				float[] newArr = allPolygonPaths.get(idx).clone();
+				newArr[2] += (newPoly[0]-allPolygons.get(idx)[0]);
+				newArr[3] += (newPoly[1]-allPolygons.get(idx)[1]);
+				allPolygonPaths.add(newArr.clone());
+			} else if ((allPolygonTypes.get(idx)==6) | (allPolygonTypes.get(idx)==7)) {
+				float[] newArr = allPolygonPaths.get(idx).clone();
+				newArr[0] += (newPoly[0]-allPolygons.get(idx)[0]);
+				newArr[1] += (newPoly[1]-allPolygons.get(idx)[1]);
 				newArr[2] += (newPoly[0]-allPolygons.get(idx)[0]);
 				newArr[3] += (newPoly[1]-allPolygons.get(idx)[1]);
 				allPolygonPaths.add(newArr.clone());

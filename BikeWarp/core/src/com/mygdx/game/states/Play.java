@@ -64,6 +64,7 @@ import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.handlers.LevelsListTraining;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.handlers.ReplayVars;
+import com.mygdx.game.utilities.BayazitDecomposer;
 import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 import com.gushikustudios.rube.PolySpatial;
@@ -108,6 +109,7 @@ public class Play extends GameState {
     private Body gameInfo;
     private Array<float[]> switchGate;
     private Array<Body> remBodies;
+    private Array<Fixture> triggerFixtList;
     private Array<Body> kinematicBodies;
     private Array<Vector2[]> kinematicPath;
     private int[] kinematicDirection;
@@ -137,7 +139,7 @@ public class Play extends GameState {
     private Body bikeBodyRW;
     private Body bikeBodyH;
     private Body bikeBodyC;
-    private Body switchGateBody;
+    private Body switchGateBody, triggerBody;
     private float bikeDirc = 1.0f;
 	private float dircGrav;
     private float bikeScale = 1.0f;
@@ -994,12 +996,21 @@ public class Play extends GameState {
     }
 
     private void updateTriggerBodies(float dt) {
+    	// First delete the trigger joints
     	Array<Body> joints = cl.getTriggerJoints();
     	for (int i = 0; i < joints.size; i++) {
     		mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
+    		triggerFixtList = joints.get(i).getFixtureList();
+    		for (int j=0; j < triggerFixtList.size; j++) {
+    			if (triggerFixtList.get(j).getUserData().equals("GroundTrigger")) {
+    				joints.get(i).destroyFixture(triggerFixtList.get(j));
+    			}
+    		}
+    		triggerFixtList.clear();
     	}
     	joints.clear();
     }
+
     private void updateKinematicBodies(float dt) {
     	// Step each kinematic body along by the specified amount
     	float moveBy, gotoScale, speed, tval;
@@ -1066,22 +1077,26 @@ public class Play extends GameState {
 
     @SuppressWarnings("unchecked")
 	private void updateSwitches() {
-    	// check if a switch has been touched
+    	// Check if a switch has been touched
     	Array<Body> bodies = cl.getSwitchBody();
+    	int switchIdx;
     	if (bodies.size != 0) {
-    		int switchIdx = (Integer) mScene.getCustom(bodies.get(0), "switchID", -1);
-    		if (switchIdx >= 0) {
-    			float[] switchArr = switchGate.get(switchIdx);
-    			Body bbcollide = cl.getBikeBodyCollide().pop();
-        		boolean switchit = PolygonOperations.SwitchOnOff(switchArr[4],switchArr[5],bbcollide.getPosition().x,bbcollide.getPosition().y,MathUtils.degreesToRadians*switchArr[6],switchArr[7]);
-        		if (switchit) {
-        			switchArr[7] *= -1.0f;
-        			switchArr[8] = 1.0f - switchArr[8];
-        			if (switchArr[8] == 0.0f) switchArr[9] = 1.0f;
-        			else switchArr[9] = -1.0f;
-        			switchGate.set(switchIdx,switchArr.clone());
-        			BikeGameSounds.PlaySound(soundSwitch, 1.0f);
-        		}
+    		// Check switches
+    		for (int i=0; i<bodies.size; i++) {
+	    		switchIdx = (Integer) mScene.getCustom(bodies.get(i), "switchID", -1);
+	    		if (switchIdx >= 0) {
+	    			float[] switchArr = switchGate.get(switchIdx);
+	    			Body bbcollide = cl.getBikeBodyCollide().pop();
+	        		boolean switchit = PolygonOperations.SwitchOnOff(switchArr[4],switchArr[5],bbcollide.getPosition().x,bbcollide.getPosition().y,MathUtils.degreesToRadians*switchArr[6],switchArr[7]);
+	        		if (switchit) {
+	        			switchArr[7] *= -1.0f;
+	        			switchArr[8] = 1.0f - switchArr[8];
+	        			if (switchArr[8] == 0.0f) switchArr[9] = 1.0f;
+	        			else switchArr[9] = -1.0f;
+	        			switchGate.set(switchIdx,switchArr.clone());
+	        			BikeGameSounds.PlaySound(soundSwitch, 1.0f);
+	        		}
+	    		}
     		}
     	}
     	bodies.clear();
@@ -1500,6 +1515,48 @@ public class Play extends GameState {
        bdef.fixedRotation = true;
        switchGateBody = mWorld.createBody(bdef);
        switchGateBody.setUserData(new Array<Integer>());
+
+//       // Get all references to trigger platforms and create the fixture
+//       // Create a trigger body, which will contain all of the trigger fixtures
+//       bdef = new BodyDef();
+//       bdef.type = BodyType.StaticBody;
+//       bdef.position.set(0, 0);
+//       bdef.fixedRotation = true;
+//       triggerBody = mWorld.createBody(bdef);
+//       Array<String> userData = new Array<String>();
+//       // Create a fixture definition for this body
+//       float[] triggerArr;
+//       PolygonShape shape;
+//       FixtureDef fdef = new FixtureDef();
+//       fdef.filter.categoryBits = B2DVars.BIT_GROUND;
+//       fdef.filter.maskBits = B2DVars.BIT_GROUND | B2DVars.BIT_WHEEL | B2DVars.BIT_HEAD;
+//       fdef.isSensor = true;
+//       fdef.friction = 0.0f;
+//       fdef.restitution = 1.0f;
+//       // Go through all trigger platforms in the level
+//       int tcntr = 0;
+//       float trigLength, trigAngle;
+//       Vector2 posTrigger;
+//       while (true) {
+//    	   try {
+//    		   tempBody = mScene.getNamed(Body.class, "Trigger"+tcntr).first();
+//    	   } catch (NullPointerException e) {
+//    		   break;
+//    	   }
+//    	   posTrigger = (Vector2) mScene.getCustom(tempBody, "triggerPos", null);
+//    	   trigLength = (Float) mScene.getCustom(tempBody, "triggerLength", 0.001f);
+//    	   trigAngle = (Float) mScene.getCustom(tempBody, "triggerAngle", 0.001f);
+//    	   shape = new PolygonShape();
+//    	   shape.setAsBox(ObjectVars.objectTriggerWidth, trigLength, posTrigger, trigAngle);
+//    	   fdef.shape = shape;
+//    	   userData.add("trig_" + tcntr);
+//    	   // Add a fixture for this trigger
+//    	   triggerBody.createFixture(fdef);
+//    	   shape.dispose();
+//    	   tcntr +=1;
+//       }
+//       triggerBody.setUserData(userData);
+//       triggerFixtList = triggerBody.getFixtureList();
 
        // Find all kinematic bodies
        Array<Body> bodies = new Array<Body>();

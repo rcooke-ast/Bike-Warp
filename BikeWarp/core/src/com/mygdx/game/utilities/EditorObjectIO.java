@@ -1865,13 +1865,14 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" P"; // polygon is not convex
         	json.object();
             // Specify other properties of this fixture
-        	json.key("density").value(250);
-            json.key("friction").value(friction);
-            json.key("restitution").value(restitution);
+            //json.key("sensor").value(true);
+        	json.key("density").value(1.0);
+        	json.key("friction").value(0.0);
+        	json.key("restitution").value(1.0);
             json.key("name").value("fixture8");
             json.key("userData").value("GroundTrigger");
-            json.key("filter-categoryBits").value(B2DVars.BIT_BODY);
-            json.key("filter-maskBits").value(B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL);
+            json.key("filter-categoryBits").value(B2DVars.BIT_SWITCH);
+            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL);
 			json.key("polygon");
             json.object(); // Begin polygon object
             json.key("vertices");
