@@ -1804,15 +1804,6 @@ public class Editor extends GameState {
 			if (((modeChild.equals("Set Bounds")) & (GameInput.MBDRAG==true))) {
 				boundsBG[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 				boundsBG[1] = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			} else if ((modeChild.equals("Set Bounds")) & (GameInput.MBJUSTPRESSED)) {
-        		boundsBG[1] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			if (boundsBG[0] > boundsBG[1]) {
-    				tempx = boundsBG[0];
-    				boundsBG[0] = boundsBG[1];
-    				boundsBG[1] = tempx;
-    			}
-        		LevelVars.set(LevelVars.PROP_BG_BOUNDSX1, String.valueOf(boundsBG[0]));
-        		LevelVars.set(LevelVars.PROP_BG_BOUNDSX2, String.valueOf(boundsBG[1]));
 			} else if (modeChild.equals("Reset Bounds")) {
 				boundsBG = new float[] {0.0f, boundaryX};
 			}
@@ -1821,6 +1812,8 @@ public class Editor extends GameState {
 				boundsBG[0] = boundsBG[1];
 				boundsBG[1] = tempx;
 			}
+    		LevelVars.set(LevelVars.PROP_BG_BOUNDSX1, String.valueOf(boundsBG[0]));
+    		LevelVars.set(LevelVars.PROP_BG_BOUNDSX2, String.valueOf(boundsBG[1]));
 		} else if (modeParent.equals("Foreground Texture")) {
 			// TODO :: implement feature
 			Message("FEATURE NOT IMPLEMENTED", 2);

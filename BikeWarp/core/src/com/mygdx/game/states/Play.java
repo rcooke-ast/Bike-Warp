@@ -1656,7 +1656,13 @@ public class Play extends GameState {
     	mBatch.begin();
     	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
     	if (paintBackdrop) {
-    		mBatch.draw(background, hudCam.position.x - SCRWIDTH*(b2dCam.position.x-bounds.x)/(bounds.y-bounds.x)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, (BikeGame.V_HEIGHT*512.0f/2048.0f), BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+    		//mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+    		float bgwidth = (BikeGame.V_HEIGHT*2048.0f/512.0f);
+     	   if (bikeDirc == 1.0f) {
+	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+     	   } else {
+	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);     		   
+     	   }
 //    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
     		mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
     	}
