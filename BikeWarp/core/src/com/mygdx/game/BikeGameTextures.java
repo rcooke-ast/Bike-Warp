@@ -117,6 +117,7 @@ public class BikeGameTextures {
 		GetTexture("ground_gravel",2);
 		GetTexture("ground_mars",2);
 		GetTexture("ground_moon",2);
+		GetTexture("background_test",2);
 		GetTexture("mountains",2);
 		GetTexture("sky_bluesky",2);
 		GetTexture("sky_evening",2);

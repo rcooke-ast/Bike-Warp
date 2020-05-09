@@ -86,9 +86,11 @@ public class Editor extends GameState {
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
 			"Sign (Stop)"};
-    private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture"};
+    private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Background Bounds", "Foreground Texture"};
 	private String[] groundTextureList = {"Cracked Mud", "Bubbles", "Gravel", "Ice", "Mars", "Moon"};
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
+	private String[] bgTextureList = {"Mountains", "Waterfall"};
+	private String[] fgTextureList = {"Plants", "Trees"};
 	private String[] gravityList = {"Earth", "Moon", "Mars"};
 	private String[] loadList = {"Load Level", "New Level"};
 	private String[] jewelNumber;
@@ -143,6 +145,7 @@ public class Editor extends GameState {
 	private float[] newCoord = new float[2];
 	private static final float boundaryX = 1000.0f/B2DVars.EPPM;
 	private static final float boundaryY = 1000.0f/B2DVars.EPPM;
+	private float[] boundsBG = new float[2];
 	private boolean drawingPoly = false;  // Is a polygon currently being drawn
 	private ArrayList<float[]> polyDraw;  // Store the vertices of the new polygon in an ArrayList
 	private float[] shapeDraw = null;  // Store the vertices of the new shape
@@ -884,6 +887,7 @@ public class Editor extends GameState {
     	updatePath = null;
     	updatePathVertex = null;
     	newCoord = new float[2];
+    	boundsBG = new float[] {0.0f, boundaryX};
     	drawingPoly = false;  // Is a polygon currently being drawn
     	shapeDraw = null;  // Store the vertices of the new shape
     	groupPolySelect = new ArrayList<Integer>();
@@ -959,27 +963,15 @@ public class Editor extends GameState {
 			// Go to the intersection
 			MoveCameraTo(chkVertices[0],chkVertices[1],true);
 			// Print a warning message
-			warnMessage[warnNumber] = "Level not saved/executed -- Two vertices are too close together (maybe a duplicate?)";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 2;
-			warnNumber += 1;
-			warnMessage[warnNumber] = "Fix the polygon first, and then save the level";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 1;
-			warnNumber += 1;
+			Message("Level not saved/executed -- Two vertices are too close together (maybe a duplicate?)", 2);
+			Message("Fix the polygon first, and then save the level", 1);
 			return true;
 		} else if (chkIntsct!=null) {
 			// Go to the intersection
 			MoveCameraTo(chkIntsct[0],chkIntsct[1],true);
 			// Print a warning message
-			warnMessage[warnNumber] = "Level not saved/executed -- There was an intersection between these segments";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 2;
-			warnNumber += 1;
-			warnMessage[warnNumber] = "Fix the polygon first, and then save the level";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 1;
-			warnNumber += 1;
+			Message("Level not saved/executed -- There was an intersection between these segments", 2);
+			Message("Fix the polygon first, and then save the level", 1);
 			return true;
 		}
     	return false;
@@ -1172,9 +1164,14 @@ public class Editor extends GameState {
         shapeRenderer.rect(0, 0, boundaryX, boundaryY);
         shapeRenderer.setColor(0, 1, 0, 0.5f);
         shapeRenderer.end();
+        // Draw the bounds of the background
+        shapeRenderer.begin(ShapeType.Filled);
+        shapeRenderer.setColor(1, 1, 0.1f, 0.1f);
+        shapeRenderer.rect(boundsBG[0], 0, boundsBG[1]-boundsBG[0], boundaryY);
+        shapeRenderer.end();
+        // Draw the polygons (not including the current polygon)
         shapeRenderer.begin(ShapeType.Line);
         Gdx.gl20.glLineWidth(2);
-        // Draw the polygons (not including the current polygon)
         float rxcen, rycen, rangle;
         float[] rCoord;
         float[] extraPoly;
@@ -1782,6 +1779,13 @@ public class Editor extends GameState {
   ///                           ///
  /////////////////////////////////
 
+	private void Message(String msg, int mType) {
+		warnMessage[warnNumber] = msg;
+		warnElapse[warnNumber] = 0.0f;
+		warnType[warnNumber] = mType;
+		warnNumber += 1;
+	}
+	
 	public void ControlMode2() {
 		if (listChild.getSelected() == null) return;
 		modeChild = listChild.getSelected().toString(); 
@@ -1793,6 +1797,33 @@ public class Editor extends GameState {
     		LevelVars.set(LevelVars.PROP_GROUND_TEXTURE, modeChild);
 		} else if (modeParent.equals("Sky Texture")) {
     		LevelVars.set(LevelVars.PROP_SKY_TEXTURE, modeChild);
+		} else if (modeParent.equals("Background Texture")) {
+			// TODO :: implement feature
+			Message("FEATURE NOT IMPLEMENTED", 2);
+		} else if (modeParent.equals("Background Bounds")) {
+			if (((modeChild.equals("Set Bounds")) & (GameInput.MBDRAG==true))) {
+				boundsBG[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				boundsBG[1] = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+			} else if ((modeChild.equals("Set Bounds")) & (GameInput.MBJUSTPRESSED)) {
+        		boundsBG[1] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    			if (boundsBG[0] > boundsBG[1]) {
+    				tempx = boundsBG[0];
+    				boundsBG[0] = boundsBG[1];
+    				boundsBG[1] = tempx;
+    			}
+        		LevelVars.set(LevelVars.PROP_BG_BOUNDSX1, String.valueOf(boundsBG[0]));
+        		LevelVars.set(LevelVars.PROP_BG_BOUNDSX2, String.valueOf(boundsBG[1]));
+			} else if (modeChild.equals("Reset Bounds")) {
+				boundsBG = new float[] {0.0f, boundaryX};
+			}
+			if (boundsBG[0] > boundsBG[1]) {
+				tempx = boundsBG[0];
+				boundsBG[0] = boundsBG[1];
+				boundsBG[1] = tempx;
+			}
+		} else if (modeParent.equals("Foreground Texture")) {
+			// TODO :: implement feature
+			Message("FEATURE NOT IMPLEMENTED", 2);
 		}
 	}
 
@@ -3370,7 +3401,27 @@ public class Editor extends GameState {
 					listChild.setItems(skyTextureList);
 					pLevelIndex = GetListIndex("Sky Texture",levelPropList);
 					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_SKY_TEXTURE),skyTextureList));
-				} else listChild.setItems(nullList);
+					// TODO :: implement feature
+					warnMessage[warnNumber] = "NOT IMPLEMENTED YET";
+					warnElapse[warnNumber] = 0.0f;
+					warnType[warnNumber] = 0;
+				} else if (modeParent.equals("Background Texture")) {
+					listChild.setItems(bgTextureList);
+					pLevelIndex = GetListIndex("Background Texture", levelPropList);
+					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_BG_TEXTURE),bgTextureList));
+					// TODO :: implement feature
+					Message("FEATURE NOT IMPLEMENTED", 2);
+				} else if (modeParent.equals("Background Bounds")) {
+					listChild.setItems("Set Bounds", "Reset Bounds");
+					Message("Click and drag on the canvas to set the background texture bounds", 0);
+					Message("This should be at least as wide as the level", 0);
+				} else if (modeParent.equals("Foreground Texture")) {
+					listChild.setItems(fgTextureList);
+					pLevelIndex = GetListIndex("Foreground Texture", levelPropList);
+					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_FG_TEXTURE),fgTextureList));
+					// TODO :: implement feature
+					Message("FEATURE NOT IMPLEMENTED", 2);
+				} else listChild.setItems(nullList);				
 				break;
 			case 3 :
 				if (modeParent.equals("Polygon")) {
