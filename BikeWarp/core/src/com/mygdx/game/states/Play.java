@@ -145,6 +145,7 @@ public class Play extends GameState {
     private float bikeScale = 1.0f;
     private float bikeScaleLev = 0.05f;
     private float gravityScale = -1.0f;
+    private Vector2 bounds = null; 
     private Vector2 gravityPrev = new Vector2(), gravityNew = new Vector2(), gravityOld = new Vector2();
     private float motorTorque = 0.0f;
     private float playerTorque = 0.0f;
@@ -163,7 +164,7 @@ public class Play extends GameState {
     private float startDirection;
     private float startAngle;
     private Texture texture;
-    private Sprite blackScreen, sky, mountains, trees, finishFG, openDoor, switchGL, switchRL, metalBar;
+    private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar;
     private Sprite bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
@@ -316,8 +317,8 @@ public class Play extends GameState {
         finishFG = new Sprite(BikeGameTextures.LoadTexture("finish_whirl",0));
 
         // Load the mountain texture
-        mountains = new Sprite(BikeGameTextures.LoadTexture("mountains",2));
-        trees = new Sprite(BikeGameTextures.LoadTexture("trees",2));
+        background = new Sprite(BikeGameTextures.LoadTexture("background_test",2));
+        foreground = new Sprite(BikeGameTextures.LoadTexture("trees",2));
 
         // Load the opening door, switch box, and metal bar textures
         openDoor = new Sprite(BikeGameTextures.LoadTexture("gate",0));
@@ -1322,6 +1323,7 @@ public class Play extends GameState {
        startDirection = (Float) mScene.getCustom(gameInfo, "startDirection", 1.0f);
        startAngle = (Float) mScene.getCustom(gameInfo, "startAngle", 0.0f);
        collectJewel = (Integer) mScene.getCustom(gameInfo, "numJewel", 0);
+       bounds = (Vector2) mScene.getCustom(gameInfo, "bounds", new Vector2(0.0f, 1000.0f));
        String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName),2));
        blackScreen = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("data/images/sky_moon.png"),2));
@@ -1654,8 +1656,9 @@ public class Play extends GameState {
     	mBatch.begin();
     	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
     	if (paintBackdrop) {
-    		mBatch.draw(mountains, hudCam.position.x-SCRWIDTH*(1+2*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2, SCRWIDTH/4, 1.0f, 1.0f, 0.0f);
-    		mBatch.draw(trees, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
+    		mBatch.draw(background, hudCam.position.x - SCRWIDTH*(b2dCam.position.x-bounds.x)/(bounds.y-bounds.x)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, (BikeGame.V_HEIGHT*512.0f/2048.0f), BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+//    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+    		mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
     	}
     	mBatch.end();
 

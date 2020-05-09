@@ -653,6 +653,15 @@ public class EditorIO {
         else if (textSky.equals("Sunrise")) json.key("string").value("data/images/sky_sunrise.png");
         else json.key("string").value("data/images/sky_bluesky.png");
         json.endObject();
+        // Set the background image bounds
+        json.object();
+        json.key("name").value("bounds");
+        json.key("vec2");
+        json.object();
+        json.key("x").value(B2DVars.EPPM*Float.parseFloat(LevelVars.get(LevelVars.PROP_BG_BOUNDSX1)));
+        json.key("y").value(B2DVars.EPPM*Float.parseFloat(LevelVars.get(LevelVars.PROP_BG_BOUNDSX2)));
+        json.endObject();
+        json.endObject();
         //
         json.endArray();
         json.key("linearVelocity").value(0);
