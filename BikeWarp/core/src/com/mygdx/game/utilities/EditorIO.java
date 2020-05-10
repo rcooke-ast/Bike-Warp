@@ -57,6 +57,7 @@ public class EditorIO {
 	public static String saveLevel(ArrayList<float[]> allPolygons,
 			ArrayList<Integer> allPolygonTypes,
 			ArrayList<float[]> allPolygonPaths,
+			ArrayList<String> allPolygonTextures,
 			ArrayList<float[]> allObjects,
 			ArrayList<float[]> allObjectArrows,
 			ArrayList<float[]> allObjectCoords,
@@ -70,6 +71,7 @@ public class EditorIO {
 			outputStream.writeObject(allPolygons);
 			outputStream.writeObject(allPolygonTypes);
 			outputStream.writeObject(allPolygonPaths);
+			outputStream.writeObject(allPolygonTextures);
 			outputStream.writeObject(allObjects);
 			outputStream.writeObject(allObjectArrows);
 			outputStream.writeObject(allObjectCoords);
@@ -109,6 +111,7 @@ public class EditorIO {
 		ArrayList<float[]> allPolygons = null;
 		ArrayList<Integer> allPolygonTypes = null;
 		ArrayList<float[]> allPolygonPaths = null;
+		ArrayList<String> allPolygonTextures = null;
 		ArrayList<float[]> allObjects = null;
 		ArrayList<float[]> allObjectArrows = null;
 		ArrayList<float[]> allObjectCoords = null;
@@ -123,6 +126,7 @@ public class EditorIO {
 			allPolygons = (ArrayList<float[]>)inputStream.readObject();
 			allPolygonTypes = (ArrayList<Integer>)inputStream.readObject();
 			allPolygonPaths = (ArrayList<float[]>)inputStream.readObject();
+			allPolygonTextures = (ArrayList<String>)inputStream.readObject();
 			allObjects = (ArrayList<float[]>)inputStream.readObject();
 			allObjectArrows = (ArrayList<float[]>)inputStream.readObject();
 			allObjectCoords = (ArrayList<float[]>)inputStream.readObject();
@@ -202,10 +206,19 @@ public class EditorIO {
 //			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
 //			saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, aInputFileName);
 
+			// Temporary fix for platform textures
+//			allPolygonTextures = new ArrayList<String>();
+//			for (int i=0; i<allPolygons.size(); i++) {
+//				allPolygonTextures.add("");
+//			}
+//			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
+//			saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, aInputFileName);
+
 			// Carry on as normal
 			retarr.add(allPolygons);
 			retarr.add(allPolygonTypes);
 			retarr.add(allPolygonPaths);
+			retarr.add(allPolygonTextures);
 			retarr.add(allObjects);
 			retarr.add(allObjectArrows);
 			retarr.add(allObjectCoords);
@@ -216,6 +229,7 @@ public class EditorIO {
 			retarr.add(levelVarProps);
 		}
 		catch (Exception e){
+			System.out.println(e);
 			System.out.println("Problem reading the file " + aInputFileName);
 			for (int i=0; i<10; i++) retarr.add(null);
 		}
@@ -227,6 +241,7 @@ public class EditorIO {
 		ArrayList<float[]> allPolygons = null;
 		ArrayList<Integer> allPolygonTypes = null;
 		ArrayList<float[]> allPolygonPaths = null;
+		ArrayList<String> allPolygonTextures = null;
 		ArrayList<float[]> allObjects = null;
 		ArrayList<float[]> allObjectArrows = null;
 		ArrayList<float[]> allObjectCoords = null;
@@ -241,6 +256,7 @@ public class EditorIO {
 			allPolygons = (ArrayList<float[]>)inputStream.readObject();
 			allPolygonTypes = (ArrayList<Integer>)inputStream.readObject();
 			allPolygonPaths = (ArrayList<float[]>)inputStream.readObject();
+			allPolygonTextures = (ArrayList<String>)inputStream.readObject();
 			allObjects = (ArrayList<float[]>)inputStream.readObject();
 			allObjectArrows = (ArrayList<float[]>)inputStream.readObject();
 			allObjectCoords = (ArrayList<float[]>)inputStream.readObject();
@@ -252,7 +268,7 @@ public class EditorIO {
 			inputStream.close();
 			// Carry on as normal
 			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
-			jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
+			jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
 		} catch (Exception e) {
 			System.out.println("Problem reading the file " + aInputFileName);
 			e.printStackTrace();
@@ -283,6 +299,8 @@ public class EditorIO {
 				temp = fileEntry.getName();
 				if ((temp.substring(temp.lastIndexOf('.') + 1, temp.length()).toLowerCase()).equals("lvl")) {
 					allLevels[numFiles] =  FileUtils.getBaseName(fileEntry.getName());
+					// Reset all levels
+					//loadLevel(FileUtils.getBaseName(fileEntry.getName())+".lvl");
 					numFiles +=1;
 				}
 			}
@@ -290,9 +308,26 @@ public class EditorIO {
 		return allLevels;
 	}
 
+	public static String GetTexture(String textName, String defval) {
+		if (textName.equals("Default")) return defval;
+		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
+		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
+		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
+		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
+		else if (textName.equals("Grass")) return "images/grass_full.png";
+		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
+		else if (textName.equals("Ice")) return "images/ground_ice.png";
+		else if (textName.equals("Mars")) return "images/ground_mars.png";
+		else if (textName.equals("Moon")) return "images/ground_moon.png";
+		else if (textName.equals("Sand")) return "images/ground_sand.png";
+		else if (textName.equals("Steel")) return "images/ground_steel.png";
+		else return defval;
+	}
+	
 	public static String JSONserialize(ArrayList<float[]> allPolygons,
 			ArrayList<Integer> allPolygonTypes,
 			ArrayList<float[]> allPolygonPaths,
+			ArrayList<String> allPolygonTextures,
 			ArrayList<float[]> allObjects,
 			ArrayList<float[]> allObjectArrows,
 			ArrayList<float[]> allObjectCoords,
@@ -327,6 +362,7 @@ public class EditorIO {
     	cntTransport = 0;
     	// Determine what texture to be used for the ground
     	String textString = LevelVars.get(LevelVars.PROP_GROUND_TEXTURE);
+    	String textPlatform;
         if (textString.equals("Cracked Mud")) textString = "images/ground_cracked.png";
         else if (textString.equals("Bubbles")) textString = "images/ground_bubbles.png";
         else if (textString.equals("Gravel")) textString = "images/ground_gravel.png";
@@ -364,6 +400,7 @@ public class EditorIO {
         // ... and then add the remaining surfaces
         for (int i = 0; i<allPolygons.size(); i++){
         	// Decompose each polygon into a series of convex polygons
+        	textPlatform = GetTexture(allPolygonTextures.get(i), textString);
             if (allPolygonTypes.get(i) == 0) {
     			concaveVertices = PolygonOperations.MakeVertices(allPolygons.get(i));
     			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
@@ -384,7 +421,7 @@ public class EditorIO {
 		            json.array();
 		            json.object();
 		            json.key("name").value("TextureMask");
-		            json.key("string").value(textString);
+		            json.key("string").value(textPlatform);
 		            json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
@@ -421,7 +458,7 @@ public class EditorIO {
                 json.array();
                 json.object();
                 json.key("name").value("TextureMask");
-                json.key("string").value(textString);
+                json.key("string").value(textPlatform);
                 json.endObject();
                 json.endArray();
                 json.key("circle");
@@ -443,6 +480,7 @@ public class EditorIO {
         for (int i = 0; i<allDecors.size(); i++) {
         	// Decompose each polygon into a series of convex polygons
             if (allDecorTypes.get(i) == DecorVars.Grass) {
+//            	if (true) {
             	if (allPolygonTypes.get(allDecorPolys.get(i))==0) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
 	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
@@ -508,19 +546,19 @@ public class EditorIO {
         // Add kinematic bodies
         String retval;
         for (int i = 0; i<allPolygons.size(); i++){
+        	textPlatform = GetTexture(allPolygonTextures.get(i), textString);
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
-            	retval = EditorObjectIO.AddKinematicPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textString,textGrass,friction,restitution,i);
+            	retval = EditorObjectIO.AddKinematicPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textPlatform,textGrass,friction,restitution,i);
             	if (!retval.equals("")) return retval;
             	cntKinematic += 1;
             } else if ((allPolygonTypes.get(i) == 4) | (allPolygonTypes.get(i) == 5)) {
-            	retval = EditorObjectIO.AddFallingPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textString,textGrass,friction,restitution,cntFalling,i);
+            	retval = EditorObjectIO.AddFallingPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textPlatform,textGrass,friction,restitution,cntFalling,i);
             	if (!retval.equals("")) return retval;
             	EditorJointIO.JointFalling(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
             	cntFalling += 1;
             } else if ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 7)) {
-            	retval = EditorObjectIO.AddTriggerPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textString,textGrass,friction,restitution,cntTrigger,i);
+            	retval = EditorObjectIO.AddTriggerPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textPlatform,textGrass,friction,restitution,cntTrigger,i);
             	if (!retval.equals("")) return retval;
-            	// TODO :: Add Trigger with userData: "GroundTrigger"
             	EditorJointIO.JointTrigger(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
             	cntTrigger += 1;
             }

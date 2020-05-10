@@ -28,6 +28,7 @@ public class GameInputProcessor extends InputMultiplexer {
         	if (disable_keys) return true;
         } else if (k == Keys.R) {
         	GameInput.setKey(GameInput.KEY_RESTART, true);
+        	GameInput.setKey(GameInput.KEY_R, true);
         }
         // Check is keys are disabled
     	if (disable_keys) return false;
@@ -49,6 +50,8 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, true);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, true);
         if (k == Keys.S) GameInput.setKey(GameInput.KEY_S, true);
+        if (k == Keys.X) GameInput.setKey(GameInput.KEY_X, true);
+        if (k == Keys.Y) GameInput.setKey(GameInput.KEY_Y, true);
         if (k == Keys.Z) GameInput.setKey(GameInput.KEY_Z, true);
         if (k == Keys.T) GameInput.setKey(GameInput.KEY_T, true);
         if (k == Keys.C) GameInput.setKey(GameInput.KEY_C, true);
@@ -73,6 +76,7 @@ public class GameInputProcessor extends InputMultiplexer {
         	if (disable_keys) return true;
         } else if (k == Keys.R) {
         	GameInput.setKey(GameInput.KEY_RESTART, false);
+        	GameInput.setKey(GameInput.KEY_R, false);
         }
     	if (disable_keys) return false;
     	// Game keys
@@ -92,6 +96,8 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.ENTER) GameInput.setKey(GameInput.KEY_ENTER, false);
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, false);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, false);
+        if (k == Keys.X) GameInput.setKey(GameInput.KEY_X, false);
+        if (k == Keys.Y) GameInput.setKey(GameInput.KEY_Y, false);
         if (k == Keys.Z) GameInput.setKey(GameInput.KEY_Z, false);
     	if (k == Keys.S) GameInput.setKey(GameInput.KEY_S, false);
         if (k == Keys.T) GameInput.setKey(GameInput.KEY_T, false);
