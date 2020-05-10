@@ -76,8 +76,8 @@ public class Editor extends GameState {
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 	private String[] nullList = new String[0];
 	private String[] itemsXYonly = {"Move X and Y", "Move X only", "Move Y only"};
-	private String[] itemsPRC = {"Polygon", "Rectangle", "Circle"};
-	private String[] itemsPRCP = {"Polygon", "Rectangle", "Circle", "Set Path"};
+	private String[] itemsPRC = {"Polygon", "Rectangle", "Circle", "Set Texture"};
+	private String[] itemsPRCP = {"Polygon", "Rectangle", "Circle", "Set Path", "Set Texture"};
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
@@ -91,6 +91,7 @@ public class Editor extends GameState {
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"Mountains", "Waterfall"};
 	private String[] fgTextureList = {"Plants", "Trees"};
+	private String[] platformTextures = {"Default", "Asphalt", "Bricks", "Bubbles", "Cracked Mud", "Grass", "Gravel", "Ice", "Mars", "Moon", "Sand", "Steel"};
 	private String[] gravityList = {"Earth", "Moon", "Mars"};
 	private String[] loadList = {"Load Level", "New Level"};
 	private String[] jewelNumber;
@@ -136,6 +137,7 @@ public class Editor extends GameState {
 	private ArrayList<float[]> allPolygons = new ArrayList<float[]>();
 	private ArrayList<Integer> allPolygonTypes = new ArrayList<Integer>();
 	private ArrayList<float[]> allPolygonPaths = new ArrayList<float[]>();
+	private ArrayList<String> allPolygonTextures = new ArrayList<String>();
 	private String jsonLevelString;
 	private float[] newPoly = null;
 	private float[] updatePoly = null;
@@ -147,12 +149,14 @@ public class Editor extends GameState {
 	private static final float boundaryY = 1000.0f/B2DVars.EPPM;
 	private float[] boundsBG = new float[2];
 	private boolean drawingPoly = false;  // Is a polygon currently being drawn
+	private boolean flipX=false, flipY=false, rotPoly=false;
 	private ArrayList<float[]> polyDraw;  // Store the vertices of the new polygon in an ArrayList
 	private float[] shapeDraw = null;  // Store the vertices of the new shape
 	private float tempx, tempy; // new vertex to be tested
 	private static final float polyEndThreshold = 0.01f;
 	private ArrayList<Integer> groupPolySelect;
 	private ArrayList<float[]> updateGroupPoly;
+	private String currentTexture = "";
 	private int polySelect = -1, vertSelect = -1, segmSelect = -1;
 	private int polyHover = -1, vertHover = -1, segmHover = -1;
 	private int objectSelect = -1, decorSelect = -1, finishObjNumber;
@@ -403,14 +407,15 @@ public class Editor extends GameState {
 									allPolygons = (ArrayList<float[]>) loadedArray.get(0);
 									allPolygonTypes = (ArrayList<Integer>) loadedArray.get(1);
 									allPolygonPaths = (ArrayList<float[]>) loadedArray.get(2);
-									allObjects = (ArrayList<float[]>) loadedArray.get(3);
-									allObjectArrows = (ArrayList<float[]>) loadedArray.get(4);
-									allObjectCoords = (ArrayList<float[]>) loadedArray.get(5);
-									allObjectTypes = (ArrayList<Integer>) loadedArray.get(6);
-									allDecors = (ArrayList<float[]>) loadedArray.get(7);
-									allDecorTypes = (ArrayList<Integer>) loadedArray.get(8);
-									allDecorPolys = (ArrayList<Integer>) loadedArray.get(9);
-									String[] setLVs = (String[]) loadedArray.get(10);
+									allPolygonTextures = (ArrayList<String>) loadedArray.get(3);
+									allObjects = (ArrayList<float[]>) loadedArray.get(4);
+									allObjectArrows = (ArrayList<float[]>) loadedArray.get(5);
+									allObjectCoords = (ArrayList<float[]>) loadedArray.get(6);
+									allObjectTypes = (ArrayList<Integer>) loadedArray.get(7);
+									allDecors = (ArrayList<float[]>) loadedArray.get(8);
+									allDecorTypes = (ArrayList<Integer>) loadedArray.get(9);
+									allDecorPolys = (ArrayList<Integer>) loadedArray.get(10);
+									String[] setLVs = (String[]) loadedArray.get(11);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 									// Restore the original settings of this level
 									RestoreLevelDefaults();
@@ -468,37 +473,7 @@ public class Editor extends GameState {
 						listParent.setItems(nullList);
 						SetChildList();
 						mode = -999;
-						if (!CheckVertInt()) {
-							// No intersections were found, so the level can be saved without errors
-							try {
-								String temptext = textInputSave.getText();
-								if ((temptext == null) | (temptext.equals(""))) {
-									warnMessage[warnNumber] = "File not saved -- You must enter a filename";
-									warnElapse[warnNumber] = 0.0f;
-									warnType[warnNumber] = 2;
-									warnNumber += 1;
-								} else {
-									saveFName = temptext;
-									String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, saveFName+".lvl");
-									if (!isSaved.equals("")) {
-										warnMessage[warnNumber] = isSaved;
-										warnElapse[warnNumber] = 0.0f;
-										warnType[warnNumber] = 2;
-										warnNumber += 1;
-									} else {
-										warnMessage[warnNumber] = "Level saved: "+saveFName+".lvl";
-										warnElapse[warnNumber] = 0.0f;
-										warnType[warnNumber] = 0;
-										warnNumber += 1;
-										changesMade = false;
-									}
-								}
-							} catch (FileNotFoundException e) {
-								e.printStackTrace();
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
-						}
+						SaveLevel(false);
 					}
 				}
 //				try {
@@ -528,14 +503,8 @@ public class Editor extends GameState {
 						if (!changesMade) {
 							gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
 						} else {
-							warnMessage[warnNumber] = "Changes made since last save!";
-							warnElapse[warnNumber] = 0.0f;
-							warnType[warnNumber] = 1;
-							warnNumber += 1;
-							warnMessage[warnNumber] = "Selecting 'Main Menu' again will exit without saving";
-							warnElapse[warnNumber] = 0.0f;
-							warnType[warnNumber] = 1;
-							warnNumber += 1;
+							Message("Changes made since last save!", 1);
+							Message("Selecting 'Main Menu' again will exit without saving", 1);
 							changesMade = false;
 						}
 						UncheckButtons(false);
@@ -549,10 +518,10 @@ public class Editor extends GameState {
 				if (!hideToolbar) {
 					if (!drawingPoly) {
 						UncheckButtons(false);
-						if (!CheckVertInt()) {
+						if (!CheckVertInt(false)) {
 							// No intersections were found, so let's do some more checks...
 							try {
-								jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
+								jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
 								if (jsonLevelString.startsWith("CU")) {
 									warnMessage[warnNumber] = "Unable to play level!";
 									warnElapse[warnNumber] = 0.0f;
@@ -722,18 +691,12 @@ public class Editor extends GameState {
 					if (!drawingPoly) {
 						mode = 8;
 						UncheckButtons(false);
-						listParent.setItems("Platform","Object");
+						listParent.setItems("Platform", "Object");
 						SetChildList();
 						ResetHoverSelect();
 						buttonCopyPaste.setChecked(true);
-						warnMessage[warnNumber] = "Click an object to select it, then click again to paste a copy of it, or,";
-						warnElapse[warnNumber] = 0.0f;
-						warnType[warnNumber] = 0;
-						warnNumber += 1;
-						warnMessage[warnNumber] = "click and drag over multiple platforms to select multiple platforms. Click again to paste";
-						warnElapse[warnNumber] = 0.0f;
-						warnType[warnNumber] = 0;
-						warnNumber += 1;
+						Message("Click an object to select it, then click again to paste a copy of it, or,", 0);
+						Message("click and drag over multiple platforms to select multiple platforms. Click again to paste", 0);
 					}
 				}
 			}
@@ -759,6 +722,8 @@ public class Editor extends GameState {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
 					if (!drawingPoly) {
+						Message("You should only decorate a level when you have finished placing your platforms!", 1);
+						Message("Adding/Removing platforms after decorating may produce unexpected results!", 1);
 						mode = 6;
 						UncheckButtons(false);
 						listParent.setItems(decorateList);
@@ -806,38 +771,17 @@ public class Editor extends GameState {
 						if (listChild.getItems().size != 0) {
 							String chldMd = listChild.getSelected().toString();
 							if (chldMd.equals("Delete")) {
-								warnMessage[warnNumber] = "First select object, then press 'd' to delete";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 0;
-								warnNumber += 1;
+								Message("First select object, then press 'd' to delete", 0);
 							} else if ((modeParent.equals("Polygon")) && (chldMd.equals("Rotate"))) {
-								warnMessage[warnNumber] = "Polygons will rotate about the red circle (a.k.a. the 'cursor')";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 0;
-								warnNumber += 1;
-								warnMessage[warnNumber] = "Press 'c' first and then click at the position you want to set the cursor";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 0;
-								warnNumber += 1;
+								Message("Polygons will rotate about the red circle (a.k.a. the 'cursor')", 0);
+								Message("Press 'c' first and then click at the position you want to set the cursor", 0);
 							} else if ((modeParent.equals("Polygon")) && (chldMd.equals("Scale"))) {
-								warnMessage[warnNumber] = "Polygons will scale about the red circle (a.k.a. the 'cursor')";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 0;
-								warnNumber += 1;
-								warnMessage[warnNumber] = "Press 'c' first and then click at the position you want to set the cursor";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 0;
-								warnNumber += 1;
+								Message("Polygons will scale about the red circle (a.k.a. the 'cursor')", 0);
+								Message("Press 'c' first and then click at the position you want to set the cursor", 0);
 							} else if (chldMd.equals("Rotate")) {
-								warnMessage[warnNumber] = "Click and drag the object to rotate it";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 0;
-								warnNumber += 1;								
+								Message("Click and drag the object to rotate it", 0);
 							} else if (chldMd.equals("Delete Vertex")) {
-								warnMessage[warnNumber] = "First select vertex, then press 'd' to delete";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 0;
-								warnNumber += 1;
+								Message("First select vertex, then press 'd' to delete", 0);
 							} 
 						}
 					}
@@ -868,6 +812,7 @@ public class Editor extends GameState {
     	segmHover = -1;
     	objectSelect = -1;
     	decorSelect = -1;
+    	currentTexture = "";
     }
     
     public void ResetLevelDefaults() {
@@ -878,6 +823,7 @@ public class Editor extends GameState {
     	allPolygons = new ArrayList<float[]>();
     	allPolygonTypes = new ArrayList<Integer>();
     	allPolygonPaths = new ArrayList<float[]>();
+    	allPolygonTextures = new ArrayList<String>();
     	allDecors = new ArrayList<float[]>();
     	allDecorTypes = new ArrayList<Integer>();
     	allDecorPolys = new ArrayList<Integer>();
@@ -888,6 +834,9 @@ public class Editor extends GameState {
     	updatePathVertex = null;
     	newCoord = new float[2];
     	boundsBG = new float[] {0.0f, boundaryX};
+    	flipX=false;
+    	flipY=false;
+    	rotPoly=false;
     	drawingPoly = false;  // Is a polygon currently being drawn
     	shapeDraw = null;  // Store the vertices of the new shape
     	groupPolySelect = new ArrayList<Integer>();
@@ -954,12 +903,13 @@ public class Editor extends GameState {
 		//
     }
 
-    public boolean CheckVertInt() {
+    public boolean CheckVertInt(boolean autosave) {
 		// Check for vertices that are too close
 		float[] chkVertices = PolygonOperations.CheckVertexSizes(allPolygons, allPolygonTypes, allDecors, allDecorTypes);
 		// Check for intersecting segments
 		float[] chkIntsct = PolygonOperations.CheckIntersections(allPolygons, allPolygonTypes, allDecors, allDecorTypes);
 		if (chkVertices!=null) {
+			if (autosave) return true;
 			// Go to the intersection
 			MoveCameraTo(chkVertices[0],chkVertices[1],true);
 			// Print a warning message
@@ -967,6 +917,7 @@ public class Editor extends GameState {
 			Message("Fix the polygon first, and then save the level", 1);
 			return true;
 		} else if (chkIntsct!=null) {
+			if (autosave) return true;
 			// Go to the intersection
 			MoveCameraTo(chkIntsct[0],chkIntsct[1],true);
 			// Print a warning message
@@ -980,6 +931,9 @@ public class Editor extends GameState {
     public void handleInput() {
 		if (GameInput.isPressed(GameInput.KEY_T)) hideToolbar = !hideToolbar;
 		if (GameInput.isPressed(GameInput.KEY_C)) setCursor = true;
+		if (GameInput.isPressed(GameInput.KEY_X)) flipX=!flipX;
+		if (GameInput.isPressed(GameInput.KEY_Y)) flipY=!flipY;
+		if (GameInput.isPressed(GameInput.KEY_R)) rotPoly=true;
 		if ((GameInput.isPressed(GameInput.KEY_D)) & (engageDelete)) {
 			if ((mode==4) & (modeParent.equals("Set Path"))) {
 				if (vertSelect != -1) {
@@ -1739,6 +1693,17 @@ public class Editor extends GameState {
 	        	}
 	        }
         }
+        // Draw the texture names on each polygon
+        String textName;
+        if (allPolygons.size() != 0) {
+	        for (int i = 0; i<allPolygons.size(); i++) {
+	        	textName = allPolygonTextures.get(i); 
+	        	if (!textName.equals("")) {
+	        		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+	        		signFont.draw(sb, textName, allPolygons.get(i)[0], allPolygons.get(i)[1]+signWidth/2);
+	        	}
+	        }
+        }        
         sb.end();
 
         // If there are any warning/error messages, write them to screen
@@ -1779,6 +1744,35 @@ public class Editor extends GameState {
   ///                           ///
  /////////////////////////////////
 
+	private void SaveLevel(boolean autosave) {
+		if (!CheckVertInt(autosave)) {
+			// No intersections were found, so the level can be saved without errors
+			try {
+				if (autosave) {
+					String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, "autosave.lvl");
+				} else {
+					String temptext = textInputSave.getText();
+					if ((temptext == null) | (temptext.equals(""))) {
+						Message("File not saved -- You must enter a filename", 2);
+					} else {
+						saveFName = temptext;
+						String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, saveFName+".lvl");
+						if (!isSaved.equals("")) {
+							Message(isSaved, 2);
+						} else {
+							Message("Level saved: "+saveFName+".lvl", 0);
+							changesMade = false;
+						}
+					}
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	private void Message(String msg, int mType) {
 		warnMessage[warnNumber] = msg;
 		warnElapse[warnNumber] = 0.0f;
@@ -1812,6 +1806,8 @@ public class Editor extends GameState {
 				boundsBG[0] = boundsBG[1];
 				boundsBG[1] = tempx;
 			}
+			if (boundsBG[0] < 0.0f) boundsBG[0] = 0.0f;
+			if (boundsBG[0] > boundaryX) boundsBG[0] = boundaryX;
     		LevelVars.set(LevelVars.PROP_BG_BOUNDSX1, String.valueOf(boundsBG[0]));
     		LevelVars.set(LevelVars.PROP_BG_BOUNDSX2, String.valueOf(boundsBG[1]));
 		} else if (modeParent.equals("Foreground Texture")) {
@@ -2105,6 +2101,15 @@ public class Editor extends GameState {
     	        	}
     	    	}
     		}
+    	} else if (modeParent.equals("Set Texture")) {
+	    	if (GameInput.MBJUSTPRESSED) {
+	    		SelectPolygon("down");
+	    		if (polySelect != -1) {
+	    			UpdatePlatformTexture();
+	    			polySelect = -1;
+	    		}
+	    	}
+			currentTexture = "";
     	}
 	}
 
@@ -3234,10 +3239,14 @@ public class Editor extends GameState {
 				}
 				polySelect = -1;
 				updatePoly = null;
+				flipX=false;
+				flipY=false;
+				rotPoly=false;
 			} else if (polySelect != -1) {
     			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
 				updatePoly = allPolygons.get(polySelect).clone();
+		    	CheckFlipRotate(false);
 		    	if (allPolygonTypes.get(polySelect)%2 == 0) {
 		    		for (int i = 0; i<allPolygons.get(polySelect).length; i++){
 		    			if ((i%2==0)&(doX)) updatePoly[i] += (endX-startX);
@@ -3271,6 +3280,9 @@ public class Editor extends GameState {
 				}
 				groupPolySelect = new ArrayList<Integer>();
 				updateGroupPoly = null;
+				flipX=false;
+				flipY=false;
+				rotPoly=false;
 			} else if (groupPolySelect.size() != 0) {
     			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -3288,6 +3300,7 @@ public class Editor extends GameState {
 			    	}
     				updateGroupPoly.add(updatePoly.clone());    				
     			}
+    			CheckFlipRotate(false);
     			updatePoly = null;
 			}
 		} else if (modeParent.equals("Object")) {
@@ -3426,6 +3439,10 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Circle")) {
 					listChild.setItems("Add");
 					pStaticIndex = GetListIndex("Circle",itemsPRC);
+				} else if (modeParent.equals("Set Texture")) {
+					listChild.setItems(platformTextures);
+					pStaticIndex = GetListIndex("Set Texture", itemsPRC);
+		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
 				}
 				break;
 			case 4 : 
@@ -3441,6 +3458,10 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Set Path")) {
 					listChild.setItems("Select Polygon", "Extend Path", "Move Path", "Rotate Path", "Scale Path", "Flip Path x", "Flip Path y", "Insert Vertex", "Move Vertex", "Delete Vertex", "Flip Direction", "Flip Rotation", "Set Rotation", "Set Speed", "Move Ghost");
 					pKinematicIndex = GetListIndex("Set Path",itemsPRCP);
+				} else if (modeParent.equals("Set Texture")) {
+					listChild.setItems(platformTextures);
+					pKinematicIndex = GetListIndex("Set Texture",itemsPRCP);
+		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
 				}
 				break;
 			case 5 :
@@ -3535,6 +3556,10 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Circle")) {
 					listChild.setItems("Add");
 					pFallingIndex = GetListIndex("Circle",itemsPRC);
+				} else if (modeParent.equals("Set Texture")) {
+					listChild.setItems(platformTextures);
+					pFallingIndex = GetListIndex("Set Texture", itemsPRC);
+		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
 				}
 				break;
 			case 8 :
@@ -3554,6 +3579,10 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Circle")) {
 					listChild.setItems("Add");
 					pTriggerIndex = GetListIndex("Circle",itemsPRC);
+				} else if (modeParent.equals("Set Texture")) {
+					listChild.setItems(platformTextures);
+					pTriggerIndex = GetListIndex("Set Texture", itemsPRC);
+		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
 				}
 				break;
 			default :
@@ -3570,10 +3599,20 @@ public class Editor extends GameState {
   ///                                   ///
  /////////////////////////////////////////
 
+	public void UpdatePlatformTexture() {
+		currentTexture = listChild.getSelected().toString();
+		if (currentTexture.equals("Default")) {
+			allPolygonTextures.set(polySelect, "");
+		} else {
+			allPolygonTextures.set(polySelect, currentTexture);			
+		}
+	}
+	
     public void AddPolygon(float[] newPoly, int ptype, int psize) {
     	changesMade = true;
 		allPolygons.add(newPoly);
 		allPolygonTypes.add(ptype);
+		allPolygonTextures.add("");
 		float xcenp = 0.0f, ycenp = 0.0f;
 		if (mode==4) {
 			if (newPoly.length==3) {
@@ -3678,6 +3717,7 @@ public class Editor extends GameState {
     	changesMade = true;
 		allPolygons.add(newPoly);
 		allPolygonTypes.add(allPolygonTypes.get(idx));
+		allPolygonTextures.add(allPolygonTextures.get(idx));
 		if (allPolygonPaths.get(idx)==null) {
 			allPolygonPaths.add(null);
 		} else {
@@ -3723,6 +3763,7 @@ public class Editor extends GameState {
 		allPolygons.remove(idx);
 		allPolygonTypes.remove(idx);
 		allPolygonPaths.remove(idx);
+		allPolygonTextures.remove(idx);
 		// Check if any grass decorations need to be deleted or shifted
 		int cnt=0;
 		int sz=allDecorTypes.size();
@@ -3794,6 +3835,80 @@ public class Editor extends GameState {
 		}
 	}
 
+	public void CheckFlipRotate(boolean reset) {
+    	if (flipX) {
+    		FlipPolygon(0);
+    		if (reset) flipX = false;
+    	}
+    	if (flipY) {
+    		FlipPolygon(1);
+    		if (reset) flipY = false;    		    		
+    	}
+    	if (rotPoly) {
+    		// TODO : rotate polygon
+    		if (reset) rotPoly = false;
+    	}
+	}
+	
+	public void FlipPolygon(int xy) {
+    	float xcen = 0.0f, ycen=0.0f, cntr=0.0f;
+    	float[] tempPoly;
+        if (updateGroupPoly != null) {
+        	// Find the centre of the polygons
+        	for (int i = 0; i<updateGroupPoly.size(); i++){
+        			if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 0) {
+        				for (int j=0; j<updateGroupPoly.get(i).length/2; j++) {
+        					xcen += updateGroupPoly.get(i)[2*j];
+        					ycen += updateGroupPoly.get(i)[2*j+1];
+        					cntr += 1.0f;
+        				}
+        			}
+        			else if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 1) {
+        				xcen += updateGroupPoly.get(i)[0];
+        				ycen += updateGroupPoly.get(i)[1];
+        				cntr += 1.0f;
+        			}
+        	}
+        	xcen /= cntr;
+        	ycen /= cntr;
+        	// Now flip in the x or y direction
+        	for (int i = 0; i<updateGroupPoly.size(); i++){
+        		tempPoly = updateGroupPoly.get(i).clone();
+    			if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 0) {
+    				for (int j=0; j<tempPoly.length/2; j++) {
+    					if (xy == 0) tempPoly[2*j] = 2*xcen - updateGroupPoly.get(i)[2*j];
+    					else if (xy == 1) tempPoly[2*j+1] = 2*ycen - updateGroupPoly.get(i)[2*j+1];
+    				}
+    			}
+    			else if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 1) {
+					if (xy == 0) tempPoly[0] = 2*xcen - updateGroupPoly.get(i)[0];
+					else if (xy == 1) tempPoly[1] = 2*ycen - updateGroupPoly.get(i)[1];
+    			}
+				updateGroupPoly.set(i, tempPoly.clone());
+        	}
+        } else if (updatePoly != null) {
+        	// Find the centre of the polygons
+			if (allPolygonTypes.get(polySelect)%2 == 0) {
+				for (int j=0; j<updatePoly.length/2; j++) {
+					xcen += updatePoly[2*j];
+					ycen += updatePoly[2*j+1];
+					cntr += 1.0f;
+				}
+			} // Don't need to flip a circle
+        	xcen /= cntr;
+        	ycen /= cntr;
+        	// Now flip in the x or y direction
+			if (allPolygonTypes.get(polySelect)%2 == 0) {
+				tempPoly = updatePoly.clone();
+				for (int j=0; j<tempPoly.length/2; j++) {
+					if (xy == 0) tempPoly[2*j] = 2*xcen - updatePoly[2*j];
+					else if (xy == 1) tempPoly[2*j+1] = 2*ycen - updatePoly[2*j+1];
+				}
+				updatePoly = tempPoly.clone();
+			} // Don't need to flip a circle
+        }
+	}
+	
 	public void FindNearestSegment(boolean hover) {
 		//FindNearestVertex(hover);
 		int idxa, idxb, idxmin, polymin, flag;

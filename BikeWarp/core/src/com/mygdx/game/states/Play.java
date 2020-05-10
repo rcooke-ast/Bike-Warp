@@ -1196,13 +1196,6 @@ public class Play extends GameState {
            case STARTING:
         	   break;
            case LOADING:
-//              if (!mHideLoadingText)
-//              {
-//                 mBatch.setProjectionMatrix(mTextCam.combined);
-//                 mBatch.begin();
-//                 mBitmapFont.draw(mBatch,"Loading...",10,40);
-//                 mBatch.end();
-//              }
         	   break;
            case LOADED:
         	   renderWorld();

@@ -15,7 +15,7 @@ public class GameInput {
     public static boolean[] keys;
     public static boolean[] pkeys;
     
-    public static final int NUM_KEYS = 32;
+    public static final int NUM_KEYS = 35;
     // Game keys
     public static final int KEY_ACCEL = 0;
     public static final int KEY_BRAKE = 1;
@@ -51,6 +51,9 @@ public class GameInput {
     public static final int KEY_N = 29;
     public static final int KEY_S = 30;
     public static final int KEY_RESTART = 31;
+    public static final int KEY_X = 32;
+    public static final int KEY_Y = 33;
+    public static final int KEY_R = 34;
 
     public static int MBDOWNX = 0;
     public static int MBDOWNY = 0;
