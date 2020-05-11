@@ -81,7 +81,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Gate Switch", "Gravity", "Jewel", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Transport", "Start", "Finish"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Transport", "Start", "Finish"};
 	private String[] decorateList = {"Grass",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
@@ -149,6 +149,7 @@ public class Editor extends GameState {
 	private static final float boundaryY = 1000.0f/B2DVars.EPPM;
 	private float[] boundsBG = new float[2];
 	private boolean drawingPoly = false;  // Is a polygon currently being drawn
+	private boolean copyPoly = false;  // Is something currently being copied
 	private boolean flipX=false, flipY=false, rotPoly=false;
 	private ArrayList<float[]> polyDraw;  // Store the vertices of the new polygon in an ArrayList
 	private float[] shapeDraw = null;  // Store the vertices of the new shape
@@ -562,12 +563,10 @@ public class Editor extends GameState {
 									stage.setKeyboardFocus(null);
 									// Get the user toolbar setting (is it displayed or not), then hide the toolbar
 									boolean tbarSetting = hideToolbar;
-									hideToolbar = true;
-									stage.act(Gdx.graphics.getDeltaTime());
-									stage.draw();
+									updateToolbar(false);
 									// Now launch the level!
 									gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
-									hideToolbar = tbarSetting;
+									updateToolbar(tbarSetting);
 								}
 							} catch (JSONException e) {
 								e.printStackTrace();
@@ -845,6 +844,7 @@ public class Editor extends GameState {
     	flipY=false;
     	rotPoly=false;
     	drawingPoly = false;  // Is a polygon currently being drawn
+    	copyPoly = false;  // Is something currently being copied
     	shapeDraw = null;  // Store the vertices of the new shape
     	groupPolySelect = new ArrayList<Integer>();
     	ResetSelect();
@@ -1063,11 +1063,11 @@ public class Editor extends GameState {
     	cam.update();
     	stage.setScrollFocus(null); // Forces scrolling to be used for zooming only
     	updateWarnings(dt);
-    	updateToolbar();
+    	updateToolbar(false);
     }
 
-	private void updateToolbar() {
-		if ((drawingPoly) | (hideToolbar)) {
+	private void updateToolbar(boolean hide) {
+		if ((drawingPoly) | (hideToolbar) | (copyPoly) | (hide)) {
 			buttonExit.setDisabled(true);
 			selectLoadLevel.setDisabled(true);
 			buttonSave.setDisabled(true);
@@ -1427,7 +1427,7 @@ public class Editor extends GameState {
 	        			xcen = (0.5f*13.0f*(allObjects.get(i)[0]+allObjects.get(i)[4]) + 2.3f*allObjects.get(i)[2])/(13.0f+2.3f);
 		        		ycen = (0.5f*13.0f*(allObjects.get(i)[1]+allObjects.get(i)[5]) + 2.3f*allObjects.get(i)[3])/(13.0f+2.3f);
 		        		shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]); // Use the same radius as the start wheels
-		        	} else shapeRenderer.setColor(0.7f, 0.7f, 0, opacity);
+		        	} else shapeRenderer.setColor(0.0f, 0.7f, 0, opacity);
 	        		shapeRenderer.polygon(allObjects.get(i));
 	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 0, 60, 2);
 	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 60, 60, 2);
@@ -2952,7 +2952,7 @@ public class Editor extends GameState {
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
-    	} else if (modeParent.equals("Jewel")) {
+    	} else if (modeParent.equals("Emerald")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -3336,6 +3336,7 @@ public class Editor extends GameState {
    				if (polySelect != -1) {
    	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
    	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   	   				copyPoly = true;
    				}
 			} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (updatePoly!=null)) {
 				if ((startX==endX)&(startY==endY)) {
@@ -3351,6 +3352,7 @@ public class Editor extends GameState {
 				flipX=false;
 				flipY=false;
 				rotPoly=false;
+				copyPoly = false;
 			} else if (polySelect != -1) {
     			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -3375,6 +3377,7 @@ public class Editor extends GameState {
 				} else {
    	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
    	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   	   				copyPoly = true;
 				}
 			} else if ((GameInput.MBJUSTPRESSED==true) & (groupPolySelect.size() != 0) & (updateGroupPoly!=null)) {
 				if ((startX==endX)&(startY==endY)) {
@@ -3392,6 +3395,7 @@ public class Editor extends GameState {
 				flipX=false;
 				flipY=false;
 				rotPoly=false;
+				copyPoly = false;
 			} else if (groupPolySelect.size() != 0) {
     			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -3588,7 +3592,7 @@ public class Editor extends GameState {
 					pObjectIndex = GetListIndex("Crate",objectList);
 				} else if (modeParent.equals("Diamond")) {
 					listChild.setItems("Put");
-					pObjectIndex = GetListIndex("Jewel",objectList);
+					pObjectIndex = GetListIndex("Emerald",objectList);
 				} else if (modeParent.equals("Door (blue)")) {
 					listChild.setItems(itemsADMR);
 					pObjectIndex = GetListIndex("Door (blue)",objectList);
@@ -3604,9 +3608,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Gravity")) {
 					listChild.setItems(itemsADMR);
 					pObjectIndex = GetListIndex("",objectList);
-				} else if (modeParent.equals("Jewel")) {
+				} else if (modeParent.equals("Emerald")) {
 					listChild.setItems(itemsADMR);
-					pObjectIndex = GetListIndex("Jewel",objectList);
+					pObjectIndex = GetListIndex("Emerald",objectList);
 				} else if (modeParent.equals("Key (blue)")) {
 					listChild.setItems(itemsADMR);
 					pObjectIndex = GetListIndex("Key (blue)",objectList);
