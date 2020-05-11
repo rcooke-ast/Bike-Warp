@@ -386,15 +386,10 @@ public class Editor extends GameState {
 					if (!drawingPoly) {
 						if (selectLoadLevel.getSelectedIndex() != 0) {
 							if (changesMade) {
-								warnMessage[warnNumber] = "Changes made since last save!";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 1;
-								warnNumber += 1;
-								warnMessage[warnNumber] = "Selecting 'Load Level' again may overwrite these changes";
-								warnElapse[warnNumber] = 0.0f;
-								warnType[warnNumber] = 1;
-								warnNumber += 1;
+								Message("Changes made since last save!", 1);
+								Message("Selecting 'Load Level' again may overwrite these changes", 1);
 								changesMade = false;
+								SaveLevel(true); // Autosave
 								selectLoadLevel.setSelectedIndex(0);
 							} else {
 								if (selectLoadLevel.getSelectedIndex() == 1) {
@@ -505,6 +500,7 @@ public class Editor extends GameState {
 						} else {
 							Message("Changes made since last save!", 1);
 							Message("Selecting 'Main Menu' again will exit without saving", 1);
+							SaveLevel(true); // Autosave
 							changesMade = false;
 						}
 						UncheckButtons(false);
@@ -1763,6 +1759,8 @@ public class Editor extends GameState {
 							Message("Level saved: "+saveFName+".lvl", 0);
 							changesMade = false;
 						}
+						// Autosave as well
+						isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, "autosave.lvl");
 					}
 				}
 			} catch (FileNotFoundException e) {
@@ -3668,6 +3666,7 @@ public class Editor extends GameState {
 			float[] newArr = {xcenp, ycenp, xcenp-100.0f, ycenp-1000.0f, 500.0f, 0.0f};
 			allPolygonPaths.add(newArr.clone());
 		} else allPolygonPaths.add(null);
+		SaveLevel(true);
 	}
 
     public void AddVertex(int idx, int verti, int vertj, float startX, float startY) {
@@ -3694,6 +3693,7 @@ public class Editor extends GameState {
     			cntr += 1;
         	}
     	}
+    	SaveLevel(true);
     }
 
     public void AddVertexPath(int idx, int verti, int vertj, float startX, float startY) {
@@ -3711,6 +3711,7 @@ public class Editor extends GameState {
        		updatePath[6+2*cntr+1] = allPolygonPaths.get(idx)[6+2*i+1];
        		cntr += 1;
     	}
+       	SaveLevel(true);
     }
 
     public void CopyPolygon(float[] newPoly, int idx) {
@@ -3755,7 +3756,8 @@ public class Editor extends GameState {
 				newArr[5] = ycenp;
 				allPolygonPaths.add(newArr.clone());
 			}
-		} 
+		}
+		SaveLevel(true);
 	}
 
     public void DeletePolygon(int idx) {
@@ -3780,6 +3782,7 @@ public class Editor extends GameState {
 			}
 		}
 		polySelect = -1;
+		SaveLevel(true);
 	}
 
     public void DeleteVertex(int idx, int vert) {
@@ -3808,6 +3811,7 @@ public class Editor extends GameState {
     		}
     	}
     	allPolygonPaths.set(idx, newPath.clone());
+    	SaveLevel(true);
 	}
    
 	public void DrawPolygon() {
@@ -4585,6 +4589,7 @@ public class Editor extends GameState {
 		changesMade = true;
 		newPoly = allPolygonPaths.set(idx, updatePath.clone());
 		updatePath = null;
+		SaveLevel(true);
 	}
 
 	public void UpdatePolygon(int idx) {
@@ -4622,6 +4627,7 @@ public class Editor extends GameState {
 			updatePath=null;
 		}
 		updatePoly = null;
+		SaveLevel(true);
 	}
 
     /////////////////////////////////
@@ -4644,6 +4650,7 @@ public class Editor extends GameState {
 			MakeObject(-1, xcen, ycen, angle);
 			allObjectArrows.add(newPoly);
 		}
+		SaveLevel(true);
 	}
 
 	public void CopyObject(float[] newObject, int idx, float shiftX, float shiftY) {
@@ -4663,6 +4670,7 @@ public class Editor extends GameState {
 			allObjectArrows.add(newPoly.clone());
 			newPoly=null;
 		} else allObjectArrows.add(null);
+		SaveLevel(true);
 	}
 
 	public void DeleteObject(int idx) {
@@ -4673,6 +4681,7 @@ public class Editor extends GameState {
 		allObjectCoords.remove(idx);
 		allObjectArrows.remove(idx);
 		objectSelect = -1;
+		SaveLevel(true);
 	}
   	
    
@@ -5147,6 +5156,7 @@ public class Editor extends GameState {
 		}
 		// Nullify the update Polygon
 		updatePoly = null;
+		SaveLevel(true);
 	}
 
     /////////////////////////////////
@@ -5168,6 +5178,7 @@ public class Editor extends GameState {
 		}
 		allDecors.add(newPoly.clone());
 		allDecorTypes.add(otype);
+		SaveLevel(true);
 	}
 
 	public void DeleteDecor(int idx) {
@@ -5176,6 +5187,7 @@ public class Editor extends GameState {
 		allDecorTypes.remove(idx);
 		allDecorPolys.remove(idx);
 		decorSelect = -1;
+		SaveLevel(true);
 	}
   	
    
@@ -5360,6 +5372,7 @@ public class Editor extends GameState {
 		}
 		// Nullify the update Polygon
 		updatePoly = null;
+		SaveLevel(true);
 	} 
 
 	 /////////////////////////////////
