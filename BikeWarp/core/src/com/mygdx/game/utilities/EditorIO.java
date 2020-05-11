@@ -122,6 +122,7 @@ public class EditorIO {
 		String[] levelVarProps = null;
 		ArrayList<Object> retarr = new ArrayList<Object>();
 		try{
+			// TODO :: If you want to reset level file format - comment out the relevant array, then update (see below)
 			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream (levelDir+aInputFileName));
 			allPolygons = (ArrayList<float[]>)inputStream.readObject();
 			allPolygonTypes = (ArrayList<Integer>)inputStream.readObject();
@@ -206,6 +207,7 @@ public class EditorIO {
 //			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
 //			saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, aInputFileName);
 
+			// TODO :: If you want to reset level file format - update the relevant array
 			// Temporary fix for platform textures
 //			allPolygonTextures = new ArrayList<String>();
 //			for (int i=0; i<allPolygons.size(); i++) {
@@ -300,6 +302,7 @@ public class EditorIO {
 				if ((temp.substring(temp.lastIndexOf('.') + 1, temp.length()).toLowerCase()).equals("lvl")) {
 					allLevels[numFiles] =  FileUtils.getBaseName(fileEntry.getName());
 					// Reset all levels
+					// TODO :: If you want to reset level file format - save them upon loading
 					//loadLevel(FileUtils.getBaseName(fileEntry.getName())+".lvl");
 					numFiles +=1;
 				}
