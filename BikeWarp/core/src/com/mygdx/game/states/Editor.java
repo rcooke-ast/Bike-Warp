@@ -1926,7 +1926,7 @@ public class Editor extends GameState {
 	}
 
 	public void ControlMode3(int falling) {
-		// Ordinary platforms - if falling is true, this becomes a falling platform
+		// Ordinary platforms - if falling is 1/2, this becomes a falling/trigger platform
 		if (listChild.getSelected() == null) return;
 		modeChild = listChild.getSelected().toString(); 
     	if (modeParent.equals("Polygon")) {
@@ -1944,8 +1944,10 @@ public class Editor extends GameState {
     			SelectPolygon("up");
     			engageDelete = true;
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
+				System.out.println(polySelect);
     			if (polySelect == -1) {
     				SelectPolygon("down");
+    				System.out.println(polySelect);
     				startX = GameInput.MBDOWNX*scrscale;
     				startY = GameInput.MBDOWNY;
     			} else {
@@ -4674,10 +4676,10 @@ public class Editor extends GameState {
 				if ((mode == 9) & (!inside)) {
 					// Check if the user has clicked inside the trigger of a trigger platform
 					// Make the trigger box
-		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]+5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]-5.0f, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
+		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
+		        			allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
 		        	PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 					inside = PolygonOperations.PointInPolygon(extraPoly.clone(),tempx,tempy);
 					if (inside) triggerSelect = true;
