@@ -169,6 +169,11 @@ public class Editor extends GameState {
 	private float[] transPoly = new float[8];
 	private float[] startDirPoly = new float[ObjectVars.objectArrow.length];
 
+	// Undo Operations
+	private ArrayList<ArrayList<Object>> undoArray = new ArrayList<ArrayList<Object>>();
+	private int undoIndex = 0;
+	private final int undoMax = 10;
+	
 	// Setup some toolbar buttons
 	//private TextButton buttonLoad;
 	private SelectBox selectLoadLevel;
@@ -812,6 +817,7 @@ public class Editor extends GameState {
     }
     
     public void ResetLevelDefaults() {
+    	// Prepare storage arrays
 		allObjects = new ArrayList<float[]>();
 		allObjectArrows = new ArrayList<float[]>();
 		allObjectTypes = new ArrayList<Integer>();
@@ -823,6 +829,11 @@ public class Editor extends GameState {
     	allDecors = new ArrayList<float[]>();
     	allDecorTypes = new ArrayList<Integer>();
     	allDecorPolys = new ArrayList<Integer>();
+    	// Prepare undo array (need to reset this after adding start/finish/diamond)
+    	undoArray = new ArrayList<ArrayList<Object>>();
+    	for (int i=0; i<undoMax; i++) undoArray.add(null);
+    	undoIndex=0;
+    	// Reset update parameters
     	newPoly = null;
     	updatePoly = null;
     	updateGroupPoly = null;
@@ -881,6 +892,11 @@ public class Editor extends GameState {
 		enteringFilename = false;
 		saveFName = null;
 		changesMade = false;
+    	// Prepare undo array (need to reset it after adding start/finish/diamond)
+    	undoArray = new ArrayList<ArrayList<Object>>();
+    	for (int i=0; i<undoMax; i++) undoArray.add(null);
+    	undoIndex=0;
+    	UpdateUndo();
 		// Set the starting position of the camera
 		// Perform Zoom
 		cam.zoom = 0.1f/B2DVars.EPPM;
@@ -930,6 +946,8 @@ public class Editor extends GameState {
 		if (GameInput.isPressed(GameInput.KEY_X)) flipX=!flipX;
 		if (GameInput.isPressed(GameInput.KEY_Y)) flipY=!flipY;
 		if (GameInput.isPressed(GameInput.KEY_R)) rotPoly=true;
+		if (GameInput.isPressed(GameInput.KEY_LEFT)) Undo();
+		if (GameInput.isPressed(GameInput.KEY_RIGHT)) Redo();
 		if ((GameInput.isPressed(GameInput.KEY_D)) & (engageDelete)) {
 			if ((mode==4) & (modeParent.equals("Set Path"))) {
 				if (vertSelect != -1) {
@@ -1740,12 +1758,105 @@ public class Editor extends GameState {
   ///                           ///
  /////////////////////////////////
 
+	@SuppressWarnings("unchecked")
+	private void Redo() {
+		// Increase
+		undoIndex += 1;
+		// Check if we've reached the maximum
+		if (undoIndex >= undoMax) {
+			Message("No more operations to redo!", 0);
+			undoIndex = undoMax-1;
+			return;
+		} else if (undoArray.get(undoIndex) == null) {
+			Message("No more operations to redo!", 0);
+			undoIndex -= 1;
+			return;
+		}
+		// Update the variables
+		allPolygons = (ArrayList<float[]>) undoArray.get(undoIndex).get(0);
+		allPolygonTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(1);
+		allPolygonPaths = (ArrayList<float[]>) undoArray.get(undoIndex).get(2);
+		allPolygonTextures = (ArrayList<String>) undoArray.get(undoIndex).get(3);
+		allObjects = (ArrayList<float[]>) undoArray.get(undoIndex).get(4);
+		allObjectArrows = (ArrayList<float[]>) undoArray.get(undoIndex).get(5);
+		allObjectCoords = (ArrayList<float[]>) undoArray.get(undoIndex).get(6);
+		allObjectTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(7);
+		allDecors = (ArrayList<float[]>) undoArray.get(undoIndex).get(8);
+		allDecorTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(9);
+		allDecorPolys = (ArrayList<Integer>) undoArray.get(undoIndex).get(10);
+	}
+
+	@SuppressWarnings("unchecked")
+	private void Undo() {
+		// Decrease
+		undoIndex -= 1;
+		// Check if we've reached the maximum
+		if (undoIndex < 0) {
+			Message("Cannot undo any more", 0);
+			undoIndex = 0;
+			return;
+		} else if (undoArray.get(undoIndex) == null) {
+			Message("Cannot undo any more", 0);
+			undoIndex = 0;
+			return;
+		};
+		// Update the variables
+		allPolygons = (ArrayList<float[]>) undoArray.get(undoIndex).get(0);
+		allPolygonTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(1);
+		allPolygonPaths = (ArrayList<float[]>) undoArray.get(undoIndex).get(2);
+		allPolygonTextures = (ArrayList<String>) undoArray.get(undoIndex).get(3);
+		allObjects = (ArrayList<float[]>) undoArray.get(undoIndex).get(4);
+		allObjectArrows = (ArrayList<float[]>) undoArray.get(undoIndex).get(5);
+		allObjectCoords = (ArrayList<float[]>) undoArray.get(undoIndex).get(6);
+		allObjectTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(7);
+		allDecors = (ArrayList<float[]>) undoArray.get(undoIndex).get(8);
+		allDecorTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(9);
+		allDecorPolys = (ArrayList<Integer>) undoArray.get(undoIndex).get(10);
+	}
+
+	private void UpdateUndo() {
+		// Construct a new array of current objects
+		ArrayList<Object> retarr = new ArrayList<Object>();
+		retarr.add(allPolygons.clone());
+		retarr.add(allPolygonTypes.clone());
+		retarr.add(allPolygonPaths.clone());
+		retarr.add(allPolygonTextures.clone());
+		retarr.add(allObjects.clone());
+		retarr.add(allObjectArrows.clone());
+		retarr.add(allObjectCoords.clone());
+		retarr.add(allObjectTypes.clone());
+		retarr.add(allDecors.clone());
+		retarr.add(allDecorTypes.clone());
+		retarr.add(allDecorPolys.clone());
+		// Update the stored array
+		if (undoIndex == undoMax) {
+			// Shift everything done one
+			for (int i=0; i<undoMax-1; i++) {
+				undoArray.set(i, (ArrayList<Object>) undoArray.get(i+1).clone());
+			}
+			// Now set the final element
+			undoArray.set(undoMax-1, (ArrayList<Object>) retarr.clone());
+		} else {
+			undoArray.set(undoIndex, (ArrayList<Object>) retarr.clone());
+		}
+		// Increment
+		undoIndex += 1;
+		if (undoIndex < undoMax) {
+			// Make everything else null
+			for (int i=undoIndex; i<undoMax; i++) {
+				undoArray.set(i, null);
+			}
+		} else undoIndex = undoMax;
+	}
+	
 	private void SaveLevel(boolean autosave) {
 		if (!CheckVertInt(autosave)) {
 			// No intersections were found, so the level can be saved without errors
 			try {
 				if (autosave) {
 					String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, "autosave.lvl");
+					// If a change has been made, update the undo arrays
+					UpdateUndo();
 				} else {
 					String temptext = textInputSave.getText();
 					if ((temptext == null) | (temptext.equals(""))) {
