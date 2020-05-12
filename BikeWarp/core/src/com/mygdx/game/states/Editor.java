@@ -1046,7 +1046,7 @@ public class Editor extends GameState {
 //        	} catch (Exception e) {}        	
         } else if (mode==9) {
         	try {
-        		ControlMode3(2); // Use Control Mode 3, but set the platform to be a falling platform (i.e. set the argument to 1)
+        		ControlMode3(2); // Use Control Mode 3, but set the platform to be a trigger platform (i.e. set the argument to 2)
         	} catch (Exception e) {}        	
         }
         GameInput.MBJUSTPRESSED = false;
@@ -1944,10 +1944,8 @@ public class Editor extends GameState {
     			SelectPolygon("up");
     			engageDelete = true;
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
-				System.out.println(polySelect);
     			if (polySelect == -1) {
     				SelectPolygon("down");
-    				System.out.println(polySelect);
     				startX = GameInput.MBDOWNX*scrscale;
     				startY = GameInput.MBDOWNY;
     			} else {
@@ -4673,7 +4671,7 @@ public class Editor extends GameState {
 						inside = true;
 					}
 				}
-				if ((mode == 9) & (!inside)) {
+				if ((mode == 9) & (!inside) & (allPolygonPaths.get(i)!=null)) {
 					// Check if the user has clicked inside the trigger of a trigger platform
 					// Make the trigger box
 		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
