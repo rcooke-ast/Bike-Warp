@@ -316,10 +316,6 @@ public class Play extends GameState {
         // Load the finish ball textures
         finishFG = new Sprite(BikeGameTextures.LoadTexture("finish_whirl",0));
 
-        // Load the mountain texture
-        background = new Sprite(BikeGameTextures.LoadTexture("background_test",2));
-        foreground = new Sprite(BikeGameTextures.LoadTexture("trees",2));
-
         // Load the opening door, switch box, and metal bar textures
         openDoor = new Sprite(BikeGameTextures.LoadTexture("gate",0));
         switchGL = new Sprite(BikeGameTextures.LoadTexture("switch_greenL",0));
@@ -1324,6 +1320,10 @@ public class Play extends GameState {
        bikeScale = startDirection;
        bikeScaleLev *= startDirection;
 
+       // Load the foreground/background textures
+       background = new Sprite(BikeGameTextures.LoadTexture((String) mScene.getCustom(gameInfo, "bgTexture", "background_waterfall"),2));
+       foreground = new Sprite(BikeGameTextures.LoadTexture((String) mScene.getCustom(gameInfo, "fgTexture", "foreground_plants"),2));
+
        if ((skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png"))) {
     	   paintBackdrop = false;
     	   timer.setColor(0.5f, 0.5f, 0.5f, 1);
@@ -1650,14 +1650,17 @@ public class Play extends GameState {
     	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
     	if (paintBackdrop) {
     		//mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-    		float bgwidth = (BikeGame.V_HEIGHT*2048.0f/512.0f);
-     	   if (bikeDirc == 1.0f) {
-	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-     	   } else {
-	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);     		   
-     	   }
+    		float sclbottom = 0.35f; // Must be less than 0.5 (0.0 means the texture will start in the vertical middle of the screen, 0.5 is the bottom, 0.3 means the texture will start 20% from the bottom of the screen)
+    		float bgwidth = (BikeGame.V_HEIGHT*2048.0f/1280.0f)/(0.5f+sclbottom);
+      	    if (bikeDirc == 1.0f) {
+	    	 	 mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*sclbottom, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+sclbottom), 1.0f, 1.0f, 0.0f);
+     	    } else {
+	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*sclbottom, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+sclbottom), 1.0f, 1.0f, 0.0f);     		   
+     	    }
 //    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-    		mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
+     	    bgwidth = (BikeGame.V_HEIGHT*4096.0f/512.0f)/3.0f;
+     	    mBatch.draw(foreground, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
+    		//mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
     	}
     	mBatch.end();
 

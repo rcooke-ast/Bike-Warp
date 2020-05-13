@@ -327,6 +327,36 @@ public class EditorIO {
 		else return defval;
 	}
 	
+	public static String GetFGTexture(String textName, String defval) {
+		if (textName.equals("Default")) return defval;
+		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
+		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
+		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
+		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
+		else if (textName.equals("Grass")) return "images/grass_full.png";
+		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
+		else if (textName.equals("Ice")) return "images/ground_ice.png";
+		else if (textName.equals("Mars")) return "images/ground_mars.png";
+		else if (textName.equals("Moon")) return "images/ground_moon.png";
+		else if (textName.equals("Sand")) return "images/ground_sand.png";
+		else if (textName.equals("Steel")) return "images/ground_steel.png";
+		else return defval;
+	}
+
+	public static String GetBGTexture(String textName) {
+		String defval = "background_waterfall";
+		if (textName.equals("Mountains")) return "background_mountains";
+		else if (textName.equals("Waterfall")) return "background_waterfall";
+		else return defval;
+	}
+
+	public static String GetFGTexture(String textName) {
+		String defval = "foreground_plants";
+		if (textName.equals("Plants")) return "foreground_plants";
+		else if (textName.equals("Trees")) return "foreground_trees";
+		else return defval;
+	}
+
 	public static String JSONserialize(ArrayList<float[]> allPolygons,
 			ArrayList<Integer> allPolygonTypes,
 			ArrayList<float[]> allPolygonPaths,
@@ -376,6 +406,9 @@ public class EditorIO {
         // Determine the grass texture;
         //String textGrass = "images/grass_seamless.png";
         String textGrass = "images/grass_full.png";
+        // Get the foreground/background textures
+        String textFG = GetFGTexture(LevelVars.get(LevelVars.PROP_FG_TEXTURE));
+        String textBG = GetBGTexture(LevelVars.get(LevelVars.PROP_BG_TEXTURE));
         // Reset the json object
     	JSONStringer json = new JSONStringer();
         json.object();
@@ -702,6 +735,16 @@ public class EditorIO {
         json.key("x").value(B2DVars.EPPM*Float.parseFloat(LevelVars.get(LevelVars.PROP_BG_BOUNDSX1)));
         json.key("y").value(B2DVars.EPPM*Float.parseFloat(LevelVars.get(LevelVars.PROP_BG_BOUNDSX2)));
         json.endObject();
+        json.endObject();
+        // Set the background image
+        json.object();
+        json.key("name").value("bgTexture");
+        json.key("string").value(textBG);
+        json.endObject();
+        // Set the foreground image
+        json.object();
+        json.key("name").value("fgTexture");
+        json.key("string").value(textFG);
         json.endObject();
         //
         json.endArray();
