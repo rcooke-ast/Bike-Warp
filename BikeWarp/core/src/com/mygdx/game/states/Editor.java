@@ -86,7 +86,7 @@ public class Editor extends GameState {
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
 			"Sign (Stop)"};
-    private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Background Bounds", "Foreground Texture"};
+    private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = {"Cracked Mud", "Bubbles", "Gravel", "Ice", "Mars", "Moon"};
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"Mountains", "Waterfall"};
@@ -181,6 +181,8 @@ public class Editor extends GameState {
 	private TextButton buttonSave;
 	private TextButton buttonExit;
 	private TextButton buttonExecute;
+	private TextButton buttonUndo;
+	private TextButton buttonRedo;
 	private TextButton buttonPan;
 	private TextButton buttonLevelProp;
 	private TextButton buttonAddStatic;
@@ -274,6 +276,8 @@ public class Editor extends GameState {
 		textInputSave = new TextField("", skin);
 		buttonExit = new TextButton("Main Menu", skin);
 		buttonExecute = new TextButton("Execute", skin);
+		buttonUndo = new TextButton("Undo", skin);
+		buttonRedo = new TextButton("Redo", skin);
 		buttonPan = new TextButton("Pan", skin);
 		buttonLevelProp = new TextButton("Level Properties", skin);
 		buttonCopyPaste = new TextButton("Copy and Paste", skin);
@@ -328,6 +332,8 @@ public class Editor extends GameState {
 		window.add(buttonExecute);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonPan);
+		window.row().fill().expandX().colspan(1);
+		window.add(buttonRedo, buttonUndo);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonLevelProp);
 		window.row().fill().expandX().colspan(2);
@@ -466,6 +472,34 @@ public class Editor extends GameState {
 //			}
 //		});
 
+		buttonUndo.addListener(new ClickListener() {
+			public void clicked (InputEvent event, float x, float y) {
+				if (!hideToolbar) {
+					if (!drawingPoly) {
+						UncheckButtons(false);
+						listParent.setItems(nullList);
+						SetChildList();
+						mode = -999;
+						Undo();
+					}
+				}
+			}
+		});
+
+		buttonRedo.addListener(new ClickListener() {
+			public void clicked (InputEvent event, float x, float y) {
+				if (!hideToolbar) {
+					if (!drawingPoly) {
+						UncheckButtons(false);
+						listParent.setItems(nullList);
+						SetChildList();
+						mode = -999;
+						Redo();
+					}
+				}
+			}
+		});
+
 		buttonSave.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
@@ -517,76 +551,8 @@ public class Editor extends GameState {
 
 		buttonExecute.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
-				if (!hideToolbar) {
-					if (!drawingPoly) {
-						UncheckButtons(false);
-						if (!CheckVertInt(false)) {
-							// No intersections were found, so let's do some more checks...
-							try {
-								jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
-								if (jsonLevelString.startsWith("CU")) {
-									warnMessage[warnNumber] = "Unable to play level!";
-									warnElapse[warnNumber] = 0.0f;
-									warnType[warnNumber] = 2;
-									warnNumber += 1;
-									try {
-										int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
-										float xcen=0.0f, ycen=0.0f;
-										if (jsonLevelString.split(" ")[2].equals("P")) {
-											for (int i=0; i<allPolygons.get(gotoPoly).length/2; i++) {
-												xcen += allPolygons.get(gotoPoly)[2*i];
-												ycen += allPolygons.get(gotoPoly)[2*i+1];
-											}
-											xcen /= (allPolygons.get(gotoPoly).length/2);
-											ycen /= (allPolygons.get(gotoPoly).length/2);
-											MoveCameraTo(xcen,ycen,true);
-											warnMessage[warnNumber] = "Two vertices in this polygon are too close together";
-											warnElapse[warnNumber] = 0.0f;
-											warnType[warnNumber] = 1;
-											warnNumber += 1;
-										} else if (jsonLevelString.split(" ")[2].equals("D")) {
-											for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
-												xcen += allDecors.get(gotoPoly)[2*i];
-												ycen += allDecors.get(gotoPoly)[2*i+1];
-											}
-											xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
-											ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
-											MoveCameraTo(xcen,ycen,true);
-											warnMessage[warnNumber] = "Two vertices in the grass are too close together";
-											warnElapse[warnNumber] = 0.0f;
-											warnType[warnNumber] = 1;
-											warnNumber += 1;
-										}
-									} catch (Exception e) {}
-								} else {
-									enteringFilename = false;
-									stage.setKeyboardFocus(null);
-									// Get the user toolbar setting (is it displayed or not), then hide the toolbar
-									boolean tbarSetting = hideToolbar;
-									updateToolbar(false);
-									// Now launch the level!
-									gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
-									updateToolbar(tbarSetting);
-								}
-							} catch (JSONException e) {
-								e.printStackTrace();
-							}
-						}
-				    	// When we come back from the level, make sure we reset the hudCam (used for messages)
-				        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
-				        hudCam.setToOrtho(false, SCTOSCRW, Gdx.graphics.getHeight());
-				        hudCam.position.set(SCTOSCRW/(BikeGame.SCALE*2),BikeGame.V_HEIGHT/2,0);
-				        //hudCam.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,0);
-				        hudCam.zoom = 1.0f/(BikeGame.SCALE);
-				        hudCam.update();
-				    	// Reset the input processor
-						Gdx.input.setInputProcessor(inputMultiplexer);
-						listParent.setItems(nullList);
-						SetChildList();
-						ResetHoverSelect();
-						mode = 999;
-					}
-				}
+				Message("Tip: You can also press 'E' to execute the level", 0);
+				ExecuteLevel();
 			}
 		});
 
@@ -803,6 +769,79 @@ public class Editor extends GameState {
 		});
     }
 
+    private void ExecuteLevel() {
+		if (!hideToolbar) {
+			if (!drawingPoly) {
+				UncheckButtons(false);
+				if (!CheckVertInt(false)) {
+					// No intersections were found, so let's do some more checks...
+					try {
+						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
+						if (jsonLevelString.startsWith("CU")) {
+							warnMessage[warnNumber] = "Unable to play level!";
+							warnElapse[warnNumber] = 0.0f;
+							warnType[warnNumber] = 2;
+							warnNumber += 1;
+							try {
+								int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
+								float xcen=0.0f, ycen=0.0f;
+								if (jsonLevelString.split(" ")[2].equals("P")) {
+									for (int i=0; i<allPolygons.get(gotoPoly).length/2; i++) {
+										xcen += allPolygons.get(gotoPoly)[2*i];
+										ycen += allPolygons.get(gotoPoly)[2*i+1];
+									}
+									xcen /= (allPolygons.get(gotoPoly).length/2);
+									ycen /= (allPolygons.get(gotoPoly).length/2);
+									MoveCameraTo(xcen,ycen,true);
+									warnMessage[warnNumber] = "Two vertices in this polygon are too close together";
+									warnElapse[warnNumber] = 0.0f;
+									warnType[warnNumber] = 1;
+									warnNumber += 1;
+								} else if (jsonLevelString.split(" ")[2].equals("D")) {
+									for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
+										xcen += allDecors.get(gotoPoly)[2*i];
+										ycen += allDecors.get(gotoPoly)[2*i+1];
+									}
+									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
+									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
+									MoveCameraTo(xcen,ycen,true);
+									warnMessage[warnNumber] = "Two vertices in the grass are too close together";
+									warnElapse[warnNumber] = 0.0f;
+									warnType[warnNumber] = 1;
+									warnNumber += 1;
+								}
+							} catch (Exception e) {}
+						} else {
+							enteringFilename = false;
+							stage.setKeyboardFocus(null);
+							// Get the user toolbar setting (is it displayed or not), then hide the toolbar
+							boolean tbarSetting = hideToolbar;
+							updateToolbar(false);
+							// Now launch the level!
+							gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
+							updateToolbar(tbarSetting);
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+		    	// When we come back from the level, make sure we reset the hudCam (used for messages)
+		        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		        hudCam.setToOrtho(false, SCTOSCRW, Gdx.graphics.getHeight());
+		        hudCam.position.set(SCTOSCRW/(BikeGame.SCALE*2),BikeGame.V_HEIGHT/2,0);
+		        //hudCam.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,0);
+		        hudCam.zoom = 1.0f/(BikeGame.SCALE);
+		        hudCam.update();
+		    	// Reset the input processor
+				Gdx.input.setInputProcessor(inputMultiplexer);
+				listParent.setItems(nullList);
+				SetChildList();
+				ResetHoverSelect();
+				mode = 999;
+			}
+		}
+    }
+    
     public void ResetSelect() {
     	polySelect = -1;
     	vertSelect = -1;
@@ -943,6 +982,7 @@ public class Editor extends GameState {
     public void handleInput() {
 		if (GameInput.isPressed(GameInput.KEY_T)) hideToolbar = !hideToolbar;
 		if (GameInput.isPressed(GameInput.KEY_C)) setCursor = true;
+		if (GameInput.isPressed(GameInput.KEY_E)) ExecuteLevel();
 		if (GameInput.isPressed(GameInput.KEY_X)) flipX=!flipX;
 		if (GameInput.isPressed(GameInput.KEY_Y)) flipY=!flipY;
 		if (GameInput.isPressed(GameInput.KEY_R)) rotPoly=true;
@@ -1901,9 +1941,8 @@ public class Editor extends GameState {
 		} else if (modeParent.equals("Sky Texture")) {
     		LevelVars.set(LevelVars.PROP_SKY_TEXTURE, modeChild);
 		} else if (modeParent.equals("Background Texture")) {
-			// TODO :: implement feature
-			Message("FEATURE NOT IMPLEMENTED", 2);
-		} else if (modeParent.equals("Background Bounds")) {
+			LevelVars.set(LevelVars.PROP_BG_TEXTURE, modeChild);
+		} else if (modeParent.equals("Level Bounds")) {
 			if (((modeChild.equals("Set Bounds")) & (GameInput.MBDRAG==true))) {
 				boundsBG[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 				boundsBG[1] = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
@@ -1920,8 +1959,7 @@ public class Editor extends GameState {
     		LevelVars.set(LevelVars.PROP_BG_BOUNDSX1, String.valueOf(boundsBG[0]));
     		LevelVars.set(LevelVars.PROP_BG_BOUNDSX2, String.valueOf(boundsBG[1]));
 		} else if (modeParent.equals("Foreground Texture")) {
-			// TODO :: implement feature
-			Message("FEATURE NOT IMPLEMENTED", 2);
+			LevelVars.set(LevelVars.PROP_FG_TEXTURE, modeChild);
 		}
 	}
 
@@ -3454,6 +3492,8 @@ public class Editor extends GameState {
 		buttonSave.setChecked(false);
 		buttonExit.setChecked(false);
 		buttonExecute.setChecked(false);
+		buttonUndo.setChecked(false);
+		buttonRedo.setChecked(false);
 		buttonPan.setChecked(false);
 		buttonLevelProp.setChecked(false);
 		buttonAddStatic.setChecked(false);
@@ -3520,17 +3560,11 @@ public class Editor extends GameState {
 					listChild.setItems(skyTextureList);
 					pLevelIndex = GetListIndex("Sky Texture",levelPropList);
 					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_SKY_TEXTURE),skyTextureList));
-					// TODO :: implement feature
-					warnMessage[warnNumber] = "NOT IMPLEMENTED YET";
-					warnElapse[warnNumber] = 0.0f;
-					warnType[warnNumber] = 0;
 				} else if (modeParent.equals("Background Texture")) {
 					listChild.setItems(bgTextureList);
 					pLevelIndex = GetListIndex("Background Texture", levelPropList);
 					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_BG_TEXTURE),bgTextureList));
-					// TODO :: implement feature
-					Message("FEATURE NOT IMPLEMENTED", 2);
-				} else if (modeParent.equals("Background Bounds")) {
+				} else if (modeParent.equals("Level Bounds")) {
 					listChild.setItems("Set Bounds", "Reset Bounds");
 					Message("Click and drag on the canvas to set the background texture bounds", 0);
 					Message("This should be at least as wide as the level", 0);
@@ -3538,8 +3572,6 @@ public class Editor extends GameState {
 					listChild.setItems(fgTextureList);
 					pLevelIndex = GetListIndex("Foreground Texture", levelPropList);
 					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_FG_TEXTURE),fgTextureList));
-					// TODO :: implement feature
-					Message("FEATURE NOT IMPLEMENTED", 2);
 				} else listChild.setItems(nullList);				
 				break;
 			case 3 :

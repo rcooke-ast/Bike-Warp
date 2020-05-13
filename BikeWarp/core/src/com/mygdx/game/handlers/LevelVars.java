@@ -42,8 +42,8 @@ public class LevelVars {
         props[PROP_GRAVITY] = "Earth";
         props[PROP_BG_BOUNDSX1] = "0";
         props[PROP_BG_BOUNDSX2] = "100000";
-        props[PROP_BG_TEXTURE] = "Mountains";
-        props[PROP_FG_TEXTURE] = "Trees";
+        props[PROP_BG_TEXTURE] = "Waterfall";
+        props[PROP_FG_TEXTURE] = "Plants";
     }
     
 }
