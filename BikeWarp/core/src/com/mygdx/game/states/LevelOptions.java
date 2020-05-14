@@ -17,8 +17,8 @@ import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
+import com.mygdx.game.handlers.LevelsListCustom;
 import com.mygdx.game.handlers.LevelsListGame;
-import com.mygdx.game.handlers.LevelsListTraining;
 import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.EditorIO;
 
@@ -44,7 +44,7 @@ public class LevelOptions extends GameState {
         super(gsm);
     	levelNumber = levNum;
     	modeValue = mode;
-    	ReplayVars.Reset(levNum, mode);
+    	ReplayVars.Reset("", levelNumber, mode);
         create();
     }
     
@@ -78,7 +78,7 @@ public class LevelOptions extends GameState {
     }
 
     public void SetTotalOptions() {
-    	if (modeValue == 1) allOptions = new String[] {LevelsListTraining.trainingLevelNames[levelNumber+1], ""};
+    	if (modeValue == 1) allOptions = new String[] {LevelsListCustom.customLevelNames[levelNumber+1], ""};
     	else if (modeValue == 2) allOptions = new String[] {LevelsListGame.gameLevelNames[levelNumber+1], ""};
     	String[] tmp;
     	// If the level has just been played, use "Replay Level" instead of "Play Level"
@@ -93,7 +93,7 @@ public class LevelOptions extends GameState {
 	    		tmp[allOptions.length] = "Next Level";
 	    		allOptions = tmp.clone();
     		}
-    	} else if ((modeValue == 1) && (levelNumber+1 != LevelsListTraining.NUMTRAINLEVELS)) {
+    	} else if ((modeValue == 1) && (levelNumber+1 != LevelsListCustom.NUMCUSTOMLEVELS)) {
     		tmp = new String[allOptions.length+1];
     		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
     		tmp[allOptions.length] = "Next Level";
@@ -145,11 +145,6 @@ public class LevelOptions extends GameState {
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	if (saveReplay) saveReplay = false;
         	else fadeOut=1.0f; // Return to level selector
-        } else if ((GameInput.isPressed(GameInput.KEY_S)) && (GameVars.GetLevelStatus(levelNumber)==0) && (levelNumber != LevelsListGame.NUMGAMELEVELS-1)) {
-        	GameVars.SetSkipLevel(levelNumber); // Skip this level
-        	goToNext=true;
-        	fadeOut=1.0f;
-        	LevelsListGame.updateRecords();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (saveReplay) {
         		// Check that a valid name has been supplied, then write to file
@@ -162,9 +157,10 @@ public class LevelOptions extends GameState {
         	} else if ((allOptions[currentOption].equalsIgnoreCase("Play Level")) || (allOptions[currentOption].equalsIgnoreCase("Replay Level"))) {
         		firstPlay = false;
         		// Load the level
-        		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
-        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[levelNumber+1]));
-            	ReplayVars.Reset(levelNumber, modeValue);
+        		String levelName;
+        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
+        		else levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
+        		ReplayVars.Reset(levelName, levelNumber, modeValue);
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue);
         	} else if (allOptions[currentOption].equalsIgnoreCase("Level Select")) fadeOut=1.0f; // Return to level selector
         	else if (allOptions[currentOption].equalsIgnoreCase("Skip Level")) {
@@ -175,7 +171,7 @@ public class LevelOptions extends GameState {
         	} else if (allOptions[currentOption].equalsIgnoreCase("Watch Replay")){
         		// Load the replay
         		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
-        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[levelNumber+1]));
+        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
         		ReplayVars.replayCntr = 0;
         		ReplayVars.replayCDCntr = 0;
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue+2);
@@ -273,7 +269,7 @@ public class LevelOptions extends GameState {
 	        	// Apend the time
 	        	dispText += GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
 	        }
-	        if (modeValue == 1) dispText += LevelsListTraining.trainingLevelTimes[levelNumber+1];
+	        if (modeValue == 1) dispText += LevelsListCustom.customLevelTimes[levelNumber+1];
 	        else if (modeValue == 2) dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
         }
 	    lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;

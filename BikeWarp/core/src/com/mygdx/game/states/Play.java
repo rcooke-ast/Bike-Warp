@@ -60,8 +60,8 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
+import com.mygdx.game.handlers.LevelsListCustom;
 import com.mygdx.game.handlers.LevelsListGame;
-import com.mygdx.game.handlers.LevelsListTraining;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.BayazitDecomposer;
@@ -226,9 +226,9 @@ public class Play extends GameState {
     public Play(GameStateManager gsm, String editorScene, int levID, int modeValue) {
     	// Mode values:
     	// 0 = Editor play
-    	// 1 = Play Train
+    	// 1 = Play Custom
     	// 2 = Play Game
-    	// 3 = Replay Train
+    	// 3 = Replay Custom
     	// 4 = Replay Game
         super(gsm);
         editorString = editorScene;
@@ -285,8 +285,8 @@ public class Play extends GameState {
 
         // Get the records
         if ((mode == 1) | (mode == 3)) {
-            worldRecord = GameVars.getTimeString(GameVars.worldTimesTrain.get(levelID)[0]);
-            personalRecord = GameVars.getTimeString(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID)[0]);
+        	worldRecord = GameVars.getTimeString(-1);
+            personalRecord = GameVars.getTimeString(-1);
         } else if ((mode == 2) | (mode==4)) {
             worldRecord = GameVars.getTimeString(GameVars.worldTimes.get(levelID)[0]);
             personalRecord = GameVars.getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
@@ -538,13 +538,7 @@ public class Play extends GameState {
 	     	   			if (!isReplay) GameVars.SetTimerTotal(timerTotal);
 	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
-	     	   				if (mode == 1) {
-	     	   					// Set the Diamond
-	     	   					GameVars.SetDiamondTrain(levelID);
-	     	   					// Check the time
-	     	   					GameVars.CheckTimes(GameVars.plyrTimesTrainDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 3, levelID, timerTotal, false);
-	     	   					GameVars.CheckTimes(GameVars.worldTimesTrainDmnd.get(levelID).clone(), 3, levelID, timerTotal, true);
-	     	   				} else if (mode == 2) {
+	     	   				if (mode == 2) {
 	     	   					// Set the Diamond
 	     	   					GameVars.SetDiamond(levelID);
 	     	   					// Check the time
@@ -553,16 +547,13 @@ public class Play extends GameState {
 	     	   				}
 	     	   			} else {
 		     	   			// Check the records without the diamond
-	     	   				if (mode == 1) {
-	     	   					GameVars.CheckTimes(GameVars.plyrTimesTrain.get(GameVars.currentPlayer).get(levelID).clone(), 2, levelID, timerTotal, false);
-	     	   					GameVars.CheckTimes(GameVars.worldTimesTrain.get(levelID).clone(), 2, levelID, timerTotal, true);
-	     	   				} else if (mode == 2) {
+	     	   				if (mode == 2) {
 	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
 	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
 	     	   				}	     	   				
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
-	     	   			if (mode == 1) LevelsListTraining.updateRecords();
+	     	   			if (mode == 1) LevelsListCustom.updateRecords();
 	     	   			else if (mode == 2) {
 		     	   			GameVars.SetLevelComplete(levelID);
 		     	   			LevelsListGame.updateRecords();
@@ -585,7 +576,7 @@ public class Play extends GameState {
     	   				ReplayVars.replayCntr = 0;
     	   				ReplayVars.replayCDCntr = 0;
     	            	// If it's not a replay, reset the replay variables
-    	            	if (!isReplay) ReplayVars.Reset(levelID, mode);
+    	            	if (!isReplay) ReplayVars.Reset(editorString, levelID, mode);
     	   				// Exit the current level
     	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
     	            	// Start it again
@@ -992,20 +983,22 @@ public class Play extends GameState {
     	joints.clear();
     }
 
-    private void updateTriggerBodies(float dt) {
+    private void updateTriggerBodies (float dt) {
     	// First delete the trigger joints
     	Array<Body> joints = cl.getTriggerJoints();
-    	for (int i = 0; i < joints.size; i++) {
-    		mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
-    		triggerFixtList = joints.get(i).getFixtureList();
-    		for (int j=0; j < triggerFixtList.size; j++) {
-    			if (triggerFixtList.get(j).getUserData().equals("GroundTrigger")) {
-    				joints.get(i).destroyFixture(triggerFixtList.get(j));
-    			}
-    		}
-    		triggerFixtList.clear();
-    	}
-    	joints.clear();
+    	try {
+	    	for (int i = 0; i < joints.size; i++) {
+	    		mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
+	    		triggerFixtList = joints.get(i).getFixtureList();
+	    		for (int j=0; j < triggerFixtList.size; j++) {
+	    			if (triggerFixtList.get(j).getUserData().equals("GroundTrigger")) {
+	    				joints.get(i).destroyFixture(triggerFixtList.get(j));
+	    			}
+	    		}
+	    		triggerFixtList.clear();
+	    	}
+	    	joints.clear();
+    	} catch (IllegalStateException e) {}  
     }
 
     private void updateKinematicBodies(float dt) {

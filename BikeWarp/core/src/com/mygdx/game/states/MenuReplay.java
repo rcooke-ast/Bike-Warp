@@ -95,11 +95,8 @@ public class MenuReplay extends GameState {
         		// Load the replay
         		ReplayVars.LoadReplay(replayFiles.get(currentOption-1));
         		int mode = ReplayVars.replayMode; // Determine if it's a training or game level
-        		int levelNumber = ReplayVars.levelNumber;
-        		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
-        		if (mode==3) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListTraining.trainingLevelFiles[levelNumber+1]));
         		// Now execute the replay
-        		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, mode);
+        		gsm.setState(GameStateManager.PLAY, true, ReplayVars.levelName, ReplayVars.levelNumber, mode);
         	}
         } else if (fadeOut==0.0f) {
         	// Go to the main menu
