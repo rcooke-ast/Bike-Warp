@@ -110,8 +110,8 @@ public class MainMenu extends GameState {
         	String tstName = OptionsMainMenu.menuStrings[OptionsMainMenu.getCurrent()];
         	if (tstName=="Change Player") {
         		goToLevel = GameStateManager.MENUPLAYER;
-        	} else if (tstName=="Training") {
-        		goToLevel = GameStateManager.MENUTRAINING;
+        	} else if (tstName=="Custom Levels") {
+        		goToLevel = GameStateManager.MENUCUSTOM;
         	} else if (tstName=="Single Player") {
         		goToLevel = GameStateManager.MENULEVELS;
         	} else if (tstName=="World Records") {

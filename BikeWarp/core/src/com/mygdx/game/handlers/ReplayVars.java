@@ -34,9 +34,10 @@ public class ReplayVars implements Serializable {
     public static ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A, replayRW_V;
     public static ArrayList<Float> replayChangeDir;
     public static int replayCntr = 0, replayCDCntr = 0, levelNumber=-1, replayMode=-1, replayTimer;
+    public static String levelName="";
 
     // Reset the variables, ready for a new replay
-    public static void Reset(int levNum, int mode) {
+    public static void Reset(String name, int lvlnmbr, int mode) {
     	replayTime = new ArrayList<Float>();
     	replayBike_X = new ArrayList<Float>();
     	replayBike_Y = new ArrayList<Float>();
@@ -52,7 +53,8 @@ public class ReplayVars implements Serializable {
     	replayChangeDir = new ArrayList<Float>();
     	replayCntr = 0;
     	replayCDCntr = 0;
-    	levelNumber = levNum;
+    	levelName = name;
+    	levelNumber = lvlnmbr;
     	replayMode = mode+2;
     }
 
@@ -108,6 +110,7 @@ public class ReplayVars implements Serializable {
 
 			// Read objects
 			replayMode = (int) oi.readObject();
+			levelName = (String) oi.readObject();
 			levelNumber = (int) oi.readObject();
 	    	replayTime = (ArrayList<Float>) oi.readObject();
 	    	replayBike_X = (ArrayList<Float>) oi.readObject();
@@ -147,6 +150,7 @@ public class ReplayVars implements Serializable {
 			ObjectOutputStream o = new ObjectOutputStream(f);
 			// Write objects to file
 			o.writeObject(replayMode);
+			o.writeObject(levelName);
 			o.writeObject(levelNumber);
 			o.writeObject(replayTime);
 			o.writeObject(replayBike_X);

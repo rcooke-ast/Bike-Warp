@@ -406,6 +406,7 @@ public class Editor extends GameState {
 							} else {
 								if (selectLoadLevel.getSelectedIndex() == 1) {
 									// Refresh the canvas - A new level is being created
+									System.out.println("OOPS!");
 									ResetLevelDefaults();
 									selectLoadLevel.setSelectedIndex(0);
 									textInputSave.setText("");

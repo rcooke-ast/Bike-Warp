@@ -17,7 +17,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 public class OptionsMainMenu {
 	public static int currentOption;
 	// The following string array *must* match the order of loaded graphics in the loadoptions routine below
-    public static final String[] menuStrings = {"Change Player","Training","Single Player","World Records","Watch Replays","Design Level","Options","Exit"};
+    public static final String[] menuStrings = {"Change Player","Single Player","Custom Levels","World Records","Watch Replays","Design Level","Options","Exit"};
     public static Sprite[] menuOptions;
     static {
         currentOption = 0;
@@ -59,10 +59,10 @@ public class OptionsMainMenu {
         Texture texture = new Texture(Gdx.files.internal("data/images/menu_ChangePlayer.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[0] = new Sprite(texture);
-        texture = new Texture(Gdx.files.internal("data/images/menu_Training.png"));
+        texture = new Texture(Gdx.files.internal("data/images/menu_SinglePlayer.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[1] = new Sprite(texture);
-        texture = new Texture(Gdx.files.internal("data/images/menu_SinglePlayer.png"));
+        texture = new Texture(Gdx.files.internal("data/images/menu_CustomLevels.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[2] = new Sprite(texture);
         texture = new Texture(Gdx.files.internal("data/images/menu_WorldRecords.png"));
