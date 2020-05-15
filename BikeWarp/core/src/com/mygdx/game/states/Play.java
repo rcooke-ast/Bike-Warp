@@ -492,6 +492,8 @@ public class Play extends GameState {
         } else if (mState.equals(GAME_STATE.LOADED)) {
         	if ((GameInput.isPressed(GameInput.KEY_ENTER)) | (isReplay)) {
                 mPrevState = mState;
+                // Reset the replay
+            	if (!isReplay) ReplayVars.Reset(editorString, levelID, mode);
 	            // Start the bike sound loops
 	    	    //int bikeStart = BikeGameSounds.GetSoundIndex("bike_start");
 	    	    //BikeGameSounds.PlaySound(bikeStart, 1.0f);
@@ -576,7 +578,7 @@ public class Play extends GameState {
     	   				ReplayVars.replayCntr = 0;
     	   				ReplayVars.replayCDCntr = 0;
     	            	// If it's not a replay, reset the replay variables
-    	            	if (!isReplay) ReplayVars.Reset(editorString, levelID, mode);
+//    	            	if (!isReplay) ReplayVars.Reset(editorString, levelID, mode);
     	   				// Exit the current level
     	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
     	            	// Start it again
