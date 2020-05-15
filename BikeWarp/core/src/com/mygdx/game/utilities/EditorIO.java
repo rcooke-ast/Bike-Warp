@@ -368,7 +368,7 @@ public class EditorIO {
 			ArrayList<float[]> allDecors,
 			ArrayList<Integer> allDecorTypes,
 			ArrayList<Integer> allDecorPolys) throws JSONException {
-		float friction = 0.9f;
+		float friction = 1.0f;//0.9f;
 		float restitution = 0.2f;
         // Reset the polygons and joints
         convexPolygons = null;

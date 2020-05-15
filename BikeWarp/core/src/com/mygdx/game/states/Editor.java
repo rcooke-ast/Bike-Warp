@@ -505,6 +505,8 @@ public class Editor extends GameState {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
 					if (!drawingPoly) {
+						// Set the number of emeralds
+						SetEmeralds();
 						UncheckButtons(false);
 						listParent.setItems(nullList);
 						SetChildList();
@@ -553,6 +555,8 @@ public class Editor extends GameState {
 		buttonExecute.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				Message("Tip: You can also press 'E' to execute the level", 0);
+				// Set the number of emeralds
+				SetEmeralds();
 				ExecuteLevel();
 			}
 		});
@@ -663,7 +667,9 @@ public class Editor extends GameState {
 						ResetHoverSelect();
 						buttonCopyPaste.setChecked(true);
 						Message("Click an object to select it, then click again to paste a copy of it, or,", 0);
-						Message("click and drag over multiple platforms to select multiple platforms. Click again to paste", 0);
+						Message("click and drag over multiple platforms to select multiple platforms.", 0);
+						Message("If you want to flip the selection in x and y, press the x and y keys,", 0);
+						Message("on the keyboard.  Click again to paste", 0);
 					}
 				}
 			}
@@ -1923,6 +1929,10 @@ public class Editor extends GameState {
 		}
 	}
 	
+	private void SetEmeralds() {
+		LevelVars.set(LevelVars.PROP_NUMJEWELS, Integer.toString(numJewels-1));		
+	}
+
 	private void Message(String msg, int mType) {
 		warnMessage[warnNumber] = msg;
 		warnElapse[warnNumber] = 0.0f;
@@ -1933,9 +1943,10 @@ public class Editor extends GameState {
 	public void ControlMode2() {
 		if (listChild.getSelected() == null) return;
 		modeChild = listChild.getSelected().toString(); 
-		if (modeParent.equals("Collect Jewels")) {
-    		LevelVars.set(LevelVars.PROP_NUMJEWELS, modeChild);
-		} else if (modeParent.equals("Gravity")) {
+//		if (modeParent.equals("Collect Jewels")) {
+//    		LevelVars.set(LevelVars.PROP_NUMJEWELS, modeChild);
+//		} else if (modeParent.equals("Gravity")) {
+		if (modeParent.equals("Gravity")) {
     		LevelVars.set(LevelVars.PROP_GRAVITY, modeChild);
 		} else if (modeParent.equals("Ground Texture")) {
     		LevelVars.set(LevelVars.PROP_GROUND_TEXTURE, modeChild);
@@ -3542,14 +3553,15 @@ public class Editor extends GameState {
 				listChild.setItems(nullList);
 				break;
 			case 2 :
-				if (modeParent.equals("Collect Jewels")) {
-					jewelNumber = new String[numJewels+1];
-					for (int i = 0; i<numJewels+1; i++) jewelNumber[i] = String.format("%d", i);
-					listChild.setItems(jewelNumber);
-					pLevelIndex = GetListIndex("Collect Jewels",levelPropList);
-					if (Integer.parseInt(LevelVars.get(LevelVars.PROP_NUMJEWELS)) > numJewels) listChild.setSelectedIndex(0);
-					else listChild.setSelectedIndex(Integer.parseInt(LevelVars.get(LevelVars.PROP_NUMJEWELS)));
-				} else if (modeParent.equals("Gravity")) {
+//				if (modeParent.equals("Collect Jewels")) {
+//					jewelNumber = new String[numJewels+1];
+//					for (int i = 0; i<numJewels+1; i++) jewelNumber[i] = String.format("%d", i);
+//					listChild.setItems(jewelNumber);
+//					pLevelIndex = GetListIndex("Collect Jewels",levelPropList);
+//					if (Integer.parseInt(LevelVars.get(LevelVars.PROP_NUMJEWELS)) > numJewels) listChild.setSelectedIndex(0);
+//					else listChild.setSelectedIndex(Integer.parseInt(LevelVars.get(LevelVars.PROP_NUMJEWELS)));
+//				} else if (modeParent.equals("Gravity")) {
+				if (modeParent.equals("Gravity")) {
 					listChild.setItems(gravityList);
 					pLevelIndex = GetListIndex("Gravity",levelPropList);
 					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_GRAVITY),gravityList));
