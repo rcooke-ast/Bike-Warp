@@ -19,7 +19,7 @@ public class B2DVars {
     public static final float GRAVITY_EARTH = 8.807f; // magnitude of the gravity vector in m/s/s
     public static final float GRAVITY_MARS  = 3.711f; // magnitude of the gravity vector in m/s/s
     public static final float GRAVITY_MOON  = 1.622f; // magnitude of the gravity vector in m/s/s
-    
+
     // category bits
     public static final short BIT_GROUND = 2;
     public static final short BIT_WHEEL = 4;

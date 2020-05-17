@@ -830,6 +830,9 @@ public class Editor extends GameState {
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
+					} catch (IndexOutOfBoundsException e) {
+						Message("A polygon in this level cannot be converted (an index was found out of bounds)", 2);
+						Message("It is possible two vertices are too close together", 1);
 					}
 				}
 		    	// When we come back from the level, make sure we reset the hudCam (used for messages)

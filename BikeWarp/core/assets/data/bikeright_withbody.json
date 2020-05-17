@@ -1,0 +1,373 @@
+
+{
+   "allowSleep" : false,
+   "autoClearForces" : true,
+   "body" : 
+   [
+      
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "name" : "bikerightwheel",
+         "fixture" : 
+         [
+            
+            {
+               "circle" : 
+               {
+                  "center" : 0,
+                  "radius" : 0.219999998808
+               },
+               "density" : 20.0,
+               "filter-categoryBits" : 4,
+               "friction" : 0.95,
+               "restitution" : 0.05,
+               "userData" : "RightWheel"
+            }
+         ],
+         "linearVelocity" : 0,
+         "massData-I" : 0.073593698442,
+         "massData-mass" : 3.0410618782,
+         "userData" : "RightWheel",
+         "position" : 
+         {
+            "x" : 1.0,
+            "y" : 0.0
+         },
+         "type" : 2 //dynamic
+      },
+      
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "name" : "bikeleftwheel",
+         "fixture" : 
+         [
+            
+            {
+               "circle" : 
+               {
+                  "center" : 0,
+                  "radius" : 0.219999998808
+               },
+               "density" : 20.0,
+               "filter-categoryBits" : 4,
+               "friction" : 0.95,
+               "restitution" : 0.05,
+               "userData" : "LeftWheel"
+            }
+         ],
+         "linearVelocity" : 0,
+         "massData-I" : 0.073593698442,
+         "massData-mass" : 3.0410618782,
+         "userData" : "LeftWheel",
+         "position" : 
+         {
+            "x" : 0,
+            "y" : 0
+         },
+         "type" : 2 //dynamic
+      },
+      
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "name" : "bikebody",
+         "fixture" : 
+         [
+            
+            {
+               "density" : 60.0,
+               "filter-categoryBits" : 16,
+               "filter-maskBits" : 256,
+               "friction" : 0.0,
+               "polygon" : 
+               {
+                  "vertices" : 
+                  {
+                     "x" : [ -0.8, 0.8, 0.8, -0.8 ],
+                     "y" : [ 0.0, 0.0, 0.15, 0.15 ]
+                  }
+               },
+               "restitution" : 0.2
+            }
+         ],
+         "linearVelocity" : 0,
+         "massData-I" : 0.03,
+         "massData-mass" : 0.3,
+         "position" : 
+         {
+            "x" : 0.5,
+            "y" : 0.3
+         },
+         "type" : 2 //dynamic
+      },
+      
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "name" : "bikehead",
+         "fixture" : 
+         [
+            
+            {
+               "circle" : 
+               {
+                  "center" : 0,
+                  "radius" : 0.15
+               },
+               "density" : 20.0,
+               "filter-categoryBits" : 8,
+               "friction" : 0.5,
+               "restitution" : 0
+            }
+         ],
+         "linearVelocity" : 0,
+         "massData-I" : 11.4604867995,
+         "massData-mass" : 70.6849992275,
+         "position" : 
+         {
+            "x" : 0.5,
+            "y" : 0.975
+         },
+         "type" : 2 //dynamic
+      },
+
+      {
+         "angle" : 0,
+         "angularVelocity" : 0,
+         "awake" : true,
+         "name" : "riderbody",
+         "fixture" : 
+         [
+            
+            {
+               "density" : 1.0,
+               "filter-categoryBits" : 8,
+               "filter-maskBits" : 28256,
+               "friction" : 0.0,
+               "polygon" : 
+               {
+                  "vertices" : 
+                  {
+                     "x" : [ -0.05, 0.05, 0.05, -0.05  ],
+                     "y" : [  0.0,  0.0,  0.375, 0.375 ]
+                  }
+               },
+               "restitution" : 0
+            }
+         ],
+         "linearVelocity" : 0,
+         "massData-I" : 0.0,
+         "massData-mass" : 0.0,
+         "position" : 
+         {
+            "x" : 0.5,
+            "y" : 0.45
+         },
+         "type" : 2 //dynamic
+      }
+
+   ],
+   "continuousPhysics" : true,
+   "gravity" : 
+   {
+      "x" : 0,
+      "y" : -10.0
+   },
+
+   "image" : 
+   [
+
+      {
+         "name" : "imgleftwheel",
+         "opacity" : 1,
+         "renderOrder" : 0,
+         "scale" : 1,
+         "aspectScale" : 1,
+         "angle" : 0,
+         "body" : 1,
+         "center" : {
+            "x" : 0.0,
+            "y" : 0.0
+         },
+         "corners" : 
+         {
+            "x" : [ -0.22, 0.22, 0.22, -0.22 ],
+            "y" : [ -0.22, -0.22, 0.22, 0.22 ]
+         },
+         "file" : "images/bikewheel.png",
+         "filter" : 1,
+         "glDrawElements" : [0, 1, 2, 2, 3, 0],
+         "glTexCoordPointer" : [0, 0, 1, 0, 1, 1, 0, 1],
+         "glVertexPointer" : [-0.22, -0.22, 0.22, -0.22, 0.22, 0.22, -0.22, 0.22]
+      },
+      
+      {
+         "name" : "imgrightwheel",
+         "opacity" : 1,
+         "renderOrder" : 0,
+         "scale" : 1,
+         "aspectScale" : 1,
+         "angle" : 0,
+         "body" : 0,
+         "center" : {
+            "x" : 0.0,
+            "y" : 0.0
+         },
+         "corners" :
+         {
+            "x" : [ -0.22, 0.22, 0.22, -0.22 ],
+            "y" : [ -0.22, -0.22, 0.22, 0.22 ]
+         },
+         "file" : "images/bikewheel.png",
+         "filter" : 1,
+         "glDrawElements" : [0, 1, 2, 2, 3, 0],
+         "glTexCoordPointer" : [0, 0, 1, 0, 1, 1, 0, 1],
+         "glVertexPointer" : [-0.22, -0.22, 0.22, -0.22, 0.22, 0.22, -0.22, 0.22]
+      },
+
+   ],
+
+   "joint" : 
+   [
+      
+      {
+         "anchorA" : 
+         {
+            "x" : 0.0,
+            "y" : 0.675
+         },
+         "anchorB" : 0,
+         "bodyA" : 2,
+         "bodyB" : 3,
+         "name" : "headjoint",
+         "enableLimit" : true,
+         "enableMotor" : false,
+         "jointSpeed" : 0,
+         "lowerLimit" : 0,
+         "maxMotorTorque" : 0,
+         "motorSpeed" : 0,
+         "refAngle" : 0,
+         "type" : "revolute",
+         "upperLimit" : 0
+      },
+
+      {
+         "anchorA" : 
+         {
+            "x" : 0.0,
+            "y" : 0.15
+         },
+         "anchorB" : 0,
+         "bodyA" : 2,
+         "bodyB" : 4,
+         "name" : "bodyjoint",
+         "enableLimit" : true,
+         "enableMotor" : false,
+         "jointSpeed" : 0,
+         "lowerLimit" : 0,
+         "maxMotorTorque" : 0,
+         "motorSpeed" : 0,
+         "refAngle" : 0,
+         "type" : "revolute",
+         "upperLimit" : 0
+      },
+    
+      {
+         "anchorA" : 
+         {
+            "x" : 0.5,
+            "y" : -0.3
+         },
+         "anchorB" : 
+         {
+            "x" : 0.0,
+            "y" : 0.0
+         },
+         "bodyA" : 2,
+         "bodyB" : 0,
+         "name" : "rightwheel",
+         "enableMotor" : false,
+         "localAxisA" : 
+         {
+            "x" : -0.416146844625,
+            "y" : 0.909297406673
+         },
+         "maxMotorTorque" : 100.0,
+         "motorSpeed" : 0,
+         "springDampingRatio" : 0.85,
+         "springFrequency" : 7.5,
+         "type" : "wheel"
+      },
+      
+      {
+         "anchorA" : 
+         {
+            "x" : -0.5,
+            "y" : -0.52
+         },
+         "anchorB" : 
+         {
+            "x" : 0.0,
+            "y" : 0.0
+         },
+         "bodyA" : 2,
+         "bodyB" : 1,
+         "name" : "leftrope",
+         "maxLength" : 0.439999997616,
+         "type" : "rope"
+      },
+      
+      {
+         "anchorA" : 
+         {
+            "x" : -0.5,
+            "y" : -0.3
+         },
+         "anchorB" : 
+         {
+            "x" : 0.0,
+            "y" : 0.0
+         },
+         "bodyA" : 2,
+         "bodyB" : 1,
+         "name" : "leftwheel",
+         "enableMotor" : false,
+         "localAxisA" : 
+         {
+            "x" : 0,
+            "y" : 1
+         },
+         "maxMotorTorque" : 2000.0,
+         "motorSpeed" : 0,
+         "springDampingRatio" : 0.85,
+         "springFrequency" : 7.5,
+         "type" : "wheel"
+      },
+      
+      {
+         "anchorA" : 
+         {
+            "x" : 0.591552257538,
+            "y" : -0.50004543390
+         },
+         "anchorB" : 
+         {
+            "x" : 0.0,
+            "y" : 0.0
+         },
+         "bodyA" : 2,
+         "bodyB" : 0,
+         "name" : "rightrope",
+         "maxLength" : 0.439999997616,
+         "type" : "rope"
+      }
+   ],
+   "subStepping" : false,
+   "warmStarting" : true
+}
