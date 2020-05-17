@@ -88,7 +88,7 @@ import com.gushikustudios.rube.loader.serializers.utils.RubeVertexArray;
  */
 public class Play extends GameState {
 
-	private boolean debug = false; // Change to false to not render object outlines
+	private boolean debug = true; // Change to false to not render object outlines
     private World mWorld;
     private RubeScene mScene;
     private Box2DDebugRenderer b2dr;
@@ -138,6 +138,7 @@ public class Play extends GameState {
     private Body bikeBodyLW;
     private Body bikeBodyRW;
     private Body bikeBodyH;
+    private Body bikeBodyR;
     private Body bikeBodyC;
     private Body switchGateBody, triggerBody;
     private float bikeDirc = 1.0f;
@@ -199,7 +200,10 @@ public class Play extends GameState {
     	   {
     	      {
     	         "data/levelname.json",
-    	         "data/bikeright.json"
+    	         "data/bikeright_withbody.json"
+    	         // Here are some alternative vertices for the rider body
+//                 "x" : [  0.100,  0.242, 0.108, -0.077, -0.167 ],
+//                 "y" : [ -0.416, -0.354, 0.088,  0.304,  0.141 ]
     	      }//,
 //    	      {
     	         //"data/boundary.json"//,
@@ -386,7 +390,8 @@ public class Play extends GameState {
         keyBlueCntr.setColor(0, 0.7f, 1, 1);
         jewelCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         jewelCntr.setScale(0.25f);
-        jewelCntr.setColor(0.85f, 0.85f, 0, 1);
+        //jewelCntr.setColor(0.85f, 0.85f, 0, 1);
+        jewelCntr.setColor(0.1f, 0.8f, 0.1f, 1);
         nitrousCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         nitrousCntr.setScale(0.25f);
         nitrousCntr.setColor(0.2f, 0.2f, 1, 1);
@@ -1444,11 +1449,13 @@ public class Play extends GameState {
        bikeBodyLW = mScene.getNamed(Body.class, "bikeleftwheel").first();
        bikeBodyRW = mScene.getNamed(Body.class, "bikerightwheel").first();
        bikeBodyH = mScene.getNamed(Body.class, "bikehead").first();
+       bikeBodyR = mScene.getNamed(Body.class, "riderbody").first();
        bikeBodyC = mScene.getNamed(Body.class, "bikebody").first();
        //bikeAngle = bikeBodyC.getAngle();
        bikeBodyLW.setSleepingAllowed(false);
        bikeBodyRW.setSleepingAllowed(false);
        bikeBodyH.setSleepingAllowed(false);
+       bikeBodyR.setSleepingAllowed(false);
        bikeBodyC.setSleepingAllowed(false);
        bikeBodyC.setAngularDamping(2.0f);
        // First, get the transform for rotating the body
@@ -1462,6 +1469,10 @@ public class Play extends GameState {
        cCoord = PolygonOperations.RotateCoordinate(bikeBodyH.getPosition().x, bikeBodyH.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
        temppos = new Vector2(cCoord[0],cCoord[1]);
        bikeBodyH.setTransform(temppos, startAngle);
+       // Transform the Rider Body
+       cCoord = PolygonOperations.RotateCoordinate(bikeBodyR.getPosition().x, bikeBodyR.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+       temppos = new Vector2(cCoord[0],cCoord[1]);
+       bikeBodyR.setTransform(temppos, startAngle);
        // Transform the Chassis
        cCoord = PolygonOperations.RotateCoordinate(bikeBodyC.getPosition().x, bikeBodyC.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
        temppos = new Vector2(cCoord[0],cCoord[1]);
@@ -1470,6 +1481,7 @@ public class Play extends GameState {
        bikeBodyLW.setTransform(bikeBodyLW.getPosition().add(startPosition), bikeBodyLW.getAngle());
        bikeBodyRW.setTransform(bikeBodyRW.getPosition().add(startPosition), bikeBodyRW.getAngle());
        bikeBodyH.setTransform(bikeBodyH.getPosition().add(startPosition), bikeBodyH.getAngle());
+       bikeBodyR.setTransform(bikeBodyR.getPosition().add(startPosition), bikeBodyR.getAngle());
        bikeBodyC.setTransform(bikeBodyC.getPosition().add(startPosition), bikeBodyC.getAngle());
        
        // Get all references to switches
@@ -1852,9 +1864,12 @@ public class Play extends GameState {
     	//panelContainer.draw(mBatch, BikeGame.V_WIDTH - timerWidth - jcntrWidth - 128.0f*0.2f - 30.0f, BikeGame.V_HEIGHT-29, 128.0f*0.2f+jcntrWidth+10.0f, 28);
         float vshift = 0.0f;
         // Draw the timer
-        timerCurrent = (int) (TimeUtils.millis()) - timerStart;
-        String timeStr = GameVars.getTimeString(timerCurrent);
-    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);
+        String timeStr = GameVars.getTimeString(0);
+        if (mState == GAME_STATE.RUNNING) {
+            timerCurrent = (int) (TimeUtils.millis()) - timerStart;
+            timeStr = GameVars.getTimeString(timerCurrent);
+        }
+    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);        	
     	vshift += timerHeight +5;
     	// WR
     	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f, BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
@@ -1862,30 +1877,46 @@ public class Play extends GameState {
     	// PB
     	timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f, BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
     	vshift += timerWRHeight + 8;
-        // Draw the jewel and it's counter
-        jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f,BikeGame.V_HEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
-        mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth - 128.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick-128.0f*0.2f)/2.0f-128.0f*0.2f, 0, 0, 128.0f, 128.0f, 0.2f, 0.2f, 0);
-        vshift += pThick;
+    	if (collectJewel != 0) {
+	        // Draw the jewel and it's counter
+	        jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f,BikeGame.V_HEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
+	        mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth - 128.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick-128.0f*0.2f)/2.0f-128.0f*0.2f, 0, 0, 128.0f, 128.0f, 0.2f, 0.2f, 0);
+	        vshift += pThick;
+    	}
+
     	// Draw the key counters
-        keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed),     SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-        keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f-15.0f);
-        keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f-30.0f);
-        vshift += 10;
-        // Draw the keys
-        mBatch.draw(keyRed,   SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
-        mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f-15.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
-        mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f-30.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
+    	if (collectKeyRed != 0) {
+            keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed),     SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+            vshift += 10;
+            mBatch.draw(keyRed,   SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
+            vshift += 5;
+    	}
+    	if (collectKeyGreen != 0) {
+    		keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+            vshift += 10;
+            mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
+            vshift += 5;
+    	}
+    	if (collectKeyBlue != 0) {
+    		keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+            vshift += 10;
+            mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
+            vshift += 5;
+    	}
+    	if (collectKeyRed+collectKeyGreen+collectKeyBlue != 0) vshift -= 5;
 
     	// Draw the nitrous counter
-        vshift += 40;
-        nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-        vshift += 67.5f*0.2f;
-        // Draw the nitrous image
-        mBatch.draw(nitrous,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 67.5f, 0.2f, 0.2f, 0);
-        // Draw nitrous tube and fluid
-        vshift += 10;
-        mBatch.draw(nitrousFluid,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, nitrousLevel*135.0f, 50.0f, 0.2f, 0.2f, 0);       
-        mBatch.draw(nitrousTube,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);       
+    	vshift += 5;
+    	if ((collectNitrous != 0) | (nitrousLevel != 0.0f)) {
+	        nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+	        vshift += 67.5f*0.2f;
+	        // Draw the nitrous image
+	        mBatch.draw(nitrous,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 67.5f, 0.2f, 0.2f, 0);
+	        // Draw nitrous tube and fluid
+	        vshift += 10;
+	        mBatch.draw(nitrousFluid,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, nitrousLevel*135.0f, 50.0f, 0.2f, 0.2f, 0);       
+	        mBatch.draw(nitrousTube,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);       
+        }
         mBatch.end();
 
     }
