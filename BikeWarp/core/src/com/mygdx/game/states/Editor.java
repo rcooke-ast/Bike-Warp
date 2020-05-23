@@ -86,7 +86,7 @@ public class Editor extends GameState {
 	private String[] decorateList = {"Grass",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
-			"Sign (Stop)"};
+			"Sign (Stop)", "Waterfall"};
     private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = {"Cracked Mud", "Bubbles", "Gravel", "Ice", "Mars", "Moon"};
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -1581,6 +1581,9 @@ public class Editor extends GameState {
 	        	} else if (dTyp == DecorVars.Grass) {
 	        		shapeRenderer.setColor(0, 1, 0, opacity);
 	        		shapeRenderer.polygon(allDecors.get(i));
+	        	} else if (dTyp == DecorVars.Waterfall) {
+	        		shapeRenderer.setColor(0, 0, 0.8f, opacity);
+	        		shapeRenderer.rect(allDecors.get(i)[0], allDecors.get(i)[1], allDecors.get(i)[2], allDecors.get(i)[3]);
 	        	} else if (dTyp == DecorVars.LargeStone) {
 	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 	        		shapeRenderer.circle(allDecors.get(i)[0], allDecors.get(i)[1],allDecors.get(i)[2]);
@@ -1656,6 +1659,8 @@ public class Editor extends GameState {
         			shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
 	        		rCoord = PolygonOperations.RotateCoordinate(updatePoly[0], updatePoly[1]-5.0f*updatePoly[2], MathUtils.radiansToDegrees*updatePoly[3], updatePoly[0], updatePoly[1]);
 	        		shapeRenderer.line(updatePoly[0], updatePoly[1], rCoord[0], rCoord[1]);
+        		} else if (allDecorTypes.get(decorSelect) == DecorVars.Waterfall) {
+	        		shapeRenderer.rect(allDecors.get(decorSelect)[0], allDecors.get(decorSelect)[1], allDecors.get(decorSelect)[2], allDecors.get(decorSelect)[3]);
         		} else shapeRenderer.polygon(updatePoly);
         	}
         }
@@ -3373,6 +3378,30 @@ public class Editor extends GameState {
         			polySelect = -1;
         			vertSelect = -1;
         		} else FindNearestVertex(true);			}
+		} else if (modeParent.equals("Waterfall")) {
+			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				AddDecor(DecorVars.Waterfall, tempx, tempy, -999.9f);
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				SelectDecor("up", DecorVars.Waterfall, false, true);
+				engageDelete = true;
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", DecorVars.Waterfall, false, true);
+					startX = GameInput.MBDOWNX*scrscale;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+	            	MoveDecor(decorSelect, "circle", endX, endY);
+				}
+			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "movecircle");
+				decorSelect = -1;
+    		}
 		} else if (modeParent.equals("Large Stone")) {
 
 		}
@@ -3707,6 +3736,8 @@ public class Editor extends GameState {
 					listChild.setItems(itemsADMR);
 				} else if (modeParent.equals("Grass")) {
 					listChild.setItems("Add", "Delete", "Move Vertex");
+				} else if (modeParent.equals("Waterfall")) {
+					listChild.setItems(itemsADM);
 				} else listChild.setItems(itemsADMR);
 				break;
 			case 7 :
@@ -5358,7 +5389,13 @@ public class Editor extends GameState {
    
 	public void MakeDecor(int otype, float xcen, float ycen, float angle) {
 		angle *= MathUtils.PI/180.0;
-		if (DecorVars.IsRoadSign(otype)) {
+		if (otype==DecorVars.Waterfall) {
+			newPoly = new float[DecorVars.decorWaterfall.length];
+			newPoly[0] = DecorVars.decorWaterfall[0] + xcen;
+			newPoly[1] = DecorVars.decorWaterfall[1] + ycen - DecorVars.decorWaterfall[3]/2;
+			newPoly[2] = DecorVars.decorWaterfall[2];
+			newPoly[3] = DecorVars.decorWaterfall[3];
+		} else if (DecorVars.IsRoadSign(otype)) {
 			newPoly = new float[DecorVars.decorCircleRoadSign.length];
 			newPoly[0] = DecorVars.decorCircleRoadSign[0] + xcen;
 			newPoly[1] = DecorVars.decorCircleRoadSign[1] + ycen;
