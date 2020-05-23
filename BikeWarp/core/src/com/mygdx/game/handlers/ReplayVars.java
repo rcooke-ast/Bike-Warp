@@ -30,6 +30,8 @@ public class ReplayVars implements Serializable {
 
     public static ArrayList<Float> replayTime;
     public static ArrayList<Float> replayBike_X, replayBike_Y, replayBike_A;
+    public static ArrayList<Float> replayHead_X, replayHead_Y;
+    public static ArrayList<Float> replayRider_X, replayRider_Y, replayRider_A;
     public static ArrayList<Float> replayLW_X, replayLW_Y, replayLW_A, replayLW_V;
     public static ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A, replayRW_V;
     public static ArrayList<Float> replayChangeDir;
@@ -42,6 +44,11 @@ public class ReplayVars implements Serializable {
     	replayBike_X = new ArrayList<Float>();
     	replayBike_Y = new ArrayList<Float>();
     	replayBike_A = new ArrayList<Float>();
+    	replayRider_X = new ArrayList<Float>();
+    	replayRider_Y = new ArrayList<Float>();
+    	replayRider_A = new ArrayList<Float>();
+    	replayHead_X = new ArrayList<Float>();
+    	replayHead_Y = new ArrayList<Float>();
     	replayLW_X = new ArrayList<Float>();
     	replayLW_Y = new ArrayList<Float>();
     	replayLW_A = new ArrayList<Float>();
@@ -116,6 +123,11 @@ public class ReplayVars implements Serializable {
 	    	replayBike_X = (ArrayList<Float>) oi.readObject();
 	    	replayBike_Y = (ArrayList<Float>) oi.readObject();
 	    	replayBike_A = (ArrayList<Float>) oi.readObject();
+	    	replayRider_X = (ArrayList<Float>) oi.readObject();
+	    	replayRider_Y = (ArrayList<Float>) oi.readObject();
+	    	replayRider_A = (ArrayList<Float>) oi.readObject();
+	    	replayHead_X = (ArrayList<Float>) oi.readObject();
+	    	replayHead_Y = (ArrayList<Float>) oi.readObject();
 	    	replayLW_X = (ArrayList<Float>) oi.readObject();
 	    	replayLW_Y = (ArrayList<Float>) oi.readObject();
 	    	replayLW_A = (ArrayList<Float>) oi.readObject();
@@ -156,6 +168,11 @@ public class ReplayVars implements Serializable {
 			o.writeObject(replayBike_X);
 			o.writeObject(replayBike_Y);
 			o.writeObject(replayBike_A);
+			o.writeObject(replayRider_X);
+			o.writeObject(replayRider_Y);
+			o.writeObject(replayRider_A);
+			o.writeObject(replayHead_X);
+			o.writeObject(replayHead_Y);
 			o.writeObject(replayLW_X);
 			o.writeObject(replayLW_Y);
 			o.writeObject(replayLW_A);
