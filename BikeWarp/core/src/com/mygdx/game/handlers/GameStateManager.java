@@ -30,6 +30,7 @@ public class GameStateManager {
     private BikeGame game;
     private Stack<GameState> gameStates;
     public GameState editorWindow = null;
+    public boolean isPlaying = false;
     
     public static final int MAINMENU = 100000;
     public static final int MENUEXIT = 100001;
@@ -66,6 +67,10 @@ public class GameStateManager {
         if (game != null) game.dispose();
         if (editorWindow != null) editorWindow.dispose();
         this.dispose();
+    }
+
+    public void SetPlaying(boolean play) {
+    	isPlaying = play;
     }
 
     private GameState getState(int state, String editorScene, int levelID, int modeValue) {

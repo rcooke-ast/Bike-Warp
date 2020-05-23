@@ -8,6 +8,7 @@ package com.mygdx.game.states;
 
 import static com.mygdx.game.handlers.B2DVars.PPM;
 
+import java.awt.Cursor;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
@@ -96,7 +97,7 @@ public class Editor extends GameState {
 	private String[] loadList = {"Load Level", "New Level"};
 	private String[] jewelNumber;
 	private String saveFName;
-	private boolean enteringFilename, changesMade;
+	private boolean enteringFilename, changesMade, executing;
 
 	private int totalNumMsgs = 20;
 	private BitmapFont warnFont, signFont;
@@ -234,6 +235,7 @@ public class Editor extends GameState {
     }
 
     public void create() {
+    	Gdx.input.setCursorCatched(false);
     	//Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
     	// First step is to set the hudCam for rendering messages
         //float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);
@@ -821,12 +823,10 @@ public class Editor extends GameState {
 						} else {
 							enteringFilename = false;
 							stage.setKeyboardFocus(null);
-							// Get the user toolbar setting (is it displayed or not), then hide the toolbar
-							boolean tbarSetting = hideToolbar;
-							updateToolbar(false);
+							hideToolbar = true;
+							gsm.SetPlaying(true);
 							// Now launch the level!
 							gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
-							updateToolbar(tbarSetting);
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
@@ -1109,6 +1109,8 @@ public class Editor extends GameState {
     }
 
 	public void update(float dt) {
+		if (gsm.isPlaying) hideToolbar = true;
+		else hideToolbar = false;
     	handleInput();
     	cam.update();
     	stage.setScrollFocus(null); // Forces scrolling to be used for zooming only

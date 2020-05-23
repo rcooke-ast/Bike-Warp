@@ -88,7 +88,7 @@ import com.gushikustudios.rube.loader.serializers.utils.RubeVertexArray;
  */
 public class Play extends GameState {
 
-	private boolean debug = true; // Change to false to not render object outlines
+	private boolean debug = false; // Change to false to not render object outlines
     private World mWorld;
     private RubeScene mScene;
     private Box2DDebugRenderer b2dr;
@@ -566,6 +566,7 @@ public class Play extends GameState {
 		     	   			LevelsListGame.updateRecords();
 	     	   			}
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+	     	   			gsm.SetPlaying(false);
 	     	   			break;
 	     	   		} else cl.notFinished();
 	     	   } else if ((cl.isPlayerDead()) | (forcequit) | (forceRestart)) {
@@ -576,7 +577,8 @@ public class Play extends GameState {
     	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
     	   			}
     	   			if (forcequit) {
-    	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);    	   				
+    	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+    	            	gsm.SetPlaying(false);
     	   			} else {
     	   				// forceRestart is true, or the player died in the level
     	   				replayTime = 0.0f;
@@ -586,9 +588,11 @@ public class Play extends GameState {
 //    	            	if (!isReplay) ReplayVars.Reset(editorString, levelID, mode);
     	   				// Exit the current level
     	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+    	            	gsm.SetPlaying(false);
     	            	// Start it again
     	            	if (mode != 0) {
     	            		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
+    	            		gsm.SetPlaying(true);
     	            	}
     	   			}
 	            	break;
@@ -653,22 +657,22 @@ public class Play extends GameState {
 
  	   // Destroy all joints, and create the left-facing joints
  	   // First Destroy
- 	   mWorld.destroyJoint(leftWheel);
- 	   mWorld.destroyJoint(rightWheel);
- 	   mWorld.destroyJoint(leftRope);
- 	   mWorld.destroyJoint(rightRope);
- 	   // Now Create
- 	   if (bikeDirc == 1.0f) {
- 	 	   leftWheel = (WheelJoint) mWorld.createJoint(leftWheelR);
- 	 	   rightWheel = (WheelJoint) mWorld.createJoint(rightWheelR);
- 	 	   leftRope = (RopeJoint) mWorld.createJoint(leftRopeR);
- 	 	   rightRope = (RopeJoint) mWorld.createJoint(rightRopeR);
- 	   } else {
- 	 	   leftWheel = (WheelJoint) mWorld.createJoint(leftWheelL);
- 	 	   rightWheel = (WheelJoint) mWorld.createJoint(rightWheelL);
- 	 	   leftRope = (RopeJoint) mWorld.createJoint(leftRopeL);
- 	 	   rightRope = (RopeJoint) mWorld.createJoint(rightRopeL);
- 	   }
+		mWorld.destroyJoint(leftWheel);
+ 	    mWorld.destroyJoint(rightWheel);
+ 	    mWorld.destroyJoint(leftRope);
+ 	    mWorld.destroyJoint(rightRope);
+ 	    // Now Create
+ 	    if (bikeDirc == 1.0f) {
+ 	 	    leftWheel = (WheelJoint) mWorld.createJoint(leftWheelR);
+ 	 	    rightWheel = (WheelJoint) mWorld.createJoint(rightWheelR);
+ 	 	    leftRope = (RopeJoint) mWorld.createJoint(leftRopeR);
+ 	 	    rightRope = (RopeJoint) mWorld.createJoint(rightRopeR);
+ 	    } else {
+ 	 	    leftWheel = (WheelJoint) mWorld.createJoint(leftWheelL);
+ 	 	    rightWheel = (WheelJoint) mWorld.createJoint(rightWheelL);
+ 	 	    leftRope = (RopeJoint) mWorld.createJoint(leftRopeL);
+ 	 	    rightRope = (RopeJoint) mWorld.createJoint(rightRopeL);
+ 	    }
  	   // Set the motor wheel
 //		if (bikeDirc == 1.0f) {
 //			leftWheel.enableMotor(true);
@@ -684,27 +688,51 @@ public class Play extends GameState {
 	}
 
 	private void updateBikeReplay(float dt) {
+		Vector2 temppos;
 		replayTime += dt;
 		int rIndex = ReplayVars.GetIndex(replayTime);		
 		float time1 = ReplayVars.replayTime.get(rIndex);
 		float time2 = ReplayVars.replayTime.get(rIndex+1);
 		float mid = (replayTime-time1)/(time2-time1);
-		float bike_x = Interpolation.fade.apply(ReplayVars.replayBike_X.get(rIndex), ReplayVars.replayBike_X.get(rIndex+1), mid);
-		float bike_y = Interpolation.fade.apply(ReplayVars.replayBike_Y.get(rIndex), ReplayVars.replayBike_Y.get(rIndex+1), mid);
-		float bike_a = Interpolation.fade.apply(ReplayVars.replayBike_A.get(rIndex), ReplayVars.replayBike_A.get(rIndex+1), mid);
-		bikeBodyH.setTransform(bike_x, bike_y, bike_a);
-		float lw_x = Interpolation.fade.apply(ReplayVars.replayLW_X.get(rIndex), ReplayVars.replayLW_X.get(rIndex+1), mid);
-		float lw_y = Interpolation.fade.apply(ReplayVars.replayLW_Y.get(rIndex), ReplayVars.replayLW_Y.get(rIndex+1), mid);
-		float lw_a = Interpolation.fade.apply(ReplayVars.replayLW_A.get(rIndex), ReplayVars.replayLW_A.get(rIndex+1), mid);
-		float lw_v = Interpolation.fade.apply(ReplayVars.replayLW_V.get(rIndex), ReplayVars.replayLW_V.get(rIndex+1), mid);
-		bikeBodyLW.setTransform(lw_x, lw_y, lw_a);
+		// Transform LW
+		float lw_x = Interpolation.linear.apply(ReplayVars.replayLW_X.get(rIndex), ReplayVars.replayLW_X.get(rIndex+1), mid);
+		float lw_y = Interpolation.linear.apply(ReplayVars.replayLW_Y.get(rIndex), ReplayVars.replayLW_Y.get(rIndex+1), mid);
+		float lw_a = Interpolation.linear.apply(ReplayVars.replayLW_A.get(rIndex), ReplayVars.replayLW_A.get(rIndex+1), mid);
+		float lw_v = Interpolation.linear.apply(ReplayVars.replayLW_V.get(rIndex), ReplayVars.replayLW_V.get(rIndex+1), mid);
+		temppos = new Vector2(lw_x, lw_y);
+		bikeBodyLW.setTransform(temppos.cpy(), lw_a);
 		bikeBodyLW.setAngularVelocity(lw_v);
-		float rw_x = Interpolation.fade.apply(ReplayVars.replayRW_X.get(rIndex), ReplayVars.replayRW_X.get(rIndex+1), mid);
-		float rw_y = Interpolation.fade.apply(ReplayVars.replayRW_Y.get(rIndex), ReplayVars.replayRW_Y.get(rIndex+1), mid);
-		float rw_a = Interpolation.fade.apply(ReplayVars.replayRW_A.get(rIndex), ReplayVars.replayRW_A.get(rIndex+1), mid);
-		float rw_v = Interpolation.fade.apply(ReplayVars.replayRW_V.get(rIndex), ReplayVars.replayRW_V.get(rIndex+1), mid);
-		bikeBodyRW.setTransform(rw_x, rw_y, rw_a);
+		// Transform RW
+		float rw_x = Interpolation.linear.apply(ReplayVars.replayRW_X.get(rIndex), ReplayVars.replayRW_X.get(rIndex+1), mid);
+		float rw_y = Interpolation.linear.apply(ReplayVars.replayRW_Y.get(rIndex), ReplayVars.replayRW_Y.get(rIndex+1), mid);
+		float rw_a = Interpolation.linear.apply(ReplayVars.replayRW_A.get(rIndex), ReplayVars.replayRW_A.get(rIndex+1), mid);
+		float rw_v = Interpolation.linear.apply(ReplayVars.replayRW_V.get(rIndex), ReplayVars.replayRW_V.get(rIndex+1), mid);
+//	    float[] cCoord = PolygonOperations.RotateCoordinate(rw_x, rw_y, rw_a, 0.0f, 0.0f);
+//	    temppos = new Vector2(cCoord[0],cCoord[1]);
+//	    bikeBodyRW.setTransform(temppos.add(bikeBodyRW.getWorldCenter()), rw_a);
+		temppos = new Vector2(rw_x, rw_y);
+		bikeBodyRW.setTransform(temppos.cpy(), rw_a);
+		//bikeBodyRW.setTransform(bikeBodyLW.getPosition().sub(bikeBodyRW.getPosition());)
 		bikeBodyRW.setAngularVelocity(rw_v);
+		// Transform Chassis
+		float bike_a = Interpolation.linear.apply(ReplayVars.replayBike_A.get(rIndex), ReplayVars.replayBike_A.get(rIndex+1), mid);
+		float bike_x = Interpolation.linear.apply(ReplayVars.replayBike_X.get(rIndex), ReplayVars.replayBike_X.get(rIndex+1), mid);
+		float bike_y = Interpolation.linear.apply(ReplayVars.replayBike_Y.get(rIndex), ReplayVars.replayBike_Y.get(rIndex+1), mid);
+		temppos = new Vector2(bike_x, bike_y);
+        //bikeBodyC.setTransform(temppos.add(bikeBodyC.getWorldCenter().cpy()), bike_a);
+        bikeBodyC.setTransform(temppos, bike_a);
+		// Transform Head
+		bike_x = Interpolation.linear.apply(ReplayVars.replayHead_X.get(rIndex), ReplayVars.replayHead_X.get(rIndex+1), mid);
+		bike_y = Interpolation.linear.apply(ReplayVars.replayHead_Y.get(rIndex), ReplayVars.replayHead_Y.get(rIndex+1), mid);
+		temppos = new Vector2(bike_x, bike_y);
+        bikeBodyH.setTransform(temppos, bike_a);
+		// Transform Rider body
+		bike_a = Interpolation.linear.apply(ReplayVars.replayRider_A.get(rIndex), ReplayVars.replayRider_A.get(rIndex+1), mid);
+		bike_x = Interpolation.linear.apply(ReplayVars.replayRider_X.get(rIndex), ReplayVars.replayRider_X.get(rIndex+1), mid);
+		bike_y = Interpolation.linear.apply(ReplayVars.replayRider_Y.get(rIndex), ReplayVars.replayRider_Y.get(rIndex+1), mid);
+		temppos = new Vector2(bike_x, bike_y);
+        bikeBodyR.setTransform(temppos, bike_a);
+
 		// Update the Bike Sound
 		UpdateBikeSound();
 
@@ -729,18 +757,30 @@ public class Play extends GameState {
 
 	private void storeReplay(float dt) {
 		replayTime += dt;
-		Vector2 bikeCen = bikeBodyH.getWorldCenter();
-		Vector2 LWCen = bikeBodyLW.getWorldCenter();
-		Vector2 RWCen = bikeBodyRW.getWorldCenter();
+		Vector2 bikeCen = bikeBodyC.getPosition();
+		Vector2 headCen = bikeBodyH.getPosition();
+		Vector2 riderCen = bikeBodyR.getPosition();
+		Vector2 LWCen = bikeBodyLW.getPosition();
+		Vector2 RWCen = bikeBodyRW.getPosition();
 		// Store all of the information
 		ReplayVars.replayTime.add(replayTime);
+		// Head
+		ReplayVars.replayHead_X.add(headCen.x);
+		ReplayVars.replayHead_Y.add(headCen.y);
+		// Torso
+		ReplayVars.replayRider_X.add(riderCen.x);
+		ReplayVars.replayRider_Y.add(riderCen.y);
+		ReplayVars.replayRider_A.add(bikeBodyR.getAngle());
+		// Bike
 		ReplayVars.replayBike_X.add(bikeCen.x);
 		ReplayVars.replayBike_Y.add(bikeCen.y);
 		ReplayVars.replayBike_A.add(bikeBodyC.getAngle());
+		// Left Wheel
 		ReplayVars.replayLW_X.add(LWCen.x);
 		ReplayVars.replayLW_Y.add(LWCen.y);
 		ReplayVars.replayLW_A.add(bikeBodyLW.getAngle());
 		ReplayVars.replayLW_V.add(bikeBodyLW.getAngularVelocity());
+		// Right Wheel
 		ReplayVars.replayRW_X.add(RWCen.x);
 		ReplayVars.replayRW_Y.add(RWCen.y);
 		ReplayVars.replayRW_A.add(bikeBodyRW.getAngle());
@@ -1434,7 +1474,14 @@ public class Play extends GameState {
     	   leftRope = (RopeJoint) mWorld.createJoint(leftRopeL);
     	   rightRope = (RopeJoint) mWorld.createJoint(rightRopeL);
        }
-
+       
+//       if (isReplay) {
+//    	   mWorld.destroyJoint(leftWheel);
+//    	   mWorld.destroyJoint(rightWheel);
+//    	   mWorld.destroyJoint(leftRope);
+//    	   mWorld.destroyJoint(rightRope);
+//    	   
+//       }
 //       bikeBody.add(mScene.getNamed(Body.class, "bikebody0").first());
 //       bikeBody.add(mScene.getNamed(Body.class, "bikebody1").first());
 //       bikeBody.add(mScene.getNamed(Body.class, "bikebody2").first());
