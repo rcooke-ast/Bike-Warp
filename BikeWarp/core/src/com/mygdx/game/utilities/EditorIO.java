@@ -406,6 +406,7 @@ public class EditorIO {
         // Determine the grass texture;
         //String textGrass = "images/grass_seamless.png";
         String textGrass = "images/grass_full.png";
+        String textWaterfall = "images/waterfall.png";
         // Get the foreground/background textures
         String textFG = GetFGTexture(LevelVars.get(LevelVars.PROP_FG_TEXTURE));
         String textBG = GetBGTexture(LevelVars.get(LevelVars.PROP_BG_TEXTURE));
@@ -538,6 +539,52 @@ public class EditorIO {
 			            json.object();
 			            json.key("name").value("TextureMask");
 			            json.key("string").value(textGrass);
+			            json.endObject();
+			            json.endArray();
+		    			json.key("polygon");
+		                json.object(); // Begin polygon object
+		                json.key("vertices");
+		                json.object(); // Begin vertices object
+		                json.key("x");
+		                json.array();
+		                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+		                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
+		                }
+		                json.endArray();
+		                json.key("y");
+		                json.array();
+		                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+		                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
+		                }
+		                json.endArray();
+		                json.endObject(); // End the vertices object
+		                json.endObject(); // End polygon object
+		                json.endObject(); // End this fixture
+	    			}
+            	}
+            } else if (allDecorTypes.get(i) == DecorVars.Waterfall) {
+//            	if (true) {
+            	if (allPolygonTypes.get(allDecorPolys.get(i))==0) {
+	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
+	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+	    			for (int k = 0; k<convexPolygons.size(); k++){
+	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" W"; // A problem with the length^2 of a polygon
+	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
+	                	json.object();
+			            // Specify other properties of this fixture
+			        	json.key("density").value(1);
+			            json.key("friction").value(0);
+			            json.key("restitution").value(0);
+			            json.key("name").value("fixture8");
+			            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+			            json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+			            // Set the (background) ground texture
+			            json.key("customProperties");
+			            json.array();
+			            json.object();
+			            json.key("name").value("TextureMask");
+			            json.key("string").value(textWaterfall);
 			            json.endObject();
 			            json.endArray();
 		    			json.key("polygon");

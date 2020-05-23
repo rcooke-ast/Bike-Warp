@@ -83,6 +83,7 @@ public class BikeGameTextures {
 		GetTexture("switch_greenL",0);
 		GetTexture("switch_redL",0);
 		GetTexture("transport_spiral",0);
+		GetTexture("waterfall",0);
 		GetTexture("wood_link",0);
 	}
 
