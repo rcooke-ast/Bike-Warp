@@ -1740,7 +1740,6 @@ public class Play extends GameState {
 
     	// Render the dark part of the waterfall
         if ((waterfallBackground != null) && (waterfallBackground.size > 0)) {
-        	System.out.println(waterfallBackground.size);
         	mPolyBatch.setProjectionMatrix(b2dCam.combined);
             mPolyBatch.begin();
             for (int i = 0; i < waterfallBackground.size; i++) {
