@@ -830,9 +830,9 @@ public class Editor extends GameState {
 						}
 					} catch (JSONException e) {
 						e.printStackTrace();
-					} catch (IndexOutOfBoundsException e) {
-						Message("A polygon in this level cannot be converted (an index was found out of bounds)", 2);
-						Message("It is possible two vertices are too close together", 1);
+//					} catch (IndexOutOfBoundsException e) {
+//						Message("A polygon in this level cannot be converted (an index was found out of bounds)", 2);
+//						Message("It is possible two vertices are too close together", 1);
 					}
 				}
 		    	// When we come back from the level, make sure we reset the hudCam (used for messages)
@@ -1583,7 +1583,7 @@ public class Editor extends GameState {
 	        		shapeRenderer.polygon(allDecors.get(i));
 	        	} else if (dTyp == DecorVars.Waterfall) {
 	        		shapeRenderer.setColor(0, 0, 0.8f, opacity);
-	        		shapeRenderer.rect(allDecors.get(i)[0], allDecors.get(i)[1], allDecors.get(i)[2], allDecors.get(i)[3]);
+	        		shapeRenderer.polygon(allDecors.get(i));
 	        	} else if (dTyp == DecorVars.LargeStone) {
 	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 	        		shapeRenderer.circle(allDecors.get(i)[0], allDecors.get(i)[1],allDecors.get(i)[2]);
@@ -1660,7 +1660,7 @@ public class Editor extends GameState {
 	        		rCoord = PolygonOperations.RotateCoordinate(updatePoly[0], updatePoly[1]-5.0f*updatePoly[2], MathUtils.radiansToDegrees*updatePoly[3], updatePoly[0], updatePoly[1]);
 	        		shapeRenderer.line(updatePoly[0], updatePoly[1], rCoord[0], rCoord[1]);
         		} else if (allDecorTypes.get(decorSelect) == DecorVars.Waterfall) {
-	        		shapeRenderer.rect(allDecors.get(decorSelect)[0], allDecors.get(decorSelect)[1], allDecors.get(decorSelect)[2], allDecors.get(decorSelect)[3]);
+	        		shapeRenderer.polygon(updatePoly);
         		} else shapeRenderer.polygon(updatePoly);
         	}
         }
@@ -3386,22 +3386,40 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-				SelectDecor("up", DecorVars.Waterfall, false, true);
+				SelectDecor("up", DecorVars.Waterfall, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
-					SelectDecor("down", DecorVars.Waterfall, false, true);
+					SelectDecor("down", DecorVars.Waterfall, false, false);
 					startX = GameInput.MBDOWNX*scrscale;
 					startY = GameInput.MBDOWNY;
 				} else {
 					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-	            	MoveDecor(decorSelect, "circle", endX, endY);
+	            	MoveDecor(decorSelect, "polygon", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
-				UpdateDecor(decorSelect, "movecircle");
+				UpdateDecor(decorSelect, "move");
 				decorSelect = -1;
-    		}
+    		} else if (modeChild.equals("Move Vertex")) {
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+        		if (GameInput.MBDRAG==true) {
+        			if (vertSelect == -1) {
+        				FindNearestVertex(false);
+        				startX = GameInput.MBDOWNX*scrscale;
+        				startY = GameInput.MBDOWNY;
+        			} else {
+    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+    		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+    	            	MoveVertex(polySelect, vertSelect, endX, endY);
+        			}
+        		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
+        			UpdateDecor(polySelect, "move");
+        			polySelect = -1;
+        			vertSelect = -1;
+        		} else FindNearestVertex(true);
+        	}
 		} else if (modeParent.equals("Large Stone")) {
 
 		}
@@ -3737,7 +3755,7 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Grass")) {
 					listChild.setItems("Add", "Delete", "Move Vertex");
 				} else if (modeParent.equals("Waterfall")) {
-					listChild.setItems(itemsADM);
+					listChild.setItems("Add", "Delete", "Move", "Move Vertex");
 				} else listChild.setItems(itemsADMR);
 				break;
 			case 7 :
@@ -4314,7 +4332,9 @@ public class Editor extends GameState {
 		if (mode == 6) {
 			// Then decorating (grass)
 			for (int i = 0; i < allDecors.size(); i++) {
-				if (allDecorTypes.get(i)==DecorVars.Grass) {
+				if ((allDecorTypes.get(i)==DecorVars.Grass) | (allDecorTypes.get(i)==DecorVars.Waterfall)) {
+					if ((modeParent.equals("Grass")) & (allDecorTypes.get(i)!=DecorVars.Grass)) continue;
+					if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(i)!=DecorVars.Waterfall)) continue;
 					for (int j = 0; j < allDecors.get(i).length/2; j++) {
 						if (bestval == -1.0f) {
 							bestval = (float) Math.sqrt((tempx-allDecors.get(i)[2*j])*(tempx-allDecors.get(i)[2*j]) + (tempy-allDecors.get(i)[2*j+1])*(tempy-allDecors.get(i)[2*j+1]));
@@ -4339,7 +4359,7 @@ public class Editor extends GameState {
 							}
 						}
 					}
-				}
+				} 
 			}			
 		} else {
 			// Polygons
@@ -5391,10 +5411,10 @@ public class Editor extends GameState {
 		angle *= MathUtils.PI/180.0;
 		if (otype==DecorVars.Waterfall) {
 			newPoly = new float[DecorVars.decorWaterfall.length];
-			newPoly[0] = DecorVars.decorWaterfall[0] + xcen;
-			newPoly[1] = DecorVars.decorWaterfall[1] + ycen - DecorVars.decorWaterfall[3]/2;
-			newPoly[2] = DecorVars.decorWaterfall[2];
-			newPoly[3] = DecorVars.decorWaterfall[3];
+			for (int i=0; i<DecorVars.decorWaterfall.length/2; i++) {
+				newPoly[2*i] = DecorVars.decorWaterfall[2*i] + xcen;
+				newPoly[2*i+1] = DecorVars.decorWaterfall[2*i+1] + ycen;
+			}
 		} else if (DecorVars.IsRoadSign(otype)) {
 			newPoly = new float[DecorVars.decorCircleRoadSign.length];
 			newPoly[0] = DecorVars.decorCircleRoadSign[0] + xcen;

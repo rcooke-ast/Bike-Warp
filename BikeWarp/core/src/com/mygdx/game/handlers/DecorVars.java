@@ -24,7 +24,7 @@ public class DecorVars {
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
-    public static final float[] decorWaterfall = {0.0f,0.0f,1000.0f,3000.0f};
+    public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
 
     public static boolean IsRoadSign(int dTyp) {
     	if  ((dTyp == RoadSign_Stop) | (dTyp == RoadSign_DoNotEnter) | (dTyp == RoadSign_RampAhead) |
