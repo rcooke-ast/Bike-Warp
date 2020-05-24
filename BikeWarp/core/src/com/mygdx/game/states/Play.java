@@ -104,6 +104,7 @@ public class Play extends GameState {
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
     private Array<PolySpatial> mPolySpatials;
+    private Array<PolySpatial> waterfallBackground; 
     private Map<String, Texture> mTextureMap;
     private Map<Texture, TextureRegion> mTextureRegionMap;
     private Body gameInfo;
@@ -141,6 +142,8 @@ public class Play extends GameState {
     private Body bikeBodyR;
     private Body bikeBodyC;
     private Body switchGateBody, triggerBody;
+    private Body waterfallBody;
+    private float waterfallPos;
     private float bikeDirc = 1.0f;
 	private float dircGrav;
     private float bikeScale = 1.0f;
@@ -413,6 +416,7 @@ public class Play extends GameState {
         fallingJoints = new Array<Body>();
         fallingJointsFallTime = new Array<Float>();
         fallingJointsTime = new Array<Float>();
+        waterfallPos = 0.0f;
 
     	playerJump = 100.0f;
     	lrIsDown = false;
@@ -609,6 +613,7 @@ public class Play extends GameState {
         	   updateTriggerBodies(dt);
         	   updateKinematicBodies(dt);
         	   updateSwitches();
+        	   if (waterfallBody != null) updateWaterfall(dt);
         	   if (canTransport < 0.0f) updateTransport();
         	   else canTransport += dt;
         	   if (canTransport >= transportTime) {
@@ -1221,6 +1226,17 @@ public class Play extends GameState {
     	bodies.clear();
     }
 
+    private void updateWaterfall(float dt) {
+    	float shift = dt*9.8f;
+    	waterfallPos -= shift;
+    	if (waterfallPos <= -512.0f*PolySpatial.PIXELS_PER_METER) {
+    		waterfallPos += 1024.0f*PolySpatial.PIXELS_PER_METER;
+    	}
+    	waterfallBody.setTransform(0.0f, waterfallPos, 0.0f);
+//    	waterfallBody.setTransform(bikeBodyC.getPosition(), 0.0f);
+
+    }
+    
     public void render() {
         // clear screen
     	Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1);
@@ -1565,6 +1581,9 @@ public class Play extends GameState {
        switchGateBody = mWorld.createBody(bdef);
        switchGateBody.setUserData(new Array<Integer>());
 
+       // Get the waterfall body
+       waterfallBody = mScene.getNamed(Body.class, "Waterfall").first();
+
 //       // Get all references to trigger platforms and create the fixture
 //       // Create a trigger body, which will contain all of the trigger fixtures
 //       bdef = new BodyDef();
@@ -1682,6 +1701,7 @@ public class Play extends GameState {
     	if (mSpatials != null) mSpatials.clear();
     	if (mDecors != null) mDecors.clear();
     	if (mPolySpatials != null) mPolySpatials.clear();
+    	if (waterfallBackground != null) waterfallBackground.clear();
     	if (switchGate != null) switchGate.clear();
     	if (doorImages != null) doorImages.clear();
     	if (transportImages != null) transportImages.clear();
@@ -1718,6 +1738,18 @@ public class Play extends GameState {
     	}
     	mBatch.end();
 
+    	// Render the dark part of the waterfall
+        if ((waterfallBackground != null) && (waterfallBackground.size > 0)) {
+        	System.out.println(waterfallBackground.size);
+        	mPolyBatch.setProjectionMatrix(b2dCam.combined);
+            mPolyBatch.begin();
+            for (int i = 0; i < waterfallBackground.size; i++) {
+            	waterfallBackground.get(i).render(mPolyBatch, 0);
+            }
+            mPolyBatch.end();
+    	}
+    	
+        // Render all of the spatials
     	if ((mSpatials != null) && (mSpatials.size > 0))
     	{
     		mBatch.setProjectionMatrix(b2dCam.combined);
@@ -1729,6 +1761,7 @@ public class Play extends GameState {
     		mBatch.end();
     	}
 
+    	// Render the decorations
     	if ((mDecors != null) && (mDecors.size > 0))
     	{
     		mBatch.begin();
@@ -1872,7 +1905,7 @@ public class Play extends GameState {
        mBatch.draw(bikeOverlay, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
        mBatch.end();
 
-       // Render the ground
+       // Render the ground, grass, waterfalls
        if ((mPolySpatials != null) && (mPolySpatials.size > 0))
        {
           mPolyBatch.setProjectionMatrix(b2dCam.combined);
@@ -1980,6 +2013,7 @@ public class Play extends GameState {
     	if ((images != null) && (images.size > 0))
     	{
     		mSpatials = new Array<SimpleSpatial>();
+    		//mDecors = new Array<SimpleImage>();
     		transportImages = new Array<float[]>();
     		doorImages = new Array<float[]>();
     		remBodies = new Array<Body>();
@@ -2031,6 +2065,7 @@ public class Play extends GameState {
     			RubeDecor decor = decors.get(i);
     			mTmp.set(decor.width, decor.height);
     			String textureFileName = "data/" + decor.file;
+    			System.out.println(textureFileName);
 				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2));
 //    			texture = mTextureMap.get(textureFileName);
 //    			if (texture == null)
@@ -2056,12 +2091,14 @@ public class Play extends GameState {
     private void createPolySpatialsFromRubeFixtures(RubeScene scene)
     {
        Array<Body> bodies = scene.getBodies();
+       boolean isWaterfall = false;
        
        EarClippingTriangulator ect = new EarClippingTriangulator();
 
        if ((bodies != null) && (bodies.size > 0))
        {
           mPolySpatials = new Array<PolySpatial>();
+          waterfallBackground = new Array<PolySpatial>();
           Vector2 bodyPos = new Vector2();
           // for each body in the scene...
           for (int i = 0; i < bodies.size; i++)
@@ -2083,7 +2120,14 @@ public class Play extends GameState {
                    String textureName = (String)scene.getCustom(fixture, "TextureMask", null);
                    if (textureName != null)
                    {
+                	  // Reset boolean flags
+                	  isWaterfall = false;
+                	  // Grab texture
                       String textureFileName = "data/" + textureName;
+                      if (textureFileName.equalsIgnoreCase("data/images/waterfall.png")) {
+                    	  isWaterfall = true;
+                      }
+                      // Setup the texture region
                       texture = mTextureMap.get(textureFileName);
                       TextureRegion textureRegion = null;
                       if (texture == null) {
@@ -2137,6 +2181,24 @@ public class Play extends GameState {
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, body, Color.WHITE);
                             mPolySpatials.add(spatial);
+                            if (isWaterfall) {
+                                // Setup the texture region
+                                texture = mTextureMap.get("data/images/sky_moon.png");
+                                textureRegion = null;
+                                if (texture == null) {
+                              	  texture = new Texture("data/images/sky_moon.png");
+                              	  texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+                              	  texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+                              	  mTextureMap.put("data/images/sky_moon.png", texture);
+                              	  textureRegion = new TextureRegion(texture);
+                              	  mTextureRegionMap.put(texture, textureRegion);
+                                } else {
+                                    texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+                                    textureRegion = mTextureRegionMap.get(texture);
+                                }
+                                region = new PolygonRegion(textureRegion, vertices, triangleIndices);
+                            	waterfallBackground.add(new PolySpatial(region, body, Color.WHITE));
+                            }
                          }
                       }
                       else if (fixture.getType() == Shape.Type.Circle)

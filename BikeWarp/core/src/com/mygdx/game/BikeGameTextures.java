@@ -155,11 +155,13 @@ public class BikeGameTextures {
 		GetTexture("RS_stop",2);
 		GetTexture("metal_pole_1x16",2);
 		// Add some additional textures
+		// Add grass
         texture = new Texture(Gdx.files.internal("data/images/grass_smooth.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
         decorTextures.add(texture);
 		decorTextureNames.add("grass_smooth_linrep");
+		// Add cracked dirt
         texture = new Texture(Gdx.files.internal("data/images/cracked_dirt.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         texture.setWrap(TextureWrap.Repeat, TextureWrap.ClampToEdge);

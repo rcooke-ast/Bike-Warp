@@ -3,6 +3,7 @@ package com.mygdx.game.utilities;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.handlers.B2DVars;
 import com.mygdx.game.handlers.DecorVars;
 import com.mygdx.game.handlers.ObjectVars;
@@ -45,6 +46,8 @@ public class EditorDecorIO {
         		ImageRoadSign(json, decors.get(i), "images/RS_speed_80.png", i);
         	} else if (decorTypes.get(i) == DecorVars.RoadSign_100) {
         		ImageRoadSign(json, decors.get(i), "images/RS_speed_100.png", i);
+//        	} else if (decorTypes.get(i) == DecorVars.Waterfall) {
+//        		ImageWaterfall(json, decors.get(i), "images/waterfall.png", i);
         	}
         }
 		return;
@@ -107,6 +110,51 @@ public class EditorDecorIO {
 		return;
 	}
 
+//	public static void ImageWaterfall(JSONStringer json, float[] fs, String imageFile, int cnt) throws JSONException {
+//		// Define some variables
+//		ArrayList<Vector2> concaveVertices = PolygonOperations.MakeVertices(fs);
+//		ArrayList<ArrayList<Vector2>> convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+//		ArrayList<float[]> convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+//		for (int k = 0; k<convexPolygons.size(); k++) {
+//         	json.object();
+//            // Specify other properties of this fixture
+//        	json.key("density").value(1);
+//            json.key("friction").value(0);
+//            json.key("restitution").value(0);
+//            json.key("name").value("fixture8");
+//            json.key("userData").value("Waterfall");
+//            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+//            json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+//            // Set the (background) ground texture
+//            json.key("customProperties");
+//            json.array();
+//            json.object();
+//            json.key("name").value("TextureMask");
+//            json.key("string").value(imageFile);
+//            json.endObject();
+//            json.endArray();
+//			json.key("polygon");
+//            json.object(); // Begin polygon object
+//            json.key("vertices");
+//            json.object(); // Begin vertices object
+//            json.key("x");
+//            json.array();
+//            for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+//            	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
+//            }
+//            json.endArray();
+//            json.key("y");
+//            json.array();
+//            for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+//            	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
+//            }
+//            json.endArray();
+//            json.endObject(); // End the vertices object
+//            json.endObject(); // End polygon object
+//            json.endObject(); // End this fixture
+//		}
+//	}
+	
 	public static void ImageThisDoesNothing(JSONStringer json, float[] fs, int bodyIndex, int cnt, int doorcolor) throws JSONException {
 		float xcen = B2DVars.EPPM*0.5f*(fs[0]+fs[4]);
 		float ycen = B2DVars.EPPM*0.5f*(fs[1]+fs[5]);
