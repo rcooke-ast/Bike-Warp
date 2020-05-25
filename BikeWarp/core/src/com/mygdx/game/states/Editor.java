@@ -86,7 +86,7 @@ public class Editor extends GameState {
 	private String[] decorateList = {"Grass",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
-			"Sign (Stop)", "Waterfall"};
+			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Waterfall"};
     private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = {"Cracked Mud", "Bubbles", "Gravel", "Ice", "Mars", "Moon"};
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -160,7 +160,7 @@ public class Editor extends GameState {
 	private ArrayList<float[]> updateGroupPoly;
 	private String currentTexture = "";
 	private int polySelect = -1, vertSelect = -1, segmSelect = -1;
-	private int polyHover = -1, vertHover = -1, segmHover = -1;
+	private int polyHover = -1, vertHover = -1, segmHover = -1, decorHover=-1;
 	private int objectSelect = -1, decorSelect = -1, finishObjNumber;
 	private int pLevelIndex = 0, pStaticIndex = 0, pKinematicIndex = 0, pFallingIndex = 0, pTriggerIndex = 0, pObjectIndex = 0;
 	private boolean triggerSelect = false;
@@ -768,6 +768,7 @@ public class Editor extends GameState {
 						vertSelect = -1;
 						segmSelect = -1;
 						polyHover = -1;
+						decorHover = -1;
 						vertHover = -1;
 						segmHover = -1;
 						updatePathVertex = null;
@@ -857,6 +858,7 @@ public class Editor extends GameState {
     	vertSelect = -1;
     	segmSelect = -1;
     	polyHover = -1;
+    	decorHover = -1;
     	vertHover = -1;
     	segmHover = -1;
     	objectSelect = -1;
@@ -1006,6 +1008,7 @@ public class Editor extends GameState {
 						vertSelect = -1;
 						vertHover = -1;
 						polyHover = -1;
+						decorHover = -1;
 						segmHover = -1;
 					} else if (allPolygonPaths.get(polySelect).length == 10) {
 						float[] pathArr = new float[6];
@@ -1014,6 +1017,7 @@ public class Editor extends GameState {
 						vertSelect = -1;
 						vertHover = -1;
 						polyHover = -1;
+						decorHover = -1;
 						segmHover = -1;
 					}
 				}
@@ -1033,7 +1037,13 @@ public class Editor extends GameState {
 					engageDelete = false;
 					objectSelect = -1;
 				} else if (decorSelect != -1) {
-					DeleteDecor(decorSelect);
+					if (vertSelect != -1) {
+						if (allDecors.get(decorSelect).length <= 6) DeleteDecor(decorSelect);
+						else DeleteVertex(decorSelect, vertSelect);
+						vertSelect = -1;
+					} else {
+						DeleteDecor(decorSelect);
+					}
 					engageDelete = false;
 					decorSelect = -1;
 				} else if ((polySelect == -1) | (objectSelect == -1) | (decorSelect == -1)) {
@@ -1043,6 +1053,7 @@ public class Editor extends GameState {
 				}
 				vertHover = -1;
 				polyHover = -1;
+				decorHover = -1;
 				segmHover = -1;
 			}
 		}
@@ -1584,6 +1595,12 @@ public class Editor extends GameState {
 	        	} else if (dTyp == DecorVars.Waterfall) {
 	        		shapeRenderer.setColor(0, 0, 0.8f, opacity);
 	        		shapeRenderer.polygon(allDecors.get(i));
+	        	} else if (dTyp == DecorVars.CollisionlessBG) {
+	        		shapeRenderer.setColor(0.4f, 0.4f, 0.4f, opacity);
+	        		shapeRenderer.polygon(allDecors.get(i));
+	        	} else if (dTyp == DecorVars.CollisionlessFG) {
+	        		shapeRenderer.setColor(0.8f, 0.8f, 0.8f, opacity);
+	        		shapeRenderer.polygon(allDecors.get(i));
 	        	} else if (dTyp == DecorVars.LargeStone) {
 	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 	        		shapeRenderer.circle(allDecors.get(i)[0], allDecors.get(i)[1],allDecors.get(i)[2]);
@@ -1661,6 +1678,10 @@ public class Editor extends GameState {
 	        		shapeRenderer.line(updatePoly[0], updatePoly[1], rCoord[0], rCoord[1]);
         		} else if (allDecorTypes.get(decorSelect) == DecorVars.Waterfall) {
 	        		shapeRenderer.polygon(updatePoly);
+        		} else if (allDecorTypes.get(decorSelect) == DecorVars.CollisionlessBG) {
+	        		shapeRenderer.polygon(updatePoly);
+        		} else if (allDecorTypes.get(decorSelect) == DecorVars.CollisionlessFG) {
+	        		shapeRenderer.polygon(updatePoly);
         		} else shapeRenderer.polygon(updatePoly);
         	}
         }
@@ -1709,6 +1730,29 @@ public class Editor extends GameState {
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
 	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertHover], allPolygonPaths.get(polySelect)[6+2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
 	        }        	
+        } else if (mode==6) {
+	        if ((segmSelect != -1) & (vertSelect != -1) & (decorSelect != -1)) {
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	int segmNext = segmSelect + 1;
+	        	if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
+	        	shapeRenderer.line(allDecors.get(decorSelect)[2*segmNext],allDecors.get(decorSelect)[2*segmNext+1],allDecors.get(decorSelect)[2*segmSelect],allDecors.get(decorSelect)[2*segmSelect+1]);
+	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
+	        } else if ((vertSelect != -1) & (decorSelect != -1)) {
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	shapeRenderer.circle(allDecors.get(decorSelect)[2*vertSelect], allDecors.get(decorSelect)[2*vertSelect+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold); 
+	        } else if ((segmHover != -1) & (vertHover != -1) & (decorHover != -1)) {
+	            // Draw the hover segment
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	int segmNext = segmHover + 1;
+	        	if (segmNext==allDecors.get(decorHover).length/2) segmNext = 0;
+	        	shapeRenderer.line(allDecors.get(decorHover)[2*segmNext],allDecors.get(decorHover)[2*segmNext+1],allDecors.get(decorHover)[2*segmHover],allDecors.get(decorHover)[2*segmHover+1]);
+	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
+	            shapeRenderer.circle(0.5f*(allDecors.get(decorHover)[2*segmNext]+allDecors.get(decorHover)[2*segmHover]), 0.5f*(allDecors.get(decorHover)[2*segmNext+1]+allDecors.get(decorHover)[2*segmHover+1]), cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        } else if ((vertHover != -1) & (decorHover != -1)) {
+	            // Draw the hover vertex
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	shapeRenderer.circle(allDecors.get(decorHover)[2*vertHover], allDecors.get(decorHover)[2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        }
         } else if (allPolygons.size()!=0) {
 	        if ((segmSelect != -1) & (vertSelect != -1) & (polySelect != -1)) {
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -1993,11 +2037,11 @@ public class Editor extends GameState {
     		if (modeChild.equals("Add")) {
     	    	if (GameInput.MBJUSTPRESSED) {
     	        	if (drawingPoly == true) {
-    	        		DrawPolygon();        		
+    	        		DrawPolygon(-1);        		
     	        	} else {
     	        		polyDraw = new ArrayList<float[]>();
     	        		drawingPoly = true;
-    	        		DrawPolygon();
+    	        		DrawPolygon(-1);
     	        	}
     	    	}
     		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
@@ -2289,11 +2333,11 @@ public class Editor extends GameState {
     		if (modeChild.equals("Add")) {
     	    	if (GameInput.MBJUSTPRESSED) {
     	        	if (drawingPoly == true) {
-    	        		DrawPolygon();        		
+    	        		DrawPolygon(-1);        		
     	        	} else {
     	        		polyDraw = new ArrayList<float[]>();
     	        		drawingPoly = true;
-    	        		DrawPolygon();
+    	        		DrawPolygon(-1);
     	        	}
     	    	}
     		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
@@ -3420,8 +3464,141 @@ public class Editor extends GameState {
         			vertSelect = -1;
         		} else FindNearestVertex(true);
         	}
-		} else if (modeParent.equals("Large Stone")) {
-
+		} else if ((modeParent.equals("Collisionless BG")) | (modeParent.equals("Collisionless FG"))) {
+			int typeCol = DecorVars.CollisionlessBG;
+			if (modeParent.equals("Collisionless FG")) typeCol = DecorVars.CollisionlessFG;
+			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
+    	    	if (GameInput.MBJUSTPRESSED) {
+    	        	if (drawingPoly == true) {
+    	        		DrawPolygon(typeCol);        		
+    	        	} else {
+    	        		polyDraw = new ArrayList<float[]>();
+    	        		drawingPoly = true;
+    	        		DrawPolygon(typeCol);
+    	        	}
+    	    	}
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				SelectDecor("up", typeCol, false, false);
+				engageDelete = true;
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", typeCol, false, false);
+					startX = GameInput.MBDOWNX*scrscale;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+	            	MoveDecor(decorSelect, "polygon", endX, endY);
+				}
+			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "move");
+				decorSelect = -1;
+    		} else if (modeChild.equals("Move Vertex")) {
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+        		if (GameInput.MBDRAG==true) {
+        			if (vertSelect == -1) {
+        				FindNearestVertex(false);
+        				startX = GameInput.MBDOWNX*scrscale;
+        				startY = GameInput.MBDOWNY;
+        			} else {
+    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+    		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+    	            	MoveVertex(decorSelect, vertSelect, endX, endY);
+        			}
+        		} else if ((GameInput.MBJUSTPRESSED==true) & (decorSelect != -1) & (vertSelect != -1)) {
+        			UpdateDecor(decorSelect, "move");
+        			decorSelect = -1;
+        			vertSelect = -1;
+        		} else FindNearestVertex(true);
+			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", typeCol, false, false);
+					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				} else {
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		    		nullvarA = (float) (Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy))/Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy)));
+	            	ScalePolygon(decorSelect, nullvarA);
+				}
+			} else if ((modeChild.equals("Scale")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "move");
+				decorSelect = -1;
+			} else if ((modeChild.equals("Flip x")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect == -1)) {
+				SelectDecor("up", typeCol, false, false);
+				if (decorSelect != -1) {
+	            	FlipPolygon(decorSelect, "x");
+	    			UpdateDecor(decorSelect, "move");
+	    			decorSelect = -1;	            	
+				}
+			} else if ((modeChild.equals("Flip y")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect == -1)) {
+				SelectDecor("up", typeCol, false, false);
+				if (decorSelect != -1) {
+	            	FlipPolygon(decorSelect, "y");
+	    			UpdateDecor(decorSelect, "move");
+	    			decorSelect = -1;	            	
+				}
+			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", typeCol, false, false);
+					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				} else {
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		    		nullvarA = (float) Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy));
+		    		nullvarB = (float) Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy));
+		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
+		    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
+		    		if ((startX == cursposx) & (startY == cursposy)) return; // No rotation
+		    		else if (startX == cursposx) {
+		    			if (endX>startX) nullvarD *= -1.0f;
+		    			if (startY<cursposy) nullvarD *= -1.0f;
+		    		} else {
+		    			if (endY < endX*((startY-cursposy)/(startX-cursposx)) + (startY - startX*((startY-cursposy)/(startX-cursposx)))) nullvarD *= -1.0f;
+		    			if (startX < cursposx) nullvarD *= -1.0f;
+		    		}
+		    		RotateDecor(decorSelect, "object", nullvarD);
+				}
+			} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "rotateobject");
+				decorSelect = -1;
+	        	GameInput.MBRELEASE=false;
+			} else if (modeChild.equals("Add Vertex")) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	    		if (GameInput.MBDRAG==true) {
+	    			if (vertSelect == -1) {
+	    				FindNearestSegmentDecor(false);
+	    			} else {
+	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	        			int segmNext = segmSelect + 1;
+	        			if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
+	        			if (segmNext < segmSelect) AddVertex(decorSelect, segmNext, segmSelect, startX, startY);
+	        			else AddVertex(decorSelect, segmSelect, segmNext, startX, startY);
+	    			}
+	    		} else if ((GameInput.MBJUSTPRESSED==true) & (decorSelect != -1) & (vertSelect != -1)) {
+	         			UpdateDecor(decorSelect, "move");
+	         			decorSelect = -1;
+	         			vertSelect = -1;
+	    		} else FindNearestSegmentDecor(true);
+			} else if (modeChild.equals("Delete Vertex")) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				if (engageDelete==false) {
+					FindNearestVertex(true);
+				}
+				if (GameInput.MBJUSTPRESSED==true) {
+					FindNearestVertex(false);
+					engageDelete = true;
+				}
+			} else if (modeParent.equals("Large Stone")) {
+				
+			}
 		}
 	}
 
@@ -3581,6 +3758,7 @@ public class Editor extends GameState {
 		vertSelect = -1;
 		segmSelect = -1;
 		polyHover = -1;
+		decorHover = -1;
 		vertHover = -1;
 		segmHover = -1;
 		updatePathVertex = null;
@@ -3756,6 +3934,10 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move Vertex");
 				} else if (modeParent.equals("Waterfall")) {
 					listChild.setItems("Add", "Delete", "Move", "Move Vertex");
+				} else if (modeParent.equals("Collisionless BG")) {
+					listChild.setItems(itemsADMRSFv);
+				} else if (modeParent.equals("Collisionless FG")) {
+					listChild.setItems(itemsADMRSFv);					
 				} else listChild.setItems(itemsADMR);
 				break;
 			case 7 :
@@ -3822,9 +4004,16 @@ public class Editor extends GameState {
 	
     public void AddPolygon(float[] newPoly, int ptype, int psize) {
     	changesMade = true;
-		allPolygons.add(newPoly);
-		allPolygonTypes.add(ptype);
-		allPolygonTextures.add("");
+    	if (mode == 6) {
+    		allDecors.add(newPoly);
+    		allDecorTypes.add(ptype);
+    		allDecorPolys.add(-1);
+    		return;
+    	} else {
+			allPolygons.add(newPoly);
+			allPolygonTypes.add(ptype);
+			allPolygonTextures.add("");
+    	}
 		float xcenp = 0.0f, ycenp = 0.0f;
 		if (mode==4) {
 			if (newPoly.length==3) {
@@ -3885,27 +4074,52 @@ public class Editor extends GameState {
 
     public void AddVertex(int idx, int verti, int vertj, float startX, float startY) {
     	changesMade = true;
-    	updatePoly = new float[allPolygons.get(idx).length + 2];
-    	int cntr = 0;
-    	if (vertj != verti+1) {
-    		// Add the new vertex on the end of the array
-        	for (int i = 0; i<allPolygons.get(idx).length/2; i++){
-        		updatePoly[2*i] = allPolygons.get(idx)[2*i];
-        		updatePoly[2*i+1] = allPolygons.get(idx)[2*i+1];
-        		}
-        	updatePoly[allPolygons.get(idx).length] = startX;
-        	updatePoly[allPolygons.get(idx).length+1] = startY;
+    	if (mode==6) {
+	    	updatePoly = new float[allDecors.get(idx).length + 2];
+	    	int cntr = 0;
+	    	if (vertj != verti+1) {
+	    		// Add the new vertex on the end of the array
+	        	for (int i = 0; i<allDecors.get(idx).length/2; i++){
+	        		updatePoly[2*i] = allDecors.get(idx)[2*i];
+	        		updatePoly[2*i+1] = allDecors.get(idx)[2*i+1];
+	        		}
+	        	updatePoly[allDecors.get(idx).length] = startX;
+	        	updatePoly[allDecors.get(idx).length+1] = startY;
+	    	} else {
+	        	for (int i = 0; i<allDecors.get(idx).length/2; i++){
+	        		if (i == vertj) {
+	        			updatePoly[2*cntr] = startX;
+	        			updatePoly[2*cntr+1] = startY;
+	        			cntr += 1;
+	        		}
+	    			updatePoly[2*cntr] = allDecors.get(idx)[2*i];
+	    			updatePoly[2*cntr+1] = allDecors.get(idx)[2*i+1];
+	    			cntr += 1;
+	        	}
+	    	}
     	} else {
-        	for (int i = 0; i<allPolygons.get(idx).length/2; i++){
-        		if (i == vertj) {
-        			updatePoly[2*cntr] = startX;
-        			updatePoly[2*cntr+1] = startY;
-        			cntr += 1;
-        		}
-    			updatePoly[2*cntr] = allPolygons.get(idx)[2*i];
-    			updatePoly[2*cntr+1] = allPolygons.get(idx)[2*i+1];
-    			cntr += 1;
-        	}
+	    	updatePoly = new float[allPolygons.get(idx).length + 2];
+	    	int cntr = 0;
+	    	if (vertj != verti+1) {
+	    		// Add the new vertex on the end of the array
+	        	for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+	        		updatePoly[2*i] = allPolygons.get(idx)[2*i];
+	        		updatePoly[2*i+1] = allPolygons.get(idx)[2*i+1];
+	        		}
+	        	updatePoly[allPolygons.get(idx).length] = startX;
+	        	updatePoly[allPolygons.get(idx).length+1] = startY;
+	    	} else {
+	        	for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+	        		if (i == vertj) {
+	        			updatePoly[2*cntr] = startX;
+	        			updatePoly[2*cntr+1] = startY;
+	        			cntr += 1;
+	        		}
+	    			updatePoly[2*cntr] = allPolygons.get(idx)[2*i];
+	    			updatePoly[2*cntr+1] = allPolygons.get(idx)[2*i+1];
+	    			cntr += 1;
+	        	}
+	    	}
     	}
     	SaveLevel(true);
     }
@@ -4000,16 +4214,29 @@ public class Editor extends GameState {
 	}
 
     public void DeleteVertex(int idx, int vert) {
-    	updatePoly = new float[allPolygons.get(idx).length - 2];
-    	int cntr = 0;
-    	for (int i = 0; i<allPolygons.get(idx).length/2; i++){
-    		if (i != vert) {
-    			updatePoly[2*cntr] = allPolygons.get(idx)[2*i];
-    			updatePoly[2*cntr+1] = allPolygons.get(idx)[2*i+1];
-    			cntr += 1;
-    		}
+    	if (mode == 6) {
+        	updatePoly = new float[allDecors.get(idx).length - 2];
+        	int cntr = 0;
+        	for (int i = 0; i<allDecors.get(idx).length/2; i++){
+        		if (i != vert) {
+        			updatePoly[2*cntr] = allDecors.get(idx)[2*i];
+        			updatePoly[2*cntr+1] = allDecors.get(idx)[2*i+1];
+        			cntr += 1;
+        		}
+        	}
+    		UpdateDecor(idx, "move");
+    	} else {
+        	updatePoly = new float[allPolygons.get(idx).length - 2];
+        	int cntr = 0;
+        	for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+        		if (i != vert) {
+        			updatePoly[2*cntr] = allPolygons.get(idx)[2*i];
+        			updatePoly[2*cntr+1] = allPolygons.get(idx)[2*i+1];
+        			cntr += 1;
+        		}
+        	}
+    		UpdatePolygon(idx);
     	}
-		UpdatePolygon(idx);
 	}
    
     public void DeleteVertexPath(int idx, int vert) {
@@ -4028,7 +4255,7 @@ public class Editor extends GameState {
     	SaveLevel(true);
 	}
    
-	public void DrawPolygon() {
+	public void DrawPolygon(int typeAdd) {
 		// Make sure the new point is valid (does not intersect other lines and is not out of bounds)
 		tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 		tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -4038,6 +4265,7 @@ public class Editor extends GameState {
 				MakePolygon();
 				if (mode == 3) AddPolygon(newPoly, 0, polyDraw.size());
 				else if (mode == 4) AddPolygon(newPoly, 2, polyDraw.size());
+				else if (mode == 6) AddPolygon(newPoly, typeAdd, polyDraw.size());
 				else if (mode == 7) AddPolygon(newPoly, 4, polyDraw.size());
 				else if (mode == 9) AddPolygon(newPoly, 6, polyDraw.size());
 		    	drawingPoly = false;
@@ -4332,17 +4560,19 @@ public class Editor extends GameState {
 		if (mode == 6) {
 			// Then decorating (grass)
 			for (int i = 0; i < allDecors.size(); i++) {
-				if ((allDecorTypes.get(i)==DecorVars.Grass) | (allDecorTypes.get(i)==DecorVars.Waterfall)) {
+				if ((allDecorTypes.get(i)==DecorVars.Grass) | (allDecorTypes.get(i)==DecorVars.Waterfall) | (allDecorTypes.get(i)==DecorVars.CollisionlessBG) | (allDecorTypes.get(i)==DecorVars.CollisionlessFG)) {
 					if ((modeParent.equals("Grass")) & (allDecorTypes.get(i)!=DecorVars.Grass)) continue;
 					if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(i)!=DecorVars.Waterfall)) continue;
+					if ((modeParent.equals("Collisionless BG")) & (allDecorTypes.get(i)!=DecorVars.CollisionlessBG)) continue;
+					if ((modeParent.equals("Collisionless FG")) & (allDecorTypes.get(i)!=DecorVars.CollisionlessFG)) continue;
 					for (int j = 0; j < allDecors.get(i).length/2; j++) {
 						if (bestval == -1.0f) {
 							bestval = (float) Math.sqrt((tempx-allDecors.get(i)[2*j])*(tempx-allDecors.get(i)[2*j]) + (tempy-allDecors.get(i)[2*j+1])*(tempy-allDecors.get(i)[2*j+1]));
 							if (hover) {
-								polyHover = i;
+								decorHover = i;
 								vertHover = j;
 							} else {
-								polySelect = i;
+								decorSelect = i;
 								vertSelect = j;							
 							}
 						} else {
@@ -4350,10 +4580,10 @@ public class Editor extends GameState {
 							if (tempval < bestval) {
 								bestval = (float) Math.sqrt((tempx-allDecors.get(i)[2*j])*(tempx-allDecors.get(i)[2*j]) + (tempy-allDecors.get(i)[2*j+1])*(tempy-allDecors.get(i)[2*j+1]));
 								if (hover) {
-									polyHover = i;
+									decorHover = i;
 									vertHover = j;
 								} else {
-									polySelect = i;
+									decorSelect = i;
 									vertSelect = j;							
 								}
 							}
@@ -4447,27 +4677,48 @@ public class Editor extends GameState {
 	}
 
     public void FlipPolygon(int idx, String flip) {
-    	updatePoly = allPolygons.get(idx).clone();
-    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 2)&(mode==4)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
+    	if (mode == 6) {
+	    	updatePoly = allDecors.get(idx).clone();
     		float avx = 0.0f;
     		float avy = 0.0f;
-    		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+    		for (int i = 0; i<allDecors.get(idx).length/2; i++){
     			avx += updatePoly[2*i];
     			avy += updatePoly[2*i+1];
     		}
-    		avx /= (float) (allPolygons.get(idx).length/2);
-    		avy /= (float) (allPolygons.get(idx).length/2);
+    		avx /= (float) (allDecors.get(idx).length/2);
+    		avy /= (float) (allDecors.get(idx).length/2);
     		if (flip.equals("x")) {
-	    		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+	    		for (int i = 0; i<allDecors.get(idx).length/2; i++){
 	    			updatePoly[2*i] = 2*avx - updatePoly[2*i];
 	    		}
     		} else if (flip.equals("y")) {
-	    		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+	    		for (int i = 0; i<allDecors.get(idx).length/2; i++){
 	    			updatePoly[2*i+1] = 2*avy - updatePoly[2*i+1];
 	    		}
-    		}
-    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 3)&(mode==4)) | ((allPolygonTypes.get(idx) == 5)&(mode==7)) | ((allPolygonTypes.get(idx) == 7)&(mode==9))) {
-    		// A circle shape --> Do nothing
+    		}    		
+    	} else {
+	    	updatePoly = allPolygons.get(idx).clone();
+	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 2)&(mode==4)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
+	    		float avx = 0.0f;
+	    		float avy = 0.0f;
+	    		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+	    			avx += updatePoly[2*i];
+	    			avy += updatePoly[2*i+1];
+	    		}
+	    		avx /= (float) (allPolygons.get(idx).length/2);
+	    		avy /= (float) (allPolygons.get(idx).length/2);
+	    		if (flip.equals("x")) {
+		    		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+		    			updatePoly[2*i] = 2*avx - updatePoly[2*i];
+		    		}
+	    		} else if (flip.equals("y")) {
+		    		for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+		    			updatePoly[2*i+1] = 2*avy - updatePoly[2*i+1];
+		    		}
+	    		}
+	    	} else if (((allPolygonTypes.get(idx) == 1)&(mode==3)) | ((allPolygonTypes.get(idx) == 3)&(mode==4)) | ((allPolygonTypes.get(idx) == 5)&(mode==7)) | ((allPolygonTypes.get(idx) == 7)&(mode==9))) {
+	    		// A circle shape --> Do nothing
+	    	}
     	}
 	}
 
@@ -4672,8 +4923,17 @@ public class Editor extends GameState {
 
     public void ScalePolygon(int idx, float scale) {
     	if (scale < 0.0f) scale *= -1.0f;
-    	updatePoly = allPolygons.get(idx).clone();
-    	if ((mode == 3) | (mode==7) | (mode==9)) {
+    	if (mode == 6) updatePoly = allDecors.get(idx).clone();
+    	else updatePoly = allPolygons.get(idx).clone();
+    	if (mode == 6) {
+    		for (int i = 0; i<allDecors.get(idx).length; i++){
+    			if (i%2==0) {
+    				updatePoly[i] = cursposx + (allDecors.get(idx)[i]-cursposx)*scale;
+    			} else {
+    				updatePoly[i] = cursposy + (allDecors.get(idx)[i]-cursposy)*scale;
+    			}
+    		}
+    	} else if ((mode == 3) | (mode==7) | (mode==9)) {
 	    	if (((allPolygonTypes.get(idx) == 0)&(mode==3)) | ((allPolygonTypes.get(idx) == 4)&(mode==7)) | ((allPolygonTypes.get(idx) == 6)&(mode==9))) {
 	    		for (int i = 0; i<allPolygons.get(idx).length; i++){
 	    			if (i%2==0) {
@@ -5508,6 +5768,91 @@ public class Editor extends GameState {
 			warnElapse[warnNumber] = 0.0f;
 			warnType[warnNumber] = 1;
 			warnNumber += 1;
+		}
+	}
+
+	public void FindNearestSegmentDecor(boolean hover) {
+		//FindNearestVertex(hover);
+		int idxa, idxb, idxmin, polymin, flag;
+		float grad, intc, gradb, intcb, xint, yint, xa, xb, ya, yb;
+		float dist, tdist, mindist;
+		mindist = 0.0f;
+		idxmin = 0;
+		polymin = 0;
+		flag = 0;
+		float[] arraySegm;
+		for (int j=0; j<allDecors.size(); j++) {
+			if ((!hover) & (decorSelect != -1)) {
+				if (j!=decorSelect) continue;
+			}
+			if ((allDecorTypes.get(j) == DecorVars.CollisionlessBG) | (allDecorTypes.get(j) == DecorVars.CollisionlessFG)) {
+				arraySegm = allDecors.get(j).clone();
+				for (int i=0; i<arraySegm.length/2; i++) {
+					idxa = i;
+					if (i == arraySegm.length/2 - 1) idxb = 0;
+					else idxb = i+1;
+					// Calculate the gradient
+					xa = arraySegm[2*idxa];
+					ya = arraySegm[2*idxa+1];
+					xb = arraySegm[2*idxb];
+					yb = arraySegm[2*idxb+1];
+					if (xa==xb) {
+						if (ya>yb) {
+							if (tempy>ya) yint = tempy-ya;
+							else if (tempy<yb) yint = yb-tempy;
+							else yint = 0.0f;
+						} else {
+							if (tempy>yb) yint = tempy-yb;
+							else if (tempy<ya) yint = ya-tempy;
+							else yint = 0.0f;
+						}
+						dist = (float) Math.sqrt((tempx-xa)*(tempx-xa) + yint*yint);
+					} else if (ya==yb) {
+						if (xa>xb) {
+							if (tempx>xa) yint = tempx-xa;
+							else if (tempx<xb) yint = xb-tempx;
+							else yint = 0.0f;
+						} else {
+							if (tempx>xb) yint = tempx-xb;
+							else if (tempx<xa) yint = xa-tempx;
+							else yint = 0.0f;
+						}
+						dist = (float) Math.sqrt((tempy-ya)*(tempy-ya) + yint*yint);
+					} else {
+						grad = (yb-ya)/(xb-xa);
+						intc = ya - grad*xa;
+						gradb = -(xb-xa)/(yb-ya);
+						intcb = tempy - gradb*tempx;
+						// Calculate the intersection, and make sure the intersection is within bounds
+						xint = (intcb-intc)/(grad-gradb);
+						if (xa < xb) {
+							if (xint<xa) xint = xa;
+							else if (xint>xb) xint = xb;
+						} else {
+							if (xint<xb) xint = xb;
+							else if (xint>xa) xint = xa;						
+						}
+						// Calculate the distance between the intersection and the cursor
+						yint = grad*xint + intc;
+						dist = (float) Math.sqrt((tempx-xint)*(tempx-xint) + (tempy-yint)*(tempy-yint));
+					}
+					if ((dist < mindist) | (flag==0)) {
+						mindist = dist;
+						idxmin = i;
+						polymin = j;
+						flag=1;
+					}
+				}
+			}
+		}
+		if (hover) {
+			decorHover = polymin;
+			vertHover = idxmin;
+			segmHover = idxmin;
+		} else {
+			decorSelect = polymin;
+			vertSelect = idxmin;
+			segmSelect = idxmin;
 		}
 	}
 

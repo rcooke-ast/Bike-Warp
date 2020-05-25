@@ -1490,13 +1490,7 @@ public class Play extends GameState {
     	   leftRope = (RopeJoint) mWorld.createJoint(leftRopeL);
     	   rightRope = (RopeJoint) mWorld.createJoint(rightRopeL);
        }
-       
-//       if (isReplay) {
-//    	   mWorld.destroyJoint(leftWheel);
-//    	   mWorld.destroyJoint(rightWheel);
-//    	   mWorld.destroyJoint(leftRope);
-//    	   mWorld.destroyJoint(rightRope);
-//    	   
+
 //       }
 //       bikeBody.add(mScene.getNamed(Body.class, "bikebody0").first());
 //       bikeBody.add(mScene.getNamed(Body.class, "bikebody1").first());
@@ -2064,7 +2058,6 @@ public class Play extends GameState {
     			RubeDecor decor = decors.get(i);
     			mTmp.set(decor.width, decor.height);
     			String textureFileName = "data/" + decor.file;
-    			System.out.println(textureFileName);
 				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2));
 //    			texture = mTextureMap.get(textureFileName);
 //    			if (texture == null)
