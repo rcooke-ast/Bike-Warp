@@ -86,18 +86,17 @@ public class Editor extends GameState {
 	private String[] decorateList = {"Grass",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
-			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Waterfall"};
-    private String[] levelPropList = {"Collect Jewels", "Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
+			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Waterfall"};
+    private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = {"Cracked Mud", "Bubbles", "Gravel", "Ice", "Mars", "Moon"};
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"Mountains", "Waterfall"};
 	private String[] fgTextureList = {"Plants", "Trees"};
-	private String[] platformTextures = {"Default", "Asphalt", "Bricks", "Bubbles", "Cracked Mud", "Grass", "Gravel", "Ice", "Mars", "Moon", "Sand", "Steel"};
-	private String[] gravityList = {"Earth", "Moon", "Mars"};
+	private String[] platformTextures = DecorVars.GetPlatformTextures();
+	private String[] gravityList = {"Earth", "Moon", "Mars", "Zero"};
 	private String[] loadList = {"Load Level", "New Level"};
-	private String[] jewelNumber;
 	private String saveFName;
-	private boolean enteringFilename, changesMade, executing;
+	private boolean enteringFilename, changesMade;
 
 	private int totalNumMsgs = 20;
 	private BitmapFont warnFont, signFont;
@@ -1808,8 +1807,20 @@ public class Editor extends GameState {
 	        	}
 	        }
         }
-        // Draw the texture names on each polygon
+        // Draw the texture names on each collisionless platform
         String textName;
+        if (allDecors.size() != 0) {
+	        for (int i = 0; i<allDecors.size(); i++) {
+	        	if ((allDecorTypes.get(i)==DecorVars.CollisionlessBG) | (allDecorTypes.get(i)==DecorVars.CollisionlessFG)) {
+		        	textName = platformTextures[allDecorPolys.get(i)]; 
+		        	if (!textName.equals("Default")) {
+		        		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+		        		signFont.draw(sb, textName, allDecors.get(i)[0], allDecors.get(i)[1]+signWidth/2);
+		        	}
+	        	}
+	        }
+        }
+        // Draw the texture names on each polygon
         if (allPolygons.size() != 0) {
 	        for (int i = 0; i<allPolygons.size(); i++) {
 	        	textName = allPolygonTextures.get(i); 
@@ -3596,9 +3607,22 @@ public class Editor extends GameState {
 					FindNearestVertex(false);
 					engageDelete = true;
 				}
-			} else if (modeParent.equals("Large Stone")) {
-				
 			}
+		} else if (modeParent.equals("Collisionless Textures")) {
+	    	if (GameInput.MBJUSTPRESSED) {
+				// Text if a background platform has been selected
+	    		SelectDecor("down", DecorVars.CollisionlessBG, false, false);
+	    		// If not, try a foreground platform
+	    		if (decorSelect == -1) SelectDecor("down", DecorVars.CollisionlessFG, false, false);
+	    		// Now update the platform texture
+	    		if (decorSelect != -1) {
+	    			allDecorPolys.set(decorSelect, GetListIndex(modeChild, platformTextures.clone()));
+	    			decorSelect = -1;
+	    		}
+	    	}
+			currentTexture = "";
+		} else if (modeParent.equals("Large Stone")) {
+			
 		}
 	}
 
@@ -3937,7 +3961,10 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Collisionless BG")) {
 					listChild.setItems(itemsADMRSFv);
 				} else if (modeParent.equals("Collisionless FG")) {
-					listChild.setItems(itemsADMRSFv);					
+					listChild.setItems(itemsADMRSFv);
+				} else if (modeParent.equals("Collisionless Textures")) {
+					listChild.setItems(platformTextures);
+		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
 				} else listChild.setItems(itemsADMR);
 				break;
 			case 7 :
@@ -4007,7 +4034,7 @@ public class Editor extends GameState {
     	if (mode == 6) {
     		allDecors.add(newPoly);
     		allDecorTypes.add(ptype);
-    		allDecorPolys.add(-1);
+    		allDecorPolys.add(0);
     		return;
     	} else {
 			allPolygons.add(newPoly);
@@ -5646,6 +5673,11 @@ public class Editor extends GameState {
 		if ((otype==DecorVars.Grass) & (polyHover != -1) & (segmHover != -1)) {
 			MakeGrass();
 			allDecorPolys.add(polyHover);
+		} else if ((otype==DecorVars.CollisionlessBG) | (otype==DecorVars.CollisionlessFG)) {
+			MakeDecor(otype, xcen, ycen, angle);
+			newCoord[0] = xcen;
+			newCoord[1] = ycen;
+			allDecorPolys.add(0); // Set this to be the default platform texture
 		} else {
 			MakeDecor(otype, xcen, ycen, angle);
 			newCoord[0] = xcen;

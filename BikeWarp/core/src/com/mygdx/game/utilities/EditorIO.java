@@ -602,7 +602,7 @@ public class EditorIO {
         }
 
         // Add Objects
-        int bodyIdx = cntKinematic+cntFalling+cntTrigger+1+1; // Second +1 is for the waterfall object
+        int bodyIdx = cntKinematic+cntFalling+cntTrigger+1;
         int addBodies;
         // Add Diamond Jewel
         EditorObjectIO.AddJewelDiamond(json, allObjects.get(2), 0);
@@ -841,6 +841,99 @@ public class EditorIO {
         json.endObject(); // End of Waterfall Body
         if (wfcntr != 0) bodyIdx += 1; // Add one for the waterfall body
 
+        // Add the Foreground and Background Collisionless objects
+        int[] collVars = {DecorVars.CollisionlessBG, DecorVars.CollisionlessFG};
+        String textMask;
+        for (int cc=0; cc < collVars.length; cc++) {
+	        json.object();
+	        json.key("angle").value(0);
+	        json.key("angularVelocity").value(0);
+	        json.key("awake").value(true);
+	//        json.key("customProperties");
+	//        json.array();
+	//        json.object();
+	//        json.key("name").value("GameInfo");
+	//        json.key("string").value("SURFACE");
+	//        json.endObject();
+	//        json.endArray();
+	        // Add the waterfall fixtures
+	        json.key("fixture");
+	        json.array();
+	        int ccntr = 0; 
+	        for (int i = 0; i<allDecors.size(); i++) {
+	        	// Decompose each polygon into a series of convex polygons
+	            if (allDecorTypes.get(i) == collVars[cc]) {
+	            	// Grab the name of the texture
+	            	textMask = GetFGTexture(DecorVars.GetPlatformTextureFromIndex(allDecorPolys.get(i)), textString);
+	            	// Decompose
+	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
+	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+	    			for (int k = 0; k<convexPolygons.size(); k++){
+	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" CFGBG"; // A problem with the length^2 of a polygon
+	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
+	                	json.object();
+			            // Specify other properties of this fixture
+			        	json.key("density").value(1);
+			            json.key("friction").value(0);
+			            json.key("restitution").value(0);
+			            json.key("name").value("Collisionless"+cc+"_"+ccntr);
+			            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+			            json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+			            // Set the (background) ground texture
+			            json.key("customProperties");
+			            json.array();
+			            json.object();
+			            json.key("name").value("TextureMask");
+			            json.key("string").value(textMask);
+			            json.endObject();
+			            json.object();
+			            json.key("name").value("Type");
+			            if (cc==0) json.key("string").value("CollisionlessBG");
+			            else json.key("string").value("CollisionlessFG");
+			            json.endObject();
+			            json.endArray();
+		    			json.key("polygon");
+		                json.object(); // Begin polygon object
+		                json.key("vertices");
+		                json.object(); // Begin vertices object
+		                json.key("x");
+		                json.array();
+		                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+		                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
+		                }
+		                json.endArray();
+		                json.key("y");
+		                json.array();
+		                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+		                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
+		                }
+		                json.endArray();
+		                json.endObject(); // End the vertices object
+		                json.endObject(); // End polygon object
+		                json.endObject(); // End this fixture
+		                ccntr += 1;
+	    			}
+	            }
+	        }
+	        // Clear the polygons
+	        if (concaveVertices != null) concaveVertices.clear();
+	        if (convexVectorPolygons != null) convexVectorPolygons.clear();
+	        if (convexPolygons != null) convexPolygons.clear();
+	        json.endArray(); // End of the fixtures for the collisionless body
+	        // Add some final properties for the collisionless body
+			json.key("linearVelocity").value(0);
+			json.key("name").value("Collisionless"+cc);
+			json.key("position");
+			json.object();
+			json.key("x").value(0);
+			json.key("y").value(0);
+			json.endObject();
+			json.key("type").value(0);
+	        json.endObject(); // End of Collisionless Bodies
+	        if (ccntr != 0) bodyIdx += 1; // Add one for the collisionless FG bodies, and add one for the collisionless BG bodies (if either exist)
+        }
+
         // End of describing all bodies
         json.endArray(); // End of body array
         // Add images
@@ -960,6 +1053,7 @@ public class EditorIO {
         if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Earth")) gravity = B2DVars.GRAVITY_EARTH;
         else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Mars")) gravity = B2DVars.GRAVITY_MARS;
         else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Moon")) gravity = B2DVars.GRAVITY_MOON;
+        else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Zero")) gravity = B2DVars.GRAVITY_ZERO;
         else gravity = B2DVars.GRAVITY_EARTH;
         json.key("x").value(gravityVec.x*gravity);
         json.key("y").value(gravityVec.y*gravity);
