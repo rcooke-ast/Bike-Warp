@@ -104,6 +104,8 @@ public class Play extends GameState {
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
     private Array<PolySpatial> mPolySpatials;
+    private Array<PolySpatial> mCollisionlessFG;
+    private Array<PolySpatial> mCollisionlessBG;
     private Array<PolySpatial> waterfallBackground; 
     private Map<String, Texture> mTextureMap;
     private Map<Texture, TextureRegion> mTextureRegionMap;
@@ -1732,12 +1734,12 @@ public class Play extends GameState {
     	}
     	mBatch.end();
 
-    	// Render the dark part of the waterfall
-        if ((waterfallBackground != null) && (waterfallBackground.size > 0)) {
+    	// Render the collisionless background
+        if ((mCollisionlessBG != null) && (mCollisionlessBG.size > 0)) {
         	mPolyBatch.setProjectionMatrix(b2dCam.combined);
             mPolyBatch.begin();
-            for (int i = 0; i < waterfallBackground.size; i++) {
-            	waterfallBackground.get(i).render(mPolyBatch, 0);
+            for (int i = 0; i < mCollisionlessBG.size; i++) {
+            	mCollisionlessBG.get(i).render(mPolyBatch, 0);
             }
             mPolyBatch.end();
     	}
@@ -1910,19 +1912,29 @@ public class Play extends GameState {
           mPolyBatch.end();
        }
 
-       // Render some items onto the HUD
-       renderHUD();
+	   // Render the collisionless foreground
+	   if ((mCollisionlessFG != null) && (mCollisionlessFG.size > 0)) {
+		   mPolyBatch.setProjectionMatrix(b2dCam.combined);
+	       mPolyBatch.begin();
+	       for (int i = 0; i < mCollisionlessFG.size; i++) {
+	    	   mCollisionlessFG.get(i).render(mPolyBatch, 0);
+	       }
+	       mPolyBatch.end();
+	   	}
 
-       // If the game is loaded, but paused, render a foreground transparency with text
-       if (mState == GAME_STATE.LOADED) {
-    	   mBatch.begin();
-    	   mBatch.setColor(1, 1, 1, 0.6f);
-    	   mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-    	   infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n"+LevelsListGame.gameLevelTips[levelID+1], hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
-    	   mBatch.end();
-       }
+        // Render some items onto the HUD
+        renderHUD();
+
+        // If the game is loaded, but paused, render a foreground transparency with text
+        if (mState == GAME_STATE.LOADED) {
+    	    mBatch.begin();
+    	    mBatch.setColor(1, 1, 1, 0.6f);
+    	    mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+    	    infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n"+LevelsListGame.gameLevelTips[levelID+1], hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
+    	    mBatch.end();
+        }
        
-       if (debug) b2dr.render(mWorld, b2dCam.combined);
+        if (debug) b2dr.render(mWorld, b2dCam.combined);
     }
 
     private void renderHUD()
@@ -2083,7 +2095,7 @@ public class Play extends GameState {
     private void createPolySpatialsFromRubeFixtures(RubeScene scene)
     {
        Array<Body> bodies = scene.getBodies();
-       boolean isWaterfall = false;
+       boolean isWaterfall=false, isFG=false, isBG=false;
        
        EarClippingTriangulator ect = new EarClippingTriangulator();
 
@@ -2091,6 +2103,8 @@ public class Play extends GameState {
        {
           mPolySpatials = new Array<PolySpatial>();
           waterfallBackground = new Array<PolySpatial>();
+          mCollisionlessFG = new Array<PolySpatial>();
+          mCollisionlessBG = new Array<PolySpatial>();
           Vector2 bodyPos = new Vector2();
           // for each body in the scene...
           for (int i = 0; i < bodies.size; i++)
@@ -2114,10 +2128,17 @@ public class Play extends GameState {
                    {
                 	  // Reset boolean flags
                 	  isWaterfall = false;
+                	  isFG = false;
+                	  isBG = false;
+                	  String testType = (String)scene.getCustom(fixture, "Type", null);
                 	  // Grab texture
                       String textureFileName = "data/" + textureName;
                       if (textureFileName.equalsIgnoreCase("data/images/waterfall.png")) {
                     	  isWaterfall = true;
+                      }
+                      if (testType != null) {
+                    	  if (testType.equalsIgnoreCase("CollisionlessBG")) isBG = true;
+                    	  else if (testType.equalsIgnoreCase("CollisionlessFG")) isFG = true;
                       }
                       // Setup the texture region
                       texture = mTextureMap.get(textureFileName);
@@ -2158,7 +2179,15 @@ public class Play extends GameState {
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, Color.WHITE);
-                            mPolySpatials.add(spatial);
+                            if (isBG) {
+                            	System.out.println("Found BG");
+                            	mCollisionlessBG.add(spatial);
+                            }
+                            else if (isFG) {
+                            	System.out.println("Found FG");
+                            	mCollisionlessFG.add(spatial);
+                            }
+                            else mPolySpatials.add(spatial);
                          }
                          else
                          {
