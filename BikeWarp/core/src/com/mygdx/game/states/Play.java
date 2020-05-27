@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -190,6 +191,8 @@ public class Play extends GameState {
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
+    private Music soundWaterfall;
+    private boolean containsWaterfall;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
@@ -358,6 +361,7 @@ public class Play extends GameState {
         soundSwitch = BikeGameSounds.GetSoundIndex("switch");
         soundTransport = BikeGameSounds.GetSoundIndex("transport");
         soundFinish = BikeGameSounds.GetSoundIndex("finish");
+        containsWaterfall = false;
 
         // Load the items to be displayed on the HUD
         keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red",0));
@@ -517,6 +521,12 @@ public class Play extends GameState {
 	            soundIDBikeMove = soundBikeIdle.play(0.0f);
 	            soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
 	            soundBikeMove.setLooping(soundIDBikeMove, true);
+	            // Check if there is a watefall
+	            if (containsWaterfall) {
+		            soundWaterfall = BikeGameSounds.LoadWaterfall();
+		            soundWaterfall.setLooping(true);
+		            soundWaterfall.play();
+	            }
                 mNextState = GAME_STATE.RUNNING;
 	            // Start the timer
 	            timerStart = (int) (TimeUtils.millis());
@@ -546,7 +556,7 @@ public class Play extends GameState {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
 	     	   			if ((!isReplay) && (mode != 0)) ReplayVars.replayTimer = timerTotal;
-		       		    soundBikeIdle.setLooping(soundIDBikeIdle, false);
+	     	   			StopSounds();
 	     	   			BikeGameSounds.PlaySound(soundFinish, 1.0f);
 	     	   			if (!isReplay) GameVars.SetTimerTotal(timerTotal);
 	     	   			// Check the records with a diamond
@@ -577,7 +587,7 @@ public class Play extends GameState {
 	     	   		} else cl.notFinished();
 	     	   } else if ((cl.isPlayerDead()) | (forcequit) | (forceRestart)) {
 	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
-	       		    if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
+	       		    StopSounds();
     	   			if (!isReplay) {
     	   				GameVars.SetTimerTotal(-1);
     	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
@@ -615,7 +625,7 @@ public class Play extends GameState {
         	   updateTriggerBodies(dt);
         	   updateKinematicBodies(dt);
         	   updateSwitches();
-        	   if (waterfallBody != null) updateWaterfall(dt);
+        	   if (containsWaterfall) updateWaterfall(dt);
         	   if (canTransport < 0.0f) updateTransport();
         	   else canTransport += dt;
         	   if (canTransport >= transportTime) {
@@ -655,6 +665,11 @@ public class Play extends GameState {
 //    	}
 //    }
 
+    private void StopSounds() {
+		if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
+		if (soundWaterfall != null) soundWaterfall.setLooping(false);
+    }
+    
 	private void switchBikeDirection() {
 		BikeGameSounds.PlaySound(soundBikeSwitch, 0.1f);
 		// Change the Bike Direction
@@ -1235,6 +1250,9 @@ public class Play extends GameState {
     		waterfallPos += 1024.0f*PolySpatial.PIXELS_PER_METER;
     	}
     	waterfallBody.setTransform(0.0f, waterfallPos, 0.0f);
+    	// Update the volume of the waterfall, depending on how close the rider is to the waterfall
+    	// TODO :: update waterfall volume
+    	soundWaterfall.setVolume(1.0f);
 //    	waterfallBody.setTransform(bikeBodyC.getPosition(), 0.0f);
 
     }
@@ -1710,6 +1728,7 @@ public class Play extends GameState {
     	if (mScene != null) mScene.clear();
     	if (soundBikeIdle != null) soundBikeIdle.dispose();
     	if (soundBikeMove != null) soundBikeMove.dispose();
+    	if (soundWaterfall != null) soundWaterfall.dispose();
     	mScene = null;
     }
 
@@ -2127,14 +2146,13 @@ public class Play extends GameState {
                    if (textureName != null)
                    {
                 	  // Reset boolean flags
-                	  isWaterfall = false;
                 	  isFG = false;
                 	  isBG = false;
                 	  String testType = (String)scene.getCustom(fixture, "Type", null);
                 	  // Grab texture
                       String textureFileName = "data/" + textureName;
                       if (textureFileName.equalsIgnoreCase("data/images/waterfall.png")) {
-                    	  isWaterfall = true;
+                    	  containsWaterfall = true;
                       }
                       if (testType != null) {
                     	  if (testType.equalsIgnoreCase("CollisionlessBG")) isBG = true;
@@ -2180,14 +2198,10 @@ public class Play extends GameState {
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, Color.WHITE);
                             if (isBG) {
-                            	System.out.println("Found BG");
                             	mCollisionlessBG.add(spatial);
-                            }
-                            else if (isFG) {
-                            	System.out.println("Found FG");
+                            } else if (isFG) {
                             	mCollisionlessFG.add(spatial);
-                            }
-                            else mPolySpatials.add(spatial);
+                            } else mPolySpatials.add(spatial);
                          }
                          else
                          {
@@ -2202,24 +2216,6 @@ public class Play extends GameState {
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, body, Color.WHITE);
                             mPolySpatials.add(spatial);
-                            if (isWaterfall) {
-                                // Setup the texture region
-                                texture = mTextureMap.get("data/images/sky_moon.png");
-                                textureRegion = null;
-                                if (texture == null) {
-                              	  texture = new Texture("data/images/sky_moon.png");
-                              	  texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
-                              	  texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-                              	  mTextureMap.put("data/images/sky_moon.png", texture);
-                              	  textureRegion = new TextureRegion(texture);
-                              	  mTextureRegionMap.put(texture, textureRegion);
-                                } else {
-                                    texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-                                    textureRegion = mTextureRegionMap.get(texture);
-                                }
-                                region = new PolygonRegion(textureRegion, vertices, triangleIndices);
-                            	waterfallBackground.add(new PolySpatial(region, body, Color.WHITE));
-                            }
                          }
                       }
                       else if (fixture.getType() == Shape.Type.Circle)

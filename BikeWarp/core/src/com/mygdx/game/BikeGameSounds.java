@@ -4,6 +4,7 @@ package com.mygdx.game;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -30,6 +31,9 @@ public class BikeGameSounds {
 		return Gdx.audio.newSound(Gdx.files.internal("data/sounds/bike_move.wav"));
 	}
 
+	public static Music LoadWaterfall() {
+		return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/waterfall.wav"));
+	}
 	private static void GetSound (String file) {
         sound = Gdx.audio.newSound(Gdx.files.internal("data/sounds/"+file+".mp3"));
 		sounds.add(sound);
