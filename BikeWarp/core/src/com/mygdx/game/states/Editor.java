@@ -3456,24 +3456,25 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
 				UpdateDecor(decorSelect, "move");
 				decorSelect = -1;
-    		} else if (modeChild.equals("Move Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-        		if (GameInput.MBDRAG==true) {
-        			if (vertSelect == -1) {
-        				FindNearestVertex(false);
-        				startX = GameInput.MBDOWNX*scrscale;
-        				startY = GameInput.MBDOWNY;
-        			} else {
-    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
-    		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-    	            	MoveVertex(polySelect, vertSelect, endX, endY);
-        			}
-        		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
-        			UpdateDecor(polySelect, "move");
-        			polySelect = -1;
-        			vertSelect = -1;
-        		} else FindNearestVertex(true);
+    		} else if (modeChild.equals("Move Segment")) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	    		if (GameInput.MBDRAG==true) {
+	    			if (vertSelect == -1) {
+	    				FindNearestSegmentDecor(false);
+	    			} else {
+	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	        			int segmNext = segmSelect + 1;
+	        			if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
+	        			if (segmNext < segmSelect) MoveSegment(decorSelect, segmNext, segmSelect, startX, startY);
+	        			else MoveSegment(decorSelect, segmSelect, segmNext, startX, startY);
+	    			}
+	    		} else if ((GameInput.MBJUSTPRESSED==true) & (decorSelect != -1) & (vertSelect != -1)) {
+	         			UpdateDecor(decorSelect, "move");
+	         			decorSelect = -1;
+	         			vertSelect = -1;
+	    		} else FindNearestSegmentDecor(true);
         	}
 		} else if ((modeParent.equals("Collisionless BG")) | (modeParent.equals("Collisionless FG"))) {
 			int typeCol = DecorVars.CollisionlessBG;
@@ -3957,7 +3958,7 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Grass")) {
 					listChild.setItems("Add", "Delete", "Move Vertex");
 				} else if (modeParent.equals("Waterfall")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Vertex");
+					listChild.setItems("Add", "Delete", "Move", "Move Segment");
 				} else if (modeParent.equals("Collisionless BG")) {
 					listChild.setItems(itemsADMRSFv);
 				} else if (modeParent.equals("Collisionless FG")) {
@@ -4149,6 +4150,24 @@ public class Editor extends GameState {
 	    	}
     	}
     	SaveLevel(true);
+    }
+
+    public void MoveSegment(int idx, int verti, int vertj, float startX, float startY) {
+    	// Currently, this is only designed to move the segment in X or Y.
+    	changesMade = true;
+    	if (mode==6) {
+	    	updatePoly = allDecors.get(idx).clone();
+    		// Move the segment
+	    	if (Math.abs(allDecors.get(idx)[2*verti]-allDecors.get(idx)[2*vertj]) < (Math.abs(allDecors.get(idx)[2*verti+1]-allDecors.get(idx)[2*vertj+1]))) {
+	    		// More similar x values, so move in the x direction
+	    		updatePoly[2*verti] = startX;
+	    		updatePoly[2*vertj] = startX;
+	    	} else {
+	    		// More similar y values, so move in the y direction
+	    		updatePoly[2*verti+1] = startY;
+	    		updatePoly[2*vertj+1] = startY;
+	    	}
+    	}
     }
 
     public void AddVertexPath(int idx, int verti, int vertj, float startX, float startY) {
@@ -4381,7 +4400,7 @@ public class Editor extends GameState {
 			} // Don't need to flip a circle
         }
 	}
-	
+
 	public void FindNearestSegment(boolean hover) {
 		//FindNearestVertex(hover);
 		int idxa, idxb, idxmin, polymin, flag;
@@ -4463,8 +4482,6 @@ public class Editor extends GameState {
 						flag=1;
 					}
 				}
-			} else if ((allPolygonTypes.get(j) == 1) | (allPolygonTypes.get(j) == 3) | (allPolygonTypes.get(j) == 5) | (allPolygonTypes.get(j) == 7)) {
-				// Do nothing
 			}
 		}
 		if (hover) {
@@ -4585,7 +4602,7 @@ public class Editor extends GameState {
 	public void FindNearestVertex(boolean hover) {
 		float tempval = 0.0f, bestval = -1.0f;
 		if (mode == 6) {
-			// Then decorating (grass)
+			// Then decorating
 			for (int i = 0; i < allDecors.size(); i++) {
 				if ((allDecorTypes.get(i)==DecorVars.Grass) | (allDecorTypes.get(i)==DecorVars.Waterfall) | (allDecorTypes.get(i)==DecorVars.CollisionlessBG) | (allDecorTypes.get(i)==DecorVars.CollisionlessFG)) {
 					if ((modeParent.equals("Grass")) & (allDecorTypes.get(i)!=DecorVars.Grass)) continue;
@@ -5817,7 +5834,10 @@ public class Editor extends GameState {
 			if ((!hover) & (decorSelect != -1)) {
 				if (j!=decorSelect) continue;
 			}
-			if ((allDecorTypes.get(j) == DecorVars.CollisionlessBG) | (allDecorTypes.get(j) == DecorVars.CollisionlessFG)) {
+			if ((allDecorTypes.get(j) == DecorVars.CollisionlessBG) | (allDecorTypes.get(j) == DecorVars.CollisionlessFG) | (allDecorTypes.get(j) == DecorVars.Waterfall)) {
+				if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
+				if ((modeParent.equals("Collisionless BG")) & (allDecorTypes.get(j)!=DecorVars.CollisionlessBG)) continue;
+				if ((modeParent.equals("Collisionless FG")) & (allDecorTypes.get(j)!=DecorVars.CollisionlessFG)) continue;
 				arraySegm = allDecors.get(j).clone();
 				for (int i=0; i<arraySegm.length/2; i++) {
 					idxa = i;
