@@ -53,6 +53,7 @@ import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
+import com.mygdx.game.handlers.DecorVars;
 
 import static com.mygdx.game.handlers.B2DVars.PPM;
 
@@ -193,6 +194,7 @@ public class Play extends GameState {
     private Sound soundBikeIdle, soundBikeMove;
     private Music soundWaterfall;
     private boolean containsWaterfall;
+    private Array<float[]> waterfallVerts;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
@@ -423,6 +425,7 @@ public class Play extends GameState {
         fallingJointsFallTime = new Array<Float>();
         fallingJointsTime = new Array<Float>();
         waterfallPos = 0.0f;
+        waterfallVerts = new Array<float[]>();
 
     	playerJump = 100.0f;
     	lrIsDown = false;
@@ -1244,6 +1247,7 @@ public class Play extends GameState {
     }
 
     private void updateWaterfall(float dt) {
+    	// Shift the waterfall
     	float shift = dt*9.8f;
     	waterfallPos -= shift;
     	if (waterfallPos <= -512.0f*PolySpatial.PIXELS_PER_METER) {
@@ -1251,10 +1255,77 @@ public class Play extends GameState {
     	}
     	waterfallBody.setTransform(0.0f, waterfallPos, 0.0f);
     	// Update the volume of the waterfall, depending on how close the rider is to the waterfall
-    	// TODO :: update waterfall volume
-    	soundWaterfall.setVolume(1.0f);
-//    	waterfallBody.setTransform(bikeBodyC.getPosition(), 0.0f);
-
+    	float fadeDist = 20.0f/PolySpatial.PIXELS_PER_METER;
+    	Vector2 riderPos = bikeBodyH.getPosition().scl(1.0f/PolySpatial.PIXELS_PER_METER);
+    	int idxa, idxb, flag=0;
+    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f, volume=0.1f;
+    	// First check if the rider is inside a waterfall
+    	for (int j=0; j < waterfallVerts.size; j++) {
+    		if (PolygonOperations.PointInPolygon(waterfallVerts.get(j), riderPos.x, riderPos.y)) {
+    			volume = 1.0f; // Maximum volume
+    			break;
+    		} else {
+    			for (int i=0; i < waterfallVerts.get(j).length/2; i++) {
+    				idxa = i;
+    				if (i == waterfallVerts.get(j).length/2 - 1) idxb = 0;
+    				else idxb = i+1;
+    				// Calculate the gradient
+    				xa = waterfallVerts.get(j)[2*idxa];
+    				ya = waterfallVerts.get(j)[2*idxa+1];
+    				xb = waterfallVerts.get(j)[2*idxb];
+    				yb = waterfallVerts.get(j)[2*idxb+1];
+    				if (xa==xb) {
+    					if (ya>yb) {
+    						if (riderPos.y>ya) yint = riderPos.y-ya;
+    						else if (riderPos.y<yb) yint = yb-riderPos.y;
+    						else yint = 0.0f;
+    					} else {
+    						if (riderPos.y>yb) yint = riderPos.y-yb;
+    						else if (riderPos.y<ya) yint = ya-riderPos.y;
+    						else yint = 0.0f;
+    					}
+    					dist = (float) Math.sqrt((riderPos.x-xa)*(riderPos.x-xa) + yint*yint);
+    				} else if (ya==yb) {
+    					if (xa>xb) {
+    						if (riderPos.x>xa) yint = riderPos.x-xa;
+    						else if (riderPos.x<xb) yint = xb-riderPos.x;
+    						else yint = 0.0f;
+    					} else {
+    						if (riderPos.x>xb) yint = riderPos.x-xb;
+    						else if (riderPos.x<xa) yint = xa-riderPos.x;
+    						else yint = 0.0f;
+    					}
+    					dist = (float) Math.sqrt((riderPos.y-ya)*(riderPos.y-ya) + yint*yint);
+    				} else {
+    					grad = (yb-ya)/(xb-xa);
+    					intc = ya - grad*xa;
+    					gradb = -(xb-xa)/(yb-ya);
+    					intcb = riderPos.y - gradb*riderPos.x;
+    					// Calculate the intersection, and make sure the intersection is within bounds
+    					xint = (intcb-intc)/(grad-gradb);
+    					if (xa < xb) {
+    						if (xint<xa) xint = xa;
+    						else if (xint>xb) xint = xb;
+    					} else {
+    						if (xint<xb) xint = xb;
+    						else if (xint>xa) xint = xa;						
+    					}
+    					// Calculate the distance between the intersection and the cursor
+    					yint = grad*xint + intc;
+    					dist = (float) Math.sqrt((riderPos.x-xint)*(riderPos.x-xint) + (riderPos.y-yint)*(riderPos.y-yint));
+    				}
+    				if ((dist < mindist) | (flag==0)) {
+    					mindist = dist;
+    					flag = 1;
+    				}
+    			}
+				// Set the volume (dist)
+				dist = (fadeDist-mindist)/fadeDist;
+				if (dist > volume) volume = dist;
+    		}
+    	}
+    	// Set the sound volume of the waterfall
+    	soundWaterfall.setVolume(volume);
     }
     
     public void render() {
@@ -2114,7 +2185,7 @@ public class Play extends GameState {
     private void createPolySpatialsFromRubeFixtures(RubeScene scene)
     {
        Array<Body> bodies = scene.getBodies();
-       boolean isWaterfall=false, isFG=false, isBG=false;
+       boolean isWF=false, isFG=false, isBG=false;
        
        EarClippingTriangulator ect = new EarClippingTriangulator();
 
@@ -2146,6 +2217,7 @@ public class Play extends GameState {
                    if (textureName != null)
                    {
                 	  // Reset boolean flags
+                	  isWF = false;
                 	  isFG = false;
                 	  isBG = false;
                 	  String testType = (String)scene.getCustom(fixture, "Type", null);
@@ -2153,6 +2225,7 @@ public class Play extends GameState {
                       String textureFileName = "data/" + textureName;
                       if (textureFileName.equalsIgnoreCase("data/images/waterfall.png")) {
                     	  containsWaterfall = true;
+                    	  isWF = true;
                       }
                       if (testType != null) {
                     	  if (testType.equalsIgnoreCase("CollisionlessBG")) isBG = true;
@@ -2193,7 +2266,6 @@ public class Play extends GameState {
                                vertices[k * 2] = mTmp.x/PolySpatial.PIXELS_PER_METER;
                                vertices[k * 2 + 1] = mTmp.y/PolySpatial.PIXELS_PER_METER;
                             }
-                            
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, Color.WHITE);
@@ -2212,6 +2284,7 @@ public class Play extends GameState {
                                vertices[k * 2] = mTmp.x/PolySpatial.PIXELS_PER_METER;
                                vertices[k * 2 + 1] = mTmp.y/PolySpatial.PIXELS_PER_METER;
                             }
+                            if (isWF) waterfallVerts.add(vertices.clone());
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, body, Color.WHITE);
