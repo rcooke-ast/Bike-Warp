@@ -407,7 +407,6 @@ public class Editor extends GameState {
 							} else {
 								if (selectLoadLevel.getSelectedIndex() == 1) {
 									// Refresh the canvas - A new level is being created
-									System.out.println("OOPS!");
 									ResetLevelDefaults();
 									selectLoadLevel.setSelectedIndex(0);
 									textInputSave.setText("");
@@ -426,6 +425,16 @@ public class Editor extends GameState {
 									allDecorPolys = (ArrayList<Integer>) loadedArray.get(10);
 									String[] setLVs = (String[]) loadedArray.get(11);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+									// Temporary
+//									System.out.println("ERROR - DELETE THIS!!!");
+//									for (int i=0; i<allPolygons.size(); i++) {
+//										if (allPolygonTypes.get(i) == 2) {
+//											float[] tmp = allPolygonPaths.get(i).clone();
+//											tmp[0] *= 2;
+//											tmp[1] *= 2;
+//											allPolygonPaths.set(i, tmp.clone());
+//										}
+//									}
 									// Restore the original settings of this level
 									RestoreLevelDefaults();
 									warnMessage[warnNumber] = "Level '"+selectLoadLevel.getSelected()+"' loaded successfully";
@@ -4065,7 +4074,7 @@ public class Editor extends GameState {
 				for (int i=0; i<newPoly.length/2; i++) {
 					if (newPoly[2*i+1] > maxv) {
 						imax = i;
-						maxv = newPoly[2*i+1]; 
+						maxv = newPoly[2*i+1];
 					}
 				}
 				xcenp = newPoly[2*imax];
