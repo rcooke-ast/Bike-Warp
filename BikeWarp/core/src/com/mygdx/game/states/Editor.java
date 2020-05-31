@@ -2677,6 +2677,15 @@ public class Editor extends GameState {
     			newArr[1] = (float) Math.sqrt((newArr[4]-endX)*(newArr[4]-endX) + (newArr[5]-endY)*(newArr[5]-endY));
     			allPolygonPaths.set(polySelect, newArr.clone());
     		}
+    	} else if (modeParent.equals("Set Texture")) {
+	    	if (GameInput.MBJUSTPRESSED) {
+	    		SelectPolygon("down");
+	    		if (polySelect != -1) {
+	    			UpdatePlatformTexture();
+	    			polySelect = -1;
+	    		}
+	    	}
+			currentTexture = "";
     	}
 	}
 
