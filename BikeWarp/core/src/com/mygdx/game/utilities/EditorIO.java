@@ -321,12 +321,15 @@ public class EditorIO {
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
-		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack.png";
+		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
+		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";
 		else if (textName.equals("Steel")) return "images/ground_steel.png";
 		else if (textName.equals("Water")) return "images/waterfall.png";
-		else if (textName.equals("Wood")) return "images/wood.png";
+		else if (textName.equals("Wood")) return "images/ground_wood.png";
+		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
+		else if (textName.equals("Wood Plancks (H)")) return "images/ground_woodplanksH.png";
 		else return defval;
 	}
 	
@@ -340,12 +343,15 @@ public class EditorIO {
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
-		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack.png";
+		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
+		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";
 		else if (textName.equals("Steel")) return "images/ground_steel.png";
 		else if (textName.equals("Water")) return "images/waterfall.png";
-		else if (textName.equals("Wood")) return "images/wood.png";
+		else if (textName.equals("Wood")) return "images/ground_wood.png";
+		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
+		else if (textName.equals("Wood Plancks (H)")) return "images/ground_woodplanksH.png";
 		else return defval;
 	}
 
