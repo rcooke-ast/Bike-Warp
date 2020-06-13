@@ -314,20 +314,24 @@ public class EditorIO {
 	public static String GetTexture(String textName, String defval) {
 		if (textName.equals("Default")) return defval;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
+		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
 		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
+		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
 		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
 		else if (textName.equals("Roof tile (green)")) return "images/roof_green.png";
+		else if (textName.equals("Roof tile (red)")) return "images/roof_red.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";
+		else if (textName.equals("Shade")) return "images/ground_shade.png";
 		else if (textName.equals("Steel")) return "images/ground_steel.png";
-		else if (textName.equals("Water")) return "images/waterfall.png";
+		else if (textName.equals("Water")) return "images/ground_water.png";
 		else if (textName.equals("Wood")) return "images/ground_wood.png";
 		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
 		else if (textName.equals("Wood Plancks (H)")) return "images/ground_woodplanksH.png";
@@ -337,20 +341,24 @@ public class EditorIO {
 	public static String GetFGTexture(String textName, String defval) {
 		if (textName.equals("Default")) return defval;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
+		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
 		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
+		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
 		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
 		else if (textName.equals("Roof tile (green)")) return "images/roof_green.png";
+		else if (textName.equals("Roof tile (red)")) return "images/roof_red.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";
+		else if (textName.equals("Shade")) return "images/ground_shade.png";
 		else if (textName.equals("Steel")) return "images/ground_steel.png";
-		else if (textName.equals("Water")) return "images/waterfall.png";
+		else if (textName.equals("Water")) return "images/ground_water.png";
 		else if (textName.equals("Wood")) return "images/ground_wood.png";
 		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
 		else if (textName.equals("Wood Plancks (H)")) return "images/ground_woodplanksH.png";
@@ -408,15 +416,8 @@ public class EditorIO {
     	cntSpike = 0;
     	cntTransport = 0;
     	// Determine what texture to be used for the ground
-    	String textString = LevelVars.get(LevelVars.PROP_GROUND_TEXTURE);
+    	String textString = GetTexture(LevelVars.get(LevelVars.PROP_GROUND_TEXTURE), "Default");
     	String textPlatform;
-        if (textString.equals("Cracked Mud")) textString = "images/ground_cracked.png";
-        else if (textString.equals("Bubbles")) textString = "images/ground_bubbles.png";
-        else if (textString.equals("Gravel")) textString = "images/ground_gravel.png";
-        else if (textString.equals("Ice")) textString = "images/ground_ice.png";
-        else if (textString.equals("Mars")) textString = "images/ground_mars.png";
-        else if (textString.equals("Moon")) textString = "images/ground_moon.png";
-        else textString = "images/ground_gravel.png";
         // Determine the grass texture;
         //String textGrass = "images/grass_seamless.png";
         String textGrass = "images/grass_full.png";

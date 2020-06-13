@@ -88,7 +88,7 @@ public class Editor extends GameState {
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
 			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Waterfall"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
-	private String[] groundTextureList = {"Cracked Mud", "Bubbles", "Gravel", "Ice", "Mars", "Moon"};
+	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"Mountains", "Waterfall"};
 	private String[] fgTextureList = {"Plants", "Trees"};
