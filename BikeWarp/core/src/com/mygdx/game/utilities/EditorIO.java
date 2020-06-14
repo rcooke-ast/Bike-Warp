@@ -421,6 +421,7 @@ public class EditorIO {
         // Determine the grass texture;
         //String textGrass = "images/grass_seamless.png";
         String textGrass = "images/grass_full.png";
+        String textRain = "images/rain.png";
         String textWaterfall = "images/waterfall.png";
         // Get the foreground/background textures
         String textFG = GetFGTexture(LevelVars.get(LevelVars.PROP_FG_TEXTURE));
@@ -855,6 +856,87 @@ public class EditorIO {
 		json.key("type").value(1);
         json.endObject(); // End of Waterfall Body
         if (wfcntr != 0) bodyIdx += 1; // Add one for the waterfall body
+
+        // Add Rain
+        json.object();
+        json.key("angle").value(0);
+        json.key("angularVelocity").value(0);
+        json.key("awake").value(true);
+//        json.key("customProperties");
+//        json.array();
+//        json.object();
+//        json.key("name").value("GameInfo");
+//        json.key("string").value("SURFACE");
+//        json.endObject();
+//        json.endArray();
+        // Add the waterfall fixtures
+        json.key("fixture");
+        json.array();
+        int rncntr = 0; 
+        for (int i = 0; i<allDecors.size(); i++) {
+        	// Decompose each polygon into a series of convex polygons
+            if (allDecorTypes.get(i) == DecorVars.Rain) {
+    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
+    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+    			for (int k = 0; k<convexPolygons.size(); k++){
+    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" W"; // A problem with the length^2 of a polygon
+    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
+                	json.object();
+		            // Specify other properties of this fixture
+		        	json.key("density").value(1);
+		            json.key("friction").value(0);
+		            json.key("restitution").value(0);
+		            json.key("name").value("Rain"+rncntr);
+		            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+		            json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+		            // Set the (background) ground texture
+		            json.key("customProperties");
+		            json.array();
+		            json.object();
+		            json.key("name").value("TextureMask");
+		            json.key("string").value(textRain);
+		            json.endObject();
+		            json.endArray();
+	    			json.key("polygon");
+	                json.object(); // Begin polygon object
+	                json.key("vertices");
+	                json.object(); // Begin vertices object
+	                json.key("x");
+	                json.array();
+	                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+	                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
+	                }
+	                json.endArray();
+	                json.key("y");
+	                json.array();
+	                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+	                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
+	                }
+	                json.endArray();
+	                json.endObject(); // End the vertices object
+	                json.endObject(); // End polygon object
+	                json.endObject(); // End this fixture
+	                rncntr += 1;
+    			}
+            }
+        }
+        // Clear the polygons
+        if (concaveVertices != null) concaveVertices.clear();
+        if (convexVectorPolygons != null) convexVectorPolygons.clear();
+        if (convexPolygons != null) convexPolygons.clear();
+        json.endArray(); // End of the fixtures for the waterfall
+        // Add some final properties for the waterfall body
+		json.key("linearVelocity").value(0);
+		json.key("name").value("Rain");
+		json.key("position");
+		json.object();
+		json.key("x").value(0);
+		json.key("y").value(0);
+		json.endObject();
+		json.key("type").value(1);
+        json.endObject(); // End of Rain Body
+        if (rncntr != 0) bodyIdx += 1; // Add one for the rain body
 
         // Add the Foreground and Background Collisionless objects
         int[] collVars = {DecorVars.CollisionlessBG, DecorVars.CollisionlessFG};

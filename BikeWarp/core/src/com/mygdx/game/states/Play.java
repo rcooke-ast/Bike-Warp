@@ -108,7 +108,8 @@ public class Play extends GameState {
     private Array<PolySpatial> mPolySpatials;
     private Array<PolySpatial> mCollisionlessFG;
     private Array<PolySpatial> mCollisionlessBG;
-    private Array<PolySpatial> waterfallBackground; 
+    private Array<PolySpatial> waterfallBackground;
+    private Array<PolySpatial> rainBackground;
     private Map<String, Texture> mTextureMap;
     private Map<Texture, TextureRegion> mTextureRegionMap;
     private Body gameInfo;
@@ -148,6 +149,8 @@ public class Play extends GameState {
     private Body switchGateBody, triggerBody;
     private Body waterfallBody;
     private float waterfallPos;
+    private Body rainBody;
+    private float rainPos;
     private float bikeDirc = 1.0f;
 	private float dircGrav;
     private float bikeScale = 1.0f;
@@ -192,9 +195,9 @@ public class Play extends GameState {
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
-    private Music soundWaterfall;
-    private boolean containsWaterfall;
-    private Array<float[]> waterfallVerts;
+    private Music soundWaterfall, soundRain;
+    private boolean containsWaterfall, containsRain;
+    private Array<float[]> waterfallVerts, rainVerts;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
@@ -364,6 +367,7 @@ public class Play extends GameState {
         soundTransport = BikeGameSounds.GetSoundIndex("transport");
         soundFinish = BikeGameSounds.GetSoundIndex("finish");
         containsWaterfall = false;
+        containsRain = false;
 
         // Load the items to be displayed on the HUD
         keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red",0));
@@ -426,6 +430,8 @@ public class Play extends GameState {
         fallingJointsTime = new Array<Float>();
         waterfallPos = 0.0f;
         waterfallVerts = new Array<float[]>();
+        rainPos = 0.0f;
+        rainVerts = new Array<float[]>();
 
     	playerJump = 100.0f;
     	lrIsDown = false;
@@ -530,6 +536,12 @@ public class Play extends GameState {
 		            soundWaterfall.setLooping(true);
 		            soundWaterfall.play();
 	            }
+	            // Check if there is rain
+	            if (containsRain) {
+		            soundRain = BikeGameSounds.LoadRain();
+		            soundRain.setLooping(true);
+		            soundRain.play();
+	            }
                 mNextState = GAME_STATE.RUNNING;
 	            // Start the timer
 	            timerStart = (int) (TimeUtils.millis());
@@ -629,6 +641,7 @@ public class Play extends GameState {
         	   updateKinematicBodies(dt);
         	   updateSwitches();
         	   if (containsWaterfall) updateWaterfall(dt);
+        	   if (containsRain) updateRain(dt);
         	   if (canTransport < 0.0f) updateTransport();
         	   else canTransport += dt;
         	   if (canTransport >= transportTime) {
@@ -671,6 +684,7 @@ public class Play extends GameState {
     private void StopSounds() {
 		if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
 		if (soundWaterfall != null) soundWaterfall.setLooping(false);
+		if (soundRain != null) soundRain.setLooping(false);
     }
     
 	private void switchBikeDirection() {
@@ -1327,7 +1341,89 @@ public class Play extends GameState {
     	// Set the sound volume of the waterfall
     	soundWaterfall.setVolume(volume);
     }
-    
+
+    private void updateRain(float dt) {
+    	// Shift the waterfall
+    	float shift = dt*9.8f;
+    	rainPos -= shift;
+    	if (rainPos <= -903.0f*PolySpatial.PIXELS_PER_METER) {
+    		rainPos += 1806.0f*PolySpatial.PIXELS_PER_METER;
+    	}
+    	rainBody.setTransform(0.0f, rainPos, 0.0f);
+    	// Update the volume of the waterfall, depending on how close the rider is to the waterfall
+    	float fadeDist = 20.0f/PolySpatial.PIXELS_PER_METER;
+    	Vector2 riderPos = bikeBodyH.getPosition().scl(1.0f/PolySpatial.PIXELS_PER_METER);
+    	int idxa, idxb, flag=0;
+    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f, volume=0.1f;
+    	// First check if the rider is inside a rain
+    	for (int j=0; j < rainVerts.size; j++) {
+    		if (PolygonOperations.PointInPolygon(rainVerts.get(j), riderPos.x, riderPos.y)) {
+    			volume = 1.0f; // Maximum volume
+    			break;
+    		} else {
+    			for (int i=0; i < rainVerts.get(j).length/2; i++) {
+    				idxa = i;
+    				if (i == rainVerts.get(j).length/2 - 1) idxb = 0;
+    				else idxb = i+1;
+    				// Calculate the gradient
+    				xa = rainVerts.get(j)[2*idxa];
+    				ya = rainVerts.get(j)[2*idxa+1];
+    				xb = rainVerts.get(j)[2*idxb];
+    				yb = rainVerts.get(j)[2*idxb+1];
+    				if (xa==xb) {
+    					if (ya>yb) {
+    						if (riderPos.y>ya) yint = riderPos.y-ya;
+    						else if (riderPos.y<yb) yint = yb-riderPos.y;
+    						else yint = 0.0f;
+    					} else {
+    						if (riderPos.y>yb) yint = riderPos.y-yb;
+    						else if (riderPos.y<ya) yint = ya-riderPos.y;
+    						else yint = 0.0f;
+    					}
+    					dist = (float) Math.sqrt((riderPos.x-xa)*(riderPos.x-xa) + yint*yint);
+    				} else if (ya==yb) {
+    					if (xa>xb) {
+    						if (riderPos.x>xa) yint = riderPos.x-xa;
+    						else if (riderPos.x<xb) yint = xb-riderPos.x;
+    						else yint = 0.0f;
+    					} else {
+    						if (riderPos.x>xb) yint = riderPos.x-xb;
+    						else if (riderPos.x<xa) yint = xa-riderPos.x;
+    						else yint = 0.0f;
+    					}
+    					dist = (float) Math.sqrt((riderPos.y-ya)*(riderPos.y-ya) + yint*yint);
+    				} else {
+    					grad = (yb-ya)/(xb-xa);
+    					intc = ya - grad*xa;
+    					gradb = -(xb-xa)/(yb-ya);
+    					intcb = riderPos.y - gradb*riderPos.x;
+    					// Calculate the intersection, and make sure the intersection is within bounds
+    					xint = (intcb-intc)/(grad-gradb);
+    					if (xa < xb) {
+    						if (xint<xa) xint = xa;
+    						else if (xint>xb) xint = xb;
+    					} else {
+    						if (xint<xb) xint = xb;
+    						else if (xint>xa) xint = xa;						
+    					}
+    					// Calculate the distance between the intersection and the cursor
+    					yint = grad*xint + intc;
+    					dist = (float) Math.sqrt((riderPos.x-xint)*(riderPos.x-xint) + (riderPos.y-yint)*(riderPos.y-yint));
+    				}
+    				if ((dist < mindist) | (flag==0)) {
+    					mindist = dist;
+    					flag = 1;
+    				}
+    			}
+				// Set the volume (dist)
+				dist = (fadeDist-mindist)/fadeDist;
+				if (dist > volume) volume = dist;
+    		}
+    	}
+    	// Set the sound volume of the waterfall
+    	soundRain.setVolume(volume);
+    }
+
     public void render() {
         // clear screen
     	Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1);
@@ -1666,8 +1762,9 @@ public class Play extends GameState {
        switchGateBody = mWorld.createBody(bdef);
        switchGateBody.setUserData(new Array<Integer>());
 
-       // Get the waterfall body
+       // Get the waterfall+rain body
        waterfallBody = mScene.getNamed(Body.class, "Waterfall").first();
+       rainBody = mScene.getNamed(Body.class, "Rain").first();
 
 //       // Get all references to trigger platforms and create the fixture
 //       // Create a trigger body, which will contain all of the trigger fixtures
@@ -1787,6 +1884,7 @@ public class Play extends GameState {
     	if (mDecors != null) mDecors.clear();
     	if (mPolySpatials != null) mPolySpatials.clear();
     	if (waterfallBackground != null) waterfallBackground.clear();
+    	if (rainBackground != null) rainBackground.clear();
     	if (switchGate != null) switchGate.clear();
     	if (doorImages != null) doorImages.clear();
     	if (transportImages != null) transportImages.clear();
@@ -1800,6 +1898,7 @@ public class Play extends GameState {
     	if (soundBikeIdle != null) soundBikeIdle.dispose();
     	if (soundBikeMove != null) soundBikeMove.dispose();
     	if (soundWaterfall != null) soundWaterfall.dispose();
+    	if (soundRain != null) soundRain.dispose();
     	mScene = null;
     }
 
@@ -1990,7 +2089,7 @@ public class Play extends GameState {
        mBatch.draw(bikeOverlay, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
        mBatch.end();
 
-       // Render the ground, grass, waterfalls
+       // Render the ground, grass, rain, and waterfalls
        if ((mPolySpatials != null) && (mPolySpatials.size > 0))
        {
           mPolyBatch.setProjectionMatrix(b2dCam.combined);
@@ -2185,7 +2284,7 @@ public class Play extends GameState {
     private void createPolySpatialsFromRubeFixtures(RubeScene scene)
     {
        Array<Body> bodies = scene.getBodies();
-       boolean isWF=false, isFG=false, isBG=false;
+       boolean isWF=false, isFG=false, isBG=false, isRN=false;
        
        EarClippingTriangulator ect = new EarClippingTriangulator();
 
@@ -2193,6 +2292,7 @@ public class Play extends GameState {
        {
           mPolySpatials = new Array<PolySpatial>();
           waterfallBackground = new Array<PolySpatial>();
+          rainBackground = new Array<PolySpatial>();
           mCollisionlessFG = new Array<PolySpatial>();
           mCollisionlessBG = new Array<PolySpatial>();
           Vector2 bodyPos = new Vector2();
@@ -2218,6 +2318,7 @@ public class Play extends GameState {
                    {
                 	  // Reset boolean flags
                 	  isWF = false;
+                	  isRN = false;
                 	  isFG = false;
                 	  isBG = false;
                 	  String testType = (String)scene.getCustom(fixture, "Type", null);
@@ -2226,6 +2327,9 @@ public class Play extends GameState {
                       if (textureFileName.equalsIgnoreCase("data/images/waterfall.png")) {
                     	  containsWaterfall = true;
                     	  isWF = true;
+                      } else if (textureFileName.equalsIgnoreCase("data/images/rain.png")) {
+                    	  containsRain = true;
+                    	  isRN = true;
                       }
                       if (testType != null) {
                     	  if (testType.equalsIgnoreCase("CollisionlessBG")) isBG = true;
@@ -2285,6 +2389,7 @@ public class Play extends GameState {
                                vertices[k * 2 + 1] = mTmp.y/PolySpatial.PIXELS_PER_METER;
                             }
                             if (isWF) waterfallVerts.add(vertices.clone());
+                            if (isRN) rainVerts.add(vertices.clone());
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, body, Color.WHITE);
