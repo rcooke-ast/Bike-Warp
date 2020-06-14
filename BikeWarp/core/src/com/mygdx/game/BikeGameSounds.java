@@ -34,6 +34,11 @@ public class BikeGameSounds {
 	public static Music LoadWaterfall() {
 		return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/waterfall.wav"));
 	}
+
+	public static Music LoadRain() {
+		return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/rainstorm.wav"));
+	}
+
 	private static void GetSound (String file) {
         sound = Gdx.audio.newSound(Gdx.files.internal("data/sounds/"+file+".mp3"));
 		sounds.add(sound);

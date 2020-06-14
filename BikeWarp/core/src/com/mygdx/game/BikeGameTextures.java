@@ -1,5 +1,7 @@
 package com.mygdx.game;
-
+// Some free textures available from:
+// https://www.pxfuel.com/en/search?q=seamless+texture
+	
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
