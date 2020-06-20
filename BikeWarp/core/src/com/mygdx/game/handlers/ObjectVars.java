@@ -23,6 +23,8 @@ public class ObjectVars {
     public static final int Bridge = 17;
     public static final int Log = 18;
     public static final int Nitrous = 19;
+    public static final int TransportInvisible = 20;
+    
 
     // Define the vertices
     public static final float[] objectArrow = {-1.0f,0.0f,-1.0f,-30.0f,-6.0f,-30.0f,0.0f,-40.0f,6.0f,-30.0f,1.0f,-30.0f,1.0f,0.0f};

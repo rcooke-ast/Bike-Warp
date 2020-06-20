@@ -52,6 +52,7 @@ public class EditorIO {
 	private static int cntPendulum;
 	private static int cntSpike;
 	private static int cntTransport;
+	private static int cntTransportInvisible;
 	private static int finishObjNumber = 3;
 	
 	public static String saveLevel(ArrayList<float[]> allPolygons,
@@ -415,6 +416,7 @@ public class EditorIO {
     	cntPendulum = 0;
     	cntSpike = 0;
     	cntTransport = 0;
+    	cntTransportInvisible = 0;
     	// Determine what texture to be used for the ground
     	String textString = GetTexture(LevelVars.get(LevelVars.PROP_GROUND_TEXTURE), "Default");
     	String textPlatform;
@@ -687,6 +689,10 @@ public class EditorIO {
         	} else if (allObjectTypes.get(i) == ObjectVars.Transport) {
         		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransport);
         		cntTransport += 1;
+        		bodyIdx += addBodies;
+        	} else if (allObjectTypes.get(i) == ObjectVars.TransportInvisible) {
+        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransportInvisible);
+        		cntTransportInvisible += 1;
         		bodyIdx += addBodies;
         	}
         }
@@ -1051,6 +1057,7 @@ public class EditorIO {
         cntPendulum = 0;
         cntSpike = 0;
         cntTransport = 0;
+        cntTransportInvisible = 0;
         // Apply images to falling bodies
         for (int i = 0; i<allPolygons.size(); i++){
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
@@ -1127,6 +1134,10 @@ public class EditorIO {
         		addBodies = EditorImageIO.ImageTransport(json, allObjects.get(i), bodyIdx, cntTransport);
         		bodyIdx += addBodies;
         		cntTransport += 1;
+        	} else if (allObjectTypes.get(i) == ObjectVars.TransportInvisible) {
+        		addBodies = 2;
+        		bodyIdx += addBodies;
+        		cntTransportInvisible += 1;
         	}
         }
         json.endArray(); // End of image array

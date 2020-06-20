@@ -82,7 +82,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Transport", "Start", "Finish"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Transport", "Transport (invisible)", "Start", "Finish"};
 	private String[] decorateList = {"Grass",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
@@ -1528,7 +1528,7 @@ public class Editor extends GameState {
 	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
 	        		shapeRenderer.triangle(allObjects.get(i)[0], allObjects.get(i)[1]+1.3f*allObjects.get(i)[2], allObjects.get(i)[0]-1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2], allObjects.get(i)[0]+1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Transport) {
+	        	} else if ((allObjectTypes.get(i) == ObjectVars.Transport) | (allObjectTypes.get(i) == ObjectVars.TransportInvisible)) {
 	        		shapeRenderer.setColor(1, 1, 1, opacity);
 	        		shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8] + allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9] + allObjects.get(i)[13]));
 	        		for (int j = 0; j<8; j++) {
@@ -3231,17 +3231,19 @@ public class Editor extends GameState {
 				UpdateObject(objectSelect, "move");
 				objectSelect = -1;
 			}
-		} else if (modeParent.equals("Transport")) {
-			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
+		} else if ((modeParent.equals("Transport")) | (modeParent.equals("Transport (invisible)"))) {
+			int transIdx = ObjectVars.Transport;
+			if (modeParent.equals("Transport (invisible)")) transIdx = ObjectVars.TransportInvisible;
+			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-				AddObject(ObjectVars.Transport, tempx, tempy, -999.9f);
+				AddObject(transIdx, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				SelectObject("up", ObjectVars.Transport, false, false);
+				SelectObject("up", transIdx, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move Entry")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
-					SelectObject("down", ObjectVars.Transport, false, false);
+					SelectObject("down", transIdx, false, false);
 					startX = GameInput.MBDOWNX*scrscale;
 					startY = GameInput.MBDOWNY;
 				} else {
@@ -3254,7 +3256,7 @@ public class Editor extends GameState {
 				objectSelect = -1;
 			} else if ((modeChild.equals("Rotate Entry")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", ObjectVars.Transport, false, false);
+    				SelectObject("down", transIdx, false, false);
     				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
     			} else {
@@ -4043,6 +4045,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Transport")) {
 					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry");
 					pObjectIndex = GetListIndex("Transport",objectList);
+				} else if (modeParent.equals("Transport (invisible)")) {
+					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry");
+					pObjectIndex = GetListIndex("Transport (invisible)",objectList);
 				} else if (modeParent.equals("Start")) {
 					listChild.setItems("Put", "Move", "Rotate", "Flip Direction");
 					pObjectIndex = GetListIndex("Start",objectList);
@@ -5406,7 +5411,7 @@ public class Editor extends GameState {
 			newPoly[0] = ObjectVars.objectSpike[0] + xcen;
 			newPoly[1] = ObjectVars.objectSpike[1] + ycen;
 			newPoly[2] = ObjectVars.objectSpike[2];
-		} else if (otype == ObjectVars.Transport) {
+		} else if ((otype == ObjectVars.Transport) | (otype == ObjectVars.TransportInvisible)) {
 			newPoly = new float[ObjectVars.objectTransport.length];
 			for (int i = 0; i<ObjectVars.objectTransport.length/2; i++){
 				newPoly[2*i] = ObjectVars.objectTransport[2*i] + xcen;
@@ -5480,7 +5485,7 @@ public class Editor extends GameState {
 				updatePoly[6] = allObjects.get(idx)[3] + shiftX;
 				updatePoly[7] = allObjects.get(idx)[4] + allObjects.get(idx)[6] + shiftY;
 			}
-		} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
+		} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.TransportInvisible) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
 			updatePoly = new float[8];
 			updatePoly[0] = allObjects.get(idx)[0+8*(tentry-1)] + shiftX;
 			updatePoly[1] = allObjects.get(idx)[1+8*(tentry-1)] + shiftY;
@@ -5589,7 +5594,7 @@ public class Editor extends GameState {
 							inside = true;
 						}
 					}
-				} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
+				} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.TransportInvisible) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
 					tentry = 0;
 					newPoly = new float[8];
 					newPoly[0] = allObjects.get(i)[0];
@@ -5673,7 +5678,7 @@ public class Editor extends GameState {
 					newPoly[7] = allObjects.get(i)[4]+allObjects.get(i)[6];
 					inside = PolygonOperations.PointInPolygon(newPoly,tempx,tempy);
 				}
-			} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
+			} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.TransportInvisible) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
 				tentry = 0;
 				newPoly = new float[8];
 				newPoly[0] = allObjects.get(i)[0];
