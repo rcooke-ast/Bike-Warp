@@ -322,6 +322,7 @@ public class EditorIO {
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
+		else if (textName.equals("Lava")) return "images/ground_lava.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
@@ -349,6 +350,7 @@ public class EditorIO {
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
+		else if (textName.equals("Lava")) return "images/ground_lava.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
@@ -469,8 +471,13 @@ public class EditorIO {
 		            json.key("friction").value(friction);
 		            json.key("restitution").value(restitution);
 		            json.key("name").value("fixture8");
-		            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+		            if (textPlatform.equalsIgnoreCase("images/ground_lava.png")) {
+			            json.key("filter-categoryBits").value(B2DVars.BIT_SPIKE);
+			            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            			            	
+		            } else {
+			            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+			            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            	
+		            }
 		            // Set the (background) ground texture
 		            json.key("customProperties");
 		            json.array();
