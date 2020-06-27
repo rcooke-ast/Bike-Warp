@@ -473,10 +473,10 @@ public class EditorIO {
 		            json.key("name").value("fixture8");
 		            if (textPlatform.equalsIgnoreCase("images/ground_lava.png")) {
 			            json.key("filter-categoryBits").value(B2DVars.BIT_SPIKE);
-			            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            			            	
+			            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            			            	
 		            } else {
 			            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-			            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            	
+			            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            	
 		            }
 		            // Set the (background) ground texture
 		            json.key("customProperties");
@@ -514,7 +514,7 @@ public class EditorIO {
                 json.key("restitution").value(restitution);
                 json.key("name").value("fixture8");
 	            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-	            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+	            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
                 // Set the (background) ground texture
                 json.key("customProperties");
                 json.array();

@@ -1529,7 +1529,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	    json.key("restitution").value(restitution);
 	    json.key("name").value("fixture8");
 	    json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-	    json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+	    json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
 	    // Set the (background) ground texture
 	    json.key("customProperties");
 	    json.array();
@@ -1599,10 +1599,10 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	            json.key("userData").value("GroundFall");
 	            if (textString.equalsIgnoreCase("images/ground_lava.png")) {
 		            json.key("filter-categoryBits").value(B2DVars.BIT_SPIKE);
-		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            			            	
+		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            			            	
 	            } else {
 		            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            	
+		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            	
 	            }
 	            // Set the (background) ground texture
 	            json.key("customProperties");
@@ -1681,7 +1681,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
             json.key("name").value("fixture8");
             json.key("userData").value("GroundFall");
             json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
             // Set the (background) ground texture
             json.key("customProperties");
             json.array();
@@ -1756,10 +1756,10 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	            json.key("name").value("fixture8");
 	            if (textString.equalsIgnoreCase("images/ground_lava.png")) {
 		            json.key("filter-categoryBits").value(B2DVars.BIT_SPIKE);
-		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            			            	
+		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            			            	
 	            } else {
 		            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            	
+		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            	
 	            }
 	            // Set the (background) ground texture
 	            json.key("customProperties");
@@ -1837,7 +1837,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
             json.key("restitution").value(restitution);
             json.key("name").value("fixture8");
             json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
             // Set the (background) ground texture
             json.key("customProperties");
             json.array();
@@ -2010,10 +2010,10 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	            json.key("name").value("fixture8");
 	            if (textString.equalsIgnoreCase("images/ground_lava.png")) {
 		            json.key("filter-categoryBits").value(B2DVars.BIT_SPIKE);
-		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            			            	
+		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            			            	
 	            } else {
 		            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);		            	
+		            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);		            	
 	            }
 	            // Set the (background) ground texture
 	            json.key("customProperties");
@@ -2095,7 +2095,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
             json.key("restitution").value(restitution);
             json.key("name").value("fixture8");
             json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN);
+            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
             // Set the (background) ground texture
             json.key("customProperties");
             json.array();

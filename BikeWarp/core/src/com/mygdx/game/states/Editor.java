@@ -407,6 +407,7 @@ public class Editor extends GameState {
 							} else {
 								if (selectLoadLevel.getSelectedIndex() == 1) {
 									// Refresh the canvas - A new level is being created
+									System.out.println("LEVEL WAS RESET 01!");
 									ResetLevelDefaults();
 									selectLoadLevel.setSelectedIndex(0);
 									textInputSave.setText("");
@@ -436,6 +437,7 @@ public class Editor extends GameState {
 //										}
 //									}
 									// Restore the original settings of this level
+									System.out.println("LEVEL WAS RESTORED 01!");
 									RestoreLevelDefaults();
 									warnMessage[warnNumber] = "Level '"+selectLoadLevel.getSelected()+"' loaded successfully";
 									warnElapse[warnNumber] = 0.0f;
@@ -802,15 +804,18 @@ public class Editor extends GameState {
 							warnNumber += 1;
 							try {
 								int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
-								float xcen=0.0f, ycen=0.0f;
+								int idxcls=0;
+								float clsdist = 999999999.9f, dist=0.0f;
 								if (jsonLevelString.split(" ")[2].equals("P")) {
-									for (int i=0; i<allPolygons.get(gotoPoly).length/2; i++) {
-										xcen += allPolygons.get(gotoPoly)[2*i];
-										ycen += allPolygons.get(gotoPoly)[2*i+1];
+									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
+										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
+												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
+										if (dist < clsdist) {
+											clsdist = dist;
+											idxcls = i;
+										}
 									}
-									xcen /= (allPolygons.get(gotoPoly).length/2);
-									ycen /= (allPolygons.get(gotoPoly).length/2);
-									MoveCameraTo(xcen,ycen,true);
+									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
 									warnMessage[warnNumber] = "Two vertices in this polygon are too close together";
 									warnElapse[warnNumber] = 0.0f;
 									warnType[warnNumber] = 1;
@@ -875,6 +880,7 @@ public class Editor extends GameState {
     }
     
     public void ResetLevelDefaults() {
+		System.out.println("LEVEL WAS RESET!");
     	// Prepare storage arrays
 		allObjects = new ArrayList<float[]>();
 		allObjectArrows = new ArrayList<float[]>();
@@ -963,6 +969,7 @@ public class Editor extends GameState {
     }
 
     public void RestoreLevelDefaults() {
+		System.out.println("Restoring level defaults!");
     	// Set the level name in the save textbox
 		saveFName = FileUtils.getBaseName((String) selectLoadLevel.getSelected());
 		textInputSave.setText(saveFName);
@@ -1006,8 +1013,8 @@ public class Editor extends GameState {
 		if (GameInput.isPressed(GameInput.KEY_X)) flipX=!flipX;
 		if (GameInput.isPressed(GameInput.KEY_Y)) flipY=!flipY;
 		if (GameInput.isPressed(GameInput.KEY_R)) rotPoly=true;
-		if (GameInput.isPressed(GameInput.KEY_LEFT)) Undo();
-		if (GameInput.isPressed(GameInput.KEY_RIGHT)) Redo();
+//		if (GameInput.isPressed(GameInput.KEY_LEFT)) Undo();
+//		if (GameInput.isPressed(GameInput.KEY_RIGHT)) Redo();
 		if ((GameInput.isPressed(GameInput.KEY_D)) & (engageDelete)) {
 			if ((mode==4) & (modeParent.equals("Set Path"))) {
 				if (vertSelect != -1) {
