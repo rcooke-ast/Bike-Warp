@@ -694,11 +694,13 @@ public class EditorIO {
         		cntSpike += 1;
         		bodyIdx += addBodies;
         	} else if (allObjectTypes.get(i) == ObjectVars.Transport) {
-        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransport);
+        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransport, null);
         		cntTransport += 1;
         		bodyIdx += addBodies;
         	} else if (allObjectTypes.get(i) == ObjectVars.TransportInvisible) {
-        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransportInvisible);
+        		Vector2 gravityVec = new Vector2(allObjectArrows.get(i)[2]-allObjectArrows.get(i)[0],allObjectArrows.get(i)[3]-allObjectArrows.get(i)[1]);
+                gravityVec.nor();
+        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransportInvisible, gravityVec);
         		cntTransportInvisible += 1;
         		bodyIdx += addBodies;
         	}

@@ -1541,6 +1541,10 @@ public class Editor extends GameState {
 	        		for (int j = 0; j<8; j++) {
 	        			transPoly[j] = allObjects.get(i)[j];
 	        		}
+	        		if (allObjectTypes.get(i) == ObjectVars.TransportInvisible) {
+	        			// Render the gravity arrow
+		        		shapeRenderer.polygon(allObjectArrows.get(i));
+	        		}
 	        		shapeRenderer.polygon(transPoly);
 	        		for (int j = 8; j<16; j++) {
 	        			transPoly[j-8] = allObjects.get(i)[j];
@@ -3244,7 +3248,8 @@ public class Editor extends GameState {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-				AddObject(transIdx, tempx, tempy, -999.9f);
+				if (modeParent.equals("Transport")) AddObject(transIdx, tempx, tempy, -999.9f);
+				else if (modeParent.equals("Transport (invisible)")) AddObject(transIdx, tempx, tempy, 0.0f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectObject("up", transIdx, false, false);
 				engageDelete = true;
@@ -3287,6 +3292,32 @@ public class Editor extends GameState {
     			}
     		} else if ((modeChild.equals("Rotate Entry")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
     			UpdateObject(objectSelect, "rotateentry");
+    			objectSelect = -1;
+            	GameInput.MBRELEASE=false;
+    		} else if ((modeChild.equals("Rotate Gravity")) & (GameInput.MBDRAG==true)) {
+    			if (objectSelect == -1) {
+    				SelectObject("down", ObjectVars.TransportInvisible, true, false);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			} else {
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
+		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
+		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
+		    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
+		    		if ((startX == allObjectCoords.get(objectSelect)[0]) & (startY == allObjectCoords.get(objectSelect)[1])) return; // No rotation
+		    		else if (startX == allObjectCoords.get(objectSelect)[0]) {
+		    			if (endX>startX) nullvarD *= -1.0f;
+		    			if (startY<allObjectCoords.get(objectSelect)[1]) nullvarD *= -1.0f;
+		    		} else {
+		    			if (endY < endX*((startY-allObjectCoords.get(objectSelect)[1])/(startX-allObjectCoords.get(objectSelect)[0])) + (startY - startX*((startY-allObjectCoords.get(objectSelect)[1])/(startX-allObjectCoords.get(objectSelect)[0])))) nullvarD *= -1.0f;
+		    			if (startX < allObjectCoords.get(objectSelect)[0]) nullvarD *= -1.0f;
+		    		}
+	            	RotateObject(objectSelect, "arrow", nullvarD);
+    			}
+    		} else if ((modeChild.equals("Rotate Gravity")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
+    			UpdateObject(objectSelect, "rotatearrow");
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
@@ -4053,7 +4084,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry");
 					pObjectIndex = GetListIndex("Transport",objectList);
 				} else if (modeParent.equals("Transport (invisible)")) {
-					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry");
+					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry", "Rotate Gravity");
 					pObjectIndex = GetListIndex("Transport (invisible)",objectList);
 				} else if (modeParent.equals("Start")) {
 					listChild.setItems("Put", "Move", "Rotate", "Flip Direction");
@@ -5612,8 +5643,10 @@ public class Editor extends GameState {
 					newPoly[5] = allObjects.get(i)[5];
 					newPoly[6] = allObjects.get(i)[6];
 					newPoly[7] = allObjects.get(i)[7];
-					inside = PolygonOperations.PointInPolygon(newPoly,tempx,tempy);
-					if (!inside) {
+					if (rotate) inside = PolygonOperations.PointInPolygon(allObjectArrows.get(i),tempx,tempy);
+					else inside = PolygonOperations.PointInPolygon(newPoly,tempx,tempy);
+					if (inside) tentry = 1;
+					if ((!inside) & (!rotate)) {
 						// Check the other entry point
 						newPoly = new float[8];
 						newPoly[0] = allObjects.get(i)[8];
@@ -5626,7 +5659,7 @@ public class Editor extends GameState {
 						newPoly[7] = allObjects.get(i)[15];
 						inside = PolygonOperations.PointInPolygon(newPoly,tempx,tempy);
 						if (inside) tentry = 2;
-					} else tentry = 1;
+					}
 				} else {
 					if (!circle) {
 						if (rotate) inside = PolygonOperations.PointInPolygon(allObjectArrows.get(i),tempx,tempy);
@@ -5772,6 +5805,23 @@ public class Editor extends GameState {
 			newCoord[1] += shiftY;
 			newPoly = allObjectCoords.set(idx, newCoord.clone());
 		} else if ((mode.equals("moveentry")) | (mode.equals("rotateentry"))) {
+			float shiftX = updatePoly[0]-allObjects.get(idx)[0+8*(tentry-1)];
+			float shiftY = updatePoly[1]-allObjects.get(idx)[1+8*(tentry-1)];
+			// Update the Arrow
+			if ((allObjectArrows.get(idx) != null) & (tentry==1) & (mode.equals("moveentry"))) {
+				// Update the Coordinate
+				newCoord = allObjectCoords.get(idx);
+				newCoord[0] += shiftX;
+				newCoord[1] += shiftY;
+				newPoly = allObjectCoords.set(idx, newCoord.clone());
+				// Now do the arrow
+				newPoly = allObjectArrows.get(idx);
+				for (int i = 0; i<allObjectArrows.get(idx).length/2; i++){
+					newPoly[2*i] += shiftX;
+					newPoly[2*i+1] += shiftY;
+				}
+				newPoly = allObjectArrows.set(idx, newPoly.clone());
+			}
 			newPoly = allObjects.get(idx).clone();
 			newPoly[0+8*(tentry-1)] = updatePoly[0];
 			newPoly[1+8*(tentry-1)] = updatePoly[1];
