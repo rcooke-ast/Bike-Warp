@@ -1284,13 +1284,24 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		return 1; // Return number of bodies added
 	}
 
-	public static int AddTransport(JSONStringer json, float[] fs, int cnt) throws JSONException {
+	public static int AddTransport(JSONStringer json, float[] fs, int cnt, Vector2 gravityVec) throws JSONException {
 		float xcenA = B2DVars.EPPM*(fs[0]+fs[4])*0.5f;
 		float ycenA = B2DVars.EPPM*(fs[1]+fs[5])*0.5f;
 		float xcenB = B2DVars.EPPM*(fs[8]+fs[12])*0.5f;
 		float ycenB = B2DVars.EPPM*(fs[9]+fs[13])*0.5f;
 		float rotAngleA = PolygonOperations.GetAngle(fs[0], fs[1], fs[2], fs[3]);
 		float rotAngleB = PolygonOperations.GetAngle(fs[8], fs[9], fs[10], fs[11]);
+		// Get the gravity vector
+		float gravity = 0.0f;
+        if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Earth") gravity = B2DVars.GRAVITY_EARTH;
+        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Mars") gravity = B2DVars.GRAVITY_MARS;
+        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Moon") gravity = B2DVars.GRAVITY_MOON;
+        else gravity = B2DVars.GRAVITY_EARTH;
+        float xgrav = 0.0f, ygrav=-gravity;
+		if (gravityVec != null) {
+	        xgrav = gravityVec.x*gravity;
+	        ygrav = gravityVec.y*gravity;
+		}
 		json.object(); // Start of Transport Entry A
         json.key("angle").value(0);
         json.key("angularVelocity").value(0);
@@ -1310,6 +1321,16 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         json.key("name").value("transportAngle");
         json.key("float").value(rotAngleB-rotAngleA);
         json.endObject();
+        if (gravityVec != null) {
+            json.object();
+            json.key("name").value("gravityVector");
+            json.key("vec2");
+            json.object();
+            json.key("x").value(xgrav);
+            json.key("y").value(ygrav);
+            json.endObject();
+            json.endObject();
+        }
         json.endArray();
         json.key("fixedRotation").value(false);
         // Add the fixtures

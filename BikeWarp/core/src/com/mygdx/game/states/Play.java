@@ -1255,6 +1255,22 @@ public class Play extends GameState {
     			// Force transporters to be inactive
     			canTransport = 0.0f;
     			BikeGameSounds.PlaySound(soundTransport, 1.0f);
+    			// Now update the gravity, if it's an invisible transport
+				float angleGrav;
+				if (gravityScale >= 0.0f) {
+					angleGrav = (float) (Math.acos(gravityPrev.cpy().nor().dot(mWorld.getGravity().cpy().nor())));
+					angleGrav *= (float)Math.sin(gravityScale*Math.PI/2);
+					Vector2 gravVect = gravityPrev.cpy().nor().scl(gravityPrev.len());
+					if (dircGrav < 0.0f) angleGrav *= -1.0f; // Rotate clockwise
+					gravityPrev = new Vector2((float)(gravVect.x*Math.cos(angleGrav) - gravVect.y*Math.sin(angleGrav)), (float)(gravVect.x*Math.sin(angleGrav) + gravVect.y*Math.cos(angleGrav)));
+					//gravityPrev = mWorld.getGravity().cpy().nor();
+				} else gravityPrev = mWorld.getGravity().cpy().nor();
+				Vector2 gravNext = (Vector2)mScene.getCustom(bodies.get(0), "gravityVector", mWorld.getGravity());
+				dircGrav = gravityPrev.x*gravNext.y - gravityPrev.y*gravNext.x;
+				gravityScale = 0.0f;
+				gravityOld = mWorld.getGravity().cpy();
+				gravityNew = gravNext.cpy();
+
     		}
     	}
     	bodies.clear();
