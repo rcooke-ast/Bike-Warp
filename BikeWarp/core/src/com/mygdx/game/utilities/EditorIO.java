@@ -312,6 +312,35 @@ public class EditorIO {
 		return allLevels;
 	}
 
+	public static String[] LoadTraceImages(String[] defaultStr) {
+		File folder = new File("").getAbsoluteFile();
+		String temp = "", tst = "";
+		int numFiles = 0;
+		for (File fileEntry : folder.listFiles()) {
+			if (fileEntry.isFile()) {
+				temp = fileEntry.getName();
+				tst = temp.substring(temp.lastIndexOf('.') + 1, temp.length()).toLowerCase();
+				if (tst.equals("png")) numFiles +=1;
+				else if (tst.equals("jpg")) numFiles +=1;
+			}
+		}
+		// Repeat but insert the files into the array
+		String[] allFiles = new String[defaultStr.length+numFiles];
+		for (int i=0; i<defaultStr.length; i++) allFiles[i] = defaultStr[i];
+		numFiles = defaultStr.length;
+		for (File fileEntry : folder.listFiles()) {
+			if (fileEntry.isFile()) {
+				temp = fileEntry.getName();
+				tst = temp.substring(temp.lastIndexOf('.') + 1, temp.length()).toLowerCase();
+				if ((tst.equals("png")) | (tst.equals("jpg"))) {
+					allFiles[numFiles] = FileUtils.getBaseName(fileEntry.getName()) + "." + tst;
+					numFiles +=1;
+				}
+			}
+		}
+		return allFiles;
+	}
+
 	public static String GetTexture(String textName, String defval) {
 		if (textName.equals("Default")) return defval;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";

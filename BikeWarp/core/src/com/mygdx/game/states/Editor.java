@@ -47,6 +47,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragScrollListener;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -75,6 +76,9 @@ public class Editor extends GameState {
 
 	private InputMultiplexer inputMultiplexer;
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
+	private SpriteBatch mBatch = new SpriteBatch();
+	private Sprite traceImage;
+	private String[] traceList;
 	private String[] nullList = new String[0];
 	private String[] itemsXYonly = {"Move X and Y", "Move X only", "Move Y only"};
 	private String[] itemsPRC = {"Polygon", "Rectangle", "Circle", "Set Texture"};
@@ -138,6 +142,7 @@ public class Editor extends GameState {
 	private ArrayList<Integer> allPolygonTypes = new ArrayList<Integer>();
 	private ArrayList<float[]> allPolygonPaths = new ArrayList<float[]>();
 	private ArrayList<String> allPolygonTextures = new ArrayList<String>();
+	private float[] trcImgProp;
 	private String jsonLevelString;
 	private float[] newPoly = null;
 	private float[] updatePoly = null;
@@ -183,7 +188,7 @@ public class Editor extends GameState {
 	private TextButton buttonExecute;
 	private TextButton buttonUndo;
 	private TextButton buttonRedo;
-	private TextButton buttonPan;
+	private TextButton buttonTraceImage;
 	private TextButton buttonLevelProp;
 	private TextButton buttonAddStatic;
 	private TextButton buttonAddKinetic;
@@ -258,6 +263,9 @@ public class Editor extends GameState {
 		// Generate the initial variables of a new level
 		ResetLevelDefaults();
 
+		// TODO :: FIX THIS!!
+		traceList = EditorIO.LoadTraceImages(new String[] {"None_BIKEWHEEL"});
+		
 		warnFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
 		signFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
 		warnMessage = new String[totalNumMsgs];
@@ -279,8 +287,8 @@ public class Editor extends GameState {
 		buttonExecute = new TextButton("Execute", skin);
 		buttonUndo = new TextButton("Undo", skin);
 		buttonRedo = new TextButton("Redo", skin);
-		buttonPan = new TextButton("Pan", skin);
 		buttonLevelProp = new TextButton("Level Properties", skin);
+		buttonTraceImage = new TextButton("Trace Image", skin);
 		buttonCopyPaste = new TextButton("Copy and Paste", skin);
 		buttonAddStatic = new TextButton("Static Platform", skin);
 		buttonAddKinetic = new TextButton("Moving Platform", skin);
@@ -288,7 +296,7 @@ public class Editor extends GameState {
 		buttonAddTrigger = new TextButton("Trigger Platform", skin);
 		buttonAddObject = new TextButton("Object", skin);
 		buttonDecorate = new TextButton("Decorate", skin);
-		buttonPan.setChecked(true);
+		buttonLevelProp.setChecked(true);
 
 		selectLoadLevel.setItems(EditorIO.LoadLevelNames(loadList));
 		selectLoadLevel.setSelectedIndex(0);
@@ -331,12 +339,12 @@ public class Editor extends GameState {
 		window.add(buttonSave,textInputSave);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonExecute);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonPan);
 		window.row().fill().expandX().colspan(1);
 		window.add(buttonRedo, buttonUndo);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonLevelProp);
+		window.row().fill().expandX().colspan(2);
+		window.add(buttonTraceImage);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonCopyPaste);
 		window.row().fill().expandX().colspan(2);
@@ -573,14 +581,14 @@ public class Editor extends GameState {
 			}
 		});
 
-		buttonPan.addListener(new ClickListener() {
+		buttonTraceImage.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
 					if (!drawingPoly) {
 						mode = 1;
 						UncheckButtons(false);
-						buttonPan.setChecked(true);
-						listParent.setItems(nullList);
+						buttonTraceImage.setChecked(true);
+						listParent.setItems(traceList);
 						SetChildList();
 						ResetHoverSelect();
 					}
@@ -725,7 +733,18 @@ public class Editor extends GameState {
 				if (!hideToolbar) {
 					GameInput.MBRELEASE=false;
 					if (!drawingPoly) {
-						SetChildList();
+						modeParent = listParent.getSelected().toString();
+						if (modeParent.equalsIgnoreCase("none")) {
+							traceImage = null;
+							listChild.setItems();
+							traceImage = new Sprite(BikeGameTextures.LoadTexture("bikewheel",0));
+							trcImgProp = new float[] {1000.0f, 1000.0f, 100.0f, 100.0f, 1.0f, 0.0f};
+						} else {
+							SetChildList();
+							traceImage = new Sprite(BikeGameTextures.LoadTexture("chain_link",0));
+							float ratio = traceImage.getHeight()/traceImage.getWidth();
+							trcImgProp = new float[] {1000.0f, 1000.0f, 100.0f, 100.0f*ratio, 1.0f, 0.0f};
+						}
 						ResetHoverSelect();
 						polySelect = -1;
 						updatePathVertex = null;
@@ -738,7 +757,7 @@ public class Editor extends GameState {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
 					GameInput.MBRELEASE=false;
-					if (listParent.getItems().size != 0) {
+					if ((listParent.getItems().size != 0) & ((listChild.getItems().size != 0))) {
 						modeParent = listParent.getSelected().toString();
 						// Flip the starting direction every time this option is clicked
 						if ((mode==5) & (modeParent.equals("Start")) & (listChild.getSelected().toString().equals("Flip Direction"))) {
@@ -905,6 +924,8 @@ public class Editor extends GameState {
     	updatePathVertex = null;
     	newCoord = new float[2];
     	boundsBG = new float[] {0.0f, boundaryX};
+    	traceImage = null;
+    	trcImgProp = new float[] {1000.0f, 1000.0f, 100.0f, 100.0f, 1.0f, 0.0f};  // x, y, width, height, scale, rotation
     	flipX=false;
     	flipY=false;
     	rotPoly=false;
@@ -1088,9 +1109,12 @@ public class Editor extends GameState {
 		if (enteringFilename) stage.setKeyboardFocus(textInputSave);
 		// Cycle through the different operating modes
         if (mode==1) {
-        	if (GameInput.MBDRAG==true) {
-        		ControlPan();
-        	}
+    		try {
+    			ControlMode1();
+    		} catch (Exception e) {}
+//        	if (GameInput.MBDRAG==true) {
+//        		ControlPan();
+//        	}
         } else if (mode==2) {
     		try {
     			ControlMode2();
@@ -1151,7 +1175,7 @@ public class Editor extends GameState {
 			buttonSave.setDisabled(true);
 			textInputSave.setDisabled(true);
 			buttonExecute.setDisabled(true);
-			buttonPan.setDisabled(true);
+			buttonTraceImage.setDisabled(true);
 			buttonLevelProp.setDisabled(true);
 			buttonAddStatic.setDisabled(true);
 			buttonAddKinetic.setDisabled(true);
@@ -1165,7 +1189,7 @@ public class Editor extends GameState {
 			buttonSave.setDisabled(false);
 			textInputSave.setDisabled(false);
 			buttonExecute.setDisabled(false);
-			buttonPan.setDisabled(false);
+			buttonTraceImage.setDisabled(false);
 			buttonLevelProp.setDisabled(false);
 			buttonAddStatic.setDisabled(false);
 			buttonAddKinetic.setDisabled(false);
@@ -1203,6 +1227,7 @@ public class Editor extends GameState {
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.setProjectionMatrix(cam.combined);
+
         shapeRenderer.begin(ShapeType.Line);
         // Draw the boundary region
         Gdx.gl20.glLineWidth(5);
@@ -1871,6 +1896,16 @@ public class Editor extends GameState {
         sb.end();
 
         Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        // Draw a trace image, if it exists
+        if (traceImage != null) {
+        	mBatch.setColor(1, 1, 1, 0.5f);
+			mBatch.setProjectionMatrix(cam.combined);
+	    	mBatch.begin();
+	    	mBatch.draw(traceImage, trcImgProp[0]-trcImgProp[2]/2, trcImgProp[1]-trcImgProp[3]/2, trcImgProp[0], trcImgProp[1], trcImgProp[2], trcImgProp[3], 1, 1, trcImgProp[5]);
+	    	mBatch.end();
+        }
+
         // Finally, draw the toolbar
         if (!hideToolbar) {
 			stage.act(Gdx.graphics.getDeltaTime());
@@ -2029,7 +2064,49 @@ public class Editor extends GameState {
 		warnType[warnNumber] = mType;
 		warnNumber += 1;
 	}
-	
+
+	public void ControlMode1() {
+		if (listChild.getSelected() == null) return;
+		modeChild = listChild.getSelected().toString();
+		if ((modeChild.equals("Put")) & (GameInput.MBJUSTPRESSED==true)) {
+			trcImgProp[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+			trcImgProp[1] = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
+			startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+			startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    		nullvarA = (float) (Math.sqrt((endX-trcImgProp[0])*(endX-trcImgProp[0]) + (endY-trcImgProp[1])*(endY-trcImgProp[1]))/Math.sqrt((startX-trcImgProp[0])*(startX-trcImgProp[0]) + (startY-trcImgProp[1])*(startY-trcImgProp[1])));
+    		if (nullvarA < 0.0f) nullvarA *= -1.0f;
+    		trcImgProp[2] = nullvarB*nullvarA;
+    		trcImgProp[3] = nullvarC*nullvarA;
+		} else if (modeChild.equals("Scale")) {
+			nullvarB = trcImgProp[2];
+			nullvarC = trcImgProp[3];
+		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
+			startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+			startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    		nullvarA = (float) Math.sqrt((endX-trcImgProp[0])*(endX-trcImgProp[0]) + (endY-trcImgProp[1])*(endY-trcImgProp[1]));
+    		nullvarB = (float) Math.sqrt((startX-trcImgProp[0])*(startX-trcImgProp[0]) + (startY-trcImgProp[1])*(startY-trcImgProp[1]));
+    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
+    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
+    		if ((startX == trcImgProp[0]) & (startY == trcImgProp[1])) return; // No rotation
+    		else if (startX == trcImgProp[0]) {
+    			if (endX>startX) nullvarD *= -1.0f;
+    			if (startY<trcImgProp[1]) nullvarD *= -1.0f;
+    		} else {
+    			if (endY < endX*((startY-trcImgProp[1])/(startX-trcImgProp[0])) + (startY - startX*((startY-trcImgProp[1])/(startX-trcImgProp[0])))) nullvarD *= -1.0f;
+    			if (startX < trcImgProp[0]) nullvarD *= -1.0f;
+    		}
+    		// Set the angle
+    		trcImgProp[5] = (float) Math.toDegrees(nullvarD);
+		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true)) {
+        	GameInput.MBRELEASE=false;
+		}
+	}
+
 	public void ControlMode2() {
 		if (listChild.getSelected() == null) return;
 		modeChild = listChild.getSelected().toString(); 
@@ -3908,7 +3985,7 @@ public class Editor extends GameState {
 		buttonExecute.setChecked(false);
 		buttonUndo.setChecked(false);
 		buttonRedo.setChecked(false);
-		buttonPan.setChecked(false);
+		buttonTraceImage.setChecked(false);
 		buttonLevelProp.setChecked(false);
 		buttonAddStatic.setChecked(false);
 		buttonAddKinetic.setChecked(false);
@@ -3953,7 +4030,7 @@ public class Editor extends GameState {
 			modeParent = listParent.getSelected().toString();
 			switch (mode) {
 			case 1 :
-				listChild.setItems(nullList);
+				listChild.setItems("Put", "Scale", "Rotate");
 				break;
 			case 2 :
 //				if (modeParent.equals("Collect Jewels")) {
