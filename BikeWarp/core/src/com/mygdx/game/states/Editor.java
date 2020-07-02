@@ -264,7 +264,7 @@ public class Editor extends GameState {
 		ResetLevelDefaults();
 
 		// TODO :: FIX THIS!!
-		traceList = EditorIO.LoadTraceImages(new String[] {"None_BIKEWHEEL"});
+		traceList = EditorIO.LoadTraceImages(new String[] {"None"});
 		
 		warnFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
 		signFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
@@ -734,16 +734,17 @@ public class Editor extends GameState {
 					GameInput.MBRELEASE=false;
 					if (!drawingPoly) {
 						modeParent = listParent.getSelected().toString();
-						if (modeParent.equalsIgnoreCase("none")) {
-							traceImage = null;
-							listChild.setItems();
-							traceImage = new Sprite(BikeGameTextures.LoadTexture("bikewheel",0));
-							trcImgProp = new float[] {1000.0f, 1000.0f, 100.0f, 100.0f, 1.0f, 0.0f};
-						} else {
-							SetChildList();
-							traceImage = new Sprite(BikeGameTextures.LoadTexture("chain_link",0));
-							float ratio = traceImage.getHeight()/traceImage.getWidth();
-							trcImgProp = new float[] {1000.0f, 1000.0f, 100.0f, 100.0f*ratio, 1.0f, 0.0f};
+						SetChildList();
+						if (mode == 1) {
+							if (modeParent.equalsIgnoreCase("none")) {
+								traceImage = null;
+								listChild.setItems();
+								trcImgProp = new float[] {1000.0f, 1000.0f, 100.0f, 100.0f, 1.0f, 0.0f};
+							} else {
+								traceImage = new Sprite(new Texture(modeParent));
+								float ratio = traceImage.getHeight()/traceImage.getWidth();
+								trcImgProp = new float[] {1000.0f, 1000.0f, 100.0f, 100.0f*ratio, 1.0f, 0.0f};
+							}
 						}
 						ResetHoverSelect();
 						polySelect = -1;
