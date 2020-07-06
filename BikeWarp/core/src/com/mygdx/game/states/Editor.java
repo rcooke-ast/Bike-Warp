@@ -188,6 +188,7 @@ public class Editor extends GameState {
 	private TextButton buttonExecute;
 	private TextButton buttonUndo;
 	private TextButton buttonRedo;
+	private TextButton buttonPan;
 	private TextButton buttonTraceImage;
 	private TextButton buttonLevelProp;
 	private TextButton buttonAddStatic;
@@ -215,7 +216,7 @@ public class Editor extends GameState {
 	 */
 
 	// Modes:
-	// 1 = Pan/Zoom
+	// 1 = Trace Image
 	// 2 = Level Properties
 	// 3 = static platform
 	// 4 = kinetic (moving) platform
@@ -224,6 +225,7 @@ public class Editor extends GameState {
 	// 7 = Falling platform (controlled by 3)
 	// 8 = copy/paste
 	// 9 = Trigger platform (controlled by 3)  <-- this is the same as a falling platform, but there's a different trigger
+	// 10 = Pan/Zoom
 	// 999 = Execute level
 	// -999 = Load/Save level
 
@@ -287,6 +289,7 @@ public class Editor extends GameState {
 		buttonExecute = new TextButton("Execute", skin);
 		buttonUndo = new TextButton("Undo", skin);
 		buttonRedo = new TextButton("Redo", skin);
+		buttonPan = new TextButton("Pan", skin);
 		buttonLevelProp = new TextButton("Level Properties", skin);
 		buttonTraceImage = new TextButton("Trace Image", skin);
 		buttonCopyPaste = new TextButton("Copy and Paste", skin);
@@ -343,6 +346,8 @@ public class Editor extends GameState {
 		window.add(buttonRedo, buttonUndo);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonLevelProp);
+		window.row().fill().expandX().colspan(2);
+		window.add(buttonPan);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonTraceImage);
 		window.row().fill().expandX().colspan(2);
@@ -607,6 +612,21 @@ public class Editor extends GameState {
 						SetChildList();
 						ResetHoverSelect();
 						buttonLevelProp.setChecked(true);
+					}
+				}
+			}
+		});
+
+		buttonPan.addListener(new ClickListener() {
+			public void clicked (InputEvent event, float x, float y) {
+				if (!hideToolbar) {
+					if (!drawingPoly) {
+						mode = 10;
+						UncheckButtons(false);
+						buttonPan.setChecked(true);
+						listParent.setItems(nullList);
+						SetChildList();
+						ResetHoverSelect();
 					}
 				}
 			}
@@ -1149,6 +1169,10 @@ public class Editor extends GameState {
         	try {
         		ControlMode3(2); // Use Control Mode 3, but set the platform to be a trigger platform (i.e. set the argument to 2)
         	} catch (Exception e) {}        	
+        } else if (mode==10) {
+        	if (GameInput.MBDRAG==true) {
+        		ControlPan();
+        	}
         }
         GameInput.MBJUSTPRESSED = false;
         GameInput.MBJUSTDRAGGED = false;
@@ -1178,6 +1202,7 @@ public class Editor extends GameState {
 			buttonExecute.setDisabled(true);
 			buttonTraceImage.setDisabled(true);
 			buttonLevelProp.setDisabled(true);
+			buttonPan.setDisabled(true);
 			buttonAddStatic.setDisabled(true);
 			buttonAddKinetic.setDisabled(true);
 			buttonAddFalling.setDisabled(true);
@@ -1192,6 +1217,7 @@ public class Editor extends GameState {
 			buttonExecute.setDisabled(false);
 			buttonTraceImage.setDisabled(false);
 			buttonLevelProp.setDisabled(false);
+			buttonPan.setDisabled(false);
 			buttonAddStatic.setDisabled(false);
 			buttonAddKinetic.setDisabled(false);
 			buttonAddFalling.setDisabled(false);
@@ -3988,6 +4014,7 @@ public class Editor extends GameState {
 		buttonRedo.setChecked(false);
 		buttonTraceImage.setChecked(false);
 		buttonLevelProp.setChecked(false);
+		buttonPan.setChecked(false);
 		buttonAddStatic.setChecked(false);
 		buttonAddKinetic.setChecked(false);
 		buttonAddFalling.setChecked(false);
@@ -4239,6 +4266,9 @@ public class Editor extends GameState {
 					pTriggerIndex = GetListIndex("Set Texture", itemsPRC);
 		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
 				}
+				break;
+			case 10 :
+				listChild.setItems(nullList);
 				break;
 			default :
 				listChild.setItems(nullList);
