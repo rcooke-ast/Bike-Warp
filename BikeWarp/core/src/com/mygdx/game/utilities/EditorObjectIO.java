@@ -1284,6 +1284,61 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		return 1; // Return number of bodies added
 	}
 
+	public static int AddSpikeZone(JSONStringer json, float[] fs, int cnt) throws JSONException {
+		float xcen = B2DVars.EPPM*(fs[0]+fs[4])*0.5f;
+		float ycen = B2DVars.EPPM*(fs[1]+fs[5])*0.5f;
+		json.object(); // Start of Key
+        json.key("angle").value(0);
+        json.key("angularVelocity").value(0);
+        json.key("awake").value(true);
+        json.key("fixedRotation").value(false);
+        // Add the fixtures
+        json.key("fixture");
+        json.array();
+        json.object();
+        json.key("sensor").value(true);
+    	json.key("density").value(1.0);
+    	json.key("friction").value(0.0);
+    	json.key("restitution").value(0.0);
+        json.key("name").value("fixture8");
+        json.key("filter-categoryBits").value(B2DVars.BIT_SPIKE);
+        json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL);
+		json.key("polygon");
+        json.object(); // Begin polygon object
+        json.key("vertices");
+        json.object(); // Begin vertices object
+        json.key("x");
+        json.array();
+       	json.value(B2DVars.EPPM*fs[0]-xcen);
+       	json.value(B2DVars.EPPM*fs[2]-xcen);
+       	json.value(B2DVars.EPPM*fs[4]-xcen);
+       	json.value(B2DVars.EPPM*fs[6]-xcen);
+        json.endArray();
+        json.key("y");
+        json.array();
+       	json.value(B2DVars.EPPM*fs[1]-ycen);
+       	json.value(B2DVars.EPPM*fs[3]-ycen);
+       	json.value(B2DVars.EPPM*fs[5]-ycen);
+       	json.value(B2DVars.EPPM*fs[7]-ycen);
+       	json.endArray();
+        json.endObject(); // End the vertices object
+        json.endObject(); // End polygon object
+        json.endObject(); // End this fixture
+        json.endArray(); // End the array of fixtures
+        // Add some final properties for the key body
+		json.key("linearVelocity").value(0);
+		json.key("name").value("SpikeZone"+cnt);
+        // Set the position
+		json.key("position");
+		json.object();
+		json.key("x").value(xcen);
+		json.key("y").value(ycen);
+		json.endObject();
+		json.key("type").value(0);
+		json.endObject(); // End of Spike Zone
+		return 1; // Return number of bodies added
+	}
+
 	public static int AddTransport(JSONStringer json, float[] fs, int cnt, Vector2 gravityVec) throws JSONException {
 		float xcenA = B2DVars.EPPM*(fs[0]+fs[4])*0.5f;
 		float ycenA = B2DVars.EPPM*(fs[1]+fs[5])*0.5f;

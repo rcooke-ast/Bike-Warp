@@ -24,6 +24,7 @@ public class ObjectVars {
     public static final int Log = 18;
     public static final int Nitrous = 19;
     public static final int TransportInvisible = 20;
+    public static final int SpikeZone = 21;
     
 
     // Define the vertices
@@ -50,6 +51,7 @@ public class ObjectVars {
     public static final float[] objectNitrous = {-30.0f,-15.0f,30.0f,-15.0f,30.0f,15.0f,-30.0f,15.0f};
     public static final float objectPadlock = 18.0f;
     public static final float objectTriggerWidth = 5.0f;
+    public static final float[] objectSpikeZone = {-100.0f,-100.0f,100.0f,-100.0f,100.0f,100.0f,-100.0f,100.0f};
     
     // Define the global properties for some of the objects
     public static final float ChainLinkSize = 1.0f; // Size of a single link in a chain (in metres)
