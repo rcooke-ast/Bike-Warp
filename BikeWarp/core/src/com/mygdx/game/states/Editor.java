@@ -86,7 +86,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Transport", "Transport (invisible)", "Start", "Finish"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
 	private String[] decorateList = {"Grass",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
@@ -164,7 +164,7 @@ public class Editor extends GameState {
 	private ArrayList<float[]> updateGroupPoly;
 	private String currentTexture = "";
 	private int polySelect = -1, vertSelect = -1, segmSelect = -1;
-	private int polyHover = -1, vertHover = -1, segmHover = -1, decorHover=-1;
+	private int polyHover = -1, vertHover = -1, segmHover = -1, decorHover=-1, objectHover=-1;
 	private int objectSelect = -1, decorSelect = -1, finishObjNumber;
 	private int pLevelIndex = 0, pStaticIndex = 0, pKinematicIndex = 0, pFallingIndex = 0, pTriggerIndex = 0, pObjectIndex = 0;
 	private boolean triggerSelect = false;
@@ -819,6 +819,7 @@ public class Editor extends GameState {
 						segmSelect = -1;
 						polyHover = -1;
 						decorHover = -1;
+						objectHover = -1;
 						vertHover = -1;
 						segmHover = -1;
 						updatePathVertex = null;
@@ -912,6 +913,7 @@ public class Editor extends GameState {
     	segmSelect = -1;
     	polyHover = -1;
     	decorHover = -1;
+    	objectHover = -1;
     	vertHover = -1;
     	segmHover = -1;
     	objectSelect = -1;
@@ -1066,6 +1068,7 @@ public class Editor extends GameState {
 						vertHover = -1;
 						polyHover = -1;
 						decorHover = -1;
+						objectHover = -1;
 						segmHover = -1;
 					} else if (allPolygonPaths.get(polySelect).length == 10) {
 						float[] pathArr = new float[6];
@@ -1075,6 +1078,7 @@ public class Editor extends GameState {
 						vertHover = -1;
 						polyHover = -1;
 						decorHover = -1;
+						objectHover = -1;
 						segmHover = -1;
 					}
 				}
@@ -1111,6 +1115,7 @@ public class Editor extends GameState {
 				vertHover = -1;
 				polyHover = -1;
 				decorHover = -1;
+				objectHover = -1;
 				segmHover = -1;
 			}
 		}
@@ -1587,6 +1592,11 @@ public class Editor extends GameState {
 	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
 	        		shapeRenderer.triangle(allObjects.get(i)[0], allObjects.get(i)[1]+1.3f*allObjects.get(i)[2], allObjects.get(i)[0]-1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2], allObjects.get(i)[0]+1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2]);
+	        	} else if (allObjectTypes.get(i) == ObjectVars.SpikeZone) {
+	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+	        		shapeRenderer.polygon(allObjects.get(i));
+	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
+	        		shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
 	        	} else if ((allObjectTypes.get(i) == ObjectVars.Transport) | (allObjectTypes.get(i) == ObjectVars.TransportInvisible)) {
 	        		shapeRenderer.setColor(1, 1, 1, opacity);
 	        		shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8] + allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9] + allObjects.get(i)[13]));
@@ -1805,8 +1815,31 @@ public class Editor extends GameState {
 	            // Draw the hover vertex
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
 	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertHover], allPolygonPaths.get(polySelect)[6+2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
-	        }        	
-        } else if (mode==6) {
+	        }
+        } else if (mode==5) {
+	        if ((segmSelect != -1) & (vertSelect != -1) & (objectSelect != -1)) {
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	int segmNext = segmSelect + 1;
+	        	if (segmNext==allObjects.get(objectSelect).length/2) segmNext = 0;
+	        	shapeRenderer.line(allObjects.get(objectSelect)[2*segmNext],allObjects.get(objectSelect)[2*segmNext+1],allObjects.get(objectSelect)[2*segmSelect],allObjects.get(objectSelect)[2*segmSelect+1]);
+	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
+	        } else if ((vertSelect != -1) & (objectSelect != -1)) {
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	shapeRenderer.circle(allObjects.get(objectSelect)[2*vertSelect], allObjects.get(objectSelect)[2*vertSelect+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold); 
+	        } else if ((segmHover != -1) & (vertHover != -1) & (objectHover != -1)) {
+	            // Draw the hover segment
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	int segmNext = segmHover + 1;
+	        	if (segmNext==allObjects.get(objectHover).length/2) segmNext = 0;
+	        	shapeRenderer.line(allObjects.get(objectHover)[2*segmNext],allObjects.get(objectHover)[2*segmNext+1],allObjects.get(objectHover)[2*segmHover],allObjects.get(objectHover)[2*segmHover+1]);
+	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
+	            shapeRenderer.circle(0.5f*(allObjects.get(objectHover)[2*segmNext]+allObjects.get(objectHover)[2*segmHover]), 0.5f*(allObjects.get(objectHover)[2*segmNext+1]+allObjects.get(objectHover)[2*segmHover+1]), cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        } else if ((vertHover != -1) & (objectHover != -1)) {
+	            // Draw the hover vertex
+	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
+	        	shapeRenderer.circle(allObjects.get(objectHover)[2*vertHover], allObjects.get(objectHover)[2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        }
+	    } else if (mode==6) {
 	        if ((segmSelect != -1) & (vertSelect != -1) & (decorSelect != -1)) {
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
 	        	int segmNext = segmSelect + 1;
@@ -3346,6 +3379,47 @@ public class Editor extends GameState {
 				UpdateObject(objectSelect, "move");
 				objectSelect = -1;
 			}
+		} else if (modeParent.equals("Spike Zone")) {
+			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				AddObject(ObjectVars.SpikeZone, tempx, tempy, -999.9f);
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				SelectObject("up", ObjectVars.SpikeZone, false, false);
+				engageDelete = true;
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
+				if (objectSelect == -1) {
+					SelectObject("down", ObjectVars.SpikeZone, false, false);
+					startX = GameInput.MBDOWNX*scrscale;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+	            	MoveObject(objectSelect, "polygon", endX, endY);
+				}
+			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
+				UpdateObject(objectSelect, "move");
+				objectSelect = -1;
+    		} else if (modeChild.equals("Move Segment")) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	    		if (GameInput.MBDRAG==true) {
+	    			if (vertSelect == -1) {
+	    				FindNearestSegmentObject(false);
+	    			} else {
+	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	        			int segmNext = segmSelect + 1;
+	        			if (segmNext==allObjects.get(objectSelect).length/2) segmNext = 0;
+	        			if (segmNext < segmSelect) MoveSegment(objectSelect, segmNext, segmSelect, startX, startY);
+	        			else MoveSegment(objectSelect, segmSelect, segmNext, startX, startY);
+	    			}
+	    		} else if ((GameInput.MBJUSTPRESSED==true) & (objectSelect != -1) & (vertSelect != -1)) {
+	         			UpdateObject(objectSelect, "update");
+	         			objectSelect = -1;
+	         			vertSelect = -1;
+	    		} else FindNearestSegmentObject(true);
+    		}
 		} else if ((modeParent.equals("Transport")) | (modeParent.equals("Transport (invisible)"))) {
 			int transIdx = ObjectVars.Transport;
 			if (modeParent.equals("Transport (invisible)")) transIdx = ObjectVars.TransportInvisible;
@@ -4036,6 +4110,7 @@ public class Editor extends GameState {
 		vertSelect = -1;
 		segmSelect = -1;
 		polyHover = -1;
+		objectHover = -1;
 		decorHover = -1;
 		vertHover = -1;
 		segmHover = -1;
@@ -4185,6 +4260,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Spike")) {
 					listChild.setItems(itemsADM);
 					pObjectIndex = GetListIndex("Spike",objectList);
+				} else if (modeParent.equals("Spike Zone")) {
+					listChild.setItems("Add", "Delete", "Move", "Move Segment");
+					pObjectIndex = GetListIndex("Spike Zone",objectList);
 				} else if (modeParent.equals("Transport")) {
 					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry");
 					pObjectIndex = GetListIndex("Transport",objectList);
@@ -4418,7 +4496,19 @@ public class Editor extends GameState {
     public void MoveSegment(int idx, int verti, int vertj, float startX, float startY) {
     	// Currently, this is only designed to move the segment in X or Y.
     	changesMade = true;
-    	if (mode==6) {
+    	if (mode==5) {
+	    	updatePoly = allObjects.get(idx).clone();
+    		// Move the segment
+	    	if (Math.abs(allObjects.get(idx)[2*verti]-allObjects.get(idx)[2*vertj]) < (Math.abs(allObjects.get(idx)[2*verti+1]-allObjects.get(idx)[2*vertj+1]))) {
+	    		// More similar x values, so move in the x direction
+	    		updatePoly[2*verti] = startX;
+	    		updatePoly[2*vertj] = startX;
+	    	} else {
+	    		// More similar y values, so move in the y direction
+	    		updatePoly[2*verti+1] = startY;
+	    		updatePoly[2*vertj+1] = startY;
+	    	}
+    	} else if (mode == 6) {
 	    	updatePoly = allDecors.get(idx).clone();
     		// Move the segment
 	    	if (Math.abs(allDecors.get(idx)[2*verti]-allDecors.get(idx)[2*vertj]) < (Math.abs(allDecors.get(idx)[2*verti+1]-allDecors.get(idx)[2*vertj+1]))) {
@@ -4429,7 +4519,7 @@ public class Editor extends GameState {
 	    		// More similar y values, so move in the y direction
 	    		updatePoly[2*verti+1] = startY;
 	    		updatePoly[2*vertj+1] = startY;
-	    	}
+	    	}    		
     	}
     }
 
@@ -5470,7 +5560,94 @@ public class Editor extends GameState {
 		SaveLevel(true);
 	}
   	
-   
+	public void FindNearestSegmentObject(boolean hover) {
+		int idxa, idxb, idxmin, polymin, flag;
+		float grad, intc, gradb, intcb, xint, yint, xa, xb, ya, yb;
+		float dist, tdist, mindist;
+		mindist = 0.0f;
+		idxmin = 0;
+		polymin = 0;
+		flag = 0;
+		float[] arraySegm;
+		for (int j=0; j<allObjects.size(); j++) {
+			if ((!hover) & (objectSelect != -1)) {
+				if (j!=objectSelect) continue;
+			}
+			if (allObjectTypes.get(j) == ObjectVars.SpikeZone) {
+//				if ((modeParent.equals("Rain")) & (allDecorTypes.get(j)!=DecorVars.Rain)) continue;
+//				if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
+//				if ((modeParent.equals("Collisionless BG")) & (allDecorTypes.get(j)!=DecorVars.CollisionlessBG)) continue;
+//				if ((modeParent.equals("Collisionless FG")) & (allDecorTypes.get(j)!=DecorVars.CollisionlessFG)) continue;
+				arraySegm = allObjects.get(j).clone();
+				for (int i=0; i<arraySegm.length/2; i++) {
+					idxa = i;
+					if (i == arraySegm.length/2 - 1) idxb = 0;
+					else idxb = i+1;
+					// Calculate the gradient
+					xa = arraySegm[2*idxa];
+					ya = arraySegm[2*idxa+1];
+					xb = arraySegm[2*idxb];
+					yb = arraySegm[2*idxb+1];
+					if (xa==xb) {
+						if (ya>yb) {
+							if (tempy>ya) yint = tempy-ya;
+							else if (tempy<yb) yint = yb-tempy;
+							else yint = 0.0f;
+						} else {
+							if (tempy>yb) yint = tempy-yb;
+							else if (tempy<ya) yint = ya-tempy;
+							else yint = 0.0f;
+						}
+						dist = (float) Math.sqrt((tempx-xa)*(tempx-xa) + yint*yint);
+					} else if (ya==yb) {
+						if (xa>xb) {
+							if (tempx>xa) yint = tempx-xa;
+							else if (tempx<xb) yint = xb-tempx;
+							else yint = 0.0f;
+						} else {
+							if (tempx>xb) yint = tempx-xb;
+							else if (tempx<xa) yint = xa-tempx;
+							else yint = 0.0f;
+						}
+						dist = (float) Math.sqrt((tempy-ya)*(tempy-ya) + yint*yint);
+					} else {
+						grad = (yb-ya)/(xb-xa);
+						intc = ya - grad*xa;
+						gradb = -(xb-xa)/(yb-ya);
+						intcb = tempy - gradb*tempx;
+						// Calculate the intersection, and make sure the intersection is within bounds
+						xint = (intcb-intc)/(grad-gradb);
+						if (xa < xb) {
+							if (xint<xa) xint = xa;
+							else if (xint>xb) xint = xb;
+						} else {
+							if (xint<xb) xint = xb;
+							else if (xint>xa) xint = xa;						
+						}
+						// Calculate the distance between the intersection and the cursor
+						yint = grad*xint + intc;
+						dist = (float) Math.sqrt((tempx-xint)*(tempx-xint) + (tempy-yint)*(tempy-yint));
+					}
+					if ((dist < mindist) | (flag==0)) {
+						mindist = dist;
+						idxmin = i;
+						polymin = j;
+						flag=1;
+					}
+				}
+			}
+		}
+		if (hover) {
+			objectHover = polymin;
+			vertHover = idxmin;
+			segmHover = idxmin;
+		} else {
+			objectSelect = polymin;
+			vertSelect = idxmin;
+			segmSelect = idxmin;
+		}
+	}
+
 	public void MakeObject(int otype, float xcen, float ycen, float angle) {
 		angle *= MathUtils.PI/180.0;
 		if (otype == ObjectVars.Arrow) {
@@ -5557,6 +5734,12 @@ public class Editor extends GameState {
 			newPoly[0] = ObjectVars.objectSpike[0] + xcen;
 			newPoly[1] = ObjectVars.objectSpike[1] + ycen;
 			newPoly[2] = ObjectVars.objectSpike[2];
+		} else if (otype == ObjectVars.SpikeZone) {
+			newPoly = new float[ObjectVars.objectSpikeZone.length];
+			for (int i = 0; i<ObjectVars.objectSpikeZone.length/2; i++){
+				newPoly[2*i] = ObjectVars.objectSpikeZone[2*i] + xcen;
+				newPoly[2*i+1] = ObjectVars.objectSpikeZone[2*i+1] + ycen;
+			}
 		} else if ((otype == ObjectVars.Transport) | (otype == ObjectVars.TransportInvisible)) {
 			newPoly = new float[ObjectVars.objectTransport.length];
 			for (int i = 0; i<ObjectVars.objectTransport.length/2; i++){
@@ -5882,7 +6065,9 @@ public class Editor extends GameState {
 
 	public void UpdateObject(int idx, String mode) {
 		changesMade = true;
-		if (mode.equals("move")) {
+		if (mode.equals("update")) {
+			newPoly = allObjects.set(idx, updatePoly.clone());
+		} else if (mode.equals("move")) {
 			// Get the total shift
 			float shiftX = updatePoly[0]-allObjects.get(idx)[0];
 			float shiftY = updatePoly[1]-allObjects.get(idx)[1];
@@ -6176,7 +6361,6 @@ public class Editor extends GameState {
 	}
 
 	public void FindNearestSegmentDecor(boolean hover) {
-		//FindNearestVertex(hover);
 		int idxa, idxb, idxmin, polymin, flag;
 		float grad, intc, gradb, intcb, xint, yint, xa, xb, ya, yb;
 		float dist, tdist, mindist;

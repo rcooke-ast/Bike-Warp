@@ -51,6 +51,7 @@ public class EditorIO {
 	private static int cntNitrous;
 	private static int cntPendulum;
 	private static int cntSpike;
+	private static int cntSpikeZone;
 	private static int cntTransport;
 	private static int cntTransportInvisible;
 	private static int finishObjNumber = 3;
@@ -446,6 +447,7 @@ public class EditorIO {
     	cntNitrous = 0;
     	cntPendulum = 0;
     	cntSpike = 0;
+    	cntSpikeZone = 0;
     	cntTransport = 0;
     	cntTransportInvisible = 0;
     	// Determine what texture to be used for the ground
@@ -721,6 +723,10 @@ public class EditorIO {
         	} else if (allObjectTypes.get(i) == ObjectVars.Spike) {
         		addBodies = EditorObjectIO.AddSpike(json, allObjects.get(i), cntSpike);
         		cntSpike += 1;
+        		bodyIdx += addBodies;
+        	} else if (allObjectTypes.get(i) == ObjectVars.SpikeZone) {
+        		addBodies = EditorObjectIO.AddSpikeZone(json, allObjects.get(i), cntSpikeZone);
+        		cntSpikeZone += 1;
         		bodyIdx += addBodies;
         	} else if (allObjectTypes.get(i) == ObjectVars.Transport) {
         		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransport, null);
@@ -1094,6 +1100,7 @@ public class EditorIO {
         cntNitrous = 0;
         cntPendulum = 0;
         cntSpike = 0;
+        cntSpikeZone = 0;
         cntTransport = 0;
         cntTransportInvisible = 0;
         // Apply images to falling bodies
@@ -1168,6 +1175,10 @@ public class EditorIO {
         		addBodies = EditorImageIO.ImageSpike(json, allObjects.get(i), bodyIdx, cntSpike);
         		bodyIdx += addBodies;
         		cntSpike += 1;
+        	} else if (allObjectTypes.get(i) == ObjectVars.SpikeZone) {
+        		addBodies = 1;
+        		bodyIdx += addBodies;
+        		cntSpikeZone += 1;
         	} else if (allObjectTypes.get(i) == ObjectVars.Transport) {
         		addBodies = EditorImageIO.ImageTransport(json, allObjects.get(i), bodyIdx, cntTransport);
         		bodyIdx += addBodies;
