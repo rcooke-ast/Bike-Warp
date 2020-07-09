@@ -2223,6 +2223,8 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (polySelect == -1) {
     				SelectPolygon("down");
+    				// Deal with the case when the user selects a trigger but not the trigger platform
+    				if ((polySelect != -1) & (triggerSelect == true)) polySelect = -1;
     				startX = GameInput.MBDOWNX*scrscale;
     				startY = GameInput.MBDOWNY;
     			} else {
@@ -2385,6 +2387,8 @@ public class Editor extends GameState {
     			if ((modeChild.equals("Move Trigger")) & (GameInput.MBDRAG==true)) {
     				if (polySelect == -1) {
         				SelectPolygon("down");
+        				// Deal with the case when the user selects a trigger platform but not the trigger
+        				if ((polySelect != -1) & (triggerSelect == false)) polySelect = -1;
     					startX = GameInput.MBDOWNX*scrscale;
     					startY = GameInput.MBDOWNY;
     				} else {
@@ -5425,14 +5429,8 @@ public class Editor extends GameState {
 		float [] extraPoly;
 		for (int i = 0; i<allPolygons.size(); i++){
 			if ((mode == 3) | (mode == 4) | (mode == 7) | (mode == 9)) {
-				if (((allPolygonTypes.get(i) == 0)&(mode==3)) | ((allPolygonTypes.get(i) == 2)&(mode==4)) | ((allPolygonTypes.get(i) == 4)&(mode==7)) | ((allPolygonTypes.get(i) == 6)&(mode==9))) {
-					inside = PolygonOperations.PointInPolygon(allPolygons.get(i).clone(),tempx,tempy);
-				} else if (((allPolygonTypes.get(i) == 1)&(mode==3)) | ((allPolygonTypes.get(i) == 3)&(mode==4)) | ((allPolygonTypes.get(i) == 5)&(mode==7)) | ((allPolygonTypes.get(i) == 7)&(mode==9))) {
-					if (Math.sqrt((tempx-allPolygons.get(i)[0])*(tempx-allPolygons.get(i)[0]) + (tempy-allPolygons.get(i)[1])*(tempy-allPolygons.get(i)[1])) < allPolygons.get(i)[2]) {
-						inside = true;
-					}
-				}
-				if ((mode == 9) & (!inside) & (allPolygonPaths.get(i)!=null)) {
+				// Check for triggers first
+				if ((mode==9) & (allPolygonTypes.get(i) == 6) & (allPolygonPaths.get(i) != null)) {
 					// Check if the user has clicked inside the trigger of a trigger platform
 					// Make the trigger box
 		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
@@ -5441,7 +5439,19 @@ public class Editor extends GameState {
 		        			allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
 		        	PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 					inside = PolygonOperations.PointInPolygon(extraPoly.clone(),tempx,tempy);
-					if (inside) triggerSelect = true;
+					if (inside == true) {
+						triggerSelect = true;
+						polySelect = i;
+						return;
+					}
+
+				}
+				if (((allPolygonTypes.get(i) == 0)&(mode==3)) | ((allPolygonTypes.get(i) == 2)&(mode==4)) | ((allPolygonTypes.get(i) == 4)&(mode==7)) | ((allPolygonTypes.get(i) == 6)&(mode==9))) {
+					inside = PolygonOperations.PointInPolygon(allPolygons.get(i).clone(),tempx,tempy);
+				} else if (((allPolygonTypes.get(i) == 1)&(mode==3)) | ((allPolygonTypes.get(i) == 3)&(mode==4)) | ((allPolygonTypes.get(i) == 5)&(mode==7)) | ((allPolygonTypes.get(i) == 7)&(mode==9))) {
+					if (Math.sqrt((tempx-allPolygons.get(i)[0])*(tempx-allPolygons.get(i)[0]) + (tempy-allPolygons.get(i)[1])*(tempy-allPolygons.get(i)[1])) < allPolygons.get(i)[2]) {
+						inside = true;
+					}
 				}
 			} else if (mode == 8) {
 				if (allPolygonTypes.get(i)%2 == 0) {
