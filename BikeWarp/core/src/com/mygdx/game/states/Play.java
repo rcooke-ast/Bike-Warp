@@ -2128,7 +2128,7 @@ public class Play extends GameState {
 	   	}
 
         // Render some items onto the HUD
-        renderHUD();
+        if (!isReplay) renderHUD();
 
         // If the game is loaded, but paused, render a foreground transparency with text
         if (mState == GAME_STATE.LOADED) {
