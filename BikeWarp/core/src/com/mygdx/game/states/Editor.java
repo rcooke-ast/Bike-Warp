@@ -961,7 +961,7 @@ public class Editor extends GameState {
     	pStaticIndex = 0;
     	pKinematicIndex = 0;
     	pObjectIndex = 0;
-    	numJewels = 1; // Number of jewels currently inserted (1=Diamond jewel)
+    	numJewels = 0; // Number of jewels currently inserted (1=Diamond jewel)
     	transPoly = new float[8];
     	startDirPoly = new float[ObjectVars.objectArrow.length];
 
@@ -1018,7 +1018,7 @@ public class Editor extends GameState {
 		saveFName = FileUtils.getBaseName((String) selectLoadLevel.getSelected());
 		textInputSave.setText(saveFName);
 		// Determine the number of jewels in the level
-		numJewels = 1;
+		numJewels = 0;
 		for (int i=finishObjNumber; i<allObjectTypes.size(); i++) {
 			if (allObjectTypes.get(i) == ObjectVars.Jewel) numJewels += 1;			
 		}
@@ -2115,7 +2115,7 @@ public class Editor extends GameState {
 	}
 	
 	private void SetEmeralds() {
-		LevelVars.set(LevelVars.PROP_NUMJEWELS, Integer.toString(numJewels-1));		
+		LevelVars.set(LevelVars.PROP_NUMJEWELS, Integer.toString(numJewels));		
 	}
 
 	private void Message(String msg, int mType) {
@@ -3973,6 +3973,7 @@ public class Editor extends GameState {
 			float shiftY = 0.0f;
 			if ((GameInput.MBJUSTPRESSED==true) & (objectSelect == -1)) {
    				SelectObjectAny("up");
+				if (objectSelect <= 3) objectSelect = -1;  // Can't select the starting objects
    				if (objectSelect != -1) {
    	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
    	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
@@ -5556,6 +5557,8 @@ public class Editor extends GameState {
 			allObjectArrows.add(newPoly.clone());
 			newPoly=null;
 		} else allObjectArrows.add(null);
+		// Check if it was an emerald that was copied
+		if (allObjectTypes.get(idx).intValue() == ObjectVars.Jewel) numJewels += 1;
 		SaveLevel(true);
 	}
 
