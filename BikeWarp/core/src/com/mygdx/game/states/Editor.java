@@ -938,7 +938,7 @@ public class Editor extends GameState {
     	// Prepare undo array (need to reset this after adding start/finish/diamond)
     	undoArray = new ArrayList<ArrayList<Object>>();
     	for (int i=0; i<undoMax; i++) undoArray.add(null);
-    	undoIndex=0;
+    	undoIndex=-1;
     	// Reset update parameters
     	newPoly = null;
     	updatePoly = null;
@@ -1001,11 +1001,10 @@ public class Editor extends GameState {
 		enteringFilename = false;
 		saveFName = null;
 		changesMade = false;
-    	// Prepare undo array (need to reset it after adding start/finish/diamond)
-    	undoArray = new ArrayList<ArrayList<Object>>();
-    	for (int i=0; i<undoMax; i++) undoArray.add(null);
-    	undoIndex=0;
-    	UpdateUndo();
+		// Reset undo array
+		for (int i=0; i<undoMax; i++) undoArray.set(i, null);
+		undoIndex = -1; // Needs to be -1 so the first index is the basic level load
+    	UpdateUndo();  // Need to add the empty 'allBlah' arraylists to begin with
 		// Set the starting position of the camera
 		// Perform Zoom
 		cam.zoom = 0.1f/B2DVars.EPPM;
@@ -1992,12 +1991,13 @@ public class Editor extends GameState {
 
 	@SuppressWarnings("unchecked")
 	private void Redo() {
+		System.out.printf("Redo: %d%n", undoIndex);
 		// Increase
 		undoIndex += 1;
 		// Check if we've reached the maximum
-		if (undoIndex >= undoMax) {
+		if (undoIndex == undoMax) {
 			Message("No more operations to redo!", 0);
-			undoIndex = undoMax-1;
+			undoIndex -= 1;
 			return;
 		} else if (undoArray.get(undoIndex) == null) {
 			Message("No more operations to redo!", 0);
@@ -2020,15 +2020,16 @@ public class Editor extends GameState {
 
 	@SuppressWarnings("unchecked")
 	private void Undo() {
+		System.out.printf("Undo: %d%n", undoIndex);
 		// Decrease
 		undoIndex -= 1;
-		// Check if we've reached the maximum
+		// Check if we've reached the maximum number of allowed undos
 		if (undoIndex < 0) {
 			Message("Cannot undo any more", 0);
 			undoIndex = 0;
 			return;
 		} else if (undoArray.get(undoIndex) == null) {
-			Message("Cannot undo any more", 0);
+			Message("Cannot undo any more (empty array)", 0);
 			undoIndex = 0;
 			return;
 		};
@@ -2047,8 +2048,17 @@ public class Editor extends GameState {
 	}
 
 	private void UpdateUndo() {
+		System.out.printf("UpdateUndo: %d%n", undoIndex);
+		// NOTE :: undoIndex represents the current index of undoArray
+		// So, if many changes have been made, and nothing has been undone, undoIndex should be undoMax-1,
+		// so that the final element of undoArray represents the latest change.
+		// If undo has been pressed once, then undoIndex represents the index of undoArray that is currently loaded on screen.
+		//
+		// Increment
+		undoIndex += 1;
 		// Construct a new array of current objects
 		ArrayList<Object> retarr = new ArrayList<Object>();
+		ArrayList<Object> tmparr;
 		retarr.add(allPolygons.clone());
 		retarr.add(allPolygonTypes.clone());
 		retarr.add(allPolygonPaths.clone());
@@ -2060,25 +2070,25 @@ public class Editor extends GameState {
 		retarr.add(allDecors.clone());
 		retarr.add(allDecorTypes.clone());
 		retarr.add(allDecorPolys.clone());
-		// Update the stored array
+		// Check if we've reached our limit
 		if (undoIndex == undoMax) {
-			// Shift everything done one
+			// Shift everything down one
 			for (int i=0; i<undoMax-1; i++) {
-				undoArray.set(i, (ArrayList<Object>) undoArray.get(i+1).clone());
+				tmparr = (ArrayList<Object>) undoArray.get(i+1).clone();
+				undoArray.set(i, (ArrayList<Object>) tmparr.clone());
 			}
-			// Now set the final element
-			undoArray.set(undoMax-1, (ArrayList<Object>) retarr.clone());
-		} else {
-			undoArray.set(undoIndex, (ArrayList<Object>) retarr.clone());
+			// Now reset undoIndex to be the final element
+			undoIndex -= 1;
 		}
-		// Increment
-		undoIndex += 1;
-		if (undoIndex < undoMax) {
+		// Update the stored array
+		undoArray.set(undoIndex, (ArrayList<Object>) retarr.clone());
+		// Make everything null if a change is made
+		if (undoIndex+1 < undoMax) {
 			// Make everything else null
-			for (int i=undoIndex; i<undoMax; i++) {
+			for (int i=undoIndex+1; i<undoMax; i++) {
 				undoArray.set(i, null);
 			}
-		} else undoIndex = undoMax;
+		}
 	}
 	
 	private void SaveLevel(boolean autosave) {
@@ -2115,6 +2125,11 @@ public class Editor extends GameState {
 	}
 	
 	private void SetEmeralds() {
+		// Calculate emeralds first
+		numJewels = 0;
+		for (int i=finishObjNumber; i<allObjectTypes.size(); i++) {
+			if (allObjectTypes.get(i) == ObjectVars.Jewel) numJewels += 1;			
+		}
 		LevelVars.set(LevelVars.PROP_NUMJEWELS, Integer.toString(numJewels));		
 	}
 
@@ -3046,6 +3061,8 @@ public class Editor extends GameState {
 				newCoord[1] = tempy;
 				newPoly = allObjectCoords.set(objectSelect, newCoord.clone());
 				updatePoly = null;
+				changesMade=true;
+				SaveLevel(true);
 				objectSelect = -1;
 			}
 		} else if ((modeParent.equals("Door (blue)")) | (modeParent.equals("Door (green)")) | (modeParent.equals("Door (red)")) | (modeParent.equals("Key (blue)")) | (modeParent.equals("Key (green)")) | (modeParent.equals("Key (red)"))){
@@ -4382,6 +4399,7 @@ public class Editor extends GameState {
     		allDecors.add(newPoly);
     		allDecorTypes.add(ptype);
     		allDecorPolys.add(0);
+    		SaveLevel(true);
     		return;
     	} else {
 			allPolygons.add(newPoly);
@@ -4543,7 +4561,6 @@ public class Editor extends GameState {
        		updatePath[6+2*cntr+1] = allPolygonPaths.get(idx)[6+2*i+1];
        		cntr += 1;
     	}
-       	SaveLevel(true);
     }
 
     public void CopyPolygon(float[] newPoly, int idx) {
