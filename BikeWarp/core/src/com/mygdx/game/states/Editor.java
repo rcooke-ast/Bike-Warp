@@ -506,7 +506,8 @@ public class Editor extends GameState {
 						listParent.setItems(nullList);
 						SetChildList();
 						mode = -999;
-						Undo();
+						int add = Undo(undoIndex);
+						undoIndex += add;
 					}
 				}
 			}
@@ -520,7 +521,8 @@ public class Editor extends GameState {
 						listParent.setItems(nullList);
 						SetChildList();
 						mode = -999;
-						Redo();
+						int add = Redo(undoIndex);
+						undoIndex += add;
 					}
 				}
 			}
@@ -1003,8 +1005,8 @@ public class Editor extends GameState {
 		changesMade = false;
 		// Reset undo array
 		for (int i=0; i<undoMax; i++) undoArray.set(i, null);
-		undoIndex = -1; // Needs to be -1 so the first index is the basic level load
-    	UpdateUndo();  // Need to add the empty 'allBlah' arraylists to begin with
+		undoIndex = 0;
+    	UpdateUndo(-1);  // Need to add the empty 'allBlah' arraylists to begin with - Needs to be -1 so the first index is the basic level load
 		// Set the starting position of the camera
 		// Perform Zoom
 		cam.zoom = 0.1f/B2DVars.EPPM;
@@ -1990,72 +1992,68 @@ public class Editor extends GameState {
  /////////////////////////////////
 
 	@SuppressWarnings("unchecked")
-	private void Redo() {
-		System.out.printf("Redo: %d%n", undoIndex);
+	private int Redo(int index) {
 		// Increase
-		undoIndex += 1;
+		index += 1;
 		// Check if we've reached the maximum
-		if (undoIndex == undoMax) {
+		if (index+1 == undoMax) {
 			Message("No more operations to redo!", 0);
-			undoIndex -= 1;
-			return;
-		} else if (undoArray.get(undoIndex) == null) {
+			return 0;
+		} else if (undoArray.get(index) == null) {
 			Message("No more operations to redo!", 0);
-			undoIndex -= 1;
-			return;
+			return 0;
 		}
 		// Update the variables
-		allPolygons = (ArrayList<float[]>) undoArray.get(undoIndex).get(0);
-		allPolygonTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(1);
-		allPolygonPaths = (ArrayList<float[]>) undoArray.get(undoIndex).get(2);
-		allPolygonTextures = (ArrayList<String>) undoArray.get(undoIndex).get(3);
-		allObjects = (ArrayList<float[]>) undoArray.get(undoIndex).get(4);
-		allObjectArrows = (ArrayList<float[]>) undoArray.get(undoIndex).get(5);
-		allObjectCoords = (ArrayList<float[]>) undoArray.get(undoIndex).get(6);
-		allObjectTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(7);
-		allDecors = (ArrayList<float[]>) undoArray.get(undoIndex).get(8);
-		allDecorTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(9);
-		allDecorPolys = (ArrayList<Integer>) undoArray.get(undoIndex).get(10);
+		allPolygons = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(0)).clone();
+		allPolygonTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(1)).clone();
+		allPolygonPaths = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(2)).clone();
+		allPolygonTextures = (ArrayList<String>) ((ArrayList<String>) undoArray.get(index).get(3)).clone();
+		allObjects = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(4)).clone();
+		allObjectArrows = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(5)).clone();
+		allObjectCoords = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(6)).clone();
+		allObjectTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(7)).clone();
+		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(8)).clone();
+		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(9)).clone();
+		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(10)).clone();
+		return 1;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void Undo() {
-		System.out.printf("Undo: %d%n", undoIndex);
+	private int Undo(int index) {
 		// Decrease
-		undoIndex -= 1;
+		index -= 1;
 		// Check if we've reached the maximum number of allowed undos
-		if (undoIndex < 0) {
+		if (index < 0) {
 			Message("Cannot undo any more", 0);
-			undoIndex = 0;
-			return;
-		} else if (undoArray.get(undoIndex) == null) {
+			return 0;
+		} else if (undoArray.get(index) == null) {
 			Message("Cannot undo any more (empty array)", 0);
-			undoIndex = 0;
-			return;
+			return 0;
 		};
 		// Update the variables
-		allPolygons = (ArrayList<float[]>) undoArray.get(undoIndex).get(0);
-		allPolygonTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(1);
-		allPolygonPaths = (ArrayList<float[]>) undoArray.get(undoIndex).get(2);
-		allPolygonTextures = (ArrayList<String>) undoArray.get(undoIndex).get(3);
-		allObjects = (ArrayList<float[]>) undoArray.get(undoIndex).get(4);
-		allObjectArrows = (ArrayList<float[]>) undoArray.get(undoIndex).get(5);
-		allObjectCoords = (ArrayList<float[]>) undoArray.get(undoIndex).get(6);
-		allObjectTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(7);
-		allDecors = (ArrayList<float[]>) undoArray.get(undoIndex).get(8);
-		allDecorTypes = (ArrayList<Integer>) undoArray.get(undoIndex).get(9);
-		allDecorPolys = (ArrayList<Integer>) undoArray.get(undoIndex).get(10);
+		// Update the variables
+		allPolygons = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(0)).clone();
+		allPolygonTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(1)).clone();
+		allPolygonPaths = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(2)).clone();
+		allPolygonTextures = (ArrayList<String>) ((ArrayList<String>) undoArray.get(index).get(3)).clone();
+		allObjects = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(4)).clone();
+		allObjectArrows = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(5)).clone();
+		allObjectCoords = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(6)).clone();
+		allObjectTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(7)).clone();
+		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(index).get(8)).clone();
+		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(9)).clone();
+		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(index).get(10)).clone();
+		return -1;
 	}
 
-	private void UpdateUndo() {
-		System.out.printf("UpdateUndo: %d%n", undoIndex);
+	private int UpdateUndo(int index) {
 		// NOTE :: undoIndex represents the current index of undoArray
 		// So, if many changes have been made, and nothing has been undone, undoIndex should be undoMax-1,
 		// so that the final element of undoArray represents the latest change.
 		// If undo has been pressed once, then undoIndex represents the index of undoArray that is currently loaded on screen.
 		//
 		// Increment
-		undoIndex += 1;
+		index += 1;
 		// Construct a new array of current objects
 		ArrayList<Object> retarr = new ArrayList<Object>();
 		ArrayList<Object> tmparr;
@@ -2071,24 +2069,26 @@ public class Editor extends GameState {
 		retarr.add(allDecorTypes.clone());
 		retarr.add(allDecorPolys.clone());
 		// Check if we've reached our limit
-		if (undoIndex == undoMax) {
+		if (index == undoMax) {
 			// Shift everything down one
 			for (int i=0; i<undoMax-1; i++) {
 				tmparr = (ArrayList<Object>) undoArray.get(i+1).clone();
 				undoArray.set(i, (ArrayList<Object>) tmparr.clone());
 			}
 			// Now reset undoIndex to be the final element
-			undoIndex -= 1;
+			index = undoMax-1;
+			return 0;
 		}
 		// Update the stored array
-		undoArray.set(undoIndex, (ArrayList<Object>) retarr.clone());
+		undoArray.set(index, (ArrayList<Object>) retarr.clone());
 		// Make everything null if a change is made
-		if (undoIndex+1 < undoMax) {
+		if (index+1 < undoMax) {
 			// Make everything else null
-			for (int i=undoIndex+1; i<undoMax; i++) {
+			for (int i=index+1; i<undoMax; i++) {
 				undoArray.set(i, null);
 			}
 		}
+		return 1;
 	}
 	
 	private void SaveLevel(boolean autosave) {
@@ -2098,7 +2098,8 @@ public class Editor extends GameState {
 				if (autosave) {
 					String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, "autosave.lvl");
 					// If a change has been made, update the undo arrays
-					UpdateUndo();
+					int addIdx = UpdateUndo(undoIndex);
+					undoIndex += addIdx;
 				} else {
 					String temptext = textInputSave.getText();
 					if ((temptext == null) | (temptext.equals(""))) {
