@@ -2135,10 +2135,12 @@ public class Editor extends GameState {
 	}
 
 	private void Message(String msg, int mType) {
-		warnMessage[warnNumber] = msg;
-		warnElapse[warnNumber] = 0.0f;
-		warnType[warnNumber] = mType;
-		warnNumber += 1;
+		if (warnNumber < totalNumMsgs) {
+			warnMessage[warnNumber] = msg;
+			warnElapse[warnNumber] = 0.0f;
+			warnType[warnNumber] = mType;
+			warnNumber += 1;
+		}
 	}
 
 	public void ControlMode1() {
