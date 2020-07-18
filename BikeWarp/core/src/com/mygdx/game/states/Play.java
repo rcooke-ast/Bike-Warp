@@ -1366,7 +1366,7 @@ public class Play extends GameState {
     		rainPos += 1806.0f*PolySpatial.PIXELS_PER_METER;
     	}
     	rainBody.setTransform(0.0f, rainPos, 0.0f);
-    	// Update the volume of the waterfall, depending on how close the rider is to the waterfall
+    	// Update the volume of the rain, depending on how close the rider is to the rain
     	float fadeDist = 20.0f/PolySpatial.PIXELS_PER_METER;
     	Vector2 riderPos = bikeBodyH.getPosition().scl(1.0f/PolySpatial.PIXELS_PER_METER);
     	int idxa, idxb, flag=0;
@@ -1436,7 +1436,8 @@ public class Play extends GameState {
 				if (dist > volume) volume = dist;
     		}
     	}
-    	// Set the sound volume of the waterfall
+    	// Set the sound volume of the rain
+    	System.out.println(volume);
     	soundRain.setVolume(volume);
     }
 

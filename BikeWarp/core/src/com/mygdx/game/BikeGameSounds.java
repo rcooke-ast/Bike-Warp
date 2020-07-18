@@ -40,7 +40,7 @@ public class BikeGameSounds {
 	}
 
 	private static void GetSound (String file) {
-        sound = Gdx.audio.newSound(Gdx.files.internal("data/sounds/"+file+".mp3"));
+		sound = Gdx.audio.newSound(Gdx.files.internal("data/sounds/"+file+".mp3"));
 		sounds.add(sound);
 		soundNames.add(file);
 	}
@@ -68,7 +68,7 @@ public class BikeGameSounds {
 	}
 	
 	public static void PlaySound(int index, float volume) {
-		sounds.get(index).play(volume);
+		long noID = sounds.get(index).play(volume);
 	}
 
 	public static void dispose() {
