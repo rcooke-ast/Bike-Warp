@@ -127,6 +127,7 @@ public class Editor extends GameState {
 	private boolean hideToolbar = false;
 	private boolean setCursor = false;
 	private boolean engageDelete = false;
+	private boolean clearGrass = false;
 	private float opacity = 1.0f;
 
 	private static final float maxzoom = 1200.0f/B2DVars.EPPM;  // The zoom can be extended to this width
@@ -809,6 +810,8 @@ public class Editor extends GameState {
 								Message("Click and drag the object to rotate it", 0);
 							} else if (chldMd.equals("Delete Vertex")) {
 								Message("First select vertex, then press 'd' to delete", 0);
+							} else if (chldMd.equals("Delete All Grass")) {
+								Message("Press 'd' to delete all grass from the level", 0);
 							} 
 						}
 					}
@@ -840,7 +843,12 @@ public class Editor extends GameState {
 					// No intersections were found, so let's do some more checks...
 					try {
 						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
-						if (jsonLevelString.startsWith("CU")) {
+						if (jsonLevelString.equalsIgnoreCase("GRASS_ERROR")) {
+							Message("Level is not playable!", 2);
+							Message("There is a problem with the grass placement", 2);
+							Message("Try clearing the grass and execute the level again", 0);
+							Message("Remember to add grass only when the level is finished", 0);
+						} else if (jsonLevelString.startsWith("CU")) {
 							warnMessage[warnNumber] = "Unable to play level!";
 							warnElapse[warnNumber] = 0.0f;
 							warnType[warnNumber] = 2;
@@ -1060,7 +1068,7 @@ public class Editor extends GameState {
 		if (GameInput.isPressed(GameInput.KEY_R)) rotPoly=true;
 //		if (GameInput.isPressed(GameInput.KEY_LEFT)) Undo();
 //		if (GameInput.isPressed(GameInput.KEY_RIGHT)) Redo();
-		if ((GameInput.isPressed(GameInput.KEY_D)) & (engageDelete)) {
+		if ((GameInput.isPressed(GameInput.KEY_D)) & ((engageDelete) | (clearGrass))) {
 			if ((mode==4) & (modeParent.equals("Set Path"))) {
 				if (vertSelect != -1) {
 					if (allPolygonPaths.get(polySelect).length >= 12) {
@@ -1084,7 +1092,10 @@ public class Editor extends GameState {
 					}
 				}
 			} else {
-				if (polySelect != -1) {
+				if (clearGrass) {
+					DeleteAllGrass();
+					clearGrass = false;
+				} else if (polySelect != -1) {
 					if (vertSelect != -1) {
 						if (allPolygons.get(polySelect).length <= 6) DeletePolygon(polySelect);
 						else DeleteVertex(polySelect, vertSelect);
@@ -3697,7 +3708,10 @@ public class Editor extends GameState {
         			UpdateDecor(polySelect, "move");
         			polySelect = -1;
         			vertSelect = -1;
-        		} else FindNearestVertex(true);			}
+        		} else FindNearestVertex(true);
+        	} else if (modeChild.equals("Delete All Grass")) {
+        		clearGrass = true;
+        	}
 		} else if ((modeParent.equals("Rain")) | (modeParent.equals("Waterfall"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
@@ -4315,7 +4329,7 @@ public class Editor extends GameState {
 				if (modeParent.startsWith("Sign")) {
 					listChild.setItems(itemsADMR);
 				} else if (modeParent.equals("Grass")) {
-					listChild.setItems("Add", "Delete", "Move Vertex");
+					listChild.setItems("Add", "Delete", "Move Vertex", "Delete All Grass");
 				} else if (modeParent.equals("Rain")) {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment");
 				} else if (modeParent.equals("Waterfall")) {
@@ -6217,6 +6231,20 @@ public class Editor extends GameState {
 		SaveLevel(true);
 	}
 
+    public void DeleteAllGrass() {
+    	boolean noGrass = true;
+    	while (true) {
+    		noGrass = true;
+			for (int i = 0; i<allDecors.size(); i++) {
+				if (allDecorTypes.get(i) == DecorVars.Grass) {
+					DeleteDecor(i);
+					noGrass=false;
+					break;
+				}
+			}
+			if (noGrass) break;
+    	}
+    }
 	
 	public void DeleteDecor(int idx) {
 		changesMade = true;

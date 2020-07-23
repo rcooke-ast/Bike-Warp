@@ -422,7 +422,7 @@ public class EditorIO {
 			ArrayList<Integer> allObjectTypes,
 			ArrayList<float[]> allDecors,
 			ArrayList<Integer> allDecorTypes,
-			ArrayList<Integer> allDecorPolys) throws JSONException {
+			ArrayList<Integer> allDecorPolys) throws JSONException, IndexOutOfBoundsException {
 		float friction = 0.9f;
 		float restitution = 0.2f;
         // Reset the polygons and joints
@@ -573,7 +573,11 @@ public class EditorIO {
         for (int i = 0; i<allDecors.size(); i++) {
         	// Decompose each polygon into a series of convex polygons
             if (allDecorTypes.get(i) == DecorVars.Grass) {
-//            	if (true) {
+            	try {
+            		int tst = allPolygonTypes.get(allDecorPolys.get(i));
+            	} catch (IndexOutOfBoundsException e) {
+            		return "GRASS_ERROR";
+            	}
             	if (allPolygonTypes.get(allDecorPolys.get(i))==0) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
 	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
