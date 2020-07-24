@@ -127,7 +127,7 @@ public class Editor extends GameState {
 	private boolean hideToolbar = false;
 	private boolean setCursor = false;
 	private boolean engageDelete = false;
-	private boolean clearGrass = false;
+	private boolean clearGrass = false, addGrass = false;
 	private float opacity = 1.0f;
 
 	private static final float maxzoom = 1200.0f/B2DVars.EPPM;  // The zoom can be extended to this width
@@ -811,7 +811,9 @@ public class Editor extends GameState {
 							} else if (chldMd.equals("Delete Vertex")) {
 								Message("First select vertex, then press 'd' to delete", 0);
 							} else if (chldMd.equals("Delete All Grass")) {
-								Message("Press 'd' to delete all grass from the level", 0);
+								Message("Press 'd' to delete all grass from the level - you have been warned!", 0);
+							} else if (chldMd.equals("Add All Grass")) {
+								Message("Press 'd' to add grass to every segment on all platforms - you have been warned!", 0);
 							} 
 						}
 					}
@@ -1068,7 +1070,7 @@ public class Editor extends GameState {
 		if (GameInput.isPressed(GameInput.KEY_R)) rotPoly=true;
 //		if (GameInput.isPressed(GameInput.KEY_LEFT)) Undo();
 //		if (GameInput.isPressed(GameInput.KEY_RIGHT)) Redo();
-		if ((GameInput.isPressed(GameInput.KEY_D)) & ((engageDelete) | (clearGrass))) {
+		if ((GameInput.isPressed(GameInput.KEY_D)) & ((engageDelete) | (clearGrass) | (addGrass))) {
 			if ((mode==4) & (modeParent.equals("Set Path"))) {
 				if (vertSelect != -1) {
 					if (allPolygonPaths.get(polySelect).length >= 12) {
@@ -1095,6 +1097,9 @@ public class Editor extends GameState {
 				if (clearGrass) {
 					DeleteAllGrass();
 					clearGrass = false;
+				} else if (addGrass) {
+					AddAllGrass();
+					addGrass = false;
 				} else if (polySelect != -1) {
 					if (vertSelect != -1) {
 						if (allPolygons.get(polySelect).length <= 6) DeletePolygon(polySelect);
@@ -3711,6 +3716,8 @@ public class Editor extends GameState {
         		} else FindNearestVertex(true);
         	} else if (modeChild.equals("Delete All Grass")) {
         		clearGrass = true;
+        	} else if (modeChild.equals("Add All Grass")) {
+        		addGrass = true;
         	}
 		} else if ((modeParent.equals("Rain")) | (modeParent.equals("Waterfall"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
@@ -4329,7 +4336,7 @@ public class Editor extends GameState {
 				if (modeParent.startsWith("Sign")) {
 					listChild.setItems(itemsADMR);
 				} else if (modeParent.equals("Grass")) {
-					listChild.setItems("Add", "Delete", "Move Vertex", "Delete All Grass");
+					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Grass", "Delete All Grass");
 				} else if (modeParent.equals("Rain")) {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment");
 				} else if (modeParent.equals("Waterfall")) {
@@ -5465,7 +5472,7 @@ public class Editor extends GameState {
 		for (int i = 0; i<allPolygons.size(); i++){
 			if ((mode == 3) | (mode == 4) | (mode == 7) | (mode == 9)) {
 				// Check for triggers first
-				if ((mode==9) & (allPolygonTypes.get(i) == 6) & (allPolygonPaths.get(i) != null)) {
+				if ((mode==9) & ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 7)) & (allPolygonPaths.get(i) != null)) {
 					// Check if the user has clicked inside the trigger of a trigger platform
 					// Make the trigger box
 		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
@@ -6231,6 +6238,23 @@ public class Editor extends GameState {
 		SaveLevel(true);
 	}
 
+    public void AddAllGrass() {
+    	// Start by deleting all grass
+    	DeleteAllGrass();
+    	// Now add all grass back in
+		for (int i = 0; i<allPolygons.size(); i++) {
+			if (allPolygonTypes.get(i)%2 == 0) {
+				polyHover = i;
+				for (int j = 0; j < allPolygons.get(i).length/2; j++) {
+					segmHover = j;
+					AddDecor(DecorVars.Grass, 0.0f, 0.0f, 0.0f);
+				}
+			}
+		}
+		polyHover = -1;
+		segmHover = -1;
+    }
+
     public void DeleteAllGrass() {
     	boolean noGrass = true;
     	while (true) {
@@ -6372,14 +6396,8 @@ public class Editor extends GameState {
 			}
 		} else {
 			newPoly = allPolygons.get(polyHover).clone();
-			warnMessage[warnNumber] = "Overlapping vertices in polygon! Delete one vertex before adding grass";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 2;
-			warnNumber += 1;
-			warnMessage[warnNumber] = "Grass applied to the entire polygon";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 1;
-			warnNumber += 1;
+			Message("Overlapping vertices in polygon! Delete one vertex before adding grass", 2);
+			Message("Grass applied to the entire polygon", 1);
 			return;
 		}
 		// Do the second four vertices
@@ -6410,14 +6428,8 @@ public class Editor extends GameState {
 			}
 		} else {
 			newPoly = allPolygons.get(polyHover).clone();
-			warnMessage[warnNumber] = "Overlapping vertices in polygon! Delete one vertex before adding grass";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 2;
-			warnNumber += 1;
-			warnMessage[warnNumber] = "Grass applied to the entire polygon";
-			warnElapse[warnNumber] = 0.0f;
-			warnType[warnNumber] = 1;
-			warnNumber += 1;
+			Message("Overlapping vertices in polygon! Delete one vertex before adding grass", 2);
+			Message("Grass applied to the entire polygon", 1);
 		}
 	}
 

@@ -1566,7 +1566,15 @@ public class Play extends GameState {
        //mScene.printStats();
        
        // Get the starting position
-       gameInfo = mScene.getNamed(Body.class, "GameInfo").first();
+       try {
+    	   gameInfo = mScene.getNamed(Body.class, "GameInfo").first();
+       } catch (NullPointerException e) {
+    	   // Level was not compiled correctly... return
+    	   System.out.println("TRIED TO FIX IT HERE - BUT THIS DOESN'T WORK!!!");
+       	   gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+       	   gsm.SetPlaying(false);
+       	   return;
+       }
        startPosition = (Vector2) mScene.getCustom(gameInfo, "startPosition", null);
        finishPosition = (Vector2) mScene.getCustom(gameInfo, "finishPosition", null);
        startDirection = (Float) mScene.getCustom(gameInfo, "startDirection", 1.0f);
@@ -2417,7 +2425,7 @@ public class Play extends GameState {
                       {
                          CircleShape shape = (CircleShape)fixture.getShape();
                          float radius = shape.getRadius();
-                         int vertexCount = (int)(12f * radius);
+                         int vertexCount = (int)(100f * radius);
                          float [] vertices = new float[vertexCount*2];
                          if (body.getType() == BodyType.StaticBody)
                          {
