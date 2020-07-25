@@ -423,6 +423,7 @@ public class EditorIO {
 			ArrayList<float[]> allDecors,
 			ArrayList<Integer> allDecorTypes,
 			ArrayList<Integer> allDecorPolys) throws JSONException, IndexOutOfBoundsException {
+        String retval;
 		float friction = 0.9f;
 		float restitution = 0.2f;
         // Reset the polygons and joints
@@ -499,6 +500,7 @@ public class EditorIO {
     			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
     			for (int k = 0; k<convexPolygons.size(); k++){
     				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" P"; // A problem with the length^2 of a polygon
+        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" P"; // One of the areas was too small
     				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" P"; // polygon is not convex
                 	json.object();
 		            // Specify other properties of this fixture
@@ -592,6 +594,7 @@ public class EditorIO {
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" G"; // A problem with the length^2 of a polygon
+	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" D"; // One of the areas was too small
 	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
 	                	json.object();
 			            // Specify other properties of this fixture
@@ -649,7 +652,6 @@ public class EditorIO {
         json.endObject(); // End of Ground Body
         
         // Add kinematic bodies
-        String retval;
         for (int i = 0; i<allPolygons.size(); i++){
         	textPlatform = GetTexture(allPolygonTextures.get(i), textString);
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
@@ -862,6 +864,7 @@ public class EditorIO {
     			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
     			for (int k = 0; k<convexPolygons.size(); k++){
     				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" W"; // A problem with the length^2 of a polygon
+        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" D"; // One of the areas was too small
     				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
                 	json.object();
 		            // Specify other properties of this fixture
@@ -943,6 +946,7 @@ public class EditorIO {
     			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
     			for (int k = 0; k<convexPolygons.size(); k++){
     				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" W"; // A problem with the length^2 of a polygon
+        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" D"; // One of the areas was too small
     				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
                 	json.object();
 		            // Specify other properties of this fixture
@@ -1030,6 +1034,7 @@ public class EditorIO {
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" CFGBG"; // A problem with the length^2 of a polygon
+	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" D"; // One of the areas was too small
 	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
 	                	json.object();
 			            // Specify other properties of this fixture

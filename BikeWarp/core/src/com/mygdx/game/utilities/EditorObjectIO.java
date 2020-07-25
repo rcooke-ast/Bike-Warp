@@ -1669,6 +1669,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 			for (int k = 0; k<convexPolygons.size(); k++){
 				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
+    			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" P"; // One of the areas was too small
 				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" P"; // polygon is not convex
             	json.object();
 	            // Specify other properties of this fixture
@@ -1721,6 +1722,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
+	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" D"; // One of the areas was too small
 	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" G"; // polygon is not convex
 	                	json.object();
 			            // Specify other properties of this fixture
@@ -1835,6 +1837,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 			for (int k = 0; k<convexPolygons.size(); k++){
 				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
+    			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" P"; // One of the areas was too small
 				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" P"; // polygon is not convex
             	json.object();
 	            // Specify other properties of this fixture
@@ -1886,6 +1889,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
+	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" D"; // One of the areas was too small
 	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" G"; // polygon is not convex
 	                	json.object();
 			            // Specify other properties of this fixture
@@ -1968,6 +1972,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 		for (int k = 0; k<convexPolygons.size(); k++){
 			if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
+			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" P"; // One of the areas was too small
 			//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" P"; // polygon is not convex
         	json.object();
             // Specify other properties of this fixture
@@ -2101,6 +2106,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 			for (int k = 0; k<convexPolygons.size(); k++){
 				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
+    			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" P"; // One of the areas was too small
 				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" P"; // polygon is not convex
             	json.object();
 	            // Specify other properties of this fixture
@@ -2152,6 +2158,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
+	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" D"; // One of the areas was too small
 	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" G"; // polygon is not convex
 	                	json.object();
 			            // Specify other properties of this fixture
