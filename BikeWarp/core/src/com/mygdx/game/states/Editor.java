@@ -849,10 +849,7 @@ public class Editor extends GameState {
 							Message("Try clearing the grass and execute the level again", 0);
 							Message("Remember to add grass only when the level is finished", 0);
 						} else if (jsonLevelString.startsWith("CU")) {
-							warnMessage[warnNumber] = "Unable to play level!";
-							warnElapse[warnNumber] = 0.0f;
-							warnType[warnNumber] = 2;
-							warnNumber += 1;
+							Message("Unable to play level!", 2);
 							try {
 								int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
 								int idxcls=0;
@@ -883,6 +880,36 @@ public class Editor extends GameState {
 									warnElapse[warnNumber] = 0.0f;
 									warnType[warnNumber] = 1;
 									warnNumber += 1;
+								}
+							} catch (Exception e) {}
+						} else if (jsonLevelString.startsWith("BD")) {
+							Message("Unable to play level!", 2);
+							try {
+								int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
+								int idxcls=0;
+								float clsdist = 999999999.9f, dist=0.0f;
+								if (jsonLevelString.split(" ")[2].equals("P")) {
+									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
+										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
+												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
+										if (dist < clsdist) {
+											clsdist = dist;
+											idxcls = i;
+										}
+									}
+									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
+									Message("Cannot decompose this polygon", 1);
+									Message("Please check there are no overlapping vertices, intersections, or very small segments", 1);
+								} else if (jsonLevelString.split(" ")[2].equals("D")) {
+									for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
+										xcen += allDecors.get(gotoPoly)[2*i];
+										ycen += allDecors.get(gotoPoly)[2*i+1];
+									}
+									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
+									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
+									MoveCameraTo(xcen,ycen,true);
+									Message("Cannot decompose this decoration", 1);
+									Message("Please check there are no overlapping vertices, intersections, or very small segments", 1);
 								}
 							} catch (Exception e) {}
 						} else {
