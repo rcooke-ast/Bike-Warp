@@ -753,7 +753,7 @@ public class Editor extends GameState {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
 					GameInput.MBRELEASE=false;
-					if (!drawingPoly) {
+					if ((!drawingPoly) & (listParent.getSelected() != null)) {
 						modeParent = listParent.getSelected().toString();
 						SetChildList();
 						if (mode == 1) {

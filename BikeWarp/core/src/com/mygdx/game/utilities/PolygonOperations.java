@@ -214,7 +214,7 @@ public class PolygonOperations {
 
 	public static boolean CheckAreas(float[] poly) {
 		int lenpoly = poly.length/2;
-		float failval = 0.025f; // This is kind of arbitary - it's 10x greater than that set in Box2D... no length^2 can be less than 0.0025.
+		float failval = 6.29f*0.0025f; // This is kind of arbitary - it's 2pi times greater than that set in Box2D... no length^2 can be less than 0.0025.
 		int i1, i2;
 		float tst = 0.0f;
 		for (int i=0; i<lenpoly; i++) {
@@ -223,7 +223,7 @@ public class PolygonOperations {
 			else i2 = i+1;
 			tst += poly[2*i2+1]*poly[2*i1] - poly[2*i2]*poly[2*i1+1];
 		}
-		tst *= 0.5f * (B2DVars.EPPM * B2DVars.EPPM);// * (PolySpatial.PIXELS_PER_METER*PolySpatial.PIXELS_PER_METER);
+		tst *= 0.5f * (B2DVars.EPPM * B2DVars.EPPM);// * (PolySpatial.PIXELS_PER_METER*PolySpatial.PIXELS_PER_METER/2pi);
 		if (tst < failval) return true;
 		return false;
 	}
