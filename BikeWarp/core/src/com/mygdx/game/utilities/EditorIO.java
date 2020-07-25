@@ -491,7 +491,11 @@ public class EditorIO {
         	textPlatform = GetTexture(allPolygonTextures.get(i), textString);
             if (allPolygonTypes.get(i) == 0) {
     			concaveVertices = PolygonOperations.MakeVertices(allPolygons.get(i));
-    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+    			try {
+    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+    			} catch (IndexOutOfBoundsException e) {
+    				return "BD "+i+" P";
+    			}
     			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
     			for (int k = 0; k<convexPolygons.size(); k++){
     				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" P"; // A problem with the length^2 of a polygon
@@ -580,7 +584,11 @@ public class EditorIO {
             	}
             	if (allPolygonTypes.get(allDecorPolys.get(i))==0) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
-	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			try {
+	    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			} catch (IndexOutOfBoundsException e) {
+	    				return "BD "+i+" D";
+	    			}
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" G"; // A problem with the length^2 of a polygon
@@ -646,16 +654,16 @@ public class EditorIO {
         	textPlatform = GetTexture(allPolygonTextures.get(i), textString);
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
             	retval = EditorObjectIO.AddKinematicPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textPlatform,textGrass,friction,restitution,i);
-            	if (!retval.equals("")) return retval;
+            	if (!retval.equals("")) return retval+i+" P";
             	cntKinematic += 1;
             } else if ((allPolygonTypes.get(i) == 4) | (allPolygonTypes.get(i) == 5)) {
             	retval = EditorObjectIO.AddFallingPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textPlatform,textGrass,friction,restitution,cntFalling,i);
-            	if (!retval.equals("")) return retval;
+            	if (!retval.equals("")) return retval+i+" P";
             	EditorJointIO.JointFalling(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
             	cntFalling += 1;
             } else if ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 7)) {
             	retval = EditorObjectIO.AddTriggerPolygon(json,allPolygons.get(i),allPolygonPaths.get(i),allPolygonTypes.get(i),allDecors,allDecorTypes,allDecorPolys,textPlatform,textGrass,friction,restitution,cntTrigger,i);
-            	if (!retval.equals("")) return retval;
+            	if (!retval.equals("")) return retval+i+" P";
             	EditorJointIO.JointTrigger(jointList, allPolygons.get(i), cntFalling+cntKinematic+cntTrigger+1);
             	cntTrigger += 1;
             }

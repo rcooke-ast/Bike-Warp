@@ -1661,7 +1661,11 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		if (pType==4) {
         	// Decompose each polygon into a series of convex polygons
 			concaveVertices = PolygonOperations.MakeVertices(poly);
-			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			try {
+				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			} catch (IndexOutOfBoundsException e) {
+				return "BD ";
+			}
 			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 			for (int k = 0; k<convexPolygons.size(); k++){
 				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
@@ -1709,7 +1713,11 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	        	// Decompose each polygon into a series of convex polygons
 	            if ((allDecorTypes.get(i) == DecorVars.Grass) & (allDecorPolys.get(i)==pNumb)) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
-	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			try {
+	    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			} catch (IndexOutOfBoundsException e) {
+	    				return "BD "+i+" D";
+	    			}
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
@@ -1819,7 +1827,11 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		if (pType==6) {
         	// Decompose each polygon into a series of convex polygons
 			concaveVertices = PolygonOperations.MakeVertices(poly);
-			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			try {
+				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			} catch (IndexOutOfBoundsException e) {
+				return "BD ";
+			}
 			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 			for (int k = 0; k<convexPolygons.size(); k++){
 				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
@@ -1866,7 +1878,11 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	        	// Decompose each polygon into a series of convex polygons
 	            if ((allDecorTypes.get(i) == DecorVars.Grass) & (allDecorPolys.get(i)==pNumb)) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
-	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			try {
+	    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			} catch (IndexOutOfBoundsException e) {
+	    				return "BD "+i+" D";
+	    			}
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
@@ -1944,7 +1960,11 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
     	PolygonOperations.RotateXYArray(triggerPoly, path[5], path[2], path[3]);
     	// Decompose each polygon into a series of convex polygons
 		concaveVertices = PolygonOperations.MakeVertices(triggerPoly);
-		convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+		try {
+			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+		} catch (IndexOutOfBoundsException e) {
+			return "BD ";
+		}
 		convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 		for (int k = 0; k<convexPolygons.size(); k++){
 			if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
@@ -2073,7 +2093,11 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		if (pType==2) {
         	// Decompose each polygon into a series of convex polygons
 			concaveVertices = PolygonOperations.MakeVertices(poly);
-			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			try {
+				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			} catch (IndexOutOfBoundsException e) {
+				return "BD ";
+			}
 			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 			for (int k = 0; k<convexPolygons.size(); k++){
 				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" P"; // A problem with the length^2 of a polygon
@@ -2120,7 +2144,11 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	        	// Decompose each polygon into a series of convex polygons
 	            if ((allDecorTypes.get(i) == DecorVars.Grass) & (allDecorPolys.get(i)==pNumb)) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
-	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			try {
+	    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+	    			} catch (IndexOutOfBoundsException e) {
+	    				return "BD "+i+" D";
+	    			}
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
