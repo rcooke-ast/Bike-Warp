@@ -855,6 +855,7 @@ public class Editor extends GameState {
 								int idxcls=0;
 								float clsdist = 999999999.9f, dist=0.0f;
 								if (jsonLevelString.split(" ")[2].equals("P")) {
+									Message("Two vertices in this polygon are too close together", 1);
 									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
 										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
 												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
@@ -864,11 +865,8 @@ public class Editor extends GameState {
 										}
 									}
 									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
-									warnMessage[warnNumber] = "Two vertices in this polygon are too close together";
-									warnElapse[warnNumber] = 0.0f;
-									warnType[warnNumber] = 1;
-									warnNumber += 1;
 								} else if (jsonLevelString.split(" ")[2].equals("D")) {
+									Message("Two vertices in the grass are too close together", 1);
 									for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
 										xcen += allDecors.get(gotoPoly)[2*i];
 										ycen += allDecors.get(gotoPoly)[2*i+1];
@@ -876,10 +874,6 @@ public class Editor extends GameState {
 									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
 									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
 									MoveCameraTo(xcen,ycen,true);
-									warnMessage[warnNumber] = "Two vertices in the grass are too close together";
-									warnElapse[warnNumber] = 0.0f;
-									warnType[warnNumber] = 1;
-									warnNumber += 1;
 								}
 							} catch (Exception e) {}
 						} else if (jsonLevelString.startsWith("BD")) {
@@ -889,6 +883,8 @@ public class Editor extends GameState {
 								int idxcls=0;
 								float clsdist = 999999999.9f, dist=0.0f;
 								if (jsonLevelString.split(" ")[2].equals("P")) {
+									Message("Cannot decompose this polygon", 1);
+									Message("Please check there are no overlapping vertices, intersections, or very small segments", 1);
 									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
 										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
 												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
@@ -898,9 +894,9 @@ public class Editor extends GameState {
 										}
 									}
 									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
-									Message("Cannot decompose this polygon", 1);
-									Message("Please check there are no overlapping vertices, intersections, or very small segments", 1);
 								} else if (jsonLevelString.split(" ")[2].equals("D")) {
+									Message("Cannot decompose this decoration", 1);
+									Message("Please check there are no overlapping vertices, intersections, or very small segments", 1);
 									for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
 										xcen += allDecors.get(gotoPoly)[2*i];
 										ycen += allDecors.get(gotoPoly)[2*i+1];
@@ -908,8 +904,36 @@ public class Editor extends GameState {
 									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
 									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
 									MoveCameraTo(xcen,ycen,true);
-									Message("Cannot decompose this decoration", 1);
-									Message("Please check there are no overlapping vertices, intersections, or very small segments", 1);
+								}
+							} catch (Exception e) {}
+						} else if (jsonLevelString.startsWith("CA")) {
+							Message("Unable to play level!", 2);
+							try {
+								int gotoPoly = Integer.parseInt(jsonLevelString.split(" ")[1]);
+								int idxcls=0;
+								float clsdist = 999999999.9f, dist=0.0f;
+								if (jsonLevelString.split(" ")[2].equals("P")) {
+									Message("Two vertices in this polygon are too close together (generating a small area)", 1);
+									Message("Try separating these vertices", 1);
+									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
+										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
+												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
+										if (dist < clsdist) {
+											clsdist = dist;
+											idxcls = i;
+										}
+									}
+									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
+								} else if (jsonLevelString.split(" ")[2].equals("D")) {
+									Message("Two vertices in this decoration are too close together (generating a small area)", 1);
+									Message("Try separating these vertices", 1);
+									for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
+										xcen += allDecors.get(gotoPoly)[2*i];
+										ycen += allDecors.get(gotoPoly)[2*i+1];
+									}
+									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
+									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
+									MoveCameraTo(xcen,ycen,true);
 								}
 							} catch (Exception e) {}
 						} else {

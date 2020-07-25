@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.gushikustudios.rube.PolySpatial;
 import com.mygdx.game.handlers.B2DVars;
 import com.mygdx.game.handlers.DecorVars;
 
@@ -200,7 +201,7 @@ public class PolygonOperations {
 		int lenpoly = poly.length/2;
 		float failval = 0.0025f; // This is a fixed value in the box2d code, no length^2 can be less than this value.
 		int i1, i2;
-		float tst;
+		float tst = 0.0f;
 		for (int i=0; i<lenpoly; i++) {
 			i1 = i;
 			if (i==lenpoly-1) i2=0;
@@ -208,6 +209,22 @@ public class PolygonOperations {
 			tst = B2DVars.EPPM*B2DVars.EPPM*(new Vector2(poly[2*i2]-poly[2*i1],poly[2*i2+1]-poly[2*i1+1])).len2();
 			if (tst < failval) return true;
 		}
+		return false;
+	}
+
+	public static boolean CheckAreas(float[] poly) {
+		int lenpoly = poly.length/2;
+		float failval = 0.025f; // This is kind of arbitary - it's 10x greater than that set in Box2D... no length^2 can be less than 0.0025.
+		int i1, i2;
+		float tst = 0.0f;
+		for (int i=0; i<lenpoly; i++) {
+			i1 = i;
+			if (i==lenpoly-1) i2=0;
+			else i2 = i+1;
+			tst += poly[2*i2+1]*poly[2*i1] - poly[2*i2]*poly[2*i1+1];
+		}
+		tst *= 0.5f * (B2DVars.EPPM * B2DVars.EPPM);// * (PolySpatial.PIXELS_PER_METER*PolySpatial.PIXELS_PER_METER);
+		if (tst < failval) return true;
 		return false;
 	}
 
