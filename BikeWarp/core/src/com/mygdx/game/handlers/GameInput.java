@@ -15,7 +15,7 @@ public class GameInput {
     public static boolean[] keys;
     public static boolean[] pkeys;
     
-    public static final int NUM_KEYS = 36;
+    public static final int NUM_KEYS = 37;
     // Game keys
     public static final int KEY_ACCEL = 0;
     public static final int KEY_BRAKE = 1;
@@ -24,6 +24,7 @@ public class GameInput {
     public static final int KEY_CHDIR = 4;
     public static final int KEY_BUNNY = 5;
     public static final int KEY_NITROUS = 6;
+    public static final int KEY_ROCKET = 36;
     // Other keys
     public static final int KEY_T = 7;
     public static final int KEY_C = 8;
@@ -55,6 +56,7 @@ public class GameInput {
     public static final int KEY_Y = 33;
     public static final int KEY_R = 34;
     public static final int KEY_E = 35;
+    ////////    KEY 36 IS RESERVED FOR THE ROCKET 
 
     public static int MBDOWNX = 0;
     public static int MBDOWNY = 0;

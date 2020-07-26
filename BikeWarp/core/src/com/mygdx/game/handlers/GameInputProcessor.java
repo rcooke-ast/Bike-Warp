@@ -40,6 +40,7 @@ public class GameInputProcessor extends InputMultiplexer {
     	if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_CHDIR, true);
     	if (k == Keys.B) GameInput.setKey(GameInput.KEY_BUNNY, true);
     	if (k == Keys.N) GameInput.setKey(GameInput.KEY_NITROUS, true);
+    	if (k == Keys.V) GameInput.setKey(GameInput.KEY_ROCKET, true);
         // Other keys
         if (k == Keys.UP) GameInput.setKey(GameInput.KEY_UP, true);
         if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_DOWN, true);
@@ -88,6 +89,7 @@ public class GameInputProcessor extends InputMultiplexer {
     	if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_CHDIR, false);
     	if (k == Keys.B) GameInput.setKey(GameInput.KEY_BUNNY, false);
     	if (k == Keys.N) GameInput.setKey(GameInput.KEY_NITROUS, false);
+    	if (k == Keys.V) GameInput.setKey(GameInput.KEY_ROCKET, false);
         // Other keys
         if (k == Keys.UP) GameInput.setKey(GameInput.KEY_UP, false);
         if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_DOWN, false);
