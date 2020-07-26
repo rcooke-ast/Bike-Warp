@@ -162,6 +162,7 @@ public class Play extends GameState {
     private float playerTorque = 0.0f;
     private float applyTorque = -1.0f;
     private int applyNitrous = 0;
+    private int applyRocket = 0;
     private float playerJump = 0.0f;
     private float applyJump = -1.0f;
     private float canTransport = -1.0f;
@@ -170,6 +171,7 @@ public class Play extends GameState {
     private float transportTime = 5.0f; // Time (in s) before transporters are activated
     private float fallTime = 5.0f; // Time (in s) before a falling platform will fall after being touched
     private float nitrousLevel = 0.0f; // Current level of nitrous
+    private float rocketLevel = 0.0f; // Current level of rocket
     private float finAngle = 0.0f, finishRad = 0.0f;
     private Vector2 startPosition, finishPosition;
     private float startDirection;
@@ -182,7 +184,7 @@ public class Play extends GameState {
     private int timerStart, timerCurrent, timerTotal;
     private String worldRecord, personalRecord;
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight, infoWidth;
-    private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0;
+    private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0, collectRocket=0;
     //private int[] animateJewel;
     private float SCRWIDTH;
     private BitmapFont keyRedCntr, keyGreenCntr, keyBlueCntr, jewelCntr, nitrousCntr;
@@ -497,7 +499,8 @@ public class Play extends GameState {
             if ((GameInput.isPressed(GameInput.KEY_BUNNY)) & (cl.isBikeOnGround()) & (applyJump<0.0f) & (applyTorque<0.0f)) {
             	playerJump = 0;
             	applyJump = 0.0f;
-            } else if (GameInput.isDown(GameInput.KEY_NITROUS)) {
+            }
+            if (GameInput.isDown(GameInput.KEY_NITROUS)) {
             	if ((collectNitrous > 0) | (nitrousLevel > 0.0f)) {
             		applyNitrous = 1;
             		nitrousLevel -= 0.002f;
@@ -511,6 +514,22 @@ public class Play extends GameState {
             	}
             } else if (GameInput.isDown(GameInput.KEY_NITROUS)==false) {
             	applyNitrous = 0;
+            }
+            if (GameInput.isDown(GameInput.KEY_ROCKET)) {
+            	applyRocket = 1;
+//            	if ((collectRocket > 0) | (rocketLevel > 0.0f)) {
+//            		applyRocket = 1;
+//            		rocketLevel -= 0.002f;
+//            		if ((rocketLevel < 0.0f) & (collectRocket > 1)) {
+//            			rocketLevel = 1.0f;
+//            			collectRocket -= 1;
+//            		} else if (rocketLevel < 0.0f) {
+//            			rocketLevel = 0.0f;
+//            			collectRocket -= 1;
+//            		}
+//            	}
+            } else if (GameInput.isDown(GameInput.KEY_ROCKET)==false) {
+            	applyRocket = 0;
             }
             //if ((applyTorque<0.0f) & (applyJump<0.0f)) bikeAngle = bikeBodyC.getAngle();
         } else if (mState.equals(GAME_STATE.LOADED)) {
@@ -570,6 +589,7 @@ public class Play extends GameState {
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
+	     	   			if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	     	   			if ((!isReplay) && (mode != 0)) ReplayVars.replayTimer = timerTotal;
 	     	   			StopSounds();
 	     	   			BikeGameSounds.PlaySound(soundFinish, 1.0f);
@@ -870,7 +890,17 @@ public class Play extends GameState {
 				bikeScale = 1.0f;
 			}
 		}
-//		if (playerTorque != 0.0f) {
+		if (applyRocket==1) {
+			Vector2 temppos;
+			float factor=3.0f;
+			double addAngle = 0.0;
+			if (bikeDirc < 0.0f) addAngle = Math.PI;
+			double angleRocket = bikeBodyC.getAngle() + addAngle;
+			temppos = new Vector2(factor*(float)Math.cos(angleRocket), factor*(float) Math.sin(angleRocket));
+			bikeBodyC.setLinearVelocity(temppos.cpy());
+		}
+		
+		//		if (playerTorque != 0.0f) {
 //			bikeBodyC.setAngularVelocity(bikeBodyC.getAngularVelocity()+0.015f*playerTorque);
 //			System.out.println(0.015f*playerTorque);
 //			System.out.println(applyTorque);
@@ -1437,7 +1467,6 @@ public class Play extends GameState {
     		}
     	}
     	// Set the sound volume of the rain
-    	System.out.println(volume);
     	soundRain.setVolume(volume);
     }
 
@@ -2352,7 +2381,8 @@ public class Play extends GameState {
                       if (textureFileName.equalsIgnoreCase("data/images/waterfall.png")) {
                     	  containsWaterfall = true;
                     	  isWF = true;
-                      } else if (textureFileName.equalsIgnoreCase("data/images/rain.png")) {
+                      }
+                      if (textureFileName.equalsIgnoreCase("data/images/rain.png")) {
                     	  containsRain = true;
                     	  isRN = true;
                       }
