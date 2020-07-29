@@ -3871,11 +3871,11 @@ public class Editor extends GameState {
         			} else {
     					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
     		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-    	            	MoveVertex(polySelect, vertSelect, endX, endY);
+    	            	MoveVertex(decorSelect, vertSelect, endX, endY);
         			}
-        		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
-        			UpdateDecor(polySelect, "move");
-        			polySelect = -1;
+        		} else if ((GameInput.MBJUSTPRESSED==true) & (decorSelect != -1) & (vertSelect != -1)) {
+        			UpdateDecor(decorSelect, "move");
+        			decorSelect = -1;
         			vertSelect = -1;
         		} else FindNearestVertex(true);
         	} else if (modeChild.equals("Delete All Grass")) {

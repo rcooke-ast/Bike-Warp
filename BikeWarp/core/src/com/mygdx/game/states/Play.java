@@ -1525,6 +1525,11 @@ public class Play extends GameState {
              // each iteration adds to the scene that is ultimately returned...
         	  if ((i==0) & (editorString != null)) {
         		  // Load an editor scene
+//        		  Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
+//        		        System.out.println(throwable.getMessage());
+//        		        mScene = loader.addEditorScene(editorString);
+//        		        System.out.println("made it!");
+//        		       	});
         		  mScene = loader.addEditorScene(editorString);
         		  mRubeFileIndex++;
         	  } else {
