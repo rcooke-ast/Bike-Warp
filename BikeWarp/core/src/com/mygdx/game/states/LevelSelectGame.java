@@ -89,8 +89,6 @@ public class LevelSelectGame extends GameState {
     		if (currentOption < 0) currentOption = totalLevels-1;
         } else if (GameInput.isPressed(GameInput.KEY_B)) {
         	int[] tmpval = GameVars.ValueInt(LevelsListGame.NUMGAMELEVELS, 1);
-        	tmpval[48] = 0;
-        	tmpval[49] = 0;
         	GameVars.plyrLevelComplete.set(GameVars.currentPlayer, tmpval.clone());
         	UpdateMenu();
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
