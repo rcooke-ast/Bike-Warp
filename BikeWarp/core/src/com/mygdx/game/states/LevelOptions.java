@@ -159,7 +159,7 @@ public class LevelOptions extends GameState {
         		// Load the level
         		String levelName;
         		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
-        		else levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
+        		else levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.getLevelFile(levelNumber+1)));
         		ReplayVars.Reset(levelName, levelNumber, modeValue);
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue);
         	} else if (allOptions[currentOption].equalsIgnoreCase("Level Select")) fadeOut=1.0f; // Return to level selector
@@ -170,7 +170,7 @@ public class LevelOptions extends GameState {
             	LevelsListGame.updateRecords();
         	} else if (allOptions[currentOption].equalsIgnoreCase("Watch Replay")){
         		// Load the replay
-        		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[levelNumber+1]));
+        		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.getLevelFile(levelNumber+1)));
         		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
         		ReplayVars.replayCntr = 0;
         		ReplayVars.replayCDCntr = 0;
