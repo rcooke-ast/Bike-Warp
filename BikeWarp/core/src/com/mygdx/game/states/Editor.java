@@ -6547,7 +6547,7 @@ public class Editor extends GameState {
 			angle = (float) Math.sin(Math.abs(Math.acos((vecA.x*vecB.x + vecA.y*vecB.y)/(vecA.len()*vecB.len())))/2);
 			vecA.nor().add(vecB.nor()).nor();
 			// Determine which direction is inside the polygon
-			if (PolygonOperations.PointInPolygon(allPolygons.get(polyHover), vecA.x*0.01f + allPolygons.get(polyHover)[2*segmHover], vecA.y*0.01f+ allPolygons.get(polyHover)[2*segmHover+1])) {
+			if (PolygonOperations.PointInPolygon(allPolygons.get(polyHover), vecA.x*grassIn/angle + allPolygons.get(polyHover)[2*segmHover], vecA.y*grassIn/angle+ allPolygons.get(polyHover)[2*segmHover+1])) {
 				newPoly[0] = allPolygons.get(polyHover)[2*segmHover]   + vecA.x*grassIn/angle;
 				newPoly[1] = allPolygons.get(polyHover)[2*segmHover+1] + vecA.y*grassIn/angle;
 				newPoly[2] = allPolygons.get(polyHover)[2*segmHover]   - vecA.x*grassOut/angle;
@@ -6579,7 +6579,7 @@ public class Editor extends GameState {
 			angle = (float) Math.sin(Math.abs(Math.acos((vecA.x*vecB.x + vecA.y*vecB.y)/(vecA.len()*vecB.len())))/2);
 			vecA.nor().add(vecB.nor()).nor();
 			// Determine which direction is inside the polygon
-			if (PolygonOperations.PointInPolygon(allPolygons.get(polyHover), vecA.x*0.01f + allPolygons.get(polyHover)[2*segmNext], vecA.y*0.01f + allPolygons.get(polyHover)[2*segmNext+1])) {
+			if (PolygonOperations.PointInPolygon(allPolygons.get(polyHover), vecA.x*grassIn/angle + allPolygons.get(polyHover)[2*segmNext], vecA.y*grassIn/angle + allPolygons.get(polyHover)[2*segmNext+1])) {
 				newPoly[6] = allPolygons.get(polyHover)[2*segmNext]   + vecA.x*grassIn/angle;
 				newPoly[7] = allPolygons.get(polyHover)[2*segmNext+1] + vecA.y*grassIn/angle;
 				newPoly[4] = allPolygons.get(polyHover)[2*segmNext]   - vecA.x*grassOut/angle;
