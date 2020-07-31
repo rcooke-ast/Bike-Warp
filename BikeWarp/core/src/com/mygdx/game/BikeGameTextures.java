@@ -140,6 +140,8 @@ public class BikeGameTextures {
 		GetTexture("records_stone_dark",2);
 		GetTexture("records_stone_menu",2);
 		GetTexture("RS_bumps",2);
+		GetTexture("RS_dash",2);
+		GetTexture("RS_dot",2);
 		GetTexture("RS_donotenter",2);
 		GetTexture("RS_exclamation",2);
 		GetTexture("RS_motorbike",2);

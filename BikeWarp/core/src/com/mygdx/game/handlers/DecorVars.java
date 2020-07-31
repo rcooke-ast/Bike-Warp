@@ -18,6 +18,8 @@ public class DecorVars {
     public static final int RoadSign_60 = 13;
     public static final int RoadSign_80 = 14;
     public static final int RoadSign_100 = 15;
+    public static final int RoadSign_Dash = 16;
+    public static final int RoadSign_Dot = 17;
     public static final int Grass = 29;
     public static final int LargeStone = 30;
     public static final int Waterfall = 31;
@@ -39,7 +41,7 @@ public class DecorVars {
     			(dTyp == RoadSign_ReduceSpeed) | (dTyp == RoadSign_Exclamation) | (dTyp == RoadSign_10) |
     			(dTyp == RoadSign_20) | (dTyp == RoadSign_30) | (dTyp == RoadSign_40) |
     			(dTyp == RoadSign_50) | (dTyp == RoadSign_60) | (dTyp == RoadSign_80) |
-    			(dTyp == RoadSign_100)) {
+    			(dTyp == RoadSign_100) | (dTyp == RoadSign_Dash) | (dTyp == RoadSign_Dot)) {
     		return true;
     	} else return false;
     }
@@ -63,6 +65,8 @@ public class DecorVars {
     	else if (modeParent.equals("Sign (80)")) return RoadSign_80;
     	else if (modeParent.equals("Sign (100)")) return RoadSign_100;
     	else if (modeParent.equals("Sign (Bumps Ahead)")) return RoadSign_Bumps;
+    	else if (modeParent.equals("Sign (Dash)")) return RoadSign_Dash;
+    	else if (modeParent.equals("Sign (Dot)")) return RoadSign_Dot;
     	else if (modeParent.equals("Sign (Do Not Enter)")) return RoadSign_DoNotEnter;
     	else if (modeParent.equals("Sign (Exclamation)")) return RoadSign_Exclamation;
     	else if (modeParent.equals("Sign (Motorbikes)")) return RoadSign_Motorbike;
@@ -83,6 +87,8 @@ public class DecorVars {
     	else if (objNumber == RoadSign_80) return "80";
     	else if (objNumber == RoadSign_100) return "100";
     	else if (objNumber == RoadSign_Bumps) return "Bumps Ahead";
+    	else if (objNumber == RoadSign_Dash) return "Dash";
+    	else if (objNumber == RoadSign_Dot) return "Dot";
     	else if (objNumber == RoadSign_DoNotEnter) return "Do Not Enter";
     	else if (objNumber == RoadSign_Exclamation) return "Exclamation";
     	else if (objNumber == RoadSign_Motorbike) return "Motorbikes";

@@ -991,8 +991,8 @@ public class EditorIO {
         if (concaveVertices != null) concaveVertices.clear();
         if (convexVectorPolygons != null) convexVectorPolygons.clear();
         if (convexPolygons != null) convexPolygons.clear();
-        json.endArray(); // End of the fixtures for the waterfall
-        // Add some final properties for the waterfall body
+        json.endArray(); // End of the fixtures for the rain
+        // Add some final properties for the rain body
 		json.key("linearVelocity").value(0);
 		json.key("name").value("Rain");
 		json.key("position");
@@ -1125,7 +1125,7 @@ public class EditorIO {
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
             	bodyIdx += 1;
             } else if ((allPolygonTypes.get(i) == 4) | (allPolygonTypes.get(i) == 5)) {
-            	addBodies = EditorImageIO.ImageFallingSign(json, allPolygons.get(i), allPolygonPaths.get(i), bodyIdx, 1);
+            	//addBodies = EditorImageIO.ImageFallingSign(json, allPolygons.get(i), allPolygonPaths.get(i), bodyIdx, 1);
             	bodyIdx += 1;
             } else if ((allPolygonTypes.get(i) == 6) | (allPolygonTypes.get(i) == 7)) {
             	bodyIdx += 1;
