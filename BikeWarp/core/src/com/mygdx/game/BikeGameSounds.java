@@ -71,6 +71,10 @@ public class BikeGameSounds {
 		long noID = sounds.get(index).play(volume);
 	}
 
+	public static void StopSound(int index) {
+		sounds.get(index).stop();
+	}
+
 	public static void dispose() {
 		sound.dispose();
 		for (int i=0; i<sounds.size(); i++) {

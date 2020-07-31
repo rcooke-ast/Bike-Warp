@@ -172,6 +172,7 @@ public class Play extends GameState {
     private float fallTime = 5.0f; // Time (in s) before a falling platform will fall after being touched
     private float nitrousLevel = 0.0f; // Current level of nitrous
     private float rocketLevel = 0.0f; // Current level of rocket
+    private float soundTimeGem = 0.0f, soundTimeKey=0.0f, soundTimeNitrous=0.0f, soundTimeDoor=0.0f, soundTimeGravity=0.0f;  // Time between sounds
     private float finAngle = 0.0f, finishRad = 0.0f;
     private Vector2 startPosition, finishPosition;
     private float startDirection;
@@ -655,6 +656,7 @@ public class Play extends GameState {
 	       		   if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	       	   }
 	       	   // Update the other elements in the scene
+        	   updateSounds(dt);
         	   updateCollect();
         	   updateFallingBodies(dt);
         	   updateTriggerBodies(dt);
@@ -707,7 +709,25 @@ public class Play extends GameState {
 		if (soundRain != null) soundRain.setLooping(false);
     }
     
-	private void switchBikeDirection() {
+    private void updateSounds(float dt) {
+    	// Gems
+		if (soundTimeGem > 0.0f) soundTimeGem -= dt;
+		else soundTimeGem = 0.0f;
+		// Keys
+		if (soundTimeKey > 0.0f) soundTimeKey -= dt;
+		else soundTimeKey = 0.0f;
+		// Nitrous
+		if (soundTimeNitrous > 0.0f) soundTimeNitrous -= dt;
+		else soundTimeNitrous = 0.0f;
+		// Doors
+		if (soundTimeDoor > 0.0f) soundTimeDoor -= dt;
+		else soundTimeDoor = 0.0f;
+		// Gravity
+		if (soundTimeGravity > 0.0f) soundTimeGravity -= dt;
+		else soundTimeGravity = 0.0f;
+    }
+
+    private void switchBikeDirection() {
 		BikeGameSounds.PlaySound(soundBikeSwitch, 0.1f);
 		// Change the Bike Direction
 		bikeDirc *= -1.0f;
@@ -978,7 +998,10 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-    					BikeGameSounds.PlaySound(soundDoor, 1.0f);
+        				if (soundTimeDoor <= 0.0f) {
+        					BikeGameSounds.PlaySound(soundDoor, 1.0f);
+        					soundTimeDoor = 1.5f; //  This is half the duration of a Door sound
+        				}
     				} else noKeys = true;
     			} else if (collectID.equals("DoorGreen")) {
     				if (collectKeyGreen > 0) {
@@ -990,7 +1013,10 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-    					BikeGameSounds.PlaySound(soundDoor, 1.0f);
+        				if (soundTimeDoor <= 0.0f) {
+        					BikeGameSounds.PlaySound(soundDoor, 1.0f);
+        					soundTimeDoor = 1.5f; //  This is half the duration of a Door sound
+        				}
     				} else noKeys = true;
     			} else if (collectID.equals("DoorBlue")) {
     				if (collectKeyBlue > 0) {
@@ -1002,7 +1028,10 @@ public class Play extends GameState {
     					doorArr[4] = ((Float)mScene.getCustom(bodies.get(i), "angle", 0.0f));
     					doorArr[2] = 0.01f*PolygonOperations.OpenDoorDirection(doorArr[0],doorArr[1],bbcollide.getPosition().x,bbcollide.getPosition().y,doorArr[4]);
     					doorImages.add(doorArr.clone());
-    					BikeGameSounds.PlaySound(soundDoor, 1.0f);
+        				if (soundTimeDoor <= 0.0f) {
+        					BikeGameSounds.PlaySound(soundDoor, 1.0f);
+        					soundTimeDoor = 1.5f; //  This is half the duration of a Door sound
+        				}
     				} else noKeys = true;
     			} else if (collectID.equals("Gravity")) {
     				float angleGrav;
@@ -1020,23 +1049,41 @@ public class Play extends GameState {
 					gravityOld = mWorld.getGravity().cpy();
     				gravityNew = gravNext.cpy();
     				//mWorld.setGravity(gravNext);
-    				BikeGameSounds.PlaySound(soundGravity, 1.0f);
+    				if (soundTimeGravity <= 0.0f) {
+    					BikeGameSounds.PlaySound(soundGravity, 1.0f);
+    					soundTimeGravity = 1.0f; //  This is half the duration of a Gravity sound
+    				}
     			} else if (collectID.equals("KeyRed")) {
     				collectKeyRed += 1;
-    				BikeGameSounds.PlaySound(soundKey, 1.0f);
+    				if (soundTimeKey <= 0.0f) {
+    					BikeGameSounds.PlaySound(soundKey, 1.0f);
+    					soundTimeKey = 1.0f; //  This is half the duration of a Key sound
+    				}
     			} else if (collectID.equals("KeyGreen")) {
     				collectKeyGreen += 1;
-    				BikeGameSounds.PlaySound(soundKey, 1.0f);
+    				if (soundTimeKey <= 0.0f) {
+    					BikeGameSounds.PlaySound(soundKey, 1.0f);
+    					soundTimeKey = 1.0f; //  This is half the duration of a Key sound
+    				}
     			} else if (collectID.equals("KeyBlue")) {
     				collectKeyBlue += 1;
-    				BikeGameSounds.PlaySound(soundKey, 1.0f);
+    				if (soundTimeKey <= 0.0f) {
+    					BikeGameSounds.PlaySound(soundKey, 1.0f);
+    					soundTimeKey = 1.0f; //  This is half the duration of a Key sound
+    				}
     			} else if (collectID.equals("Nitrous")) {
     				if ((collectNitrous == 0) & (nitrousLevel == 0.0f)) nitrousLevel = 1.0f;
     				collectNitrous += 1;
-    				BikeGameSounds.PlaySound(soundNitrous, 1.0f);
+    				if (soundTimeNitrous <= 0.0f) {
+    					BikeGameSounds.PlaySound(soundNitrous, 1.0f);
+    					soundTimeNitrous = 1.0f; //  This is half the duration of a Nitrous sound
+    				}
     			} else if (collectID.equals("Jewel")) {
     				if (collectJewel != 0) collectJewel -= 1;
-    				BikeGameSounds.PlaySound(soundGem, 1.0f);
+    				if (soundTimeGem <= 0.0f) {
+    					BikeGameSounds.PlaySound(soundGem, 1.0f);
+    					soundTimeGem = 1.0f; //  This is half the duration of a gem sound
+    				}
     			} else if (collectID.equals("Diamond")) {
     				collectJewel = 0;
     				collectDiamond = true; // The player has collected the diamond
@@ -1917,6 +1964,13 @@ public class Play extends GameState {
        }
        bodies.clear();
        //mScene.clear(); // no longer need any scene references
+       
+       // Reset the sounds times
+       soundTimeGem = 0.0f;
+       soundTimeKey = 0.0f;
+       soundTimeNitrous = 0.0f;
+       soundTimeDoor = 0.0f;
+       soundTimeGravity = 0.0f;
     }
     
     @Override
