@@ -88,7 +88,7 @@ public class Editor extends GameState {
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
 	private String[] decorateList = {"Grass",
-			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)",
+			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
 			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Rain", "Waterfall"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};

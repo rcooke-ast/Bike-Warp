@@ -46,6 +46,10 @@ public class EditorDecorIO {
         		ImageRoadSign(json, decors.get(i), "images/RS_speed_80.png", i);
         	} else if (decorTypes.get(i) == DecorVars.RoadSign_100) {
         		ImageRoadSign(json, decors.get(i), "images/RS_speed_100.png", i);
+        	} else if (decorTypes.get(i) == DecorVars.RoadSign_Dash) {
+        		ImageRoadSign(json, decors.get(i), "images/RS_dash.png", i);
+        	} else if (decorTypes.get(i) == DecorVars.RoadSign_Dot) {
+        		ImageRoadSign(json, decors.get(i), "images/RS_dot.png", i);
 //        	} else if (decorTypes.get(i) == DecorVars.Waterfall) {
 //        		ImageWaterfall(json, decors.get(i), "images/waterfall.png", i);
         	}
