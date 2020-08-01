@@ -446,6 +446,11 @@ public class Play extends GameState {
     public void handleInput() {
     	// ESC is pressed
         if (GameInput.isPressed(GameInput.KEY_ESC)) {
+        	if (mState == GAME_STATE.LOADED) {
+        		// The user exits the level before playing
+            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+            	gsm.SetPlaying(false);
+        	}
         	mNextState = GAME_STATE.RUNNING;  // Ensure that forcequit can be applied
         	forcequit = true;
         } else if (GameInput.isPressed(GameInput.KEY_RESTART)) {
@@ -537,7 +542,12 @@ public class Play extends GameState {
         	if ((GameInput.isPressed(GameInput.KEY_ENTER)) | (isReplay)) {
                 mPrevState = mState;
                 // Reset the replay
-            	if (!isReplay) ReplayVars.Reset(editorString, levelID, mode);
+            	if (!isReplay) {
+            		ReplayVars.Reset(editorString, levelID, mode);
+	   				replayTime = 0.0f;
+	   				ReplayVars.replayCntr = 0;
+	   				ReplayVars.replayCDCntr = 0;
+            	}
 	            // Start the bike sound loops
 	    	    //int bikeStart = BikeGameSounds.GetSoundIndex("bike_start");
 	    	    //BikeGameSounds.PlaySound(bikeStart, 1.0f);
@@ -625,6 +635,7 @@ public class Play extends GameState {
 	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
 	       		    StopSounds();
     	   			if (!isReplay) {
+	     	   			if ((mode == 1) || (mode == 2)) storeReplay(dt);
     	   				GameVars.SetTimerTotal(-1);
     	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
     	   			}
@@ -633,9 +644,6 @@ public class Play extends GameState {
     	            	gsm.SetPlaying(false);
     	   			} else {
     	   				// forceRestart is true, or the player died in the level
-    	   				replayTime = 0.0f;
-    	   				ReplayVars.replayCntr = 0;
-    	   				ReplayVars.replayCDCntr = 0;
     	            	// If it's not a replay, reset the replay variables
 //    	            	if (!isReplay) ReplayVars.Reset(editorString, levelID, mode);
     	   				// Exit the current level
