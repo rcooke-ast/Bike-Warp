@@ -257,10 +257,12 @@ public class Play extends GameState {
         if ((mode==3) | (mode==4)) {
             isReplay = true;
         }
-        create();
+    	// Create the Play instance
+    	create();
     }
     
     public void create() {
+    	
     	forcequit = false;
     	forceRestart = false;
         // Set the contact listener
@@ -1569,8 +1571,8 @@ public class Play extends GameState {
     /**
      * Either performs a blocking load or a poll on the asset manager load...
      */
-    private void processSceneLoad()
-    {
+    private void processSceneLoad() {
+
        if (mAssetManager == null)
        {
           // perform a blocking load...
@@ -1585,7 +1587,11 @@ public class Play extends GameState {
 //        		        mScene = loader.addEditorScene(editorString);
 //        		        System.out.println("made it!");
 //        		       	});
+        	       // Handle uncaught exceptions
         		  mScene = loader.addEditorScene(editorString);
+//          	   gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+//     	    	   gsm.SetPlaying(false);
+//         	       return;
         		  mRubeFileIndex++;
         	  } else {
         		  // Load a level
