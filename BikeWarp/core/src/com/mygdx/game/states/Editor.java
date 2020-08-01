@@ -10,6 +10,8 @@ import static com.mygdx.game.handlers.B2DVars.PPM;
 
 import java.awt.Cursor;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -843,6 +845,12 @@ public class Editor extends GameState {
 					// No intersections were found, so let's do some more checks...
 					try {
 						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
+						try (FileWriter file = new FileWriter("tst.json")) {
+				            file.write(jsonLevelString);
+				            file.flush();
+						} catch (IOException e) {
+							System.out.println(e);
+						}
 						if (jsonLevelString.equalsIgnoreCase("GRASS_ERROR")) {
 							Message("Level is not playable!", 2);
 							Message("There is a problem with the grass placement", 2);

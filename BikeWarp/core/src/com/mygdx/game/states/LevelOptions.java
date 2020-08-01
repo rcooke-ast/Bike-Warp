@@ -105,7 +105,7 @@ public class LevelOptions extends GameState {
 		tmp[allOptions.length] = "Level Select";
 		allOptions = tmp.clone();
     	// Can skip level
-    	if ((GameVars.CanSkip()) && (GameVars.GetLevelStatus(levelNumber) == 0) && (modeValue==2) && (levelNumber != LevelsListGame.NUMGAMELEVELS-1)) {
+    	if ((modeValue == 2) && (GameVars.CanSkip()) && (GameVars.GetLevelStatus(levelNumber) == 0) && (modeValue==2) && (levelNumber != LevelsListGame.NUMGAMELEVELS-1)) {
     		tmp = new String[allOptions.length+1];
     		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
     		tmp[allOptions.length] = "Skip Level";
