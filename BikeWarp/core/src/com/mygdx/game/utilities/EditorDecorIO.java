@@ -50,8 +50,8 @@ public class EditorDecorIO {
         		ImageRoadSign(json, decors.get(i), "images/RS_dash.png", i);
         	} else if (decorTypes.get(i) == DecorVars.RoadSign_Dot) {
         		ImageRoadSign(json, decors.get(i), "images/RS_dot.png", i);
-//        	} else if (decorTypes.get(i) == DecorVars.Waterfall) {
-//        		ImageWaterfall(json, decors.get(i), "images/waterfall.png", i);
+        	} else if (DecorVars.IsRect(decorTypes.get(i))) {
+        		ImageRect(json, decors.get(i), decorTypes.get(i), i);
         	}
         }
 		return;
@@ -160,6 +160,41 @@ public class EditorDecorIO {
 //		}
 //	}
 	
+	public static void ImageRect(JSONStringer json, float[] fs, int decorID, int cnt) throws JSONException {
+		// This routine can be used for any image that is the shape of a rectangle
+		float xcen = 0.5f*B2DVars.EPPM*(fs[0]+fs[4]);
+		float ycen = 0.5f*B2DVars.EPPM*(fs[1]+fs[5]);
+		float rotAngle = PolygonOperations.GetAngle(fs[0], fs[1], fs[2], fs[3]);
+		// Set the Image properties
+		String imageFile = DecorVars.GetImageRect(decorID);
+		float[] coord = DecorVars.GetCoordRect(decorID);
+		// Add image
+		json.object(); // Start of Rectangular Image
+		json.key("name").value("Decor"+cnt);
+		json.key("opacity").value(1);
+		json.key("renderOrder").value(1);
+		json.key("scale").value(1);
+		json.key("aspectScale").value(1);
+		json.key("angle").value(rotAngle);
+		json.key("center");
+		json.object();
+		json.key("x").value(xcen);
+		json.key("y").value(ycen);
+		json.endObject();
+		json.key("corners");
+		json.object();
+		json.key("x").array().value(B2DVars.EPPM*fs[0]).value(B2DVars.EPPM*fs[2]).value(B2DVars.EPPM*fs[4]).value(B2DVars.EPPM*fs[6]).endArray();
+		json.key("y").array().value(B2DVars.EPPM*fs[1]).value(B2DVars.EPPM*fs[3]).value(B2DVars.EPPM*fs[5]).value(B2DVars.EPPM*fs[7]).endArray();
+		json.endObject();
+		json.key("file").value(imageFile);
+		json.key("filter").value(1);
+		json.key("glDrawElements").array().value(0).value(1).value(2).value(2).value(3).value(0).endArray();
+		json.key("glTexCoordPointer").array().value(0).value(0).value(1).value(0).value(1).value(1).value(0).value(1).endArray();
+//		json.key("glVertexPointer").array().value(-0.5f*shaftLength).value(-0.03f).value(0.5f*shaftLength).value(-0.03f).value(0.5f*shaftLength).value(0.03f).value(-0.5f*shaftLength).value(0.03f).endArray();
+		json.key("glVertexPointer").array().value(coord[0]).value(coord[1]).value(coord[2]).value(coord[3]).value(coord[4]).value(coord[5]).value(coord[6]).value(coord[7]).endArray();
+		json.endObject(); // End of decoration
+	}
+
 	public static void ImageThisDoesNothing(JSONStringer json, float[] fs, int bodyIndex, int cnt, int doorcolor) throws JSONException {
 		float xcen = B2DVars.EPPM*0.5f*(fs[0]+fs[4]);
 		float ycen = B2DVars.EPPM*0.5f*(fs[1]+fs[5]);

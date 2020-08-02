@@ -69,6 +69,7 @@ import com.mygdx.game.utilities.EditorIO;
 import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 import com.mygdx.game.utilities.json.JSONException;
+import com.mygdx.game.utilities.json.JSONObject;
 
 /**
  *
@@ -80,6 +81,7 @@ public class Editor extends GameState {
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 	private SpriteBatch mBatch = new SpriteBatch();
 	private Sprite traceImage;
+	private Sprite decorImage;
 	private String[] traceList;
 	private String[] nullList = new String[0];
 	private String[] itemsXYonly = {"Move X and Y", "Move X only", "Move Y only"};
@@ -89,7 +91,7 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
-	private String[] decorateList = {"Grass",
+	private String[] decorateList = {"Grass", "Bin Bag",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
 			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Rain", "Waterfall"};
@@ -846,7 +848,8 @@ public class Editor extends GameState {
 					try {
 						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
 						try (FileWriter file = new FileWriter("tst.json")) {
-				            file.write(jsonLevelString);
+							JSONObject json = new JSONObject(jsonLevelString); // Convert text to object
+							file.write(json.toString(4));
 				            file.flush();
 						} catch (IOException e) {
 							System.out.println(e);
@@ -2039,6 +2042,28 @@ public class Editor extends GameState {
 			mBatch.setProjectionMatrix(cam.combined);
 	    	mBatch.begin();
 	    	mBatch.draw(traceImage, trcImgProp[0]-trcImgProp[2]/2, trcImgProp[1]-trcImgProp[3]/2, trcImgProp[0], trcImgProp[1], trcImgProp[2], trcImgProp[3], 1, 1, trcImgProp[5]);
+	    	mBatch.end();
+        }
+        
+        // Draw rectangular decorations
+        if (allDecors.size() != 0) {
+        	mBatch.setColor(1, 1, 1, 0.6f);
+			mBatch.setProjectionMatrix(cam.combined);
+	    	mBatch.begin();
+	    	float xcen, ycen, xlen, ylen, rotAngle;
+	        for (int i = 0; i<allDecors.size(); i++) {
+	        	if (DecorVars.IsRect(allDecorTypes.get(i))) {
+		        	textName = DecorVars.GetImageRect(allDecorTypes.get(i));
+		        	extraPoly = DecorVars.GetCoordRect(allDecorTypes.get(i));
+		    		xcen = 0.5f*(allDecors.get(i)[0]+allDecors.get(i)[4]);
+		    		ycen = 0.5f*(allDecors.get(i)[1]+allDecors.get(i)[5]);
+		    		xlen = extraPoly[4] - extraPoly[0];
+		    		ylen = extraPoly[5] - extraPoly[1];
+		    		rotAngle = PolygonOperations.GetAngle(allDecors.get(i)[0], allDecors.get(i)[1], allDecors.get(i)[2], allDecors.get(i)[3]);
+		        	decorImage = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textName), 2));
+			    	mBatch.draw(decorImage, xcen-xlen/2, ycen-ylen/2, xcen-xlen/2, ycen-ylen/2, xlen, ylen, 1, 1, (float) Math.toDegrees(rotAngle));
+	        	}
+	        }
 	    	mBatch.end();
         }
 
@@ -4084,7 +4109,62 @@ public class Editor extends GameState {
 	    	}
 			currentTexture = "";
 		} else if (modeParent.equals("Large Stone")) {
-			
+			// Nothing to do here!
+		} else if (modeParent.equals("Bin Bag")) {
+			int objNum;
+			if (modeParent.equals("Bin Bag")) objNum=DecorVars.BinBag;
+			else return;
+			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				AddDecor(objNum, tempx, tempy, -999.9f);
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				SelectDecor("up", objNum, false, false);
+				engageDelete = true;
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", objNum, false, false);
+					startX = GameInput.MBDOWNX*scrscale;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+	            	MoveDecor(decorSelect, "polygon", endX, endY);
+				}
+			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "move");
+				decorSelect = -1;
+			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
+    			if (decorSelect == -1) {
+    				SelectDecor("down", objNum, false, false);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			} else {
+    				float xcen = 0.5f*(allDecors.get(decorSelect)[0]+allDecors.get(decorSelect)[4]);
+    				float ycen = 0.5f*(allDecors.get(decorSelect)[1]+allDecors.get(decorSelect)[5]);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		    		nullvarA = (float) Math.sqrt((endX-xcen)*(endX-xcen) + (endY-ycen)*(endY-ycen));
+		    		nullvarB = (float) Math.sqrt((startX-xcen)*(startX-xcen) + (startY-ycen)*(startY-ycen));
+		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
+		    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
+		    		if ((startX == xcen) & (startY == ycen)) return; // No rotation
+		    		else if (startX == xcen) {
+		    			if (endX>startX) nullvarD *= -1.0f;
+		    			if (startY<ycen) nullvarD *= -1.0f;
+		    		} else {
+		    			if (endY < endX*((startY-ycen)/(startX-xcen)) + (startY - startX*((startY-ycen)/(startX-xcen)))) nullvarD *= -1.0f;
+		    			if (startX < xcen) nullvarD *= -1.0f;
+		    		}
+		    		RotateDecor(decorSelect, "rect", nullvarD);
+    			}
+    		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (decorSelect != -1)) {
+    			UpdateDecor(decorSelect, "rotateobject");
+    			decorSelect = -1;
+            	GameInput.MBRELEASE=false;
+    		}
 		}
 	}
 
@@ -4520,6 +4600,8 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Collisionless Textures")) {
 					listChild.setItems(platformTextures);
 		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
+				} else if (modeParent.equals("Bin Bag")) {
+					listChild.setItems(itemsADMR);
 				} else listChild.setItems(itemsADMR);
 				break;
 			case 7 :
@@ -6527,6 +6609,12 @@ public class Editor extends GameState {
 			newPoly[1] = DecorVars.decorCircleRoadSign[1] + ycen;
 			newPoly[2] = DecorVars.decorCircleRoadSign[2];
 			newPoly[3] = DecorVars.decorCircleRoadSign[3];
+		} else if (otype==DecorVars.BinBag) {
+			newPoly = new float[DecorVars.decorBinBag.length];
+			for (int i=0; i<DecorVars.decorBinBag.length/2; i++) {
+				newPoly[2*i] = DecorVars.decorBinBag[2*i] + xcen;
+				newPoly[2*i+1] = DecorVars.decorBinBag[2*i+1] + ycen;
+			}
 		}
 	}
 
@@ -6708,6 +6796,7 @@ public class Editor extends GameState {
 	}
 	
 	public void RotateDecor(int idx, String mode, float angle) {
+		if (allDecors.get(idx) == null) return;
 		if (mode.equals("object")) {
 			updatePoly = allDecors.get(idx).clone();
 			for (int i = 0; i<allDecors.get(idx).length; i++){
@@ -6717,7 +6806,21 @@ public class Editor extends GameState {
 					updatePoly[i] = cursposy + (allDecors.get(idx)[i-1]-cursposx)*(float) Math.sin(angle) + (allDecors.get(idx)[i]-cursposy)*(float) Math.cos(angle);
 				}
 			}
+    	} else if (mode.equals("rect")) {
+			updatePoly = allDecors.get(idx).clone();
+			float xcen;
+			float ycen;
+			for (int i = 0; i<allDecors.get(idx).length; i++){
+				xcen = (float) (0.5*(allDecors.get(idx)[0] + allDecors.get(idx)[4]));
+				ycen = (float) 0.5*(allDecors.get(idx)[1] + allDecors.get(idx)[5]);
+				if (i%2==0) {
+					updatePoly[i] = xcen + (allDecors.get(idx)[i]-xcen)*(float) Math.cos(angle) - (allDecors.get(idx)[i+1]-ycen)*(float) Math.sin(angle);
+				} else {
+					updatePoly[i] = ycen + (allDecors.get(idx)[i-1]-xcen)*(float) Math.sin(angle) + (allDecors.get(idx)[i]-ycen)*(float) Math.cos(angle);
+				}
+			}
     	} else if (mode.equals("roadsign")) {
+    		
     		updatePoly = allDecors.get(idx).clone();
     		updatePoly[3] = angle;
     	}

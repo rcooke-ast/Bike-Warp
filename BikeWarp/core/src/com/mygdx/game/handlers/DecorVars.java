@@ -26,11 +26,18 @@ public class DecorVars {
     public static final int CollisionlessBG = 32;
     public static final int CollisionlessFG = 33;
     public static final int Rain = 34;
+    public static final int BinBag = 35;
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
     public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
     public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
+
+    // Define the rectangular images
+    public static final float[] decorError = {-100.0f,-100.0f,100.0f,-100.0f,100.0f,100.0f,-100.0f,100.0f};
+    private static final float sz_binbag = 30.0f; // Half width
+    private static final float sc_binbag = 1.21679f; // image scale = ysize / xsize
+    public static final float[] decorBinBag = {-sz_binbag,-sz_binbag*sc_binbag,sz_binbag,-sz_binbag*sc_binbag,sz_binbag,sz_binbag*sc_binbag,-sz_binbag,sz_binbag*sc_binbag};
     
     // Define the textures that can be applied to platforms
     public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bricks", "Bubbles", "Cracked Mud", "Grass", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
@@ -42,6 +49,12 @@ public class DecorVars {
     			(dTyp == RoadSign_20) | (dTyp == RoadSign_30) | (dTyp == RoadSign_40) |
     			(dTyp == RoadSign_50) | (dTyp == RoadSign_60) | (dTyp == RoadSign_80) |
     			(dTyp == RoadSign_100) | (dTyp == RoadSign_Dash) | (dTyp == RoadSign_Dot)) {
+    		return true;
+    	} else return false;
+    }
+
+    public static boolean IsRect(int dTyp) {
+    	if  ((dTyp == BinBag) | (true)) { // You can replace this true with another item
     		return true;
     	} else return false;
     }
@@ -98,4 +111,16 @@ public class DecorVars {
     	else if (objNumber == RoadSign_Stop) return "Stop";
     	else return "";
     }
+
+	public static String GetImageRect(int decorID) {
+		if (decorID == BinBag) return "images/binbag.png";
+		// Make some default to stop errors
+		return "images/error.png";
+	}
+
+	public static float[] GetCoordRect(int decorID) {
+		if (decorID == BinBag) return decorBinBag.clone();
+		// Make some default to stop errors
+		return decorError.clone();
+	}
 }
