@@ -158,6 +158,7 @@ public class BikeGameTextures {
 		GetTexture("RS_speed_100",2);
 		GetTexture("RS_stop",2);
 		GetTexture("metal_pole_1x16",2);
+		GetTexture("binbag",2);
 		// Add some additional textures
 		// Add grass
         texture = new Texture(Gdx.files.internal("data/images/grass_smooth.png"));
