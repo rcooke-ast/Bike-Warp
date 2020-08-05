@@ -27,20 +27,15 @@ public class DecorVars {
     public static final int CollisionlessFG = 33;
     public static final int Rain = 34;
     public static final int BinBag = 35;
+    public static final int TyreStack = 36;
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
     public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
     public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
-
-    // Define the rectangular images
-    public static final float[] decorError = {-100.0f,-100.0f,100.0f,-100.0f,100.0f,100.0f,-100.0f,100.0f};
-    private static final float sz_binbag = 30.0f; // Half width
-    private static final float sc_binbag = 1.21679f; // image scale = ysize / xsize
-    public static final float[] decorBinBag = {-sz_binbag,-sz_binbag*sc_binbag,sz_binbag,-sz_binbag*sc_binbag,sz_binbag,sz_binbag*sc_binbag,-sz_binbag,sz_binbag*sc_binbag};
     
     // Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bricks", "Bubbles", "Cracked Mud", "Grass", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bricks", "Bubbles", "Cracked Mud", "Grass", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
 
     public static boolean IsRoadSign(int dTyp) {
     	if  ((dTyp == RoadSign_Stop) | (dTyp == RoadSign_DoNotEnter) | (dTyp == RoadSign_RampAhead) |
@@ -54,7 +49,7 @@ public class DecorVars {
     }
 
     public static boolean IsRect(int dTyp) {
-    	if  ((dTyp == BinBag) | (true)) { // You can replace this true with another item
+    	if ((dTyp == BinBag) | (dTyp == TyreStack)) {
     		return true;
     	} else return false;
     }
@@ -112,15 +107,84 @@ public class DecorVars {
     	else return "";
     }
 
-	public static String GetImageRect(int decorID) {
+	public static String GetImageRect(int decorID, int idx) {
 		if (decorID == BinBag) return "images/binbag.png";
+		else if (decorID == TyreStack) return "images/tyrestack_" + String.format("%02d", idx) + ".png";
 		// Make some default to stop errors
 		return "images/error.png";
 	}
 
-	public static float[] GetCoordRect(int decorID) {
-		if (decorID == BinBag) return decorBinBag.clone();
-		// Make some default to stop errors
-		return decorError.clone();
+	public static float[] GetCoordRect(int decorID, int idx) {
+		return GetRectMultiple(decorID, idx, 0.0f, 0.0f).clone();
+	}
+
+	public static float[] GetNextRectMultiple(int decorID, int idx, float shiftX, float shiftY) {
+		// idx is the current index, which this routine shifts to be the next index
+		return GetRectMultiple(decorID, idx+1, shiftX, shiftY);
+	}
+	
+	public static float[] GetRectMultiple(int decorID, int idx, float shiftX, float shiftY) {
+		float xsize = 100.0f, scale=1.0f;
+		if (decorID == BinBag) {
+		    xsize = 30.0f;
+		    scale = 1.21679f;
+		    idx = 0;
+		} else if (decorID == TyreStack) {
+			xsize = 50.0f;
+			if ((idx < 0) | (idx >= 12)) idx = 0;
+			switch (idx) {
+			case 0 :
+				scale = 0.52450980f;
+				break;
+			case 1 :
+				scale = 0.52450980f;
+				break;
+			case 2 :
+				xsize *= 1.5f;
+				scale = 1.139705f;
+				break;
+			case 3 :
+				xsize *= 1.5f;
+				scale = 2.6094527f;
+				break;
+			case 4 :
+				xsize *= 1.2f;
+				scale = 1.4199029f;
+				break;
+			case 5 :
+				xsize *= 0.6f;
+				scale = 1.0f;
+				break;
+			case 6 :
+				xsize *= 0.6f;
+				scale = 1.0f;
+				break;
+			case 7 :
+				xsize *= 0.72f;
+				scale = 1.0f;
+				break;
+			case 8 :
+				xsize *= 0.72f;
+				scale = 1.0f;
+				break;
+			case 9 :
+				xsize *= 0.2316f;
+				scale = 2.725f;
+				break;
+			case 10 :
+				xsize *= 0.6f;
+				scale = 0.455696f;
+				break;
+			case 11 :
+//				scale = 1.422680f;
+				scale = 0.71f;
+				break;
+			default :
+				break;
+			}
+		}
+		// Generate the coordinates
+		float[] coords = {-xsize+shiftX, -xsize*scale+shiftY, xsize+shiftX, -xsize*scale+shiftY, xsize+shiftX, xsize*scale+shiftY, -xsize+shiftX, xsize*scale+shiftY, idx};
+		return coords;
 	}
 }
