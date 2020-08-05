@@ -179,7 +179,7 @@ public class Play extends GameState {
     private float startAngle;
     private Texture texture;
     private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar;
-    private Sprite bikeColour, bikeOverlay, suspensionRear, suspensionFront;
+    private Sprite bikeWheel, bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
     private int timerStart, timerCurrent, timerTotal;
@@ -334,6 +334,7 @@ public class Play extends GameState {
         bikeOverlay = new Sprite(BikeGameTextures.LoadTexture("bike_overlay",0));
         suspensionRear = new Sprite(BikeGameTextures.LoadTexture("rear_suspension",0));
         suspensionFront = new Sprite(BikeGameTextures.LoadTexture("front_suspension",0));
+        bikeWheel = new Sprite(BikeGameTextures.LoadTexture("bikewheel",0));
 
         // Load the finish ball textures
         finishFG = new Sprite(BikeGameTextures.LoadTexture("finish_whirl",0));
@@ -2059,7 +2060,7 @@ public class Play extends GameState {
             }
             mPolyBatch.end();
     	}
-    	
+
         // Render all of the spatials
     	if ((mSpatials != null) && (mSpatials.size > 0))
     	{
@@ -2068,17 +2069,6 @@ public class Play extends GameState {
     		for (int i = 0; i < mSpatials.size; i++)
     		{
     			mSpatials.get(i).render(mBatch, 0);
-    		}
-    		mBatch.end();
-    	}
-
-    	// Render the decorations
-    	if ((mDecors != null) && (mDecors.size > 0))
-    	{
-    		mBatch.begin();
-    		for (int i = 0; i < mDecors.size; i++)
-    		{
-    			mDecors.get(i).render(mBatch);
     		}
     		mBatch.end();
     	}
@@ -2155,66 +2145,80 @@ public class Play extends GameState {
     	   mBatch.end();
        }
 
-       // Render the colour of the bike
-       mBatch.begin();
-       float bcx, bcy, angle;
-       float bscale = (float)Math.sin(bikeScale*Math.PI/2);
-       //if ((bscale == -1.0f) | (bscale == 1.0f)) {
-       if (true) {
-           float wcx, wcy;
-           // Render the rear suspension
-    	   if (bikeDirc == 1.0f) {
-    		   wcx = bikeBodyLW.getPosition().x;
-    		   wcy = bikeBodyLW.getPosition().y;
-    	       if (bscale > 0.0f) mBatch.setColor(1, 1, 1, bscale);
-    	       else mBatch.setColor(1, 1, 1, 0);
-    	   } else {
-    		   wcx = bikeBodyRW.getPosition().x;
-    		   wcy = bikeBodyRW.getPosition().y;    		   
-    	       if (bscale < 0.0f) mBatch.setColor(1, 1, 1, -bscale);
-    	       else mBatch.setColor(1, 1, 1, 0);
-    	   }
-           bcx = bikeBodyC.getPosition().x;
-           bcy = bikeBodyC.getPosition().y;
-           float[] cCoord = PolygonOperations.RotateCoordinate(-0.143796f*bikeDirc,-0.218244f,MathUtils.radiansToDegrees*bikeBodyC.getAngle(),0.0f,0.0f);
-           bcx += cCoord[0];
-           bcy += cCoord[1];
-           float height = 1.0955f*0.054051f;
-           float width = 1.0955f*(float) Math.sqrt((bcx-wcx)*(bcx-wcx) + (bcy-wcy)*(bcy-wcy));
-           // Calculate the angle
-           angle = PolygonOperations.GetAngle(wcx, wcy, bcx, bcy);
-           cCoord = PolygonOperations.RotateCoordinate(-0.3f*height,-0.5f*height,MathUtils.radiansToDegrees*angle,0.0f,0.0f);
-           mBatch.draw(suspensionRear, wcx+cCoord[0], wcy+cCoord[1], 0.0f, 0.0f, width, height, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-           // Render the front suspension
-    	   if (bikeDirc == 1.0f) {
-    		   wcx = bikeBodyRW.getPosition().x;
-    		   wcy = bikeBodyRW.getPosition().y;
-    	   } else {
-    		   wcx = bikeBodyLW.getPosition().x;
-    		   wcy = bikeBodyLW.getPosition().y;    		   
-    	   }
-           cCoord = PolygonOperations.RotateCoordinate(0.2192f*bikeDirc,0.2614f,MathUtils.radiansToDegrees*bikeBodyC.getAngle(),0.0f,0.0f);
-           bcx = bikeBodyC.getPosition().x + cCoord[0];
-           bcy = bikeBodyC.getPosition().y + cCoord[1];
-           height = 0.06714876f;
-           width = (512.0f/497.0f) * (float) Math.sqrt((bcx-wcx)*(bcx-wcx) + (bcy-wcy)*(bcy-wcy));
-           // Calculate the angle
-           angle = PolygonOperations.GetAngle(wcx, wcy, bcx, bcy);
-           mBatch.draw(suspensionFront, wcx-width*15.0f/512.0f, wcy-bikeDirc*height*15.0f/64.0f, width*15.0f/512.0f, bikeDirc*height*15.0f/64.0f, width, bikeDirc*height, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);    	   
-       }
-       bcx = bikeBodyC.getPosition().x;
-       bcy = bikeBodyC.getPosition().y;
-       angle = bikeBodyC.getAngle();
-       // Change the colour of the bike
-       mBatch.setColor(bikeCol[0], bikeCol[1], bikeCol[2], 1);
-       mBatch.draw(bikeColour, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-       mBatch.setColor(1, 1, 1, 1);
-       bcx = bikeBodyC.getPosition().x;
-       bcy = bikeBodyC.getPosition().y;
-       angle = bikeBodyC.getAngle();
-       // Render the bike overlay and player
-       mBatch.draw(bikeOverlay, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-       mBatch.end();
+	   	// Render the decorations
+	   	if ((mDecors != null) && (mDecors.size > 0))
+	   	{
+	   		mBatch.begin();
+	   		for (int i = 0; i < mDecors.size; i++)
+	   		{
+	   			mDecors.get(i).render(mBatch);
+	   		}
+	   		mBatch.end();
+	   	}
+	
+        // Render the colour of the bike
+        mBatch.begin();
+        float bcx, bcy, angle;
+        float bscale = (float)Math.sin(bikeScale*Math.PI/2);
+        //if ((bscale == -1.0f) | (bscale == 1.0f)) {
+        if (true) {
+        	// Render the wheels
+        	mBatch.draw(bikeWheel, bikeBodyLW.getPosition().x-0.22f, bikeBodyLW.getPosition().y-0.22f, 0.22f, 0.22f, 0.44f, 0.44f, 1.0f, 1.0f, MathUtils.radiansToDegrees*bikeBodyLW.getAngle());
+        	mBatch.draw(bikeWheel, bikeBodyRW.getPosition().x-0.22f, bikeBodyRW.getPosition().y-0.22f, 0.22f, 0.22f, 0.44f, 0.44f, 1.0f, 1.0f, MathUtils.radiansToDegrees*bikeBodyRW.getAngle());
+            float wcx, wcy;
+            // Render the rear suspension
+     	   if (bikeDirc == 1.0f) {
+     		   wcx = bikeBodyLW.getPosition().x;
+     		   wcy = bikeBodyLW.getPosition().y;
+     	       if (bscale > 0.0f) mBatch.setColor(1, 1, 1, bscale);
+     	       else mBatch.setColor(1, 1, 1, 0);
+     	   } else {
+     		   wcx = bikeBodyRW.getPosition().x;
+     		   wcy = bikeBodyRW.getPosition().y;    		   
+     	       if (bscale < 0.0f) mBatch.setColor(1, 1, 1, -bscale);
+     	       else mBatch.setColor(1, 1, 1, 0);
+     	   }
+            bcx = bikeBodyC.getPosition().x;
+            bcy = bikeBodyC.getPosition().y;
+            float[] cCoord = PolygonOperations.RotateCoordinate(-0.143796f*bikeDirc,-0.218244f,MathUtils.radiansToDegrees*bikeBodyC.getAngle(),0.0f,0.0f);
+            bcx += cCoord[0];
+            bcy += cCoord[1];
+            float height = 1.0955f*0.054051f;
+            float width = 1.0955f*(float) Math.sqrt((bcx-wcx)*(bcx-wcx) + (bcy-wcy)*(bcy-wcy));
+            // Calculate the angle
+            angle = PolygonOperations.GetAngle(wcx, wcy, bcx, bcy);
+            cCoord = PolygonOperations.RotateCoordinate(-0.3f*height,-0.5f*height,MathUtils.radiansToDegrees*angle,0.0f,0.0f);
+            mBatch.draw(suspensionRear, wcx+cCoord[0], wcy+cCoord[1], 0.0f, 0.0f, width, height, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+            // Render the front suspension
+     	   if (bikeDirc == 1.0f) {
+     		   wcx = bikeBodyRW.getPosition().x;
+     		   wcy = bikeBodyRW.getPosition().y;
+     	   } else {
+     		   wcx = bikeBodyLW.getPosition().x;
+     		   wcy = bikeBodyLW.getPosition().y;    		   
+     	   }
+            cCoord = PolygonOperations.RotateCoordinate(0.2192f*bikeDirc,0.2614f,MathUtils.radiansToDegrees*bikeBodyC.getAngle(),0.0f,0.0f);
+            bcx = bikeBodyC.getPosition().x + cCoord[0];
+            bcy = bikeBodyC.getPosition().y + cCoord[1];
+            height = 0.06714876f;
+            width = (512.0f/497.0f) * (float) Math.sqrt((bcx-wcx)*(bcx-wcx) + (bcy-wcy)*(bcy-wcy));
+            // Calculate the angle
+            angle = PolygonOperations.GetAngle(wcx, wcy, bcx, bcy);
+            mBatch.draw(suspensionFront, wcx-width*15.0f/512.0f, wcy-bikeDirc*height*15.0f/64.0f, width*15.0f/512.0f, bikeDirc*height*15.0f/64.0f, width, bikeDirc*height, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);    	   
+        }
+        bcx = bikeBodyC.getPosition().x;
+        bcy = bikeBodyC.getPosition().y;
+        angle = bikeBodyC.getAngle();
+        // Change the colour of the bike
+        mBatch.setColor(bikeCol[0], bikeCol[1], bikeCol[2], 1);
+        mBatch.draw(bikeColour, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+        mBatch.setColor(1, 1, 1, 1);
+        bcx = bikeBodyC.getPosition().x;
+        bcy = bikeBodyC.getPosition().y;
+        angle = bikeBodyC.getAngle();
+        // Render the bike overlay and player
+        mBatch.draw(bikeOverlay, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+        mBatch.end();
 
        // Render the ground, grass, rain, and waterfalls
        if ((mPolySpatials != null) && (mPolySpatials.size > 0))

@@ -67,7 +67,7 @@ public class EditorDecorIO {
 		json.object(); // Start of Road Sign Post
 		json.key("name").value("Decor"+cnt);
 		json.key("opacity").value(1);
-		json.key("renderOrder").value(1);
+		json.key("renderOrder").value(0);
 		json.key("scale").value(1);
 		json.key("aspectScale").value(1);
 		json.key("angle").value(fs[3]);
@@ -166,13 +166,13 @@ public class EditorDecorIO {
 		float ycen = 0.5f*B2DVars.EPPM*(fs[1]+fs[5]);
 		float rotAngle = PolygonOperations.GetAngle(fs[0], fs[1], fs[2], fs[3]);
 		// Set the Image properties
-		String imageFile = DecorVars.GetImageRect(decorID);
-		float[] coord = DecorVars.GetCoordRect(decorID);
+		String imageFile = DecorVars.GetImageRect(decorID, (int) fs[8]);
+		float[] coord = DecorVars.GetCoordRect(decorID, (int) fs[8]);
 		// Add image
 		json.object(); // Start of Rectangular Image
 		json.key("name").value("Decor"+cnt);
 		json.key("opacity").value(1);
-		json.key("renderOrder").value(1);
+		json.key("renderOrder").value(0);
 		json.key("scale").value(1);
 		json.key("aspectScale").value(1);
 		json.key("angle").value(rotAngle);
