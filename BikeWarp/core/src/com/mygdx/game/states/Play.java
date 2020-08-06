@@ -168,7 +168,7 @@ public class Play extends GameState {
     private float canTransport = -1.0f;
     private float spinTime = 0.6f; // Time (in s) before spin can recommence
     private float jumpTime = 0.6f; // Time (in s) before jump can recommence
-    private float transportTime = 1.0f; // Time (in s) before transporters are activated
+    private float transportTime = 2.5f; // Time (in s) before transporters are activated
     private float fallTime = 5.0f; // Time (in s) before a falling platform will fall after being touched
     private float nitrousLevel = 0.0f; // Current level of nitrous
     private float rocketLevel = 0.0f; // Current level of rocket
