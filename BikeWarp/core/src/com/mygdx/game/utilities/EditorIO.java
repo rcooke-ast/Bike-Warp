@@ -404,7 +404,7 @@ public class EditorIO {
 		String defval = "background_waterfall";
 		if (textName.equals("Mountains")) return "background_mountains";
 		else if (textName.equals("Waterfall")) return "background_waterfall";
-		else return defval;
+		else return null;
 	}
 
 	public static String GetFGTexture(String textName) {
@@ -709,10 +709,10 @@ public class EditorIO {
         		addBodies = EditorObjectIO.AddGateSwitch(json, allObjects.get(i), cntGateSwitch);
         		bodyIdx += addBodies;
         		cntGateSwitch += 1;
-        	} else if (allObjectTypes.get(i) == ObjectVars.Gravity) {
+        	} else if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
         		Vector2 gravityVec = new Vector2(allObjectArrows.get(i)[2]-allObjectArrows.get(i)[0],allObjectArrows.get(i)[3]-allObjectArrows.get(i)[1]);
                 gravityVec.nor();
-        		addBodies = EditorObjectIO.AddGravity(json, allObjects.get(i), cntGravity, gravityVec);
+        		addBodies = EditorObjectIO.AddGravity(json, allObjects.get(i), allObjectTypes.get(i), cntGravity, gravityVec);
         		bodyIdx += addBodies;
         		cntGravity += 1;
         	} else if (allObjectTypes.get(i) == ObjectVars.Jewel) {
@@ -745,13 +745,13 @@ public class EditorIO {
         		cntSpikeZone += 1;
         		bodyIdx += addBodies;
         	} else if (allObjectTypes.get(i) == ObjectVars.Transport) {
-        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransport, null);
+        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), allObjectTypes.get(i), cntTransport, null);
         		cntTransport += 1;
         		bodyIdx += addBodies;
-        	} else if (allObjectTypes.get(i) == ObjectVars.TransportInvisible) {
+        	} else if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
         		Vector2 gravityVec = new Vector2(allObjectArrows.get(i)[2]-allObjectArrows.get(i)[0],allObjectArrows.get(i)[3]-allObjectArrows.get(i)[1]);
                 gravityVec.nor();
-        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), cntTransportInvisible, gravityVec);
+        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), allObjectTypes.get(i), cntTransportInvisible, gravityVec);
         		cntTransportInvisible += 1;
         		bodyIdx += addBodies;
         	}
@@ -820,10 +820,12 @@ public class EditorIO {
         json.endObject();
         json.endObject();
         // Set the background image
-        json.object();
-        json.key("name").value("bgTexture");
-        json.key("string").value(textBG);
-        json.endObject();
+        if (textBG != null) {
+	        json.object();
+	        json.key("name").value("bgTexture");
+	        json.key("string").value(textBG);
+	        json.endObject();
+        }
         // Set the foreground image
         json.object();
         json.key("name").value("fgTexture");
@@ -1006,6 +1008,72 @@ public class EditorIO {
         json.endObject(); // End of Rain Body
         if (rncntr != 0) bodyIdx += 1; // Add one for the rain body
 
+        // Add a collisionless background if the background is to be one of the platform textures
+        // First, check if the BG texture is not already set
+        if (textBG == null) {
+        	textBG = GetFGTexture(LevelVars.get(LevelVars.PROP_BG_TEXTURE), null);
+            // See if there's a valid texture to replace it
+            if (textBG != null) {
+            	float[] bgarr = {0.0f, 0.0f, 1000.0f, 0.0f, 1000.0f, 1000.0f, 0.0f, 1000.0f};
+            	// Generate a collisionless background
+    	        json.object();
+    	        json.key("angle").value(0);
+    	        json.key("angularVelocity").value(0);
+    	        json.key("awake").value(true);
+    	        // Add the fixture
+    	        json.key("fixture");
+    	        json.array();
+            	// Decompose each polygon into a series of convex polygons
+            	json.object();
+                // Specify other properties of this fixture
+            	json.key("density").value(1);
+                json.key("friction").value(0);
+                json.key("restitution").value(0);
+                json.key("name").value("Collisionless"+0+"_BG_"+0);
+                json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+                json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+                // Set the (background) ground texture
+                json.key("customProperties");
+                json.array();
+                json.object();
+                json.key("name").value("TextureMask");
+                json.key("string").value(textBG);
+                json.endObject();
+                json.object();
+                json.key("name").value("Type");
+                json.key("string").value("CollisionlessBG");
+                json.endObject();
+                json.endArray();
+    			json.key("polygon");
+                json.object(); // Begin polygon object
+                json.key("vertices");
+                json.object(); // Begin vertices object
+                json.key("x");
+                json.array();
+                for (int j = 0; j<bgarr.length/2; j++) json.value(bgarr[2*j]);
+                json.endArray();
+                json.key("y");
+                json.array();
+                for (int j = 0; j<bgarr.length/2; j++) json.value(bgarr[2*j+1]);
+                json.endArray();
+                json.endObject(); // End the vertices object
+                json.endObject(); // End polygon object
+                json.endObject(); // End this fixture
+    	        json.endArray(); // End of the fixtures for the collisionless body
+    	        // Add some final properties for the collisionless body
+    			json.key("linearVelocity").value(0);
+    			json.key("name").value("Collisionless"+0);
+    			json.key("position");
+    			json.object();
+    			json.key("x").value(0);
+    			json.key("y").value(0);
+    			json.endObject();
+    			json.key("type").value(0);
+    	        json.endObject(); // End of Collisionless Bodies
+    	        bodyIdx += 1; // Add one for the collisionless FG bodies, and add one for the collisionless BG bodies (if either exist)
+            }
+        }
+
         // Add the Foreground and Background Collisionless objects
         int[] collVars = {DecorVars.CollisionlessBG, DecorVars.CollisionlessFG};
         String textMask;
@@ -1165,7 +1233,7 @@ public class EditorIO {
         		addBodies = 1;
         		bodyIdx += addBodies;
         		cntGateSwitch += 1;
-        	} else if (allObjectTypes.get(i) == ObjectVars.Gravity) {
+        	} else if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
         		Vector2 gravityVec = new Vector2(allObjectArrows.get(i)[2]-allObjectArrows.get(i)[0],allObjectArrows.get(i)[3]-allObjectArrows.get(i)[1]);
         		addBodies = EditorImageIO.ImageGravity(json, allObjects.get(i), bodyIdx, cntGravity, gravityVec);
         		bodyIdx += addBodies;

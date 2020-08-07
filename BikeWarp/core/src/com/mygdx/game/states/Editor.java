@@ -272,6 +272,16 @@ public class Editor extends GameState {
 
 		// TODO :: FIX THIS!!
 		traceList = EditorIO.LoadTraceImages(new String[] {"None"});
+
+		// Find all available background textures
+		String[] bsList = bgTextureList.clone();
+		bgTextureList = new String[bsList.length+platformTextures.length-1];
+		for (int i=0; i<bsList.length; i++) {
+			bgTextureList[i] = bsList[i];
+		}
+		for (int i=1; i<platformTextures.length; i++) {
+			bgTextureList[i+bsList.length-1] = platformTextures[i];
+		}
 		
 		warnFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
 		signFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
@@ -816,7 +826,9 @@ public class Editor extends GameState {
 								Message("Press 'd' to delete all grass from the level - you have been warned!", 0);
 							} else if (chldMd.equals("Add All Grass")) {
 								Message("Press 'd' to add grass to every segment on all platforms - you have been warned!", 0);
-							} 
+							} else if (chldMd.equals("Next Item")) {
+								Message("Click on an item of this type to change the property of this item", 0);
+							}
 						}
 					}
 
@@ -1629,8 +1641,12 @@ public class Editor extends GameState {
 	        		rangle = PolygonOperations.GetAngle(allObjects.get(i)[8], allObjects.get(i)[9], allObjects.get(i)[10], allObjects.get(i)[11]);
 	        		rCoord = PolygonOperations.RotateCoordinate(0.0f, 10.0f, ((MathUtils.radiansToDegrees*rangle)+allObjects.get(i)[16]), 0.0f, 0.0f);
 		    		shapeRenderer.line(rxcen, rycen, rxcen+rCoord[0], rycen+rCoord[1]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Gravity) {
+	        	} else if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
 	        		if (i==0) shapeRenderer.setColor(1, 0.8f, 0, opacity);
+	        		else if (allObjectTypes.get(i) == ObjectVars.GravityEarth) shapeRenderer.setColor(0, 0.7f, 1, opacity);
+	        		else if (allObjectTypes.get(i) == ObjectVars.GravityMars) shapeRenderer.setColor(1, 0.1f, 0, opacity);
+	        		else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+	        		else if (allObjectTypes.get(i) == ObjectVars.GravityZero) shapeRenderer.setColor(0.3f, 0.3f, 0.3f, opacity);
 	        		else shapeRenderer.setColor(1, 0.5f, 1, opacity);
 	        		shapeRenderer.polygon(allObjects.get(i));
 	        		shapeRenderer.polygon(allObjectArrows.get(i));
@@ -1676,13 +1692,13 @@ public class Editor extends GameState {
 	        		shapeRenderer.polygon(allObjects.get(i));
 	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
 	        		shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
-	        	} else if ((allObjectTypes.get(i) == ObjectVars.Transport) | (allObjectTypes.get(i) == ObjectVars.TransportInvisible)) {
+	        	} else if ((allObjectTypes.get(i) == ObjectVars.Transport) | ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
 	        		shapeRenderer.setColor(1, 1, 1, opacity);
 	        		shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8] + allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9] + allObjects.get(i)[13]));
 	        		for (int j = 0; j<8; j++) {
 	        			transPoly[j] = allObjects.get(i)[j];
 	        		}
-	        		if (allObjectTypes.get(i) == ObjectVars.TransportInvisible) {
+	        		if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
 	        			// Render the gravity arrow
 		        		shapeRenderer.polygon(allObjectArrows.get(i));
 	        		}
@@ -2022,7 +2038,29 @@ public class Editor extends GameState {
 	        		signFont.draw(sb, textName, allPolygons.get(i)[0], allPolygons.get(i)[1]+signWidth/2);
 	        	}
 	        }
-        }        
+        }
+        // Draw the gravity names next to each gravity/transport symbol
+        if (allObjects.size() > 3) {
+        	for (int i=3; i<allObjects.size(); i++) {
+        		if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
+            		if (allObjectTypes.get(i) == ObjectVars.GravityEarth) textName = "Earth";
+            		else if (allObjectTypes.get(i) == ObjectVars.GravityMars) textName = "Mars";
+            		else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) textName = "Moon";
+            		else if (allObjectTypes.get(i) == ObjectVars.GravityZero) textName = "Zero";
+            		else textName = "Default";
+            		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+	        		signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+25.0f+signWidth/2);
+        		} else if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
+            		if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleEarth) textName = "Earth";
+            		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleMars) textName = "Mars";
+            		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleMoon) textName = "Moon";
+            		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleZero) textName = "Zero";
+            		else textName = "Default";
+            		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+	        		signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+signWidth/2);
+        		}
+        	}
+        }
         sb.end();
 
         // If there are any warning/error messages, write them to screen
@@ -3436,12 +3474,12 @@ public class Editor extends GameState {
     			AddObject(ObjectVars.Gravity, tempx, tempy, 0.0f);
     		}
     		else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-    			SelectObject("up", ObjectVars.Gravity, false, false);
+    			SelectGravity("up", ObjectVars.Gravity, false, false);
     			if (objectSelect==0) objectSelect = -1; // Cannot delete the initial gravity
     			else engageDelete = true;
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", ObjectVars.Gravity, false, false);
+    				SelectGravity("down", ObjectVars.Gravity, false, false);
     				startX = GameInput.MBDOWNX*scrscale;
     				startY = GameInput.MBDOWNY;
     			} else {
@@ -3454,7 +3492,7 @@ public class Editor extends GameState {
     			objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", ObjectVars.Gravity, true, false);
+    				SelectGravity("down", ObjectVars.Gravity, true, false);
     				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
     			} else {
@@ -3478,7 +3516,16 @@ public class Editor extends GameState {
     			UpdateObject(objectSelect, "rotatearrow");
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
-    		}
+    		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
+    			// Select the object
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				SelectGravity("down", ObjectVars.Gravity, false, false);
+				// Increment variation by 1
+				if (objectSelect >= 3) {
+					IncrementObject(allObjectTypes.get(objectSelect));
+				}
+			}
     	} else if (modeParent.equals("Emerald")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
@@ -3670,11 +3717,11 @@ public class Editor extends GameState {
 				if (modeParent.equals("Transport")) AddObject(transIdx, tempx, tempy, -999.9f);
 				else if (modeParent.equals("Transport (invisible)")) AddObject(transIdx, tempx, tempy, 0.0f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				SelectObject("up", transIdx, false, false);
+				SelectTransport("up", transIdx, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move Entry")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
-					SelectObject("down", transIdx, false, false);
+					SelectTransport("down", transIdx, false, false);
 					startX = GameInput.MBDOWNX*scrscale;
 					startY = GameInput.MBDOWNY;
 				} else {
@@ -3687,7 +3734,7 @@ public class Editor extends GameState {
 				objectSelect = -1;
 			} else if ((modeChild.equals("Rotate Entry")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", transIdx, false, false);
+    				SelectTransport("down", transIdx, false, false);
     				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
     			} else {
@@ -3715,7 +3762,7 @@ public class Editor extends GameState {
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Rotate Gravity")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", ObjectVars.TransportInvisible, true, false);
+    				SelectTransport("down", transIdx, true, false);
     				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
     				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
     			} else {
@@ -3739,7 +3786,16 @@ public class Editor extends GameState {
     			UpdateObject(objectSelect, "rotatearrow");
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
-    		}
+    		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
+    			// Select the object
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				SelectTransport("down", transIdx, false, false);
+				// Increment variation by 1
+				if (objectSelect != -1) {
+					IncrementObject(allObjectTypes.get(objectSelect));
+				}
+			}
 		} else if (modeParent.equals("Start")) {
 			if ((modeChild.equals("Put")) & (GameInput.MBJUSTPRESSED)) {
 				objectSelect = 1;
@@ -4598,7 +4654,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move Gate/Switch", "Rotate Gate/Switch", "Scale Gate", "Gate Open/Close", "Flip Switch");
 					pObjectIndex = GetListIndex("Gate Switch",objectList);
 				} else if (modeParent.equals("Gravity")) {
-					listChild.setItems(itemsADMR);
+					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
 					pObjectIndex = GetListIndex("",objectList);
 				} else if (modeParent.equals("Emerald")) {
 					listChild.setItems(itemsADMR);
@@ -4631,7 +4687,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry");
 					pObjectIndex = GetListIndex("Transport",objectList);
 				} else if (modeParent.equals("Transport (invisible)")) {
-					listChild.setItems("Add", "Delete", "Move Entry", "Rotate Entry", "Rotate Gravity");
+					listChild.setItems("Add", "Delete", "Move Entry", "Next Item", "Rotate Entry", "Rotate Gravity");
 					pObjectIndex = GetListIndex("Transport (invisible)",objectList);
 				} else if (modeParent.equals("Start")) {
 					listChild.setItems("Put", "Move", "Rotate", "Flip Direction");
@@ -6270,6 +6326,36 @@ public class Editor extends GameState {
 		}
 	}
 
+	public void SelectTransport(String downup, int otype, boolean rotate, boolean circle) {
+		if (otype == ObjectVars.Transport) {
+			SelectObject(downup, otype, rotate, circle);
+		} else {
+			SelectObject(downup, ObjectVars.TransportInvisible, rotate, circle);
+			if (objectSelect != -1) return;
+			SelectObject(downup, ObjectVars.TransportInvisibleEarth, rotate, circle);
+			if (objectSelect != -1) return;
+			SelectObject(downup, ObjectVars.TransportInvisibleMars, rotate, circle);
+			if (objectSelect != -1) return;
+			SelectObject(downup, ObjectVars.TransportInvisibleMoon, rotate, circle);
+			if (objectSelect != -1) return;
+			SelectObject(downup, ObjectVars.TransportInvisibleZero, rotate, circle);
+			if (objectSelect != -1) return;
+		}
+	}
+	
+	public void SelectGravity(String downup, int otype, boolean rotate, boolean circle) {
+		SelectObject(downup, ObjectVars.Gravity, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.GravityEarth, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.GravityMars, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.GravityMoon, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.GravityZero, rotate, circle);
+		if (objectSelect != -1) return;
+	}
+
 	public void SelectObject(String downup, int otype, boolean rotate, boolean circle) {
 		ResetSelect();
 		if (downup.equals("down")) {
@@ -6436,6 +6522,22 @@ public class Editor extends GameState {
 		for (int i = 0; i<newPoly.length/2; i++){
 			newPoly[2*i] += shiftX;
 			newPoly[2*i+1] += shiftY;
+		}
+	}
+
+	public void IncrementObject(int objNum) {
+		if (ObjectVars.IsGravity(objNum)) {
+			if (objNum == ObjectVars.Gravity) allObjectTypes.set(objectSelect, ObjectVars.GravityEarth);
+			else if (objNum == ObjectVars.GravityEarth) allObjectTypes.set(objectSelect, ObjectVars.GravityMars);
+			else if (objNum == ObjectVars.GravityMars) allObjectTypes.set(objectSelect, ObjectVars.GravityMoon);
+			else if (objNum == ObjectVars.GravityMoon) allObjectTypes.set(objectSelect, ObjectVars.GravityZero);
+			else if (objNum == ObjectVars.GravityZero) allObjectTypes.set(objectSelect, ObjectVars.Gravity);
+		} else if (ObjectVars.IsTransportInvisible(objNum)) {
+			if (objNum == ObjectVars.TransportInvisible) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisibleEarth);
+			else if (objNum == ObjectVars.TransportInvisibleEarth) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisibleMars);
+			else if (objNum == ObjectVars.TransportInvisibleMars) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisibleMoon);
+			else if (objNum == ObjectVars.TransportInvisibleMoon) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisibleZero);
+			else if (objNum == ObjectVars.TransportInvisibleZero) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisible);
 		}
 	}
 

@@ -743,12 +743,22 @@ public class EditorObjectIO {
 		return 1; // Return number of bodies added
 	}
 
-	public static int AddGravity(JSONStringer json, float[] fs, int cnt, Vector2 gravityVec) throws JSONException {
+	public static int AddGravity(JSONStringer json, float[] fs, int objType, int cnt, Vector2 gravityVec) throws JSONException {
 		float gravity = 0.0f;
-        if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Earth") gravity = B2DVars.GRAVITY_EARTH;
-        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Mars") gravity = B2DVars.GRAVITY_MARS;
-        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Moon") gravity = B2DVars.GRAVITY_MOON;
-        else gravity = B2DVars.GRAVITY_EARTH;
+		if (objType == ObjectVars.Gravity) {
+			// Use the default gravity
+	        if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Earth") gravity = B2DVars.GRAVITY_EARTH;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Mars") gravity = B2DVars.GRAVITY_MARS;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Moon") gravity = B2DVars.GRAVITY_MOON;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Zero") gravity = B2DVars.GRAVITY_ZERO;
+	        else gravity = B2DVars.GRAVITY_EARTH;
+		} else {
+	        if (objType == ObjectVars.GravityEarth) gravity = B2DVars.GRAVITY_EARTH;
+	        else if (objType == ObjectVars.GravityMars) gravity = B2DVars.GRAVITY_MARS;
+	        else if (objType == ObjectVars.GravityMoon) gravity = B2DVars.GRAVITY_MOON;
+	        else if (objType == ObjectVars.GravityZero) gravity = B2DVars.GRAVITY_ZERO;
+	        else gravity = B2DVars.GRAVITY_EARTH;
+		}
         float xgrav = gravityVec.x*gravity;
         float ygrav = gravityVec.y*gravity;
 		json.object();
@@ -1339,7 +1349,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		return 1; // Return number of bodies added
 	}
 
-	public static int AddTransport(JSONStringer json, float[] fs, int cnt, Vector2 gravityVec) throws JSONException {
+	public static int AddTransport(JSONStringer json, float[] fs, int objType, int cnt, Vector2 gravityVec) throws JSONException {
 		float xcenA = B2DVars.EPPM*(fs[0]+fs[4])*0.5f;
 		float ycenA = B2DVars.EPPM*(fs[1]+fs[5])*0.5f;
 		float xcenB = B2DVars.EPPM*(fs[8]+fs[12])*0.5f;
@@ -1348,10 +1358,21 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		float rotAngleB = PolygonOperations.GetAngle(fs[8], fs[9], fs[10], fs[11]);
 		// Get the gravity vector
 		float gravity = 0.0f;
-        if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Earth") gravity = B2DVars.GRAVITY_EARTH;
-        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Mars") gravity = B2DVars.GRAVITY_MARS;
-        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Moon") gravity = B2DVars.GRAVITY_MOON;
-        else gravity = B2DVars.GRAVITY_EARTH;
+		if (objType == ObjectVars.TransportInvisible) {
+			// Use the default gravity
+	        if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Earth") gravity = B2DVars.GRAVITY_EARTH;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Mars") gravity = B2DVars.GRAVITY_MARS;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Moon") gravity = B2DVars.GRAVITY_MOON;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Zero") gravity = B2DVars.GRAVITY_ZERO;
+	        else gravity = B2DVars.GRAVITY_EARTH;
+		} else if (objType != ObjectVars.Transport) {
+			// Some other form of invisible transport
+	        if (objType == ObjectVars.TransportInvisibleEarth) gravity = B2DVars.GRAVITY_EARTH;
+	        else if (objType == ObjectVars.TransportInvisibleMars) gravity = B2DVars.GRAVITY_MARS;
+	        else if (objType == ObjectVars.TransportInvisibleMoon) gravity = B2DVars.GRAVITY_MOON;
+	        else if (objType == ObjectVars.TransportInvisibleZero) gravity = B2DVars.GRAVITY_ZERO;
+	        else gravity = B2DVars.GRAVITY_EARTH;
+		}
         float xgrav = 0.0f, ygrav=-gravity;
 		if (gravityVec != null) {
 	        xgrav = gravityVec.x*gravity;
