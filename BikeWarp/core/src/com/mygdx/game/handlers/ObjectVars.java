@@ -25,7 +25,14 @@ public class ObjectVars {
     public static final int Nitrous = 19;
     public static final int TransportInvisible = 20;
     public static final int SpikeZone = 21;
-    
+    public static final int GravityEarth = 22;
+    public static final int GravityMoon = 23;
+    public static final int GravityMars = 24;
+    public static final int GravityZero = 25;
+    public static final int TransportInvisibleEarth = 26;
+    public static final int TransportInvisibleMars = 27;
+    public static final int TransportInvisibleMoon = 28;
+    public static final int TransportInvisibleZero = 29;
 
     // Define the vertices
     public static final float[] objectArrow = {-1.0f,0.0f,-1.0f,-30.0f,-6.0f,-30.0f,0.0f,-40.0f,6.0f,-30.0f,1.0f,-30.0f,1.0f,0.0f};
@@ -56,5 +63,17 @@ public class ObjectVars {
     // Define the global properties for some of the objects
     public static final float ChainLinkSize = 1.0f; // Size of a single link in a chain (in metres)
     //public static final float ChainLinkSize = 1.3f; // Size of a single link in a chain (in metres)
+
+    public static boolean IsGravity(int dTyp) {
+    	if ((dTyp == Gravity) | (dTyp == GravityEarth) | (dTyp == GravityMars) | (dTyp == GravityMoon) | (dTyp == GravityZero)) {
+    		return true;
+    	} else return false;
+    }
+
+    public static boolean IsTransportInvisible(int dTyp) {
+    	if ((dTyp == TransportInvisible) | (dTyp == TransportInvisibleEarth) | (dTyp == TransportInvisibleMars) | (dTyp == TransportInvisibleMoon) | (dTyp == TransportInvisibleZero)) {
+    		return true;
+    	} else return false;
+    }
 
 }

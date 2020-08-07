@@ -1685,13 +1685,16 @@ public class Play extends GameState {
        bikeScaleLev *= startDirection;
 
        // Load the foreground/background textures
-       background = new Sprite(BikeGameTextures.LoadTexture((String) mScene.getCustom(gameInfo, "bgTexture", "background_waterfall"),2));
-       foreground = new Sprite(BikeGameTextures.LoadTexture((String) mScene.getCustom(gameInfo, "fgTexture", "foreground_plants"),2));
+       String bgTextName = (String) mScene.getCustom(gameInfo, "bgTexture", null);
 
-       if ((skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png"))) {
+       if ((bgTextName == null) | (skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png"))) {
     	   paintBackdrop = false;
     	   timer.setColor(0.5f, 0.5f, 0.5f, 1);
-       } else paintBackdrop = true;
+       } else {
+           background = new Sprite(BikeGameTextures.LoadTexture(bgTextName, 2));
+           foreground = new Sprite(BikeGameTextures.LoadTexture((String) mScene.getCustom(gameInfo, "fgTexture", "foreground_plants"),2));
+           paintBackdrop = true;
+       }
        // Get the two bike wheel motors
        leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();
        rightWheel = mScene.getNamed(WheelJoint.class, "rightwheel").first();
@@ -2243,7 +2246,7 @@ public class Play extends GameState {
 	   	}
 
         // Render some items onto the HUD
-        if (!isReplay) renderHUD();
+        renderHUD();
 
         // If the game is loaded, but paused, render a foreground transparency with text
         if (mState == GAME_STATE.LOADED) {
@@ -2274,7 +2277,12 @@ public class Play extends GameState {
             timerCurrent = (int) (TimeUtils.millis()) - timerStart;
             timeStr = GameVars.getTimeString(timerCurrent);
         }
-    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);        	
+    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);
+    	// If this is a replay, don't display anything else on screen.
+    	if (isReplay) {
+    		mBatch.end();
+    		return;
+    	}
     	vshift += timerHeight +5;
     	// WR
     	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f, BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
