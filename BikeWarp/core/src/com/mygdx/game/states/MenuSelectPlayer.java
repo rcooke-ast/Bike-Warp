@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
@@ -234,7 +235,7 @@ public class MenuSelectPlayer extends GameState {
 	        	// Render the text
 				glyphLayout.setText(playerList, dispText);
 	        	optWidth = glyphLayout.width;
-	        	playerList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(i-numMin)*plyrHeight);
+	        	playerList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(i-numMin)*plyrHeight, optWidth, Align.center, false);
 	        }
 	        sb.end();
 		}
