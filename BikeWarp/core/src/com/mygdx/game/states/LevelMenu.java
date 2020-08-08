@@ -159,6 +159,8 @@ public class LevelMenu extends GameState {
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
         //lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[currentOption], 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
+        glyphLayout.setText(menuText, LevelsListGame.gameLevelDescr[currentOption]);
+        lvlWidth = glyphLayout.height;
         menuText.draw(sb, LevelsListGame.gameLevelDescr[currentOption], cam.position.x, cam.position.y, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
         sb.end();
     }

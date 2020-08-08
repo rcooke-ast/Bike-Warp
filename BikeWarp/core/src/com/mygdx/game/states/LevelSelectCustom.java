@@ -18,10 +18,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
-import com.mygdx.game.handlers.GameInput;
-import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.LevelsListCustom;
-import com.mygdx.game.handlers.LevelsListTraining;
+import com.mygdx.game.handlers.*;
 import com.mygdx.game.utilities.EditorIO;
 
 /**
@@ -161,7 +158,9 @@ public class LevelSelectCustom extends GameState {
         }
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
-        menuText.draw(sb, LevelsListTraining.trainingLevelDescr[currentOption], cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
+        glyphLayout.setText(menuText, LevelsListCustom.customLevelDescr[currentOption]);
+        lvlWidth = glyphLayout.height;
+        menuText.draw(sb, LevelsListCustom.customLevelDescr[currentOption], cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
         sb.end();
     }
     
