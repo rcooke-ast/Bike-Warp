@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
@@ -21,7 +22,8 @@ public class MenuSelectPlayer extends GameState {
     private int currentOption, numPlyrShow, numMin, numOptions;
     private Sprite background;
     private BitmapFont question, playerList;
-    private float qWidth, qHeight, SCRWIDTH, sheight, plyrWidth, plyrHeight, optWidth;
+	private static GlyphLayout glyphLayout = new GlyphLayout();
+	private float qWidth, qHeight, SCRWIDTH, sheight, plyrWidth, plyrHeight, optWidth;
     private float fadeIn, fadeOut, alpha, fadeTime = 0.5f;
     private String header = "Select your player name, or create a new one";
     private String newName = "";
@@ -47,7 +49,7 @@ public class MenuSelectPlayer extends GameState {
 	}
 
     public void create() {
-        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
         SCRWIDTH = SCTOSCRW/BikeGame.SCALE;
 		sheight = 0.7f*BikeGame.V_HEIGHT;
         background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
@@ -56,25 +58,31 @@ public class MenuSelectPlayer extends GameState {
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         question.setColor(1, 1, 1, 1);
         float scaleVal = 0.5f;
-        question.setScale(scaleVal);
-        qWidth = question.getBounds(header).width;
+        question.getData().setScale(scaleVal);
+		glyphLayout.setText(question, "WARNING");
+		qWidth = glyphLayout.width;
         if ((qWidth/0.5f) > SCRWIDTH) scaleVal = 0.25f*SCRWIDTH/qWidth;
-        question.setScale(scaleVal);
-        qWidth = question.getBounds(header).width;
-        qHeight = question.getBounds(header).height;
+        question.getData().setScale(scaleVal);
+		glyphLayout.setText(question, header);
+        qWidth = glyphLayout.width;
+        qHeight = glyphLayout.height;
         // Now grab the fonts for the player names
         playerList = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         playerList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         scaleVal = 1.0f;
-        playerList.setScale(scaleVal);
-        plyrWidth = playerList.getBounds("Create new player").width;
+        playerList.getData().setScale(scaleVal);
+		glyphLayout.setText(playerList, "Create new player");
+        plyrWidth = glyphLayout.width;
         numOptions = 1 + GameVars.plyrNames.length;
+        float tmpPlyrWidth;
         for (int i=0; i<GameVars.plyrNames.length; i++) {
-        	if (playerList.getBounds(GameVars.plyrNames[i]).width > plyrWidth) plyrWidth = playerList.getBounds(GameVars.plyrNames[i]).width;
+			glyphLayout.setText(playerList, GameVars.plyrNames[i]);
+			tmpPlyrWidth = glyphLayout.width;
+        	if (tmpPlyrWidth > plyrWidth) plyrWidth = tmpPlyrWidth;
         }
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/plyrWidth;
         playerList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        playerList.setScale(scaleVal);
+        playerList.getData().setScale(scaleVal);
         SetNumPlyrShow();
         // Set the fading variables
         fadeOut = -1.0f;
@@ -82,7 +90,8 @@ public class MenuSelectPlayer extends GameState {
     }
 
     public void SetNumPlyrShow() {
-        plyrHeight = playerList.getBounds("My").height;
+		glyphLayout.setText(playerList, "My");
+		plyrHeight = glyphLayout.height;
         numPlyrShow = (int) Math.floor(sheight/(1.5f*plyrHeight));
         if (numPlyrShow > numOptions) numPlyrShow = numOptions;    	
     }
@@ -179,7 +188,8 @@ public class MenuSelectPlayer extends GameState {
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
 	    	else question.setColor(1, 1, 1, 1);
-	    	optWidth = playerList.getBounds("Enter your alias:").width;
+	    	glyphLayout.setText(playerList, "Enter your alias:");
+	    	optWidth = glyphLayout.width;
 	        question.draw(sb, "Enter your alias:", (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 + 1.5f*qHeight);
 	        // Check if a new character is available
         	if (GameInput.currChar != "") {
@@ -192,7 +202,8 @@ public class MenuSelectPlayer extends GameState {
 	    	else if (fadeIn < 1.0f) alpha=fadeIn;
 	    	else alpha=1.0f;
 	    	playerList.setColor(1, 1, 1, alpha);
-	    	optWidth = playerList.getBounds(newName).width;
+			glyphLayout.setText(playerList, newName);
+	    	optWidth = glyphLayout.width;
 	    	playerList.draw(sb, newName, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2);
 	    	sb.end();
 
@@ -221,7 +232,8 @@ public class MenuSelectPlayer extends GameState {
 	        	if (i == numOptions-1) dispText = "Create new player";
 	        	else dispText = GameVars.plyrNames[i];
 	        	// Render the text
-	        	optWidth = playerList.getBounds(dispText).width;
+				glyphLayout.setText(playerList, dispText);
+	        	optWidth = glyphLayout.width;
 	        	playerList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(i-numMin)*plyrHeight);
 	        }
 	        sb.end();

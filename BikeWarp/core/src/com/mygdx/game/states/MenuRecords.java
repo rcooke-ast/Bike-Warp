@@ -10,6 +10,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
@@ -27,7 +28,8 @@ public class MenuRecords extends GameState {
 	private float SCRWIDTH;
 	//private Texture texture;
 	private BitmapFont times, textcarve, textcarveglow, menuText;
-    private Sprite grass, dirt, menu, sky, stone, diamond;
+	private static GlyphLayout glyphLayout = new GlyphLayout();
+	private Sprite grass, dirt, menu, sky, stone, diamond;
     private float wwidth, wheight, sheight;//, mwidth, mheight, mxcen, mycen, swidth;
     private float dscale, gscale, numScale;
     private float nmbrWidth, timesWidth, timesHeight, carveHeight, menuHeight, menuWidth, lvlWidth;
@@ -43,41 +45,48 @@ public class MenuRecords extends GameState {
     }
     
     public void create() {
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
         sheight = 0.7f*BikeGame.V_HEIGHT;
         // Text for Record Times
         times = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         float scaleVal = 1.0f;
-        times.setScale(scaleVal);
-        timesHeight = times.getBounds("10").height;
+        times.getData().setScale(scaleVal);
+		glyphLayout.setText(times, "10");
+        timesHeight = glyphLayout.height;
         scaleVal = sheight/(15.0f*timesHeight);
-        times.setScale(0.5f*scaleVal);
-        timesWidth = times.getBounds("00:00:000").width;
-        timesHeight = times.getBounds("00:00:000").height;
+        times.getData().setScale(0.5f*scaleVal);
+        glyphLayout.setText(times, "00:00:000");
+        timesWidth = glyphLayout.width;
+        timesHeight = glyphLayout.height;
         times.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         scaleVal = 1.0f;
-        menuText.setScale(scaleVal);
-        menuWidth = menuText.getBounds("National Records").width;
+        menuText.getData().setScale(scaleVal);
+        glyphLayout.setText(menuText, "National Records");
+        menuWidth = glyphLayout.width;
         scaleVal = 0.75f*(0.5f*sheight)/menuWidth;
-        menuText.setScale(scaleVal);
+        menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuHeight = menuText.getBounds("Main Menu").height;
-        lvlWidth = menuText.getBounds("Go to Level").width;
+        glyphLayout.setText(menuText, "Main Menu");
+        menuHeight = glyphLayout.height;
+        glyphLayout.setText(menuText, "Go to Level");
+        lvlWidth = glyphLayout.width;
         // Carved text
         textcarve = new BitmapFont(Gdx.files.internal("data/records_carve.fnt"), false);
         numScale = 1.0f;
-        textcarve.setScale(numScale);
-        carveHeight = textcarve.getBounds("10").height;
+        textcarve.getData().setScale(numScale);
+        glyphLayout.setText(textcarve, "10");
+        carveHeight = glyphLayout.height;
         numScale = sheight/(15.0f*carveHeight);
-        textcarve.setScale(numScale);
+        textcarve.getData().setScale(numScale);
         textcarve.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        carveHeight = textcarve.getBounds("10").height;
-        nmbrWidth = textcarve.getBounds("10").width;
+        glyphLayout.setText(textcarve, "10");
+        carveHeight = glyphLayout.height;
+        nmbrWidth = glyphLayout.width;
         // Carved text with a white glow
         textcarveglow = new BitmapFont(Gdx.files.internal("data/records_carveglow.fnt"), false);
-        textcarveglow.setScale(numScale);
+        textcarveglow.getData().setScale(numScale);
         textcarveglow.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         // Load the grass
         grass = new Sprite(BikeGameTextures.LoadTexture("grass_smooth_linrep",2));
@@ -234,7 +243,8 @@ public class MenuRecords extends GameState {
     	else menuText.setColor(1, 1, 1, alpha/2);
     	menuText.draw(sb, displayOptions[dispOptVal], cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 7.5f*menuHeight);
     	if ((dispOptVal==1) || (dispOptVal==3)) {
-    		float widthVal = menuText.getBounds(displayOptions[dispOptVal]).width;
+    		glyphLayout.setText(menuText, displayOptions[dispOptVal]);
+    		float widthVal = glyphLayout.width;
     		sb.draw(diamond, cam.position.x+SCRWIDTH/20+sheight/4 + sheight/20.0f+1.03f*widthVal, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.64f*sheight - 8.75f*menuHeight, 0, 0, 1.6f*menuHeight, 1.6f*menuHeight, 1.0f, 1.0f, 0.0f);
     	}
     	// Draw the level number on the menu
@@ -333,24 +343,27 @@ public class MenuRecords extends GameState {
         	if ((dispOptVal == 0) || (dispOptVal == 1)) aliasString = LevelsListGame.gameLevelNames[levelNumber];
         	else aliasString = LevelsListTraining.trainingLevelNames[levelNumber];
         }
-        textcarve.setScale(numScale);
-        float numWid = textcarve.getBounds(aliasString).width;
+        textcarve.getData().setScale(numScale);
+        glyphLayout.setText(textcarve, aliasString);
+        float numWid = glyphLayout.width;
         float numOff = 0.0f; // Offset the level string so that it appears in the centre of the board 
         numWid = 0.79795f*sheight/numWid;
-        if (numWid < 1.0f) textcarve.setScale(numScale*numWid);
-        numWid = textcarve.getBounds(aliasString).width;
+        if (numWid < 1.0f) textcarve.getData().setScale(numScale*numWid);
+        glyphLayout.setText(textcarve, aliasString);
+        numWid = glyphLayout.width;
         if ((0.79795f*sheight-numWid)/2>0.0f) numOff = (0.79795f*sheight-numWid)/2;
         textcarve.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + 0.10955f*sheight + numOff, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.85166f*sheight);
-        textcarve.setScale(numScale);        
+        textcarve.getData().setScale(numScale);
         // Draw records type
         aliasString = "Your Best Times";
 //        if (currentOption == 2) aliasString = "Your Best Times"; 
-        if (currentOption == 3) aliasString = "World Records"; 
-        numWid = textcarve.getBounds(aliasString).width;
+        if (currentOption == 3) aliasString = "World Records";
+        glyphLayout.setText(textcarve, aliasString);
+        numWid = glyphLayout.width;
         numWid = (0.4f*sheight)/numWid;
-        if (numWid < 1.0f) textcarve.setScale(numScale*numWid);
+        if (numWid < 1.0f) textcarve.getData().setScale(numScale*numWid);
         textcarve.draw(sb, aliasString, cam.position.x-SCRWIDTH*2/5 + 0.48637f*sheight, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth) + 0.95086f*sheight);
-        textcarve.setScale(numScale);
+        textcarve.getData().setScale(numScale);
         // Draw dirt
         for (int i=0; i<dnwrapx; i++) {
         	for (int j=0; j<dnwrapy; j++) {

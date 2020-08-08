@@ -11,7 +11,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
@@ -29,6 +31,7 @@ import com.mygdx.game.utilities.EditorIO;
 public class LevelOptions extends GameState {
 	private float SCRWIDTH;
 	private BitmapFont menuText;
+	private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite metalpole, metalcorner;
     private Texture texture, metalmesh;
     private float uRight, vTop, sheight;
@@ -51,7 +54,7 @@ public class LevelOptions extends GameState {
     public void create() {
     	firstPlay = true;
     	goToNext = false;
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
 		GameVars.SetTimerTotal(-2);
 		saveReplay = false;
@@ -124,15 +127,19 @@ public class LevelOptions extends GameState {
     
     public void UpdateMenu() {
         float scaleVal = 1.0f;
-        menuText.setScale(scaleVal);
-        menuWidth = menuText.getBounds("XXXXXXXXXXXXXXX").width;
+        menuText.getData().setScale(scaleVal);
+		glyphLayout.setText(menuText, "XXXXXXXXXXXXXXX");
+		menuWidth = glyphLayout.width;
+		float tmpMenuWidth;
         for (int i=0; i<totalOptions; i++) {
-        	if (menuText.getBounds(allOptions[i]).width > menuWidth) menuWidth = menuText.getBounds(allOptions[i]).width;
+			tmpMenuWidth = glyphLayout.width;
+        	if (tmpMenuWidth > menuWidth) menuWidth = tmpMenuWidth;
         }
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
-        menuText.setScale(scaleVal);
+        menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuHeight = menuText.getBounds("My").height;
+        glyphLayout.setText(menuText, "My");
+        menuHeight = glyphLayout.height;
     }
     
     public void handleInput() {
@@ -241,7 +248,9 @@ public class LevelOptions extends GameState {
         for (int i=0; i<totalOptions; i++) {
         	if (currentOption == i) menuText.setColor(1, 1, 1, alpha);
         	else menuText.setColor(1, 1, 1, alpha/2);
-        	lvlWidth = menuText.getBounds(allOptions[i]).width;
+
+        	glyphLayout.setText(menuText, allOptions[i]);
+        	lvlWidth = glyphLayout.width;
         	if (allOptions[i].equalsIgnoreCase("Watch Replay")) shift = 0.6f;
         	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
         	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1+shift)*menuHeight);
@@ -272,8 +281,9 @@ public class LevelOptions extends GameState {
 	        if (modeValue == 1) dispText += LevelsListCustom.customLevelTimes[levelNumber+1];
 	        else if (modeValue == 2) dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
         }
-	    lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
-	    menuText.drawWrapped(sb, dispText, cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
+	    // TODO ::
+		//  lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
+		menuText.draw(sb, dispText, cam.position.x, cam.position.y, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
         sb.end();
     }
     

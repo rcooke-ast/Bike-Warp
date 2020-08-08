@@ -16,17 +16,17 @@ public class BikeGame implements ApplicationListener {
 
 	public static final float STEP = 1 / 100f;
 	public float accum;
-	
+
 	private SpriteBatch sb;
 	private OrthographicCamera cam;
 	private OrthographicCamera hudCam;
-        
+
 	private GameStateManager gsm;
-        
+
 	public SpriteBatch getSpriteBatch() { return sb; }
 	public OrthographicCamera getCamera() { return cam; }
 	public OrthographicCamera getHUDCamera() { return hudCam; }
-	
+
 	@Override
 	public void create () {
 		// Load the textures and sounds
@@ -35,11 +35,11 @@ public class BikeGame implements ApplicationListener {
 
 		// Set the Input Processor to the key input I've written
 		Gdx.input.setInputProcessor(new GameInputProcessor());
-            
+
 		sb = new SpriteBatch();
 		cam = new OrthographicCamera();
 		//cam.setToOrtho(false);
-		float SCRWIDTH = ((float) V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		float SCRWIDTH = ((float) V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
 		cam.setToOrtho(false, SCRWIDTH, V_HEIGHT);
 		hudCam = new OrthographicCamera();
 		//hudCam.setToOrtho(false);
@@ -65,16 +65,16 @@ public class BikeGame implements ApplicationListener {
 
 	@Override
 	public void resize (int w, int h) {
-		
+
 	}
 
 	@Override
 	public void pause () {
-		
+
 	}
 
 	@Override
 	public void resume () {
-		
+
 	}
 }
