@@ -343,6 +343,10 @@ public class Editor extends GameState {
 		//splitPaneChild = new SplitPane(scrollPaneC, scrollPaneC, true, skin, "default-horizontal");
 		//splitPaneParent.setHeight(100.0f);
 
+		// TODO :: Need to put "Toolbar" in the middle of the toolbar
+		// TODO :: Need to print messages correctly (e.g. click Copy-Paste - the text looks wonky)
+		// TODO :: Fix the vertical scoll bars so they are easy to access.
+		// TODO :: When static platform is selected, the full menu is not displayed.
 		Window window = new Window("Toolbar", skin);
 		window.align(Align.top | Align.center);
 		window.setPosition(0, 0);
