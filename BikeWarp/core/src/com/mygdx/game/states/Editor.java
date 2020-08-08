@@ -24,6 +24,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -43,11 +44,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
-import com.badlogic.gdx.scenes.scene2d.utils.Align;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.DragScrollListener;
+import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
@@ -58,7 +57,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.mygdx.game.handlers.DecorVars;
-import com.mygdx.game.handlers.GameContactListener;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
@@ -108,6 +106,7 @@ public class Editor extends GameState {
 
 	private int totalNumMsgs = 20;
 	private BitmapFont warnFont, signFont;
+	private static GlyphLayout glyphLayout = new GlyphLayout();
 	private String[] warnMessage;
 	private float[] warnElapse;
 	private int[] warnType;
@@ -250,7 +249,7 @@ public class Editor extends GameState {
     	//Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
     	// First step is to set the hudCam for rendering messages
         //float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);
-        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
         hudCam.setToOrtho(false, SCTOSCRW, Gdx.graphics.getHeight());
         hudCam.position.set(SCTOSCRW/(BikeGame.SCALE*2),BikeGame.V_HEIGHT/2,0);
         //hudCam.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,0);
@@ -258,7 +257,7 @@ public class Editor extends GameState {
         hudCam.update();
     	// Create the stage for the toolbar
 		stage = new Stage();
-		scrscale = (((float)BikeGame.V_HEIGHT)/(float)BikeGame.V_WIDTH)* ((float) Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		scrscale = (((float)BikeGame.V_HEIGHT)/(float)BikeGame.V_WIDTH)* ((float) Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
 		//Gdx.input.setInputProcessor(stage);
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(stage);
@@ -290,11 +289,12 @@ public class Editor extends GameState {
 		warnType = new int[totalNumMsgs];
 		warnFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		warnFont.setColor(1, 0.5f, 0, 1);
-		warnFont.setScale(0.5f);
-		warnHeight = warnFont.getBounds("WARNING").height;
+		warnFont.getData().setScale(0.5f);
+		glyphLayout.setText(warnFont, "WARNING");
+		warnHeight = glyphLayout.height;
 		signFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		signFont.setColor(1, 0, 0, 1);
-		signFont.setScale(1.5f);
+		signFont.getData().setScale(1.5f);
 		
 		//buttonLoad = new TextButton("Load", skin);
 		selectLoadLevel = new SelectBox(skin);
@@ -975,7 +975,7 @@ public class Editor extends GameState {
 					}
 				}
 		    	// When we come back from the level, make sure we reset the hudCam (used for messages)
-		        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
 		        hudCam.setToOrtho(false, SCTOSCRW, Gdx.graphics.getHeight());
 		        hudCam.position.set(SCTOSCRW/(BikeGame.SCALE*2),BikeGame.V_HEIGHT/2,0);
 		        //hudCam.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,0);
@@ -2009,7 +2009,8 @@ public class Editor extends GameState {
 	        	if (decorSelect == i) opacity=1.0f;
 	        	else opacity = 0.5f;
 	        	if  (DecorVars.IsRoadSign(dTyp)) {
-	        		signWidth = signFont.getBounds(DecorVars.GetObjectName(allDecorTypes.get(i))).width;
+					glyphLayout.setText(signFont, DecorVars.GetObjectName(allDecorTypes.get(i)));
+					signWidth = glyphLayout.width;  // This is actually height, not width
 	        		signFont.draw(sb, DecorVars.GetObjectName(allDecorTypes.get(i)), allDecors.get(i)[0]-signWidth/2, allDecors.get(i)[1]+0.3f*allDecors.get(i)[2]);
 	        	} else if (dTyp == DecorVars.LargeStone) {
 
@@ -2023,7 +2024,8 @@ public class Editor extends GameState {
 	        	if ((allDecorTypes.get(i)==DecorVars.CollisionlessBG) | (allDecorTypes.get(i)==DecorVars.CollisionlessFG)) {
 		        	textName = platformTextures[allDecorPolys.get(i)]; 
 		        	if (!textName.equals("Default")) {
-		        		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+						glyphLayout.setText(signFont, textName);
+						signWidth = glyphLayout.height;  // This is actually height, not width
 		        		signFont.draw(sb, textName, allDecors.get(i)[0], allDecors.get(i)[1]+signWidth/2);
 		        	}
 	        	}
@@ -2034,7 +2036,8 @@ public class Editor extends GameState {
 	        for (int i = 0; i<allPolygons.size(); i++) {
 	        	textName = allPolygonTextures.get(i); 
 	        	if (!textName.equals("")) {
-	        		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+					glyphLayout.setText(signFont, textName);
+					signWidth = glyphLayout.height;  // This is actually height, not width
 	        		signFont.draw(sb, textName, allPolygons.get(i)[0], allPolygons.get(i)[1]+signWidth/2);
 	        	}
 	        }
@@ -2048,7 +2051,8 @@ public class Editor extends GameState {
             		else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) textName = "Moon";
             		else if (allObjectTypes.get(i) == ObjectVars.GravityZero) textName = "Zero";
             		else textName = "Default";
-            		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+					glyphLayout.setText(signFont, textName);
+					signWidth = glyphLayout.height;  // This is actually height, not width
 	        		signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+25.0f+signWidth/2);
         		} else if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
             		if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleEarth) textName = "Earth";
@@ -2056,7 +2060,8 @@ public class Editor extends GameState {
             		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleMoon) textName = "Moon";
             		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleZero) textName = "Zero";
             		else textName = "Default";
-            		signWidth = signFont.getBounds(textName).height;  // This is actually height, not width
+					glyphLayout.setText(signFont, textName);
+            		signWidth = glyphLayout.height;  // This is actually height, not width
 	        		signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+signWidth/2);
         		}
         	}

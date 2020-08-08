@@ -11,7 +11,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
@@ -26,6 +28,7 @@ import com.mygdx.game.utilities.EditorIO;
 public class LevelMenu extends GameState {
 	private float SCRWIDTH;
 	private BitmapFont menuText;
+    private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite metalpole, metalcorner;
     private Texture texture, metalmesh;
     private float uRight, vTop, sheight;
@@ -41,21 +44,26 @@ public class LevelMenu extends GameState {
     }
     
     public void create() {
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
 		sheight = 0.7f*BikeGame.V_HEIGHT;
         totalLevels = LevelsListGame.gameLevelNames.length;
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         float scaleVal = 1.0f;
-        menuText.setScale(scaleVal);
-        menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[0]).width;
+        menuText.getData().setScale(scaleVal);
+        glyphLayout.setText(menuText, LevelsListGame.gameLevelNames[0]);
+        menuWidth = glyphLayout.width;
+        float tstMenuWidth;
         for (int i=1; i<totalLevels; i++) {
-        	if (menuText.getBounds(LevelsListGame.gameLevelNames[i]).width > menuWidth) menuWidth = menuText.getBounds(LevelsListGame.gameLevelNames[i]).width;
+            glyphLayout.setText(menuText, LevelsListGame.gameLevelNames[i]);
+            tstMenuWidth = glyphLayout.width;
+        	if (tstMenuWidth > menuWidth) menuWidth = tstMenuWidth;
         }
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
-        menuText.setScale(scaleVal);
+        menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuHeight = menuText.getBounds("My").height;
+        glyphLayout.setText(menuText, "My");
+        menuHeight = glyphLayout.height;
         numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
         if (numLevShow > totalLevels) numLevShow = totalLevels;
         // Load the background metal grid
@@ -144,13 +152,14 @@ public class LevelMenu extends GameState {
         for (int i=numMin; i<numMin+numLevShow; i++) {
         	if (currentOption == i) menuText.setColor(1, 1, 1, alpha);
         	else menuText.setColor(1, 1, 1, alpha/2);
-        	lvlWidth = menuText.getBounds(LevelsListGame.gameLevelNames[i]).width;
+        	glyphLayout.setText(menuText, LevelsListGame.gameLevelNames[i]);
+        	lvlWidth = glyphLayout.width;
         	menuText.draw(sb, LevelsListGame.gameLevelNames[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*numLevShow)/2 - 1.5f*(i-numMin)*menuHeight);
         }
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
-        lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[currentOption], 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
-        menuText.drawWrapped(sb, LevelsListGame.gameLevelDescr[currentOption], cam.position.x, cam.position.y + lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT));
+        //lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[currentOption], 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
+        menuText.draw(sb, LevelsListGame.gameLevelDescr[currentOption], cam.position.x, cam.position.y, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
         sb.end();
     }
     

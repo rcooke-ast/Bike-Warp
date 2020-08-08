@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
@@ -15,6 +16,7 @@ public class MenuExit extends GameState {
     private int currentOption, action;
     private Sprite background;
     private BitmapFont question, ansYes, ansNo;
+	private static GlyphLayout glyphLayout = new GlyphLayout();
     private float qWidth, qHeight, SCRWIDTH, yWidth, nWidth;
     private float fadeIn, fadeOut, fadeTime = 0.5f;
     //private float finAngle=0.0f, finishRad;
@@ -25,7 +27,7 @@ public class MenuExit extends GameState {
 	}
 
     public void create() {
-        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
         SCRWIDTH = SCTOSCRW/BikeGame.SCALE;
         background = new Sprite(BikeGameTextures.LoadTexture("sky_evening",2));
         fadeOut = -1.0f;
@@ -39,20 +41,24 @@ public class MenuExit extends GameState {
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         question.setColor(1, 1, 1, 1);
         float scaleVal = 0.5f;
-        question.setScale(scaleVal);
-        qWidth = question.getBounds("Are you sure you want to exit?").width;
+        question.getData().setScale(scaleVal);
+		glyphLayout.setText(question, "Are you sure you want to exit?");
+        qWidth = glyphLayout.width;
         if ((qWidth/0.5f) > SCRWIDTH) scaleVal = 0.25f*SCRWIDTH/qWidth;
-        question.setScale(scaleVal);
-        qWidth = question.getBounds("Are you sure you want to exit?").width;
-        qHeight = question.getBounds("Are you sure you want to exit?").height;
+        question.getData().setScale(scaleVal);
+        glyphLayout.setText(question, "Are you sure you want to exit?");
+        qWidth = glyphLayout.width;
+        qHeight = glyphLayout.height;
         ansYes = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         ansYes.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        ansYes.setScale(scaleVal);
-        yWidth = question.getBounds("Yes").width;
+        ansYes.getData().setScale(scaleVal);
+		glyphLayout.setText(question, "Yes");
+        yWidth = glyphLayout.width;
         ansNo = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         ansNo.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        ansNo.setScale(scaleVal);
-        nWidth = question.getBounds("No").width;
+        ansNo.getData().setScale(scaleVal);
+		glyphLayout.setText(question, "No");
+        nWidth = glyphLayout.width;
         // Set the starting option
         currentOption = 1;
         //finishRad = scaleVal*SCRWIDTH/4;

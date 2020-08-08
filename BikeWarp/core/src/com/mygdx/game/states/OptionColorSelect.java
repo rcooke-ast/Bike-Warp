@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.game.BikeGame;
@@ -20,6 +21,7 @@ import com.mygdx.game.utilities.PolygonOperations;
 public class OptionColorSelect extends GameState {
 	private float SCRWIDTH;
 	private BitmapFont menuText;
+    private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite arrow, grass, dirt, sky, wheel, fsusp, rsusp, bwite, bolay, black;
     private float rSuspXL, rSuspYL, rSuspAngL, rSuspWidthL, rSuspHeightL, rSuspXR, rSuspYR, rSuspAngR, rSuspWidthR, rSuspHeightR;
     private float fSuspXL, fSuspYL, fSuspAngL, fSuspWidthL, fSuspHeightL, fSuspXR, fSuspYR, fSuspAngR, fSuspWidthR, fSuspHeightR;
@@ -37,7 +39,7 @@ public class OptionColorSelect extends GameState {
     }
 
     public void create() {
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
 		// Prepare the Sprites to be used on this screen
 		arrow = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_arrow"),1));
 		black = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_black"),1));
@@ -125,16 +127,19 @@ public class OptionColorSelect extends GameState {
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuText.setColor(1, 1, 1, 1);
         float scaleVal = 0.5f;
-        menuText.setScale(scaleVal);
-        mWidth = menuText.getBounds("Accelerate and switch direction to").width;
+        menuText.getData().setScale(scaleVal);
+        glyphLayout.setText(menuText, "Accelerate and switch direction to");
+        mWidth = glyphLayout.width;
         if ((mWidth/0.5f) > SCRWIDTH) scaleVal = 0.25f*SCRWIDTH/mWidth;
-        menuText.setScale(scaleVal);
-        mWidth = menuText.getBounds("Accelerate and switch direction to").width;
-        mHeight = menuText.getBounds("Accelerate and switch direction to").height;
+        menuText.getData().setScale(scaleVal);
+        glyphLayout.setText(menuText, "Accelerate and switch direction to");
+        mWidth = glyphLayout.width;
+        mHeight = glyphLayout.height;
         float topgap = BikeGame.V_HEIGHT*(11.0f/12.0f) - (0.5f*wheight + oheight);
         if (topgap < 3.0f*mHeight) scaleVal *= (topgap/(3.0f*mHeight)); 
-        menuText.setScale(scaleVal);
-        mHeight = menuText.getBounds("Accelerate and switch direction to").height;
+        menuText.getData().setScale(scaleVal);
+        glyphLayout.setText(menuText, "Accelerate and switch direction to");
+        mHeight = glyphLayout.height;
         mPos  = cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight + oheight; // This position marks the top of the player
         mPos += 0.75f*mHeight; // add half the menu height
     }
@@ -281,13 +286,15 @@ public class OptionColorSelect extends GameState {
         String text = "";
         if (currentOption==0) text = "Press enter to";
         else text = "Accelerate and switch direction to";
-        mWidth = menuText.getBounds(text).width;
+        glyphLayout.setText(menuText, text);
+        mWidth = glyphLayout.width;
         menuText.draw(sb, text, (SCRWIDTH-mWidth)/2.0f,mPos+1.75f*mHeight+menuText.getXHeight());
         if (currentOption==0) text = "return to the options menu";
         else if (currentOption==1) text = "change bike color";
         else if (currentOption==2) text = "saturate bike color";
         else if (currentOption==3) text = "change bike shade";
-        mWidth = menuText.getBounds(text).width;
+        glyphLayout.setText(menuText, text);
+        mWidth = glyphLayout.width;
         menuText.draw(sb, text, (SCRWIDTH-mWidth)/2.0f,mPos+0.5f*mHeight+menuText.getXHeight());
         // Draw menu arrows
         sb.draw(arrow, (SCRWIDTH-mWidth)/2.0f - mHeight, mPos, 0.5f*mHeight/1.55f, 0.5f*mHeight, mHeight/1.55f, mHeight, 1.0f, 1.0f, 0.0f);

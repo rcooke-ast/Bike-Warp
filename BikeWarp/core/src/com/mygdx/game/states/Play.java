@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.math.EarClippingTriangulator;
@@ -28,12 +29,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.PolygonRegion;
-import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -182,6 +177,7 @@ public class Play extends GameState {
     private Sprite bikeWheel, bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
+    private static GlyphLayout glyphLayout = new GlyphLayout();
     private int timerStart, timerCurrent, timerTotal;
     private String worldRecord, personalRecord;
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight, infoWidth;
@@ -276,8 +272,8 @@ public class Play extends GameState {
         }
         
         // Set up box2d camera
-        float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);
-        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDesktopDisplayMode().width)/((float) Gdx.graphics.getDesktopDisplayMode().height);
+        float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDisplayMode().height)/((float) Gdx.graphics.getDisplayMode().width);
+        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
         b2dCam = new OrthographicCamera();
         b2dCam.setToOrtho(false, Gdx.graphics.getWidth()/PPM, SCTOSCRH/PPM);
         //b2dCam.setToOrtho(false, BikeGame.V_WIDTH/PPM, BikeGame.V_HEIGHT/PPM);
@@ -387,45 +383,49 @@ public class Play extends GameState {
         // Timer for this run
         timer = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         timer.setColor(0, 0, 0, 1);
-        timer.setScale(0.35f);
-        timerWidth = timer.getBounds("00:00:000").width;
-        timerHeight = timer.getBounds("00:00:000").height;
+        timer.getData().setScale(0.35f);
+        glyphLayout.setText(timer, "00:00:000");
+        timerWidth = glyphLayout.width;
+        timerHeight = glyphLayout.height;
         // World Record Timer
         timerWR = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         timerWR.setColor(0.8f, 0.725f, 0, 1);
-        timerWR.setScale(0.2f);
+        timerWR.getData().setScale(0.2f);
         // Personal Best Timer
         timerPB = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         timerPB.setColor(0.5f, 0.5f, 0.5f, 1);
-        timerPB.setScale(0.2f);
-        timerWRWidth = timerWR.getBounds("WR  00:00:000").width;
-        timerWRHeight = timerWR.getBounds("PB  00:00:000").height;
+        timerPB.getData().setScale(0.2f);
+        glyphLayout.setText(timerWR, "WR  00:00:000");
+        timerWRWidth = glyphLayout.width;
+        timerWRHeight = glyphLayout.height;
         keyRedCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        keyRedCntr.setScale(0.25f);
+        keyRedCntr.getData().setScale(0.25f);
         keyRedCntr.setColor(1, 0, 0, 1);
         keyGreenCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        keyGreenCntr.setScale(0.25f);
+        keyGreenCntr.getData().setScale(0.25f);
         keyGreenCntr.setColor(0.2f, 1, 0.2f, 1);
         keyBlueCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        keyBlueCntr.setScale(0.25f);
+        keyBlueCntr.getData().setScale(0.25f);
         keyBlueCntr.setColor(0, 0.7f, 1, 1);
         jewelCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        jewelCntr.setScale(0.25f);
+        jewelCntr.getData().setScale(0.25f);
         //jewelCntr.setColor(0.85f, 0.85f, 0, 1);
         jewelCntr.setColor(0.1f, 0.8f, 0.1f, 1);
         nitrousCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        nitrousCntr.setScale(0.25f);
+        nitrousCntr.getData().setScale(0.25f);
         nitrousCntr.setColor(0.2f, 0.2f, 1, 1);
-        jcntrWidth = jewelCntr.getBounds("00").width;
-        jcntrHeight = jewelCntr.getBounds("00").height;
+        glyphLayout.setText(jewelCntr, "00");
+        jcntrWidth = glyphLayout.width;
+        jcntrHeight = glyphLayout.height;
         // Information text at the beginning of the game
         infoText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         float scaleVal = 1.0f;
-        infoText.setScale(scaleVal);
-        infoWidth = infoText.getBounds("Press ESC to return to menu").width;
+        infoText.getData().setScale(scaleVal);
+        glyphLayout.setText(infoText, "Press ESC to return to menu");
+        infoWidth = glyphLayout.width;
         scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/infoWidth;
-        infoText.setScale(scaleVal);
-        infoWidth = infoText.getBounds("Press ESC to return to menu").width;
+        infoText.getData().setScale(scaleVal);
+        infoWidth = glyphLayout.width;
 
         // Initiate some arrays
         switchGate = new Array<float[]>();
@@ -2253,7 +2253,7 @@ public class Play extends GameState {
     	    mBatch.begin();
     	    mBatch.setColor(1, 1, 1, 0.6f);
     	    mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-    	    infoText.drawMultiLine(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n"+LevelsListGame.gameLevelTips[levelID+1], hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
+    	    infoText.draw(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n"+LevelsListGame.gameLevelTips[levelID+1], hudCam.position.x-infoWidth/2.0f, hudCam.position.y);
     	    mBatch.end();
         }
        
@@ -2336,7 +2336,7 @@ public class Play extends GameState {
     /**
      * Creates an array of SimpleSpatial objects from RubeImages.
      * 
-     * @param scene2
+     * //@param scene2
      */
     private void createSpatialsFromRubeImages(RubeScene scene)
     {
