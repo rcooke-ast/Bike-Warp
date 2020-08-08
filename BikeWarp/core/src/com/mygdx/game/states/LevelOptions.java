@@ -281,9 +281,10 @@ public class LevelOptions extends GameState {
 	        if (modeValue == 1) dispText += LevelsListCustom.customLevelTimes[levelNumber+1];
 	        else if (modeValue == 2) dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
         }
-	    // TODO ::
 		//  lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
-		menuText.draw(sb, dispText, cam.position.x, cam.position.y, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
+		glyphLayout.setText(menuText, dispText);
+		lvlWidth = glyphLayout.height;
+		menuText.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
         sb.end();
     }
     
