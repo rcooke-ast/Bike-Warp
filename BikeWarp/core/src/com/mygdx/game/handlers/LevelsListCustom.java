@@ -28,7 +28,7 @@ public class LevelsListCustom {
         customLevelTimes = new String[NUMCUSTOMLEVELS+1];
     	// Return to Main Menu
     	customLevelFiles[0] = null;
-    	customLevelDescr[0] = "Return to the Main Menu (or press Esc).";
+    	customLevelDescr[0] = "Return to the Main Menu\n(or press Esc)";
     	SetNames();
     	updateRecords();
     }

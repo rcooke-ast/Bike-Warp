@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -281,18 +282,29 @@ public class Editor extends GameState {
 		for (int i=1; i<platformTextures.length; i++) {
 			bgTextureList[i+bsList.length-1] = platformTextures[i];
 		}
-		
-		warnFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
-		signFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
+
+		// Setup the fonts
+		FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/arialbd.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter param = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		param.size = 16;
+		param.color = new Color(Color.WHITE);
+		param.minFilter = Texture.TextureFilter.Linear;
+		param.magFilter = Texture.TextureFilter.Linear;
+
+		warnFont = gen.generateFont(param);
+		param.color = new Color(Color.RED);
+		signFont = gen.generateFont(param);
+		gen.dispose();
+
+//		warnFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
+//		signFont = new BitmapFont(Gdx.files.internal("data/default.fnt"), false);
 		warnMessage = new String[totalNumMsgs];
 		warnElapse = new float[totalNumMsgs];
 		warnType = new int[totalNumMsgs];
-		warnFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		warnFont.setColor(1, 0.5f, 0, 1);
 		warnFont.getData().setScale(0.5f);
-		glyphLayout.setText(warnFont, "WARNING");
-		warnHeight = glyphLayout.height;
-		signFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		glyphLayout.setText(warnFont, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+		warnHeight = 1.2f*glyphLayout.height;
 		signFont.setColor(1, 0, 0, 1);
 		signFont.getData().setScale(1.5f);
 		
@@ -349,6 +361,7 @@ public class Editor extends GameState {
 		// TODO :: When static platform is selected, the full menu is not displayed.
 		Window window = new Window("Toolbar", skin);
 		window.align(Align.top | Align.center);
+		window.getTitleLabel().setAlignment(Align.center);
 		window.setPosition(0, 0);
 		window.setPosition(0, 0);
 		window.defaults().spaceBottom(3);
@@ -383,16 +396,16 @@ public class Editor extends GameState {
 		window.add(buttonAddObject);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonDecorate);
-		window.row().fill().expandX().colspan(2);
-		window.add(scrollPaneParent).minHeight(140).maxHeight(220).fill().expand();
-		window.row().fill().expandX().colspan(2);
-		window.add(scrollPaneChild).minHeight(70).maxHeight(220).fill().expand();
+		window.row().fill().align(Align.left).colspan(2);
+		window.add(scrollPaneParent).minHeight(140).maxHeight(220).maxWidth(0.9f*window.getPrefWidth());
+		window.row().fill().align(Align.left).colspan(2);
+		window.add(scrollPaneChild).minHeight(70).maxHeight(220).maxWidth(0.9f*window.getPrefWidth());
 		window.row().fill().expandX().colspan(2);
 		window.pack();
 		scrollPaneTBar = new ScrollPane(window, skin);
 		scrollPaneTBar.setFlickScroll(false);
 		scrollPaneTBar.setSmoothScrolling(true);
-		scrollPaneTBar.setScrollBarPositions(true, true);
+		scrollPaneTBar.setScrollBarPositions(false, true);
 		//scrollPaneTBar.setScrollingDisabled(true, false);
 		scrollPaneTBar.setHeight(BikeGame.V_HEIGHT*BikeGame.SCALE);
 		scrollPaneTBar.setWidth((window.getPrefWidth()+2));
@@ -2075,12 +2088,12 @@ public class Editor extends GameState {
         // If there are any warning/error messages, write them to screen
         sb.setProjectionMatrix(hudCam.combined);
         sb.begin();
-        for (int i=0; i<totalNumMsgs; i++) {
+		for (int i=0; i<totalNumMsgs; i++) {
         	if (warnMessage[i] != null) {
         		if (warnType[i] == 0) warnFont.setColor(0.1f, 0.9f, 0.1f, 1);
         		else if (warnType[i] == 1) warnFont.setColor(1, 0.5f, 0, 1);
         		else warnFont.setColor(1, 0, 0, 1);
-        		warnFont.draw(sb, warnMessage[i], toolbarWidth*1.1f, BikeGame.V_HEIGHT-(1.1f*i+2)*warnHeight);
+				warnFont.draw(sb, warnMessage[i], toolbarWidth*1.1f, BikeGame.V_HEIGHT-(1.1f*i+2)*warnHeight);
         	}
         }
         sb.end();

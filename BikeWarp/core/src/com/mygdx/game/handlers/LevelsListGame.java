@@ -35,8 +35,8 @@ public class LevelsListGame {
     	gameLevelNames[3] = "3. Hang Tight!";
     	gameLevelFiles[3] = "data/gamelevels/03_HangTight.lvl";
     	// Level 4
-    	gameLevelNames[4] = "4. TBD";
-    	gameLevelFiles[4] = "TBD";
+    	gameLevelNames[4] = "4. Same Same But Different";
+    	gameLevelFiles[4] = "data/gamelevels/04_SameSameButDifferent.lvl";
     	// Level 5
     	gameLevelNames[5] = "5. Levitate";
     	gameLevelFiles[5] = "data/gamelevels/05_Levitate.lvl";
@@ -59,11 +59,11 @@ public class LevelsListGame {
     	gameLevelNames[11] = "11. Black Mountain";
     	gameLevelFiles[11] = "data/gamelevels/11_BlackMountain.lvl";
     	// Level 12
-    	gameLevelNames[12] = "12. TBD";
-    	gameLevelFiles[12] = "TBD";
+    	gameLevelNames[12] = "12. The Tip";
+    	gameLevelFiles[12] = "data/gamelevels/12_TheTip.lvl";
     	// Level 13
-    	gameLevelNames[13] = "13. TBD";
-    	gameLevelFiles[13] = "TBD";
+    	gameLevelNames[13] = "13. Cascade";
+    	gameLevelFiles[13] = "data/gamelevels/13_Cascade.lvl";
     	// Level 14
     	gameLevelNames[14] = "14. TBD";
     	gameLevelFiles[14] = "TBD";
@@ -110,11 +110,11 @@ public class LevelsListGame {
     	gameLevelNames[28] = "28. Gold Digger";
     	gameLevelFiles[28] = "data/gamelevels/28_GoldDigger.lvl";
     	// Level 29
-    	gameLevelNames[29] = "29. TBD";
-    	gameLevelFiles[29] = "TBD";
+    	gameLevelNames[29] = "29. Free Will";
+    	gameLevelFiles[29] = "29_FreeWill.lvl";
     	// Level 30
-    	gameLevelNames[30] = "30. TBD";
-    	gameLevelFiles[30] = "TBD";
+    	gameLevelNames[30] = "30. Short Supply";
+    	gameLevelFiles[30] = "data/gamelevels/30_ShortSupply.lvl";
     	// Level 31
     	gameLevelNames[31] = "31. Ascraeus Mons";
     	gameLevelFiles[31] = "data/gamelevels/31_AscraeusMons.lvl";
@@ -128,23 +128,23 @@ public class LevelsListGame {
     	gameLevelNames[34] = "34. Olympus Mons";
     	gameLevelFiles[34] = "data/gamelevels/34_OlympusMons.lvl";
     	// Level 35
-    	gameLevelNames[35] = "35. TBD";
-    	gameLevelFiles[35] = "TBD";
+    	gameLevelNames[35] = "35. The Message";
+    	gameLevelFiles[35] = "data/gamelevels/35_TheMessage.lvl";
     	// Level 36
-    	gameLevelNames[36] = "36. TBD";
-    	gameLevelFiles[36] = "TBD";
+    	gameLevelNames[36] = "36. Adrift";
+    	gameLevelFiles[36] = "data/gamelevels/36_Adrift.lvl";
     	// Level 37
-    	gameLevelNames[37] = "37. TBD";
-    	gameLevelFiles[37] = "TBD";
+    	gameLevelNames[37] = "37. Emerald Harvest";
+    	gameLevelFiles[37] = "data/gamelevels/37_EmeraldHarvest.lvl";
     	// Level 38
-    	gameLevelNames[38] = "38. Adrift";
-    	gameLevelFiles[38] = "data/gamelevels/38_Adrift.lvl";
+    	gameLevelNames[38] = "38. Alone";
+    	gameLevelFiles[38] = "data/gamelevels/38_Alone.lvl";
     	// Level 39
-    	gameLevelNames[39] = "39. Emerald Harvest";
-    	gameLevelFiles[39] = "data/gamelevels/39_EmeraldHarvest.lvl";
+    	gameLevelNames[39] = "39. Solar System";
+    	gameLevelFiles[39] = "data/gamelevels/39_SolarSystem.lvl";
     	// Level 40
-    	gameLevelNames[40] = "40. Alone";
-    	gameLevelFiles[40] = "data/gamelevels/40_Alone.lvl";
+    	gameLevelNames[40] = "40. Dreaming of Home";
+    	gameLevelFiles[40] = "data/gamelevels/40_DreamingofHome.lvl";
 
     	// Finally, initialise the records strings
     	updateRecords();
