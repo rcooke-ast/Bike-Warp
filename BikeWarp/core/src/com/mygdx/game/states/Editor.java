@@ -89,7 +89,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
 	private String[] decorateList = {"Grass", "Bin Bag",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
@@ -1700,6 +1700,19 @@ public class Editor extends GameState {
 	        		shapeRenderer.rect(allObjects.get(i)[3], allObjects.get(i)[4],allObjects.get(i)[5],allObjects.get(i)[6]);
 	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, 0.8f);
 	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[3]+0.5f*allObjects.get(i)[5], allObjects.get(i)[4]+0.5f*allObjects.get(i)[6]);
+				} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
+					if (allObjectTypes.get(i) == ObjectVars.PlanetSun) shapeRenderer.setColor(1, 0.8f, 0, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetMercury) shapeRenderer.setColor(0.6f, 0.6f, 0.6f, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetVenus) shapeRenderer.setColor(0.9f, 0.9f, 0, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetEarth) shapeRenderer.setColor(0.0f, 0.7f, 0.7f, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetMars) shapeRenderer.setColor(1.0f, 0.0f, 0.0f, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetJupiter) shapeRenderer.setColor(1f, 0.2f, 0.2f, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetSaturn) shapeRenderer.setColor(1.0f, 0.9f, 0.2f, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetUranus) shapeRenderer.setColor(0.2f, 0.8f, 1.0f, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetNeptune) shapeRenderer.setColor(0.0f, 0.0f, 1.0f, opacity);
+					else shapeRenderer.setColor(1, 1, 1, opacity);
+					if (allObjectTypes.get(i) == ObjectVars.PlanetSaturn) shapeRenderer.polygon(allObjects.get(i));
+					else shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
 	        	} else if (allObjectTypes.get(i) == ObjectVars.Spike) {
 	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
@@ -2080,7 +2093,21 @@ public class Editor extends GameState {
 					glyphLayout.setText(signFont, textName);
             		signWidth = glyphLayout.height;  // This is actually height, not width
 	        		signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+signWidth/2);
-        		}
+        		} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
+					if (allObjectTypes.get(i) == ObjectVars.PlanetSun) textName = "Sun";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetMercury) textName = "Mercury";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetVenus) textName = "Venus";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetEarth) textName = "Earth";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetMars) textName = "Mars";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetJupiter) textName = "Jupiter";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetSaturn) textName = "Saturn";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetUranus) textName = "Uranus";
+					else if (allObjectTypes.get(i) == ObjectVars.PlanetNeptune) textName = "Neptune";
+					else textName = "Default";
+					glyphLayout.setText(signFont, textName);
+					signWidth = glyphLayout.height;  // This is actually height, not width
+					signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+signWidth/2);
+				}
         	}
         }
         sb.end();
@@ -2500,302 +2527,308 @@ public class Editor extends GameState {
 	public void ControlMode3(int falling) {
 		// Ordinary platforms - if falling is 1/2, this becomes a falling/trigger platform
 		if (listChild.getSelected() == null) return;
-		modeChild = listChild.getSelected().toString(); 
-    	if (modeParent.equals("Polygon")) {
-    		if (modeChild.equals("Add")) {
-    	    	if (GameInput.MBJUSTPRESSED) {
-    	        	if (drawingPoly == true) {
-    	        		DrawPolygon(-1);        		
-    	        	} else {
-    	        		polyDraw = new ArrayList<float[]>();
-    	        		drawingPoly = true;
-    	        		DrawPolygon(-1);
-    	        	}
-    	    	}
-    		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-    			SelectPolygon("up");
-    			engageDelete = true;
-    		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
-    			if (polySelect == -1) {
-    				SelectPolygon("down");
-    				// Deal with the case when the user selects a trigger but not the trigger platform
-    				if ((polySelect != -1) & (triggerSelect == true)) polySelect = -1;
-    				startX = GameInput.MBDOWNX*scrscale;
-    				startY = GameInput.MBDOWNY;
-    			} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
-		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-	            	MovePolygon(polySelect, endX, endY);
-    			}
-    		} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1)) {
-    			UpdatePolygon(polySelect);
-    			polySelect = -1;
-    		} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
-    			if (polySelect == -1) {
-    				SelectPolygon("down");
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-		    		nullvarA = (float) (Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy))/Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy)));
-	            	ScalePolygon(polySelect, nullvarA);
-    			}
-    		} else if ((modeChild.equals("Scale")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1)) {
-    			UpdatePolygon(polySelect);
-    			polySelect = -1;
-    		} else if ((modeChild.equals("Flip x")) & (GameInput.MBJUSTPRESSED==true) & (polySelect == -1)) {
-    			SelectPolygon("up");
-    			if (polySelect != -1) {
-	            	FlipPolygon(polySelect, "x");
-	    			UpdatePolygon(polySelect);
-	    			polySelect = -1;	            	
-    			}
-    		} else if ((modeChild.equals("Flip y")) & (GameInput.MBJUSTPRESSED==true) & (polySelect == -1)) {
-    			SelectPolygon("up");
-    			if (polySelect != -1) {
-	            	FlipPolygon(polySelect, "y");
-	    			UpdatePolygon(polySelect);
-	    			polySelect = -1;	            	
-    			}
-    		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
-    			if (polySelect == -1) {
-    				SelectPolygon("down");
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-		    		nullvarA = (float) Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy));
-		    		nullvarB = (float) Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy));
-		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
-		    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
-		    		if ((startX == cursposx) & (startY == cursposy)) return; // No rotation
-		    		else if (startX == cursposx) {
-		    			if (endX>startX) nullvarD *= -1.0f;
-		    			if (startY<cursposy) nullvarD *= -1.0f;
-		    		} else {
-		    			if (endY < endX*((startY-cursposy)/(startX-cursposx)) + (startY - startX*((startY-cursposy)/(startX-cursposx)))) nullvarD *= -1.0f;
-		    			if (startX < cursposx) nullvarD *= -1.0f;
-		    		}
-	            	RotatePolygon(polySelect, nullvarD);
-    			}
-    		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (polySelect != -1)) {
-    			UpdatePolygon(polySelect);
-    			polySelect = -1;
-            	GameInput.MBRELEASE=false;
-    		} else if (modeChild.equals("Add Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-        		if (GameInput.MBDRAG==true) {
-        			if (vertSelect == -1) {
-        				FindNearestSegment(false);
-        			} else {
-            			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-            			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-            			int segmNext = segmSelect + 1;
-            			if (segmNext==allPolygons.get(polySelect).length/2) segmNext = 0;
-            			if (segmNext < segmSelect) AddVertex(polySelect, segmNext, segmSelect, startX, startY);
-            			else AddVertex(polySelect, segmSelect, segmNext, startX, startY);
-        			}
-        		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
-             			UpdatePolygon(polySelect);
-             			polySelect = -1;
-             			vertSelect = -1;
-        		} else FindNearestSegment(true);
-    		} else if (modeChild.equals("Delete Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    			if (engageDelete==false) {
-    				FindNearestVertex(true);
-    			}
-    			if (GameInput.MBJUSTPRESSED==true) {
-    				FindNearestVertex(false);
-    				engageDelete = true;
-    			}
-    		} else if (modeChild.equals("Move Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-        		if (GameInput.MBDRAG==true) {
-        			if (vertSelect == -1) {
-        				FindNearestVertex(false);
-        				startX = GameInput.MBDOWNX*scrscale;
-        				startY = GameInput.MBDOWNY;
-        			} else {
-    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
-    		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-    	            	MoveVertex(polySelect, vertSelect, endX, endY);
-        			}
-        		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
-        			UpdatePolygon(polySelect);
-        			polySelect = -1;
-        			vertSelect = -1;
-        		} else FindNearestVertex(true);
-    		} else if (mode==7) { // Some options that are only relevant to falling platforms
-    			// Falling platform
-    			if ((modeChild.equals("Set Sign")) & (GameInput.MBDRAG==true)) {
-    				if (polySelect == -1) SelectPolygon("down");
-        			else {
-            			tempx = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-            			tempy = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-        				MoveFallingSign(polySelect);
-        			}
-        		} else if ((modeChild.equals("Set Sign")) & (GameInput.MBRELEASE==true) & (polySelect != -1)) {
-        			UpdatePath(polySelect);
-        			polySelect = -1;
-                	GameInput.MBRELEASE=false;
-    			} else if ((modeChild.equals("Set Fall Time")) & (GameInput.MBDRAG==true)) {
-    				if (polySelect == -1) SelectPolygon("down");
-        			else {
-    		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    		    		float fallTime = (allPolygonPaths.get(polySelect)[3]-endY)*B2DVars.EPPM;
-    		    		if (fallTime < 0.0f) fallTime = 0.0f;
-						warnMessage[warnNumber] = "Fall time = "+ String.format("%.2f", fallTime)+" seconds";
+		modeChild = listChild.getSelected().toString();
+		if (modeParent.equals("Polygon")) {
+			if (modeChild.equals("Add")) {
+				if (GameInput.MBJUSTPRESSED) {
+					if (drawingPoly == true) {
+						DrawPolygon(-1);
+					} else {
+						polyDraw = new ArrayList<float[]>();
+						drawingPoly = true;
+						DrawPolygon(-1);
+					}
+				}
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				SelectPolygon("up");
+				engageDelete = true;
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG == true)) {
+				if (polySelect == -1) {
+					SelectPolygon("down");
+					// Deal with the case when the user selects a trigger but not the trigger platform
+					if ((polySelect != -1) & (triggerSelect == true)) polySelect = -1;
+					startX = GameInput.MBDOWNX * scrscale;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom * (GameInput.MBDRAGX * scrscale - startX) / BikeGame.SCALE;
+					endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
+					MovePolygon(polySelect, endX, endY);
+				}
+			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED == true) & (polySelect != -1)) {
+				System.out.println("-----------");
+				for (int i=0; i<allPolygons.get(polySelect).length; i++) {
+					System.out.println(allPolygons.get(polySelect)[i]);
+				}
+				UpdatePolygon(polySelect);
+				polySelect = -1;
+			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG == true)) {
+				if (polySelect == -1) {
+					SelectPolygon("down");
+					startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				} else {
+					endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					nullvarA = (float) (Math.sqrt((endX - cursposx) * (endX - cursposx) + (endY - cursposy) * (endY - cursposy)) / Math.sqrt((startX - cursposx) * (startX - cursposx) + (startY - cursposy) * (startY - cursposy)));
+					ScalePolygon(polySelect, nullvarA);
+				}
+			} else if ((modeChild.equals("Scale")) & (GameInput.MBJUSTPRESSED == true) & (polySelect != -1)) {
+				UpdatePolygon(polySelect);
+				polySelect = -1;
+			} else if ((modeChild.equals("Flip x")) & (GameInput.MBJUSTPRESSED == true) & (polySelect == -1)) {
+				SelectPolygon("up");
+				if (polySelect != -1) {
+					FlipPolygon(polySelect, "x");
+					UpdatePolygon(polySelect);
+					polySelect = -1;
+				}
+			} else if ((modeChild.equals("Flip y")) & (GameInput.MBJUSTPRESSED == true) & (polySelect == -1)) {
+				SelectPolygon("up");
+				if (polySelect != -1) {
+					FlipPolygon(polySelect, "y");
+					UpdatePolygon(polySelect);
+					polySelect = -1;
+				}
+			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG == true)) {
+				if (polySelect == -1) {
+					SelectPolygon("down");
+					startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				} else {
+					endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					nullvarA = (float) Math.sqrt((endX - cursposx) * (endX - cursposx) + (endY - cursposy) * (endY - cursposy));
+					nullvarB = (float) Math.sqrt((startX - cursposx) * (startX - cursposx) + (startY - cursposy) * (startY - cursposy));
+					nullvarC = (float) Math.sqrt((startX - endX) * (startX - endX) + (startY - endY) * (startY - endY));
+					nullvarD = (float) Math.acos((nullvarA * nullvarA + nullvarB * nullvarB - nullvarC * nullvarC) / (2.0f * nullvarA * nullvarB));
+					if ((startX == cursposx) & (startY == cursposy)) return; // No rotation
+					else if (startX == cursposx) {
+						if (endX > startX) nullvarD *= -1.0f;
+						if (startY < cursposy) nullvarD *= -1.0f;
+					} else {
+						if (endY < endX * ((startY - cursposy) / (startX - cursposx)) + (startY - startX * ((startY - cursposy) / (startX - cursposx))))
+							nullvarD *= -1.0f;
+						if (startX < cursposx) nullvarD *= -1.0f;
+					}
+					RotatePolygon(polySelect, nullvarD);
+				}
+			} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE == true) & (polySelect != -1)) {
+				UpdatePolygon(polySelect);
+				polySelect = -1;
+				GameInput.MBRELEASE = false;
+			} else if (modeChild.equals("Add Vertex")) {
+				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				if (GameInput.MBDRAG == true) {
+					if (vertSelect == -1) {
+						FindNearestSegment(false);
+					} else {
+						startX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						startY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						int segmNext = segmSelect + 1;
+						if (segmNext == allPolygons.get(polySelect).length / 2) segmNext = 0;
+						if (segmNext < segmSelect) AddVertex(polySelect, segmNext, segmSelect, startX, startY);
+						else AddVertex(polySelect, segmSelect, segmNext, startX, startY);
+					}
+				} else if ((GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (vertSelect != -1)) {
+					UpdatePolygon(polySelect);
+					polySelect = -1;
+					vertSelect = -1;
+				} else FindNearestSegment(true);
+			} else if (modeChild.equals("Delete Vertex")) {
+				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				if (engageDelete == false) {
+					FindNearestVertex(true);
+				}
+				if (GameInput.MBJUSTPRESSED == true) {
+					FindNearestVertex(false);
+					engageDelete = true;
+				}
+			} else if (modeChild.equals("Move Vertex")) {
+				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				if (GameInput.MBDRAG == true) {
+					if (vertSelect == -1) {
+						FindNearestVertex(false);
+						startX = GameInput.MBDOWNX * scrscale;
+						startY = GameInput.MBDOWNY;
+					} else {
+						endX = cam.zoom * (GameInput.MBDRAGX * scrscale - startX) / BikeGame.SCALE;
+						endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
+						MoveVertex(polySelect, vertSelect, endX, endY);
+					}
+				} else if ((GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (vertSelect != -1)) {
+					UpdatePolygon(polySelect);
+					polySelect = -1;
+					vertSelect = -1;
+				} else FindNearestVertex(true);
+			} else if (mode == 7) { // Some options that are only relevant to falling platforms
+				// Falling platform
+				if ((modeChild.equals("Set Sign")) & (GameInput.MBDRAG == true)) {
+					if (polySelect == -1) SelectPolygon("down");
+					else {
+						tempx = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						tempy = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						MoveFallingSign(polySelect);
+					}
+				} else if ((modeChild.equals("Set Sign")) & (GameInput.MBRELEASE == true) & (polySelect != -1)) {
+					UpdatePath(polySelect);
+					polySelect = -1;
+					GameInput.MBRELEASE = false;
+				} else if ((modeChild.equals("Set Fall Time")) & (GameInput.MBDRAG == true)) {
+					if (polySelect == -1) SelectPolygon("down");
+					else {
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						float fallTime = (allPolygonPaths.get(polySelect)[3] - endY) * B2DVars.EPPM;
+						if (fallTime < 0.0f) fallTime = 0.0f;
+						warnMessage[warnNumber] = "Fall time = " + String.format("%.2f", fallTime) + " seconds";
 						warnElapse[warnNumber] = 0.0f;
 						warnType[warnNumber] = 0;
 						updatePath = allPolygonPaths.get(polySelect).clone();
 						updatePath[0] = fallTime;
-        			}
-        		} else if ((modeChild.equals("Set Fall Time")) & (GameInput.MBRELEASE==true) & (polySelect != -1)) {
-        			UpdatePath(polySelect);
-        			polySelect = -1;
-                	GameInput.MBRELEASE=false;
-    			} else if ((modeChild.equals("Set Damping")) & (GameInput.MBDRAG==true)) {
-    				if (polySelect == -1) SelectPolygon("down");
-        			else {
-    		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    		    		float damping = (allPolygonPaths.get(polySelect)[3]-endY)*B2DVars.EPPM;
-    		    		if (damping > 0.0f) damping = 0.0f;
-						warnMessage[warnNumber] = "Damping = "+ String.format("%.2f", -damping)+" per second";
+					}
+				} else if ((modeChild.equals("Set Fall Time")) & (GameInput.MBRELEASE == true) & (polySelect != -1)) {
+					UpdatePath(polySelect);
+					polySelect = -1;
+					GameInput.MBRELEASE = false;
+				} else if ((modeChild.equals("Set Damping")) & (GameInput.MBDRAG == true)) {
+					if (polySelect == -1) SelectPolygon("down");
+					else {
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						float damping = (allPolygonPaths.get(polySelect)[3] - endY) * B2DVars.EPPM;
+						if (damping > 0.0f) damping = 0.0f;
+						warnMessage[warnNumber] = "Damping = " + String.format("%.2f", -damping) + " per second";
 						warnElapse[warnNumber] = 0.0f;
 						warnType[warnNumber] = 0;
 						updatePath = allPolygonPaths.get(polySelect).clone();
 						updatePath[1] = -damping;
-        			}
-        		} else if ((modeChild.equals("Set Damping")) & (GameInput.MBRELEASE==true) & (polySelect != -1)) {
-        			UpdatePath(polySelect);
-        			polySelect = -1;
-                	GameInput.MBRELEASE=false;
-    			}
-    		} else if (mode == 9) {
-    			// Trigger platform
-    			if ((modeChild.equals("Move Trigger")) & (GameInput.MBDRAG==true)) {
-    				if (polySelect == -1) {
-        				SelectPolygon("down");
-        				// Deal with the case when the user selects a trigger platform but not the trigger
-        				if ((polySelect != -1) & (triggerSelect == false)) polySelect = -1;
-    					startX = GameInput.MBDOWNX*scrscale;
-    					startY = GameInput.MBDOWNY;
-    				} else {
-    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
-    		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-    		    		MovePath(polySelect, endX, endY);
-    				}
-        		} else if ((modeChild.equals("Move Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (triggerSelect)) {
-        			UpdatePath(polySelect);
-        			polySelect = -1;
-        			triggerSelect = false;
-    			} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBDRAG==true)) {
-        			if (polySelect == -1) {
-        				SelectPolygon("down");
-        				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-        				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-        			} else if (triggerSelect) {
-    					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    		    		nullvarA = (float) (Math.sqrt((endX-allPolygonPaths.get(polySelect)[2])*(endX-allPolygonPaths.get(polySelect)[2]) + (endY-allPolygonPaths.get(polySelect)[3])*(endY-allPolygonPaths.get(polySelect)[3]))/Math.sqrt((startX-allPolygonPaths.get(polySelect)[2])*(startX-allPolygonPaths.get(polySelect)[2]) + (startY-allPolygonPaths.get(polySelect)[3])*(startY-allPolygonPaths.get(polySelect)[3])));
-    	            	ScalePath(polySelect, nullvarA);
-        			}
-        		} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (triggerSelect)) {
-        			UpdatePath(polySelect);
-        			polySelect = -1;
-        			triggerSelect = false;
-        		} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBDRAG==true)) {
-        			if (polySelect == -1) {
-        				SelectPolygon("down");
-        				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-        				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-        			} else {
-    					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    		    		float trigx = allPolygonPaths.get(polySelect)[2];
-    		    		float trigy = allPolygonPaths.get(polySelect)[3];
-    		    		nullvarA = (float) Math.sqrt((endX-trigx)*(endX-trigx) + (endY-trigy)*(endY-trigy));
-    		    		nullvarB = (float) Math.sqrt((startX-trigx)*(startX-trigx) + (startY-trigy)*(startY-trigy));
-    		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
-    		    		nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
-    		    		if ((startX == trigx) & (startY == trigy)) return; // No rotation
-    		    		else if (startX == trigx) {
-    		    			if (endX>startX) nullvarD *= -1.0f;
-    		    			if (startY<trigy) nullvarD *= -1.0f;
-    		    		} else {
-    		    			if (endY < endX*((startY-trigy)/(startX-trigx)) + (startY - startX*((startY-trigy)/(startX-trigx)))) nullvarD *= -1.0f;
-    		    			if (startX < trigx) nullvarD *= -1.0f;
-    		    		}
-    	            	RotatePath(polySelect, nullvarD);
-        			}
-        		} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBRELEASE==true) & (polySelect != -1) & (triggerSelect)) {
-        			UpdatePath(polySelect);
-        			polySelect = -1;
-        			triggerSelect = false;
-                	GameInput.MBRELEASE=false;
-        		}
-    		}
-    	} else if (modeParent.equals("Rectangle")) {
-    		if (modeChild.equals("Add")) {
-    	    	if (GameInput.MBJUSTPRESSED) {
-    	        	if (drawingPoly) {
-    	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    	    			shapeDraw[2] = tempx;
-    	    			shapeDraw[3] = shapeDraw[1];
-    	    			shapeDraw[4] = tempx;
-    	    			shapeDraw[5] = tempy;
-    	    			shapeDraw[6] = shapeDraw[0];
-    	    			shapeDraw[7] = tempy;
-    	    			if (falling == 0) AddPolygon(shapeDraw, 0, 8);
-    	    			else if (falling == 1) AddPolygon(shapeDraw, 4, 8);
-    	    			else if (falling == 2) AddPolygon(shapeDraw, 6, 8);
-    			    	drawingPoly = false;
-    			    	shapeDraw = null;
-    	        	} else {
-    	        		shapeDraw = new float[8];
-    	        		drawingPoly = true;
-    	        		shapeDraw[0] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	        		shapeDraw[1] = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    	        	}
-    	    	}
-    		}
-    	} else if (modeParent.equals("Circle")) {
-    		if (modeChild.equals("Add")) {
-    	    	if (GameInput.MBJUSTPRESSED) {
-    	        	if (drawingPoly == true) {
-    	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    	    			shapeDraw[2] = (float) Math.sqrt((tempx-shapeDraw[0])*(tempx-shapeDraw[0]) + (tempy-shapeDraw[1])*(tempy-shapeDraw[1]));
-    	    			if (falling == 0) AddPolygon(shapeDraw, 1, 3);
-    	    			else if (falling == 1) AddPolygon(shapeDraw, 5, 3);
-    	    			else if (falling == 2) AddPolygon(shapeDraw, 7, 3);
-    			    	drawingPoly = false;
-    			    	shapeDraw = null;
-    	        	} else {
-    	        		shapeDraw = new float[3];
-    	        		drawingPoly = true;
-    	        		shapeDraw[0] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	        		shapeDraw[1] = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    	        	}
-    	    	}
-    		}
-    	} else if (modeParent.equals("Set Texture")) {
-	    	if (GameInput.MBJUSTPRESSED) {
-	    		SelectPolygon("down");
-	    		if (polySelect != -1) {
-	    			UpdatePlatformTexture();
-	    			polySelect = -1;
-	    		}
-	    	}
+					}
+				} else if ((modeChild.equals("Set Damping")) & (GameInput.MBRELEASE == true) & (polySelect != -1)) {
+					UpdatePath(polySelect);
+					polySelect = -1;
+					GameInput.MBRELEASE = false;
+				}
+			} else if (mode == 9) {
+				// Trigger platform
+				if ((modeChild.equals("Move Trigger")) & (GameInput.MBDRAG == true)) {
+					if (polySelect == -1) {
+						SelectPolygon("down");
+						// Deal with the case when the user selects a trigger platform but not the trigger
+						if ((polySelect != -1) & (triggerSelect == false)) polySelect = -1;
+						startX = GameInput.MBDOWNX * scrscale;
+						startY = GameInput.MBDOWNY;
+					} else {
+						endX = cam.zoom * (GameInput.MBDRAGX * scrscale - startX) / BikeGame.SCALE;
+						endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
+						MovePath(polySelect, endX, endY);
+					}
+				} else if ((modeChild.equals("Move Trigger")) & (GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (triggerSelect)) {
+					UpdatePath(polySelect);
+					polySelect = -1;
+					triggerSelect = false;
+				} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBDRAG == true)) {
+					if (polySelect == -1) {
+						SelectPolygon("down");
+						startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					} else if (triggerSelect) {
+						endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						nullvarA = (float) (Math.sqrt((endX - allPolygonPaths.get(polySelect)[2]) * (endX - allPolygonPaths.get(polySelect)[2]) + (endY - allPolygonPaths.get(polySelect)[3]) * (endY - allPolygonPaths.get(polySelect)[3])) / Math.sqrt((startX - allPolygonPaths.get(polySelect)[2]) * (startX - allPolygonPaths.get(polySelect)[2]) + (startY - allPolygonPaths.get(polySelect)[3]) * (startY - allPolygonPaths.get(polySelect)[3])));
+						ScalePath(polySelect, nullvarA);
+					}
+				} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (triggerSelect)) {
+					UpdatePath(polySelect);
+					polySelect = -1;
+					triggerSelect = false;
+				} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBDRAG == true)) {
+					if (polySelect == -1) {
+						SelectPolygon("down");
+						startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					} else {
+						endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						float trigx = allPolygonPaths.get(polySelect)[2];
+						float trigy = allPolygonPaths.get(polySelect)[3];
+						nullvarA = (float) Math.sqrt((endX - trigx) * (endX - trigx) + (endY - trigy) * (endY - trigy));
+						nullvarB = (float) Math.sqrt((startX - trigx) * (startX - trigx) + (startY - trigy) * (startY - trigy));
+						nullvarC = (float) Math.sqrt((startX - endX) * (startX - endX) + (startY - endY) * (startY - endY));
+						nullvarD = (float) Math.acos((nullvarA * nullvarA + nullvarB * nullvarB - nullvarC * nullvarC) / (2.0f * nullvarA * nullvarB));
+						if ((startX == trigx) & (startY == trigy)) return; // No rotation
+						else if (startX == trigx) {
+							if (endX > startX) nullvarD *= -1.0f;
+							if (startY < trigy) nullvarD *= -1.0f;
+						} else {
+							if (endY < endX * ((startY - trigy) / (startX - trigx)) + (startY - startX * ((startY - trigy) / (startX - trigx))))
+								nullvarD *= -1.0f;
+							if (startX < trigx) nullvarD *= -1.0f;
+						}
+						RotatePath(polySelect, nullvarD);
+					}
+				} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBRELEASE == true) & (polySelect != -1) & (triggerSelect)) {
+					UpdatePath(polySelect);
+					polySelect = -1;
+					triggerSelect = false;
+					GameInput.MBRELEASE = false;
+				}
+			}
+		} else if (modeParent.equals("Rectangle")) {
+			if (modeChild.equals("Add")) {
+				if (GameInput.MBJUSTPRESSED) {
+					if (drawingPoly) {
+						tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						shapeDraw[2] = tempx;
+						shapeDraw[3] = shapeDraw[1];
+						shapeDraw[4] = tempx;
+						shapeDraw[5] = tempy;
+						shapeDraw[6] = shapeDraw[0];
+						shapeDraw[7] = tempy;
+						if (falling == 0) AddPolygon(shapeDraw, 0, 8);
+						else if (falling == 1) AddPolygon(shapeDraw, 4, 8);
+						else if (falling == 2) AddPolygon(shapeDraw, 6, 8);
+						drawingPoly = false;
+						shapeDraw = null;
+					} else {
+						shapeDraw = new float[8];
+						drawingPoly = true;
+						shapeDraw[0] = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						shapeDraw[1] = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					}
+				}
+			}
+		} else if (modeParent.equals("Circle")) {
+			if (modeChild.equals("Add")) {
+				if (GameInput.MBJUSTPRESSED) {
+					if (drawingPoly == true) {
+						tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						shapeDraw[2] = (float) Math.sqrt((tempx - shapeDraw[0]) * (tempx - shapeDraw[0]) + (tempy - shapeDraw[1]) * (tempy - shapeDraw[1]));
+						if (falling == 0) AddPolygon(shapeDraw, 1, 3);
+						else if (falling == 1) AddPolygon(shapeDraw, 5, 3);
+						else if (falling == 2) AddPolygon(shapeDraw, 7, 3);
+						drawingPoly = false;
+						shapeDraw = null;
+					} else {
+						shapeDraw = new float[3];
+						drawingPoly = true;
+						shapeDraw[0] = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+						shapeDraw[1] = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					}
+				}
+			}
+		} else if (modeParent.equals("Set Texture")) {
+			if (GameInput.MBJUSTPRESSED) {
+				SelectPolygon("down");
+				if (polySelect != -1) {
+					UpdatePlatformTexture();
+					polySelect = -1;
+				}
+			}
 			currentTexture = "";
-    	}
+		}
 	}
 
 	public void ControlMode4() {
@@ -3667,6 +3700,37 @@ public class Editor extends GameState {
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
+		} else if (modeParent.equals("Planet")) {
+			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
+				tempy = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				AddObject(ObjectVars.PlanetSun, tempx, tempy, -999.9f);
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				SelectPlanet("up", ObjectVars.PlanetSun, false, true);
+				engageDelete = true;
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
+				if (objectSelect == -1) {
+					SelectPlanet("down", ObjectVars.PlanetSun, false, true);
+					startX = GameInput.MBDOWNX*scrscale;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+					MoveObject(objectSelect, "moveplanet", endX, endY);
+				}
+			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
+				UpdateObject(objectSelect, "move");
+				objectSelect = -1;
+			} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
+				// Select the object
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				SelectPlanet("down", ObjectVars.PlanetSun, false, true);
+				// Increment variation by 1
+				if (objectSelect != -1) {
+					IncrementObject(allObjectTypes.get(objectSelect));
+				}
+			}
 		} else if (modeParent.equals("Spike")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
@@ -4699,6 +4763,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Pendulum")) {
 					listChild.setItems("Add", "Delete", "Move Ball", "Move Anchor");
 					pObjectIndex = GetListIndex("Pendulum",objectList);
+				} else if (modeParent.equals("Planet")) {
+					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
+					pObjectIndex = GetListIndex("Planet",objectList);
 				} else if (modeParent.equals("Spike")) {
 					listChild.setItems(itemsADM);
 					pObjectIndex = GetListIndex("Spike",objectList);
@@ -6200,6 +6267,8 @@ public class Editor extends GameState {
 				newPoly[2*i] = ObjectVars.objectTransport[2*i] + xcen;
 				newPoly[2*i+1] = ObjectVars.objectTransport[2*i+1] + ycen;
 			}
+		} else if (ObjectVars.IsPlanet(otype)) {
+			newPoly = ObjectVars.MakePlanet(otype, xcen, ycen).clone();
 		}
 	}
 
@@ -6239,6 +6308,18 @@ public class Editor extends GameState {
 			updatePoly[5] = allObjects.get(idx)[5+8*(tentry-1)] + shiftY;
 			updatePoly[6] = allObjects.get(idx)[6+8*(tentry-1)] + shiftX;
 			updatePoly[7] = allObjects.get(idx)[7+8*(tentry-1)] + shiftY;			
+		} else if (mode.equals("moveplanet")) {
+			if (allObjectTypes.get(idx)==ObjectVars.PlanetSaturn) {
+				updatePoly = allObjects.get(idx).clone();
+				for (int i = 0; i<allObjects.get(idx).length/2; i++){
+					updatePoly[2*i] += shiftX;
+					updatePoly[2*i+1] += shiftY;
+				}
+			} else {
+				updatePoly = allObjects.get(idx).clone();
+				updatePoly[0] += shiftX;
+				updatePoly[1] += shiftY;
+			}
 		}
 	}
 
@@ -6375,6 +6456,27 @@ public class Editor extends GameState {
 		SelectObject(downup, ObjectVars.GravityMoon, rotate, circle);
 		if (objectSelect != -1) return;
 		SelectObject(downup, ObjectVars.GravityZero, rotate, circle);
+		if (objectSelect != -1) return;
+	}
+
+	public void SelectPlanet(String downup, int otype, boolean rotate, boolean circle) {
+		SelectObject(downup, ObjectVars.PlanetSun, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetMercury, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetVenus, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetEarth, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetMars, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetJupiter, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetSaturn, rotate, false);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetUranus, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.PlanetNeptune, rotate, true);
 		if (objectSelect != -1) return;
 	}
 
@@ -6560,6 +6662,48 @@ public class Editor extends GameState {
 			else if (objNum == ObjectVars.TransportInvisibleMars) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisibleMoon);
 			else if (objNum == ObjectVars.TransportInvisibleMoon) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisibleZero);
 			else if (objNum == ObjectVars.TransportInvisibleZero) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisible);
+		} else if (ObjectVars.IsPlanet(objNum)) {
+			// Find the centre of the planet
+			float shiftX = allObjects.get(objectSelect)[0], shiftY = allObjects.get(objectSelect)[0];
+			if (allObjectTypes.get(objectSelect)==ObjectVars.PlanetSaturn) {
+				for (int ss=1; ss<allObjects.get(objectSelect).length/2; ss++) {
+					shiftX += allObjects.get(objectSelect)[2*ss];
+					shiftY += allObjects.get(objectSelect)[2*ss+1];
+				}
+				shiftX /= (allObjects.get(objectSelect).length/2);
+				shiftY /= (allObjects.get(objectSelect).length/2);
+			}
+			// Loop through all planets to get the next one
+			if (objNum == ObjectVars.PlanetSun) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetMercury);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetMercury, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetMercury) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetVenus);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetVenus, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetVenus) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetEarth);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetEarth, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetEarth) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetMars);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetMars, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetMars) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetJupiter);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetJupiter, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetJupiter) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetSaturn);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetSaturn, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetSaturn) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetUranus);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetUranus, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetUranus) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetNeptune);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetNeptune, shiftX, shiftY);
+			} else if (objNum == ObjectVars.PlanetNeptune) {
+				allObjectTypes.set(objectSelect, ObjectVars.PlanetSun);
+				updatePoly = ObjectVars.MakePlanet(ObjectVars.PlanetSun, shiftX, shiftY);
+			}
+			// Finally, update the object with the updated poly
+			allObjects.set(objectSelect, updatePoly.clone());
 		}
 	}
 

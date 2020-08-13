@@ -50,6 +50,7 @@ public class EditorIO {
 	private static int cntLog;
 	private static int cntNitrous;
 	private static int cntPendulum;
+	private static int cntPlanet;
 	private static int cntSpike;
 	private static int cntSpikeZone;
 	private static int cntTransport;
@@ -448,7 +449,8 @@ public class EditorIO {
     	cntKey = 0;
     	cntLog = 0;
     	cntNitrous = 0;
-    	cntPendulum = 0;
+		cntPendulum = 0;
+		cntPlanet = 0;
     	cntSpike = 0;
     	cntSpikeZone = 0;
     	cntTransport = 0;
@@ -736,6 +738,14 @@ public class EditorIO {
         		EditorJointIO.JointPendulum(jointList, allObjects.get(i), bodyIdx);
         		cntPendulum += 1;
         		bodyIdx += addBodies;
+			} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
+        		String failure = "";
+        		if (allObjectTypes.get(i) == ObjectVars.PlanetSaturn) failure = EditorObjectIO.AddPlanet(json, allObjects.get(i), cntPlanet, true);
+				else failure = EditorObjectIO.AddPlanet(json, allObjects.get(i), cntPlanet, false);
+				if (!failure.equalsIgnoreCase("")) return failure;
+				addBodies = 1;
+				cntPlanet += 1;
+				bodyIdx += addBodies;
         	} else if (allObjectTypes.get(i) == ObjectVars.Spike) {
         		addBodies = EditorObjectIO.AddSpike(json, allObjects.get(i), cntSpike);
         		cntSpike += 1;

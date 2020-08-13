@@ -158,7 +158,7 @@ public class Play extends GameState {
     private float playerTorque = 0.0f;
     private float applyTorque = -1.0f;
     private int applyNitrous = 0;
-    private int applyRocket = 0;
+//    private int applyRocket = 0;
     private float playerJump = 0.0f;
     private float applyJump = -1.0f;
     private float canTransport = -1.0f;
@@ -525,22 +525,22 @@ public class Play extends GameState {
             } else if (GameInput.isDown(GameInput.KEY_NITROUS)==false) {
             	applyNitrous = 0;
             }
-            if (GameInput.isDown(GameInput.KEY_ROCKET)) {
-            	applyRocket = 1;
-//            	if ((collectRocket > 0) | (rocketLevel > 0.0f)) {
-//            		applyRocket = 1;
-//            		rocketLevel -= 0.002f;
-//            		if ((rocketLevel < 0.0f) & (collectRocket > 1)) {
-//            			rocketLevel = 1.0f;
-//            			collectRocket -= 1;
-//            		} else if (rocketLevel < 0.0f) {
-//            			rocketLevel = 0.0f;
-//            			collectRocket -= 1;
-//            		}
-//            	}
-            } else if (GameInput.isDown(GameInput.KEY_ROCKET)==false) {
-            	applyRocket = 0;
-            }
+//            if (GameInput.isDown(GameInput.KEY_ROCKET)) {
+//            	applyRocket = 1;
+////            	if ((collectRocket > 0) | (rocketLevel > 0.0f)) {
+////            		applyRocket = 1;
+////            		rocketLevel -= 0.002f;
+////            		if ((rocketLevel < 0.0f) & (collectRocket > 1)) {
+////            			rocketLevel = 1.0f;
+////            			collectRocket -= 1;
+////            		} else if (rocketLevel < 0.0f) {
+////            			rocketLevel = 0.0f;
+////            			collectRocket -= 1;
+////            		}
+////            	}
+//            } else if (GameInput.isDown(GameInput.KEY_ROCKET)==false) {
+//            	applyRocket = 0;
+//            }
             //if ((applyTorque<0.0f) & (applyJump<0.0f)) bikeAngle = bikeBodyC.getAngle();
         } else if (mState.equals(GAME_STATE.LOADED)) {
         	if ((GameInput.isPressed(GameInput.KEY_ENTER)) | (isReplay)) {
@@ -922,15 +922,15 @@ public class Play extends GameState {
 				bikeScale = 1.0f;
 			}
 		}
-		if (applyRocket==1) {
-			Vector2 temppos;
-			float factor=3.0f;
-			double addAngle = 0.0;
-			if (bikeDirc < 0.0f) addAngle = Math.PI;
-			double angleRocket = bikeBodyC.getAngle() + addAngle;
-			temppos = new Vector2(factor*(float)Math.cos(angleRocket), factor*(float) Math.sin(angleRocket));
-			bikeBodyC.setLinearVelocity(temppos.cpy());
-		}
+//		if (applyRocket==1) {
+//			Vector2 temppos;
+//			float factor=3.0f;
+//			double addAngle = 0.0;
+//			if (bikeDirc < 0.0f) addAngle = Math.PI;
+//			double angleRocket = bikeBodyC.getAngle() + addAngle;
+//			temppos = new Vector2(factor*(float)Math.cos(angleRocket), factor*(float) Math.sin(angleRocket));
+//			bikeBodyC.setLinearVelocity(temppos.cpy());
+//		}
 		
 		//		if (playerTorque != 0.0f) {
 //			bikeBodyC.setAngularVelocity(bikeBodyC.getAngularVelocity()+0.015f*playerTorque);
@@ -1666,7 +1666,7 @@ public class Play extends GameState {
        try {
     	   gameInfo = mScene.getNamed(Body.class, "GameInfo").first();
        } catch (NullPointerException e) {
-    	   // Level was not compiled correctly... return
+    	   // TODO :: Level was not compiled correctly... return
     	   System.out.println("TRIED TO FIX IT HERE - BUT THIS DOESN'T WORK!!!");
        	   gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
        	   gsm.SetPlaying(false);
