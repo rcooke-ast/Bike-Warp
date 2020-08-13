@@ -1255,6 +1255,110 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		return 3; // Return number of bodies added
 	}
 
+	public static String AddPlanet(JSONStringer json, float[] fs, int cnt, boolean isSaturn)  throws JSONException {
+		String retval;
+		if (isSaturn) retval = AddPlanetPolygon(json, fs, cnt);
+		else retval = AddPlanetCircle(json, fs, cnt);
+	}
+
+	public static String AddPlanetPolygon(JSONStringer json, float[] fs, int cnt) throws JSONException {
+		ArrayList<float[]> convexPolygons;
+		ArrayList<ArrayList<Vector2>> convexVectorPolygons;
+		ArrayList<Vector2> concaveVertices;
+		concaveVertices = PolygonOperations.MakeVertices(fs);
+		try {
+			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+		} catch (IndexOutOfBoundsException e) {
+			return "BD "+cnt+" P";
+		}
+		convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+		for (int k = 0; k<convexPolygons.size(); k++){
+			if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+cnt+" Pl"; // A problem with the length^2 of a polygon
+			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+cnt+" Pl"; // One of the areas was too small
+			//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" P"; // polygon is not convex
+			json.object();
+			// Specify other properties of this fixture
+			json.key("density").value(1);
+			json.key("friction").value(0.9f);
+			json.key("restitution").value(0.2f);
+			json.key("name").value("fixture8");
+			json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+			json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
+			json.key("polygon");
+			json.object(); // Begin polygon object
+			json.key("vertices");
+			json.object(); // Begin vertices object
+			json.key("x");
+			json.array();
+			for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+				json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
+			}
+			json.endArray();
+			json.key("y");
+			json.array();
+			for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+				json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
+			}
+			json.endArray();
+			json.endObject(); // End the vertices object
+			json.endObject(); // End polygon object
+			json.endObject(); // End this fixture
+		}
+		if (concaveVertices != null) concaveVertices.clear();
+		if (convexVectorPolygons != null) convexVectorPolygons.clear();
+		if (convexPolygons != null) convexPolygons.clear();
+		// Add some final properties for the boulder body
+		json.key("linearVelocity").value(0);
+		json.key("name").value("Planet"+cnt);
+		json.key("position");
+		json.object();
+		json.key("x").value(B2DVars.EPPM*fs[0]);
+		json.key("y").value(B2DVars.EPPM*fs[1]);
+		json.endObject();
+		json.key("type").value(0);
+		json.endObject();
+		return "";
+ 	}
+
+	public static String AddPlanetCircle(JSONStringer json, float[] fs, int cnt) throws JSONException {
+		json.object();
+		json.key("angle").value(0);
+		json.key("angularVelocity").value(0);
+		json.key("awake").value(true);
+		json.key("fixedRotation").value(false);
+		// Add the fixtures
+		json.key("fixture");
+		json.array();
+		json.object();
+		json.key("density").value(2500.0);
+		json.key("friction").value(0.9f);
+		json.key("restitution").value(0.2f);
+		json.key("name").value("fixture8");
+		json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+		json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL);
+		json.key("circle");
+		// Begin circle object
+		json.object();
+		// Specify the center of the circle
+		json.key("center").value(0);
+		// Specify the radius of the circle
+		json.key("radius").value(B2DVars.EPPM*fs[2]);
+		json.endObject(); // End circle object
+		json.endObject(); // End this fixture
+		json.endArray(); // End the array of fixtures
+		// Add some final properties for the boulder body
+		json.key("linearVelocity").value(0);
+		json.key("name").value("Planet"+cnt);
+		json.key("position");
+		json.object();
+		json.key("x").value(B2DVars.EPPM*fs[0]);
+		json.key("y").value(B2DVars.EPPM*fs[1]);
+		json.endObject();
+		json.key("type").value(0);
+		json.endObject();
+		return ""; // Return number of bodies added
+	}
+
 	public static int AddSpike(JSONStringer json, float[] fs, int cnt) throws JSONException {
 		json.object();
         json.key("angle").value(0);

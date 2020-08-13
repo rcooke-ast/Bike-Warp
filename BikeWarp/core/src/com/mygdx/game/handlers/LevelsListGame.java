@@ -65,8 +65,8 @@ public class LevelsListGame {
     	gameLevelNames[13] = "13. Cascade";
     	gameLevelFiles[13] = "data/gamelevels/13_Cascade.lvl";
     	// Level 14
-    	gameLevelNames[14] = "14. TBD";
-    	gameLevelFiles[14] = "TBD";
+    	gameLevelNames[14] = "14. Mount Kilimanjaro";
+    	gameLevelFiles[14] = "data/gamelevels/14_Kilimanjaro.lvl";
     	// Level 15
     	gameLevelNames[15] = "15. Upside Downhill";
     	gameLevelFiles[15] = "data/gamelevels/15_UpsideDownhill.lvl";
