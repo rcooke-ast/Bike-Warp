@@ -190,7 +190,7 @@ public class Play extends GameState {
     private int collectJewel;
     private boolean collectDiamond;
     private int nullvar;
-    private boolean forcequit, forceRestart, lrIsDown, paintBackdrop;
+    private boolean forcequit, forceRestart, lrIsDown, paintBackdrop, paintForeground;
     
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
@@ -1688,6 +1688,8 @@ public class Play extends GameState {
        // Load the foreground/background textures
        String bgTextName = (String) mScene.getCustom(gameInfo, "bgTexture", null);
 
+       paintForeground = true;
+       if (bgTextName.equals("data/images/background_space.png")) paintForeground = false;
        if ((bgTextName == null) | (skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png"))) {
     	   paintBackdrop = false;
     	   timer.setColor(0.5f, 0.5f, 0.5f, 1);
@@ -2050,7 +2052,7 @@ public class Play extends GameState {
      	    }
 //    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
      	    bgwidth = (BikeGame.V_HEIGHT*4096.0f/512.0f)/3.0f;
-     	    mBatch.draw(foreground, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
+            if (paintForeground) mBatch.draw(foreground, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
     		//mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
     	}
     	mBatch.end();
