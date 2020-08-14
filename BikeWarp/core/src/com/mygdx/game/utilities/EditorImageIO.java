@@ -824,6 +824,7 @@ public class EditorImageIO {
 		ymin *= B2DVars.EPPM;
 		xmax *= B2DVars.EPPM;
 		ymax *= B2DVars.EPPM;
+		System.out.println(xcen+" "+ycen+" "+xmin+" "+ymin+" "+xmax+" "+ymax);
 		//
 		float rotAngle = 0.0f;
 		json.object(); // Start of Nitrous
