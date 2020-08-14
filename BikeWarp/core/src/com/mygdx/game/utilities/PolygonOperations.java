@@ -230,7 +230,6 @@ public class PolygonOperations {
 			tst += e1x * e2y - e1y * e2x;
 		}
 		tst *= 0.5f * (B2DVars.EPPM * B2DVars.EPPM);// * (PolySpatial.PIXELS_PER_METER*PolySpatial.PIXELS_PER_METER);
-		System.out.println(tst);
 		if (tst < failval) return true;
 		return false;
 	}
