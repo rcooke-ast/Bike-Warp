@@ -80,6 +80,15 @@ public class BikeGameTextures {
         GetTexture("padlock_blue",0);
         GetTexture("padlock_green",0);
         GetTexture("padlock_red",0);
+        GetTexture("planet_sun",0);
+        GetTexture("planet_mercury",0);
+        GetTexture("planet_venus",0);
+        GetTexture("planet_earth",0);
+        GetTexture("planet_mars",0);
+        GetTexture("planet_jupiter",0);
+        GetTexture("planet_saturn",0);
+        GetTexture("planet_uranus",0);
+        GetTexture("planet_neptune",0);
         GetTexture("RS_exclamation",0);
         GetTexture("spike",0);
         GetTexture("switch_greenL",0);
@@ -121,6 +130,7 @@ public class BikeGameTextures {
         GetTexture("ground_mars",2);
         GetTexture("ground_moon",2);
         GetTexture("background_mountains",2);
+        GetTexture("background_space",2);
         GetTexture("background_waterfall",2);
         GetTexture("foreground_plants",2);
         GetTexture("foreground_trees",2);

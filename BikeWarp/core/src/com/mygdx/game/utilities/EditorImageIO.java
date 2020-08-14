@@ -604,7 +604,7 @@ public class EditorImageIO {
 		float xcen = 0.5f*B2DVars.EPPM*(fs[0]+fs[4]);
 		float ycen = 0.5f*B2DVars.EPPM*(fs[1]+fs[5]);
 		float rotAngle = PolygonOperations.GetAngle(fs[0], fs[1], fs[2], fs[3]);
-		json.object(); // Start of Key
+		json.object(); // Start of Nitrous
 		json.key("name").value("Nitrous"+cnt);
 		json.key("opacity").value(1);
 		json.key("renderOrder").value(0);
@@ -772,6 +772,116 @@ public class EditorImageIO {
 		json.key("glVertexPointer").array().value(-brd).value(-brd).value(brd).value(-brd).value(brd).value(brd).value(-brd).value(brd).endArray();
 		json.endObject(); // End of Pendulum Anchor Bolt
 		return 3;
+	}
+
+	public static int ImagePlanet(JSONStringer json, float[] fs, int bodyIndex, int cnt, int dType) throws JSONException {
+		String img_fname = "";
+		if (dType==ObjectVars.PlanetMercury) img_fname="images/planet_mercury.png";
+		else if (dType==ObjectVars.PlanetVenus) img_fname="images/planet_venus.png";
+		else if (dType==ObjectVars.PlanetEarth) img_fname="images/planet_earth.png";
+		else if (dType==ObjectVars.PlanetMars) img_fname="images/planet_mars.png";
+		else if (dType==ObjectVars.PlanetJupiter) img_fname="images/planet_jupiter.png";
+		else if (dType==ObjectVars.PlanetSaturn) img_fname="images/planet_saturn.png";
+		else if (dType==ObjectVars.PlanetUranus) img_fname="images/planet_uranus.png";
+		else if (dType==ObjectVars.PlanetNeptune) img_fname="images/planet_neptune.png";
+		else if (dType==ObjectVars.PlanetSun) img_fname="images/planet_sun.png";
+		int retval = 1;
+		if (dType==ObjectVars.PlanetSaturn) {
+			retval = ImagePlanetPolygon(json, fs, bodyIndex, cnt, img_fname);
+		} else {
+			if (dType==ObjectVars.PlanetSun) retval = ImagePlanetCircle(json, fs, bodyIndex, cnt, img_fname, 1.35211f);
+			else retval = ImagePlanetCircle(json, fs, bodyIndex, cnt, img_fname, 1.0f);
+		}
+		return retval;
+	}
+
+	public static int ImagePlanetPolygon(JSONStringer json, float[] fs, int bodyIndex, int cnt, String image_fname) throws JSONException {
+		// Get the center, xmin, xmax, ymin, ymax of the planet
+		float xcen = 0.0f;
+		float ycen = 0.0f;
+		float xmin=0, ymin=0, xmax=0, ymax=0;
+		for (int pp=0; pp<fs.length/2; pp++) {
+			xcen += fs[2*pp];
+			ycen += fs[2*pp+1];
+			// x extremes
+			if ((fs[2*pp] < xmin) || (pp == 0)) {
+				xmin = fs[2*pp];
+			}
+			if ((fs[2*pp] > xmax) || (pp == 0)) {
+				xmax = fs[2*pp];
+			}
+			// y extremes
+			if ((fs[2*pp+1] < ymin) || (pp == 0)) {
+				ymin = fs[2*pp+1];
+			}
+			if ((fs[2*pp+1] > ymax) || (pp == 0)) {
+				ymax = fs[2*pp+1];
+			}
+		}
+		xcen *= B2DVars.EPPM/(fs.length/2);
+		ycen *= B2DVars.EPPM/(fs.length/2);
+		xmin *= B2DVars.EPPM;
+		ymin *= B2DVars.EPPM;
+		xmax *= B2DVars.EPPM;
+		ymax *= B2DVars.EPPM;
+		//
+		float rotAngle = 0.0f;
+		json.object(); // Start of Nitrous
+		json.key("name").value("Planet"+cnt);
+		json.key("opacity").value(1);
+		json.key("renderOrder").value(0);
+		json.key("scale").value(1);
+		json.key("aspectScale").value(1);
+		json.key("angle").value(rotAngle);
+		json.key("body").value(bodyIndex);
+		json.key("center");
+		json.object();
+		json.key("x").value(0);
+		json.key("y").value(0);
+		json.endObject();
+		json.key("corners");
+		json.object();
+		json.key("x").array().value(xmin-xcen).value(xmax-xcen).value(xmax-xcen).value(xmin-xcen).endArray();
+		json.key("y").array().value(ymin-ycen).value(ymin-ycen).value(ymax-ycen).value(ymax-ycen).endArray();
+		json.endObject();
+		json.key("file").value(image_fname);
+		json.key("filter").value(1);
+		json.key("glDrawElements").array().value(0).value(1).value(2).value(2).value(3).value(0).endArray();
+		json.key("glTexCoordPointer").array().value(0).value(0).value(1).value(0).value(1).value(1).value(0).value(1).endArray();
+		//json.key("glVertexPointer").array().value(B2DVars.EPPM*ObjectVars.objectNitrous[0]).value(B2DVars.EPPM*ObjectVars.objectNitrous[1]).value(B2DVars.EPPM*ObjectVars.objectNitrous[2]).value(B2DVars.EPPM*ObjectVars.objectNitrous[3]).value(B2DVars.EPPM*ObjectVars.objectNitrous[4]).value(B2DVars.EPPM*ObjectVars.objectNitrous[5]).value(B2DVars.EPPM*ObjectVars.objectNitrous[6]).value(B2DVars.EPPM*ObjectVars.objectNitrous[7]).endArray();
+		// This probably needs to change if the rotation changes...
+		json.key("glVertexPointer").array().value(xmin-xcen).value(ymin-ycen).value(xmax-xcen).value(ymin-ycen).value(xmax-xcen).value(ymax-ycen).value(xmin-xcen).value(ymax-ycen).endArray();
+		json.endObject(); // End of Planet
+		return 1;
+	}
+
+	public static int ImagePlanetCircle(JSONStringer json, float[] fs, int bodyIndex, int cnt, String image_fname, float scale) throws JSONException {
+		float rd = scale*fs[2]*B2DVars.EPPM;
+		json.object();
+		json.key("name").value("Planet"+cnt);
+		json.key("opacity").value(1);
+		json.key("renderOrder").value(0);
+		json.key("scale").value(1);
+		json.key("aspectScale").value(1);
+		json.key("angle").value(0);
+		json.key("body").value(bodyIndex);
+		json.key("center");
+		json.object();
+		json.key("x").value(0);
+		json.key("y").value(0);
+		json.endObject();
+		json.key("corners");
+		json.object();
+		json.key("x").array().value(-rd).value(rd).value(rd).value(-rd).endArray();
+		json.key("y").array().value(-rd).value(-rd).value(rd).value(rd).endArray();
+		json.endObject();
+		json.key("file").value(image_fname);
+		json.key("filter").value(1);
+		json.key("glDrawElements").array().value(0).value(1).value(2).value(2).value(3).value(0).endArray();
+		json.key("glTexCoordPointer").array().value(0).value(0).value(1).value(0).value(1).value(1).value(0).value(1).endArray();
+		json.key("glVertexPointer").array().value(-rd).value(-rd).value(rd).value(-rd).value(rd).value(rd).value(-rd).value(rd).endArray();
+		json.endObject();
+		return 1;
 	}
 
 	public static int ImageSpike(JSONStringer json, float[] fs, int bodyIndex, int cnt) throws JSONException {

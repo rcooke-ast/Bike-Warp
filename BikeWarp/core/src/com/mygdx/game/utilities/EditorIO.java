@@ -404,6 +404,7 @@ public class EditorIO {
 	public static String GetBGTexture(String textName) {
 		String defval = "background_waterfall";
 		if (textName.equals("Mountains")) return "background_mountains";
+		else if (textName.equals("Space")) return "background_space";
 		else if (textName.equals("Waterfall")) return "background_waterfall";
 		else return null;
 	}
@@ -1196,6 +1197,7 @@ public class EditorIO {
         cntLog = 0;
         cntNitrous = 0;
         cntPendulum = 0;
+		cntPlanet = 0;
         cntSpike = 0;
         cntSpikeZone = 0;
         cntTransport = 0;
@@ -1264,10 +1266,14 @@ public class EditorIO {
         		addBodies = EditorImageIO.ImageNitrous(json, allObjects.get(i), bodyIdx, cntNitrous);
         		bodyIdx += addBodies;
         		cntNitrous += 1;
-        	} else if (allObjectTypes.get(i) == ObjectVars.Pendulum) {
-        		addBodies = EditorImageIO.ImagePendulum(json, allObjects.get(i), bodyIdx, cntPendulum);
-        		bodyIdx += addBodies;
-        		cntPendulum += 1;
+			} else if (allObjectTypes.get(i) == ObjectVars.Pendulum) {
+				addBodies = EditorImageIO.ImagePendulum(json, allObjects.get(i), bodyIdx, cntPendulum);
+				bodyIdx += addBodies;
+				cntPendulum += 1;
+			} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
+				addBodies = EditorImageIO.ImagePlanet(json, allObjects.get(i), bodyIdx, cntPlanet, allObjectTypes.get(i));
+				bodyIdx += addBodies;
+				cntPlanet += 1;
         	} else if (allObjectTypes.get(i) == ObjectVars.Spike) {
         		addBodies = EditorImageIO.ImageSpike(json, allObjects.get(i), bodyIdx, cntSpike);
         		bodyIdx += addBodies;

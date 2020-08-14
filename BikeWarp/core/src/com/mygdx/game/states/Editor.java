@@ -97,7 +97,7 @@ public class Editor extends GameState {
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
-	private String[] bgTextureList = {"Mountains", "Waterfall"};
+	private String[] bgTextureList = {"Mountains", "Space", "Waterfall"};
 	private String[] fgTextureList = {"Plants", "Trees"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
 	private String[] gravityList = {"Earth", "Moon", "Mars", "Zero"};
@@ -914,6 +914,17 @@ public class Editor extends GameState {
 									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
 									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
 									MoveCameraTo(xcen,ycen,true);
+								} else if (jsonLevelString.split(" ")[2].equals("Pl")) {
+									Message("This planet is too small - Two vertices in the polygon are too close together", 1);
+									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
+										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) +
+												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
+										if (dist < clsdist) {
+											clsdist = dist;
+											idxcls = i;
+										}
+									}
+									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
 								}
 							} catch (Exception e) {}
 						} else if (jsonLevelString.startsWith("BD")) {
@@ -6664,7 +6675,7 @@ public class Editor extends GameState {
 			else if (objNum == ObjectVars.TransportInvisibleZero) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisible);
 		} else if (ObjectVars.IsPlanet(objNum)) {
 			// Find the centre of the planet
-			float shiftX = allObjects.get(objectSelect)[0], shiftY = allObjects.get(objectSelect)[0];
+			float shiftX = allObjects.get(objectSelect)[0], shiftY = allObjects.get(objectSelect)[1];
 			if (allObjectTypes.get(objectSelect)==ObjectVars.PlanetSaturn) {
 				for (int ss=1; ss<allObjects.get(objectSelect).length/2; ss++) {
 					shiftX += allObjects.get(objectSelect)[2*ss];
