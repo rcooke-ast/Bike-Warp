@@ -1263,14 +1263,12 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	}
 
 	public static String AddPlanetPolygon(JSONStringer json, float[] fs, int cnt) throws JSONException {
-		float xcen = 0.0f;
-		float ycen = 0.0f;
-		for (int pp=0; pp<fs.length/2; pp++) {
-			xcen += fs[2*pp];
-			ycen += fs[2*pp+1];
-		}
-		xcen *= B2DVars.EPPM/(fs.length/2);
-		ycen *= B2DVars.EPPM/(fs.length/2);
+		int xmin = ObjectVars.GetSaturnMinMax(0,0);
+		int xmax = ObjectVars.GetSaturnMinMax(0,1);
+		int ymin = ObjectVars.GetSaturnMinMax(1,0);
+		int ymax = ObjectVars.GetSaturnMinMax(1,1);
+		float xcen = 0.5f*(fs[xmin]+fs[xmax])*B2DVars.EPPM;
+		float ycen = 0.5f*(fs[ymin]+fs[ymax])*B2DVars.EPPM;
 		// Setup the BD
 		ArrayList<float[]> convexPolygons;
 		ArrayList<ArrayList<Vector2>> convexVectorPolygons;
