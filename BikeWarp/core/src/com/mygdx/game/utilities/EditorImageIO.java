@@ -797,33 +797,16 @@ public class EditorImageIO {
 
 	public static int ImagePlanetPolygon(JSONStringer json, float[] fs, int bodyIndex, int cnt, String image_fname) throws JSONException {
 		// Get the center, xmin, xmax, ymin, ymax of the planet
-		float xcen = 0.0f;
-		float ycen = 0.0f;
-		float xmin=0, ymin=0, xmax=0, ymax=0;
-		for (int pp=0; pp<fs.length/2; pp++) {
-			xcen += fs[2*pp];
-			ycen += fs[2*pp+1];
-			// x extremes
-			if ((fs[2*pp] < xmin) || (pp == 0)) {
-				xmin = fs[2*pp];
-			}
-			if ((fs[2*pp] > xmax) || (pp == 0)) {
-				xmax = fs[2*pp];
-			}
-			// y extremes
-			if ((fs[2*pp+1] < ymin) || (pp == 0)) {
-				ymin = fs[2*pp+1];
-			}
-			if ((fs[2*pp+1] > ymax) || (pp == 0)) {
-				ymax = fs[2*pp+1];
-			}
-		}
-		xcen *= B2DVars.EPPM/(fs.length/2);
-		ycen *= B2DVars.EPPM/(fs.length/2);
-		xmin *= B2DVars.EPPM;
-		ymin *= B2DVars.EPPM;
-		xmax *= B2DVars.EPPM;
-		ymax *= B2DVars.EPPM;
+		int xmn = ObjectVars.GetSaturnMinMax(0,0);
+		int xmx = ObjectVars.GetSaturnMinMax(0,1);
+		int ymn = ObjectVars.GetSaturnMinMax(1,0);
+		int ymx = ObjectVars.GetSaturnMinMax(1,1);
+		float xmin = B2DVars.EPPM*fs[xmn];
+		float ymin = B2DVars.EPPM*fs[ymn];
+		float xmax = B2DVars.EPPM*fs[xmx];
+		float ymax = B2DVars.EPPM*fs[ymx];
+		float xcen = 0.5f*(xmin+xmax);
+		float ycen = 0.5f*(ymin+ymax);
 		//
 		float rotAngle = 0.0f;
 		json.object(); // Start of Nitrous

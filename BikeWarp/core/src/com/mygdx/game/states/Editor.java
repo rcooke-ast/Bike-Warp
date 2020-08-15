@@ -6675,14 +6675,21 @@ public class Editor extends GameState {
 			else if (objNum == ObjectVars.TransportInvisibleZero) allObjectTypes.set(objectSelect, ObjectVars.TransportInvisible);
 		} else if (ObjectVars.IsPlanet(objNum)) {
 			// Find the centre of the planet
-			float shiftX = allObjects.get(objectSelect)[0], shiftY = allObjects.get(objectSelect)[1];
+			float shiftX, shiftY;
 			if (allObjectTypes.get(objectSelect)==ObjectVars.PlanetSaturn) {
-				for (int ss=1; ss<allObjects.get(objectSelect).length/2; ss++) {
-					shiftX += allObjects.get(objectSelect)[2*ss];
-					shiftY += allObjects.get(objectSelect)[2*ss+1];
-				}
-				shiftX /= (allObjects.get(objectSelect).length/2);
-				shiftY /= (allObjects.get(objectSelect).length/2);
+				int xmn = ObjectVars.GetSaturnMinMax(0,0);
+				int xmx = ObjectVars.GetSaturnMinMax(0,1);
+				int ymn = ObjectVars.GetSaturnMinMax(1,0);
+				int ymx = ObjectVars.GetSaturnMinMax(1,1);
+				float xmin = B2DVars.EPPM*allObjects.get(objectSelect)[xmn];
+				float ymin = B2DVars.EPPM*allObjects.get(objectSelect)[ymn];
+				float xmax = B2DVars.EPPM*allObjects.get(objectSelect)[xmx];
+				float ymax = B2DVars.EPPM*allObjects.get(objectSelect)[ymx];
+				shiftX = 0.5f*(xmin+xmax);
+				shiftY = 0.5f*(ymin+ymax);
+			} else {
+				shiftX = allObjects.get(objectSelect)[0];
+				shiftY = allObjects.get(objectSelect)[1];
 			}
 			// Loop through all planets to get the next one
 			if (objNum == ObjectVars.PlanetSun) {
