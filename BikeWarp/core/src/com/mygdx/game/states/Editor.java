@@ -97,8 +97,8 @@ public class Editor extends GameState {
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
-	private String[] bgTextureList = {"Mountains", "Space", "Waterfall"};
-	private String[] fgTextureList = {"Plants", "Trees"};
+	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
+	private String[] fgTextureList = {"None", "Plants", "Trees"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
 	private String[] gravityList = {"Earth", "Moon", "Mars", "Zero"};
 	private String[] loadList = {"Load Level", "New Level"};

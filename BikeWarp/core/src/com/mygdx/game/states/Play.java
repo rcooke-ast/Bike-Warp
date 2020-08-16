@@ -191,6 +191,7 @@ public class Play extends GameState {
     private boolean collectDiamond;
     private int nullvar;
     private boolean forcequit, forceRestart, lrIsDown, paintBackdrop, paintForeground;
+    private float backgroundLimit;
     
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
@@ -1627,18 +1628,14 @@ public class Play extends GameState {
      */
     private void processScene()
     {
-       createSpatialsFromRubeImages(mScene);
-       createPolySpatialsFromRubeFixtures(mScene);
+        createSpatialsFromRubeImages(mScene);
+        createPolySpatialsFromRubeFixtures(mScene);
 
-       mWorld = mScene.getWorld();
-       // configure simulation settings
-       mVelocityIter = mScene.velocityIterations;
-       mPositionIter = mScene.positionIterations;
-//       if (mScene.stepsPerSecond != 0)
-//       {
-//          mSecondsPerStep = 1f / mScene.stepsPerSecond;
-//       }
-       mWorld.setContactListener(cl);
+        mWorld = mScene.getWorld();
+        // configure simulation settings
+        mVelocityIter = mScene.velocityIterations;
+        mPositionIter = mScene.positionIterations;
+        mWorld.setContactListener(cl);
 
        //
        // example of custom property handling
@@ -1657,241 +1654,228 @@ public class Play extends GameState {
 //          }
 //       }
 
-       // Example of accessing data based on name
-//       System.out.println("body0 count: " + mScene.getNamed(Body.class, "body0").size);
-//       System.out.println("fixture0 count: " + mScene.getNamed(Fixture.class, "fixture0").size);
-       //mScene.printStats();
-       
-       // Get the starting position
-       try {
-    	   gameInfo = mScene.getNamed(Body.class, "GameInfo").first();
-       } catch (NullPointerException e) {
-    	   // TODO :: Level was not compiled correctly... return
-    	   System.out.println("TRIED TO FIX IT HERE - BUT THIS DOESN'T WORK!!!");
-       	   gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
-       	   gsm.SetPlaying(false);
-       	   return;
-       }
-       startPosition = (Vector2) mScene.getCustom(gameInfo, "startPosition", null);
-       finishPosition = (Vector2) mScene.getCustom(gameInfo, "finishPosition", null);
-       startDirection = (Float) mScene.getCustom(gameInfo, "startDirection", 1.0f);
-       startAngle = (Float) mScene.getCustom(gameInfo, "startAngle", 0.0f);
-       collectJewel = (Integer) mScene.getCustom(gameInfo, "numJewel", 0);
-       bounds = (Vector2) mScene.getCustom(gameInfo, "bounds", new Vector2(0.0f, 1000.0f));
-       String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
-       sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName),2));
-       blackScreen = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("data/images/sky_moon.png"),2));
-       bikeDirc = startDirection; // 1=right, -1=left
-       bikeScale = startDirection;
-       bikeScaleLev *= startDirection;
+        // Get the starting position
+        try {
+    	    gameInfo = mScene.getNamed(Body.class, "GameInfo").first();
+        } catch (NullPointerException e) {
+    	    // TODO :: Level was not compiled correctly... return
+    	    System.out.println("TRIED TO FIX IT HERE - BUT THIS DOESN'T WORK!!!");
+       	    gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+       	    gsm.SetPlaying(false);
+       	    return;
+        }
+        startPosition = (Vector2) mScene.getCustom(gameInfo, "startPosition", null);
+        finishPosition = (Vector2) mScene.getCustom(gameInfo, "finishPosition", null);
+        startDirection = (Float) mScene.getCustom(gameInfo, "startDirection", 1.0f);
+        startAngle = (Float) mScene.getCustom(gameInfo, "startAngle", 0.0f);
+        collectJewel = (Integer) mScene.getCustom(gameInfo, "numJewel", 0);
+        bounds = (Vector2) mScene.getCustom(gameInfo, "bounds", new Vector2(0.0f, 1000.0f));
+        String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
+        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName),2));
+        blackScreen = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("data/images/sky_moon.png"),2));
+        bikeDirc = startDirection; // 1=right, -1=left
+        bikeScale = startDirection;
+        bikeScaleLev *= startDirection;
 
-       // Load the foreground/background textures
-       String bgTextName = (String) mScene.getCustom(gameInfo, "bgTexture", null);
+        // Load the foreground/background textures
+        String bgTextName = (String) mScene.getCustom(gameInfo, "bgTexture", null);
+        String fgTextName = (String) mScene.getCustom(gameInfo, "fgTexture", null);
+        paintForeground = true;
+        paintBackdrop = true;
+        backgroundLimit = BikeGameTextures.BackgroundLimit(bgTextName); // Must be less than 0.5 (0.0 means the texture will start in the vertical middle of the screen, 0.5 is the bottom, 0.3 means the texture will start 20% from the bottom of the screen);
+        if ((fgTextName == null) || (fgTextName.equalsIgnoreCase("none"))) {
+            paintForeground = false;
+        } else foreground = new Sprite(BikeGameTextures.LoadTexture(fgTextName,2));
+        if ((bgTextName == null) || (bgTextName.equalsIgnoreCase("none"))) {
+            paintBackdrop = false;
+        } else background = new Sprite(BikeGameTextures.LoadTexture(bgTextName,2));
+        // Change the timer colour if certain backgrounds are being used
+        if ((paintBackdrop == false) | (skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png")) | (bgTextName.equalsIgnoreCase("background_space"))) {
+    	    timer.setColor(0.5f, 0.5f, 0.5f, 1);
+        }
 
-       paintForeground = true;
-       if ((bgTextName != null) && (bgTextName.equals("data/images/background_space.png"))) paintForeground = false;
-       if ((bgTextName == null) | (skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png"))) {
-    	   paintBackdrop = false;
-    	   timer.setColor(0.5f, 0.5f, 0.5f, 1);
-       } else {
-           background = new Sprite(BikeGameTextures.LoadTexture(bgTextName, 2));
-           foreground = new Sprite(BikeGameTextures.LoadTexture((String) mScene.getCustom(gameInfo, "fgTexture", "foreground_plants"),2));
-           paintBackdrop = true;
-       }
-       // Get the two bike wheel motors
-       leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();
-       rightWheel = mScene.getNamed(WheelJoint.class, "rightwheel").first();
-       leftRope = mScene.getNamed(RopeJoint.class, "leftrope").first();
-       rightRope = mScene.getNamed(RopeJoint.class, "rightrope").first();
-       // Bug with Box2D -- set the anchor for each joint manually
-       Vector2 lWR_lAnchorA = new Vector2(-0.5f,-0.3f);
-       Vector2 lWR_lAxisA = new Vector2(0.0f,1.0f);
-       Vector2 rWR_lAnchorA = new Vector2(0.5f,-0.3f);
-       Vector2 rWR_lAxisA = new Vector2(-0.416146844625f,0.909297406673f);
-       Vector2 lRR_lAnchorA = new Vector2(-0.5f,-0.52f);
-       Vector2 rRR_lAnchorA = new Vector2(0.591552257538f,-0.50004543390f);
-       // Obtain and set the wheel joint definitions
-       // First, facing right
-       leftWheelR.bodyA = leftWheel.getBodyA();
-       leftWheelR.bodyB = leftWheel.getBodyB();
-       leftWheelR.collideConnected = leftWheel.getCollideConnected();
-       leftWheelR.localAnchorA.set(lWR_lAnchorA.cpy());
-       leftWheelR.localAnchorB.set(new Vector2(0,0));
-       leftWheelR.localAxisA.set(lWR_lAxisA.cpy());
-       leftWheelR.enableMotor = leftWheel.isMotorEnabled();
-       leftWheelR.motorSpeed = leftWheel.getMotorSpeed();
-       leftWheelR.maxMotorTorque = leftWheel.getMaxMotorTorque();
-       leftWheelR.frequencyHz = leftWheel.getSpringFrequencyHz();
-       leftWheelR.dampingRatio = leftWheel.getSpringDampingRatio();
-       rightWheelR.bodyA = rightWheel.getBodyA();
-       rightWheelR.bodyB = rightWheel.getBodyB();
-       rightWheelR.collideConnected = rightWheel.getCollideConnected();
-       rightWheelR.localAnchorA.set(rWR_lAnchorA.cpy());
-       rightWheelR.localAnchorB.set(new Vector2(0,0));
-       rightWheelR.localAxisA.set(rWR_lAxisA.cpy());
-       rightWheelR.enableMotor = rightWheel.isMotorEnabled();
-       rightWheelR.motorSpeed = rightWheel.getMotorSpeed();
-       rightWheelR.maxMotorTorque = rightWheel.getMaxMotorTorque();
-       rightWheelR.frequencyHz = rightWheel.getSpringFrequencyHz();
-       rightWheelR.dampingRatio = rightWheel.getSpringDampingRatio();
-       // Now when facing left
-       leftWheelL.bodyA = leftWheel.getBodyA();
-       leftWheelL.bodyB = leftWheel.getBodyB();
-       leftWheelL.collideConnected = leftWheel.getCollideConnected();
-       leftWheelL.localAnchorA.set(lWR_lAnchorA.cpy());
-       leftWheelL.localAnchorB.set(new Vector2(0,0));
-       Vector2 tempVec = rWR_lAxisA.cpy();
-       tempVec.x = -tempVec.x;
-       leftWheelL.localAxisA.set(tempVec.cpy());
-       leftWheelL.enableMotor = rightWheel.isMotorEnabled();
-       leftWheelL.motorSpeed = rightWheel.getMotorSpeed();
-       leftWheelL.maxMotorTorque = rightWheel.getMaxMotorTorque();
-       leftWheelL.frequencyHz = rightWheel.getSpringFrequencyHz();
-       leftWheelL.dampingRatio = rightWheel.getSpringDampingRatio();
-       rightWheelL.bodyA = rightWheel.getBodyA();
-       rightWheelL.bodyB = rightWheel.getBodyB();
-       rightWheelL.collideConnected = rightWheel.getCollideConnected();
-       rightWheelL.localAnchorA.set(rWR_lAnchorA.cpy());
-       rightWheelL.localAnchorB.set(new Vector2(0,0));
-       rightWheelL.localAxisA.set(lWR_lAxisA.cpy());
-       rightWheelL.enableMotor = leftWheel.isMotorEnabled();
-       rightWheelL.motorSpeed = leftWheel.getMotorSpeed();
-       rightWheelL.maxMotorTorque = leftWheel.getMaxMotorTorque();
-       rightWheelL.frequencyHz = leftWheel.getSpringFrequencyHz();
-       rightWheelL.dampingRatio = leftWheel.getSpringDampingRatio();
-       // Obtain and set the rope joint definitions
-       // First, facing right
-       leftRopeR.bodyA = leftRope.getBodyA();
-       leftRopeR.bodyB = leftRope.getBodyB();
-       leftRopeR.collideConnected = leftRope.getCollideConnected();
-       leftRopeR.localAnchorA.set(lRR_lAnchorA.cpy());
-       leftRopeR.localAnchorB.set(new Vector2(0,0));
-       leftRopeR.maxLength = leftRope.getMaxLength();
-       rightRopeR.bodyA = rightRope.getBodyA();
-       rightRopeR.bodyB = rightRope.getBodyB();
-       rightRopeR.collideConnected = rightRope.getCollideConnected();
-       rightRopeR.localAnchorA.set(rRR_lAnchorA.cpy());
-       rightRopeR.localAnchorB.set(new Vector2(0,0));
-       rightRopeR.maxLength = rightRope.getMaxLength();
-       // Now when facing left
-       leftRopeL.bodyA = leftRope.getBodyA();
-       leftRopeL.bodyB = leftRope.getBodyB();
-       leftRopeL.collideConnected = leftRope.getCollideConnected();
-       tempVec = rRR_lAnchorA.cpy();
-       tempVec.x = -tempVec.x;
-       leftRopeL.localAnchorA.set(tempVec.cpy());
-       leftRopeL.localAnchorB.set(new Vector2(0,0));
-       leftRopeL.maxLength = rightRope.getMaxLength();
-       rightRopeL.bodyA = rightRope.getBodyA();
-       rightRopeL.bodyB = rightRope.getBodyB();
-       rightRopeL.collideConnected = rightRope.getCollideConnected();
-       tempVec = lRR_lAnchorA.cpy();
-       tempVec.x = -tempVec.x;
-       rightRopeL.localAnchorA.set(tempVec.cpy());
-       rightRopeL.localAnchorB.set(new Vector2(0,0));
-       rightRopeL.maxLength = leftRope.getMaxLength();
+        // Get the two bike wheel motors
+        leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();
+        rightWheel = mScene.getNamed(WheelJoint.class, "rightwheel").first();
+        leftRope = mScene.getNamed(RopeJoint.class, "leftrope").first();
+        rightRope = mScene.getNamed(RopeJoint.class, "rightrope").first();
+        // Bug with Box2D -- set the anchor for each joint manually
+        Vector2 lWR_lAnchorA = new Vector2(-0.5f,-0.3f);
+        Vector2 lWR_lAxisA = new Vector2(0.0f,1.0f);
+        Vector2 rWR_lAnchorA = new Vector2(0.5f,-0.3f);
+        Vector2 rWR_lAxisA = new Vector2(-0.416146844625f,0.909297406673f);
+        Vector2 lRR_lAnchorA = new Vector2(-0.5f,-0.52f);
+        Vector2 rRR_lAnchorA = new Vector2(0.591552257538f,-0.50004543390f);
+        // Obtain and set the wheel joint definitions
+        // First, facing right
+        leftWheelR.bodyA = leftWheel.getBodyA();
+        leftWheelR.bodyB = leftWheel.getBodyB();
+        leftWheelR.collideConnected = leftWheel.getCollideConnected();
+        leftWheelR.localAnchorA.set(lWR_lAnchorA.cpy());
+        leftWheelR.localAnchorB.set(new Vector2(0,0));
+        leftWheelR.localAxisA.set(lWR_lAxisA.cpy());
+        leftWheelR.enableMotor = leftWheel.isMotorEnabled();
+        leftWheelR.motorSpeed = leftWheel.getMotorSpeed();
+        leftWheelR.maxMotorTorque = leftWheel.getMaxMotorTorque();
+        leftWheelR.frequencyHz = leftWheel.getSpringFrequencyHz();
+        leftWheelR.dampingRatio = leftWheel.getSpringDampingRatio();
+        rightWheelR.bodyA = rightWheel.getBodyA();
+        rightWheelR.bodyB = rightWheel.getBodyB();
+        rightWheelR.collideConnected = rightWheel.getCollideConnected();
+        rightWheelR.localAnchorA.set(rWR_lAnchorA.cpy());
+        rightWheelR.localAnchorB.set(new Vector2(0,0));
+        rightWheelR.localAxisA.set(rWR_lAxisA.cpy());
+        rightWheelR.enableMotor = rightWheel.isMotorEnabled();
+        rightWheelR.motorSpeed = rightWheel.getMotorSpeed();
+        rightWheelR.maxMotorTorque = rightWheel.getMaxMotorTorque();
+        rightWheelR.frequencyHz = rightWheel.getSpringFrequencyHz();
+        rightWheelR.dampingRatio = rightWheel.getSpringDampingRatio();
+        // Now when facing left
+        leftWheelL.bodyA = leftWheel.getBodyA();
+        leftWheelL.bodyB = leftWheel.getBodyB();
+        leftWheelL.collideConnected = leftWheel.getCollideConnected();
+        leftWheelL.localAnchorA.set(lWR_lAnchorA.cpy());
+        leftWheelL.localAnchorB.set(new Vector2(0,0));
+        Vector2 tempVec = rWR_lAxisA.cpy();
+        tempVec.x = -tempVec.x;
+        leftWheelL.localAxisA.set(tempVec.cpy());
+        leftWheelL.enableMotor = rightWheel.isMotorEnabled();
+        leftWheelL.motorSpeed = rightWheel.getMotorSpeed();
+        leftWheelL.maxMotorTorque = rightWheel.getMaxMotorTorque();
+        leftWheelL.frequencyHz = rightWheel.getSpringFrequencyHz();
+        leftWheelL.dampingRatio = rightWheel.getSpringDampingRatio();
+        rightWheelL.bodyA = rightWheel.getBodyA();
+        rightWheelL.bodyB = rightWheel.getBodyB();
+        rightWheelL.collideConnected = rightWheel.getCollideConnected();
+        rightWheelL.localAnchorA.set(rWR_lAnchorA.cpy());
+        rightWheelL.localAnchorB.set(new Vector2(0,0));
+        rightWheelL.localAxisA.set(lWR_lAxisA.cpy());
+        rightWheelL.enableMotor = leftWheel.isMotorEnabled();
+        rightWheelL.motorSpeed = leftWheel.getMotorSpeed();
+        rightWheelL.maxMotorTorque = leftWheel.getMaxMotorTorque();
+        rightWheelL.frequencyHz = leftWheel.getSpringFrequencyHz();
+        rightWheelL.dampingRatio = leftWheel.getSpringDampingRatio();
+        // Obtain and set the rope joint definitions
+        // First, facing right
+        leftRopeR.bodyA = leftRope.getBodyA();
+        leftRopeR.bodyB = leftRope.getBodyB();
+        leftRopeR.collideConnected = leftRope.getCollideConnected();
+        leftRopeR.localAnchorA.set(lRR_lAnchorA.cpy());
+        leftRopeR.localAnchorB.set(new Vector2(0,0));
+        leftRopeR.maxLength = leftRope.getMaxLength();
+        rightRopeR.bodyA = rightRope.getBodyA();
+        rightRopeR.bodyB = rightRope.getBodyB();
+        rightRopeR.collideConnected = rightRope.getCollideConnected();
+        rightRopeR.localAnchorA.set(rRR_lAnchorA.cpy());
+        rightRopeR.localAnchorB.set(new Vector2(0,0));
+        rightRopeR.maxLength = rightRope.getMaxLength();
+        // Now when facing left
+        leftRopeL.bodyA = leftRope.getBodyA();
+        leftRopeL.bodyB = leftRope.getBodyB();
+        leftRopeL.collideConnected = leftRope.getCollideConnected();
+        tempVec = rRR_lAnchorA.cpy();
+        tempVec.x = -tempVec.x;
+        leftRopeL.localAnchorA.set(tempVec.cpy());
+        leftRopeL.localAnchorB.set(new Vector2(0,0));
+        leftRopeL.maxLength = rightRope.getMaxLength();
+        rightRopeL.bodyA = rightRope.getBodyA();
+        rightRopeL.bodyB = rightRope.getBodyB();
+        rightRopeL.collideConnected = rightRope.getCollideConnected();
+        tempVec = lRR_lAnchorA.cpy();
+        tempVec.x = -tempVec.x;
+        rightRopeL.localAnchorA.set(tempVec.cpy());
+        rightRopeL.localAnchorB.set(new Vector2(0,0));
+        rightRopeL.maxLength = leftRope.getMaxLength();
 
-       if (startDirection == -1.0f) {
-    	   // Destroy all joints, and create the left-facing joints
-    	   // First Destroy
-    	   mWorld.destroyJoint(leftWheel);
-    	   mWorld.destroyJoint(rightWheel);
-    	   mWorld.destroyJoint(leftRope);
-    	   mWorld.destroyJoint(rightRope);
-    	   // Now Create
-    	   leftWheel = (WheelJoint) mWorld.createJoint(leftWheelL);
-    	   rightWheel = (WheelJoint) mWorld.createJoint(rightWheelL);
-    	   leftRope = (RopeJoint) mWorld.createJoint(leftRopeL);
-    	   rightRope = (RopeJoint) mWorld.createJoint(rightRopeL);
-       }
+        if (startDirection == -1.0f) {
+     	    // Destroy all joints, and create the left-facing joints
+    	    // First Destroy
+    	    mWorld.destroyJoint(leftWheel);
+    	    mWorld.destroyJoint(rightWheel);
+    	    mWorld.destroyJoint(leftRope);
+    	    mWorld.destroyJoint(rightRope);
+    	    // Now Create
+    	    leftWheel = (WheelJoint) mWorld.createJoint(leftWheelL);
+    	    rightWheel = (WheelJoint) mWorld.createJoint(rightWheelL);
+    	    leftRope = (RopeJoint) mWorld.createJoint(leftRopeL);
+    	    rightRope = (RopeJoint) mWorld.createJoint(rightRopeL);
+        }
 
-//       }
-//       bikeBody.add(mScene.getNamed(Body.class, "bikebody0").first());
-//       bikeBody.add(mScene.getNamed(Body.class, "bikebody1").first());
-//       bikeBody.add(mScene.getNamed(Body.class, "bikebody2").first());
-//       bikeBody.add(mScene.getNamed(Body.class, "bikebody3").first());
-//       bikeBody.add(mScene.getNamed(Body.class, "bikebody4").first());
-//       bikeBody.add(mScene.getNamed(Body.class, "bikebodyl").first());
-//       bikeBody.add(mScene.getNamed(Body.class, "bikebodyr").first());
-//       for (int i = 0; i < bikeBody.size; i++) {
-//    	   bikeBodyPart = bikeBody.get(i);
-//    	   bikeBodyPart.setTransform(startPosition, 0.0f);
-//       }
-       bikeBodyLW = mScene.getNamed(Body.class, "bikeleftwheel").first();
-       bikeBodyRW = mScene.getNamed(Body.class, "bikerightwheel").first();
-       bikeBodyH = mScene.getNamed(Body.class, "bikehead").first();
-       bikeBodyR = mScene.getNamed(Body.class, "riderbody").first();
-       bikeBodyC = mScene.getNamed(Body.class, "bikebody").first();
-       //bikeAngle = bikeBodyC.getAngle();
-       bikeBodyLW.setSleepingAllowed(false);
-       bikeBodyRW.setSleepingAllowed(false);
-       bikeBodyH.setSleepingAllowed(false);
-       bikeBodyR.setSleepingAllowed(false);
-       bikeBodyC.setSleepingAllowed(false);
-       bikeBodyC.setAngularDamping(2.0f);
-       // First, get the transform for rotating the body
-       // Transform the left wheel
-       bikeBodyLW.setTransform(new Vector2(0.0f,0.0f), startAngle);
-       // Transform the Right Wheel
-       float[] cCoord = PolygonOperations.RotateCoordinate(bikeBodyRW.getPosition().x, bikeBodyRW.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
-       Vector2 temppos = new Vector2(cCoord[0],cCoord[1]);
-       bikeBodyRW.setTransform(temppos, startAngle);
-       // Transform the Head
-       cCoord = PolygonOperations.RotateCoordinate(bikeBodyH.getPosition().x, bikeBodyH.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
-       temppos = new Vector2(cCoord[0],cCoord[1]);
-       bikeBodyH.setTransform(temppos, startAngle);
-       // Transform the Rider Body
-       cCoord = PolygonOperations.RotateCoordinate(bikeBodyR.getPosition().x, bikeBodyR.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
-       temppos = new Vector2(cCoord[0],cCoord[1]);
-       bikeBodyR.setTransform(temppos, startAngle);
-       // Transform the Chassis
-       cCoord = PolygonOperations.RotateCoordinate(bikeBodyC.getPosition().x, bikeBodyC.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
-       temppos = new Vector2(cCoord[0],cCoord[1]);
-       bikeBodyC.setTransform(temppos, startAngle);
-       // Translate the bike into the starting position
-       bikeBodyLW.setTransform(bikeBodyLW.getPosition().add(startPosition), bikeBodyLW.getAngle());
-       bikeBodyRW.setTransform(bikeBodyRW.getPosition().add(startPosition), bikeBodyRW.getAngle());
-       bikeBodyH.setTransform(bikeBodyH.getPosition().add(startPosition), bikeBodyH.getAngle());
-       bikeBodyR.setTransform(bikeBodyR.getPosition().add(startPosition), bikeBodyR.getAngle());
-       bikeBodyC.setTransform(bikeBodyC.getPosition().add(startPosition), bikeBodyC.getAngle());
-       
-       // Get all references to switches
-       // Gate switches
-       int gcntr = 0;
-       float[] tempSwitchG = new float[10];
-       Body tempBody;
-       Vector2 posSwitch;
-       while (true) {
-    	   try {
-    		   tempBody = mScene.getNamed(Body.class, "SwitchGate"+gcntr).first();
-    	   } catch (NullPointerException e) {
-    		   break;
-    	   }
-    	   posSwitch = (Vector2) mScene.getCustom(tempBody, "gatePos", null);
-    	   tempSwitchG[0] = posSwitch.x;
-    	   tempSwitchG[1] = posSwitch.y;
-    	   tempSwitchG[2] = (Float) mScene.getCustom(tempBody, "gateLength", 0.0f);
-    	   tempSwitchG[3] = MathUtils.radiansToDegrees * (Float) mScene.getCustom(tempBody, "gateAngle", 0.0f);
-    	   posSwitch = (Vector2) mScene.getCustom(tempBody, "switchPos", null);
-    	   tempSwitchG[4] = posSwitch.x;
-    	   tempSwitchG[5] = posSwitch.y;
-    	   tempSwitchG[6] = MathUtils.radiansToDegrees * (Float) mScene.getCustom(tempBody, "switchAngle", 0.0f);
-    	   tempSwitchG[7] = (Float) mScene.getCustom(tempBody, "switchLR", 1.0f);
-    	   tempSwitchG[8] = (Float) mScene.getCustom(tempBody, "switchOC", 0.0f);
-    	   tempSwitchG[9] = 1.0f - tempSwitchG[8]; // -1=destroy gate, 0=do nothing, 1=create gate
-    	   switchGate.add(tempSwitchG.clone());
-    	   gcntr +=1;
-       }
-       BodyDef bdef = new BodyDef();
-       bdef.type = BodyType.StaticBody;
-       bdef.position.set(0, 0);
-       bdef.fixedRotation = true;
-       switchGateBody = mWorld.createBody(bdef);
-       switchGateBody.setUserData(new Array<Integer>());
+        bikeBodyLW = mScene.getNamed(Body.class, "bikeleftwheel").first();
+        bikeBodyRW = mScene.getNamed(Body.class, "bikerightwheel").first();
+        bikeBodyH = mScene.getNamed(Body.class, "bikehead").first();
+        bikeBodyR = mScene.getNamed(Body.class, "riderbody").first();
+        bikeBodyC = mScene.getNamed(Body.class, "bikebody").first();
+        //bikeAngle = bikeBodyC.getAngle();
+        bikeBodyLW.setSleepingAllowed(false);
+        bikeBodyRW.setSleepingAllowed(false);
+        bikeBodyH.setSleepingAllowed(false);
+        bikeBodyR.setSleepingAllowed(false);
+        bikeBodyC.setSleepingAllowed(false);
+        bikeBodyC.setAngularDamping(2.0f);
+        // First, get the transform for rotating the body
+        // Transform the left wheel
+        bikeBodyLW.setTransform(new Vector2(0.0f,0.0f), startAngle);
+        // Transform the Right Wheel
+        float[] cCoord = PolygonOperations.RotateCoordinate(bikeBodyRW.getPosition().x, bikeBodyRW.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        Vector2 temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyRW.setTransform(temppos, startAngle);
+        // Transform the Head
+        cCoord = PolygonOperations.RotateCoordinate(bikeBodyH.getPosition().x, bikeBodyH.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyH.setTransform(temppos, startAngle);
+        // Transform the Rider Body
+        cCoord = PolygonOperations.RotateCoordinate(bikeBodyR.getPosition().x, bikeBodyR.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyR.setTransform(temppos, startAngle);
+        // Transform the Chassis
+        cCoord = PolygonOperations.RotateCoordinate(bikeBodyC.getPosition().x, bikeBodyC.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyC.setTransform(temppos, startAngle);
+        // Translate the bike into the starting position
+        bikeBodyLW.setTransform(bikeBodyLW.getPosition().add(startPosition), bikeBodyLW.getAngle());
+        bikeBodyRW.setTransform(bikeBodyRW.getPosition().add(startPosition), bikeBodyRW.getAngle());
+        bikeBodyH.setTransform(bikeBodyH.getPosition().add(startPosition), bikeBodyH.getAngle());
+        bikeBodyR.setTransform(bikeBodyR.getPosition().add(startPosition), bikeBodyR.getAngle());
+        bikeBodyC.setTransform(bikeBodyC.getPosition().add(startPosition), bikeBodyC.getAngle());
 
-       // Get the waterfall+rain body
-       waterfallBody = mScene.getNamed(Body.class, "Waterfall").first();
-       rainBody = mScene.getNamed(Body.class, "Rain").first();
+        // Get all references to switches
+        // Gate switches
+        int gcntr = 0;
+        float[] tempSwitchG = new float[10];
+        Body tempBody;
+        Vector2 posSwitch;
+        while (true) {
+    	    try {
+    		    tempBody = mScene.getNamed(Body.class, "SwitchGate"+gcntr).first();
+    	    } catch (NullPointerException e) {
+    		    break;
+    	    }
+    	    posSwitch = (Vector2) mScene.getCustom(tempBody, "gatePos", null);
+    	    tempSwitchG[0] = posSwitch.x;
+    	    tempSwitchG[1] = posSwitch.y;
+    	    tempSwitchG[2] = (Float) mScene.getCustom(tempBody, "gateLength", 0.0f);
+    	    tempSwitchG[3] = MathUtils.radiansToDegrees * (Float) mScene.getCustom(tempBody, "gateAngle", 0.0f);
+    	    posSwitch = (Vector2) mScene.getCustom(tempBody, "switchPos", null);
+    	    tempSwitchG[4] = posSwitch.x;
+    	    tempSwitchG[5] = posSwitch.y;
+    	    tempSwitchG[6] = MathUtils.radiansToDegrees * (Float) mScene.getCustom(tempBody, "switchAngle", 0.0f);
+    	    tempSwitchG[7] = (Float) mScene.getCustom(tempBody, "switchLR", 1.0f);
+    	    tempSwitchG[8] = (Float) mScene.getCustom(tempBody, "switchOC", 0.0f);
+    	    tempSwitchG[9] = 1.0f - tempSwitchG[8]; // -1=destroy gate, 0=do nothing, 1=create gate
+    	    switchGate.add(tempSwitchG.clone());
+    	    gcntr +=1;
+        }
+        BodyDef bdef = new BodyDef();
+        bdef.type = BodyType.StaticBody;
+        bdef.position.set(0, 0);
+        bdef.fixedRotation = true;
+        switchGateBody = mWorld.createBody(bdef);
+        switchGateBody.setUserData(new Array<Integer>());
+
+        // Get the waterfall+rain body
+        waterfallBody = mScene.getNamed(Body.class, "Waterfall").first();
+        rainBody = mScene.getNamed(Body.class, "Rain").first();
 
 //       // Get all references to trigger platforms and create the fixture
 //       // Create a trigger body, which will contain all of the trigger fixtures
@@ -1935,35 +1919,35 @@ public class Play extends GameState {
 //       triggerBody.setUserData(userData);
 //       triggerFixtList = triggerBody.getFixtureList();
 
-       // Find all kinematic bodies
-       Array<Body> bodies = new Array<Body>();
-       mWorld.getBodies(bodies);
-       RubeVertexArray vertices;
-       for (int i=0; i<bodies.size; i++) {
-    	   if (bodies.get(i).getType().equals(BodyType.KinematicBody)) {
-    		   // Only consider bodies where the path is set
-    		   vertices = (RubeVertexArray) mScene.getCustom(bodies.get(i), "path", null);
-    		   if (vertices != null) {
-        		   kinematicBodies.add(bodies.get(i));
-    			   kinematicPath.add(vertices.toVector2().clone());
-    		   }
-    	   }
-       }
-       if (kinematicBodies.size != 0) {
-    	   kinematicDirection = new int[kinematicBodies.size];
-    	   kinematicIndex = new int[kinematicBodies.size];
-    	   kinematicLength = new float[kinematicBodies.size];
-    	   kinematicLengthLeft = new float[kinematicBodies.size];
-    	   kinematicSpeed = new float[kinematicBodies.size];
-    	   float leftover;
-    	   for (int i=0; i<kinematicBodies.size; i++) {
-    		   kinematicDirection[i] = (Integer) mScene.getCustom(kinematicBodies.get(i), "direction", 1);
-    		   kinematicIndex[i]  = (Integer) mScene.getCustom(kinematicBodies.get(i), "index", 0);
-    		   kinematicLength[i] = (Float) mScene.getCustom(kinematicBodies.get(i), "pathlength", -1.0f);
-    		   kinematicSpeed[i]  = (Float) mScene.getCustom(kinematicBodies.get(i), "speed", -1.0f);
-    		   //if (kinematicSpeed[i] > kinematicLength[i]/4.0f) kinematicSpeed[i] = kinematicLength[i]/4.0f; 
-    		   leftover = 0.0f;
-    		   if (kinematicDirection[i] == 1) {
+        // Find all kinematic bodies
+        Array<Body> bodies = new Array<Body>();
+        mWorld.getBodies(bodies);
+        RubeVertexArray vertices;
+        for (int i=0; i<bodies.size; i++) {
+    	    if (bodies.get(i).getType().equals(BodyType.KinematicBody)) {
+    		    // Only consider bodies where the path is set
+    		    vertices = (RubeVertexArray) mScene.getCustom(bodies.get(i), "path", null);
+    		    if (vertices != null) {
+        		    kinematicBodies.add(bodies.get(i));
+    			    kinematicPath.add(vertices.toVector2().clone());
+    		    }
+    	    }
+        }
+        if (kinematicBodies.size != 0) {
+    	    kinematicDirection = new int[kinematicBodies.size];
+    	    kinematicIndex = new int[kinematicBodies.size];
+    	    kinematicLength = new float[kinematicBodies.size];
+    	    kinematicLengthLeft = new float[kinematicBodies.size];
+    	    kinematicSpeed = new float[kinematicBodies.size];
+    	    float leftover;
+    	    for (int i=0; i<kinematicBodies.size; i++) {
+    		    kinematicDirection[i] = (Integer) mScene.getCustom(kinematicBodies.get(i), "direction", 1);
+    		    kinematicIndex[i]  = (Integer) mScene.getCustom(kinematicBodies.get(i), "index", 0);
+    		    kinematicLength[i] = (Float) mScene.getCustom(kinematicBodies.get(i), "pathlength", -1.0f);
+    		    kinematicSpeed[i]  = (Float) mScene.getCustom(kinematicBodies.get(i), "speed", -1.0f);
+    		    //if (kinematicSpeed[i] > kinematicLength[i]/4.0f) kinematicSpeed[i] = kinematicLength[i]/4.0f;
+    		    leftover = 0.0f;
+    		    if (kinematicDirection[i] == 1) {
     		        if (kinematicIndex[i]==kinematicPath.get(i).length-1) {
     		        	// We cannot move in this direction if we are at the first index
      				   	kinematicDirection[i] *= -1;
@@ -1971,27 +1955,27 @@ public class Play extends GameState {
     		        } else {
     		        	for (int j=kinematicIndex[i]; j<kinematicPath.get(i).length-1; j++) leftover += (kinematicPath.get(i)[j].cpy().sub(kinematicPath.get(i)[j+1].cpy())).len();
     		        }
-    		   } else {
-    			   if (kinematicIndex[i]==0) {
-    				   // We cannot move in this direction if we are at the first index
-    				   kinematicDirection[i] *= -1;
-    				   leftover = kinematicLength[i];
-    			   } else {
-    				   for (int j=0; j<kinematicIndex[i]; j++) leftover += (kinematicPath.get(i)[j].cpy().sub(kinematicPath.get(i)[j+1].cpy())).len();
-    			   }
-    		   }
-    		   kinematicLengthLeft[i] = leftover;
-    	   }
-       }
-       bodies.clear();
-       //mScene.clear(); // no longer need any scene references
+    		    } else {
+    			    if (kinematicIndex[i]==0) {
+    			 	    // We cannot move in this direction if we are at the first index
+    				    kinematicDirection[i] *= -1;
+    				    leftover = kinematicLength[i];
+    			    } else {
+    				    for (int j=0; j<kinematicIndex[i]; j++) leftover += (kinematicPath.get(i)[j].cpy().sub(kinematicPath.get(i)[j+1].cpy())).len();
+    			    }
+    		    }
+    		    kinematicLengthLeft[i] = leftover;
+    	    }
+        }
+        bodies.clear();
+        //mScene.clear(); // no longer need any scene references
        
-       // Reset the sounds times
-       soundTimeGem = 0.0f;
-       soundTimeKey = 0.0f;
-       soundTimeNitrous = 0.0f;
-       soundTimeDoor = 0.0f;
-       soundTimeGravity = 0.0f;
+        // Reset the sounds times
+        soundTimeGem = 0.0f;
+        soundTimeKey = 0.0f;
+        soundTimeNitrous = 0.0f;
+        soundTimeDoor = 0.0f;
+        soundTimeGravity = 0.0f;
     }
     
     @Override
@@ -2043,12 +2027,11 @@ public class Play extends GameState {
     	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
     	if (paintBackdrop) {
     		//mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-    		float sclbottom = 0.35f; // Must be less than 0.5 (0.0 means the texture will start in the vertical middle of the screen, 0.5 is the bottom, 0.3 means the texture will start 20% from the bottom of the screen)
-    		float bgwidth = (BikeGame.V_HEIGHT*2048.0f/1280.0f)/(0.5f+sclbottom);
+    		float bgwidth = (BikeGame.V_HEIGHT*background.getWidth()/background.getHeight())/(0.5f+backgroundLimit);
       	    if (bikeDirc == 1.0f) {
-	    	 	 mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*sclbottom, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+sclbottom), 1.0f, 1.0f, 0.0f);
+	    	 	 mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*backgroundLimit, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
      	    } else {
-	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*sclbottom, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+sclbottom), 1.0f, 1.0f, 0.0f);     		   
+	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*backgroundLimit, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
      	    }
 //    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
      	    bgwidth = (BikeGame.V_HEIGHT*4096.0f/512.0f)/3.0f;

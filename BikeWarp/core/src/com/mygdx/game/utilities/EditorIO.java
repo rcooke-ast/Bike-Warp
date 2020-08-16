@@ -406,6 +406,7 @@ public class EditorIO {
 		if (textName.equals("Mountains")) return "background_mountains";
 		else if (textName.equals("Space")) return "background_space";
 		else if (textName.equals("Waterfall")) return "background_waterfall";
+		else if (textName.equals("None")) return "none";
 		else return null;
 	}
 
@@ -413,6 +414,7 @@ public class EditorIO {
 		String defval = "foreground_plants";
 		if (textName.equals("Plants")) return "foreground_plants";
 		else if (textName.equals("Trees")) return "foreground_trees";
+		else if (textName.equals("None")) return "none";
 		else return defval;
 	}
 
