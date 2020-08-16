@@ -34,6 +34,11 @@ public class BikeGameTextures {
         GetDecorations();
     }
 
+    public static float BackgroundLimit(String fname) {
+        if (fname.equalsIgnoreCase("background_waterfall")) return 0.35f;
+        return 0.5f;
+    }
+
     private static void GetTexture (String file, int flag) {
         texture = new Texture(Gdx.files.internal("data/images/"+file+".png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
