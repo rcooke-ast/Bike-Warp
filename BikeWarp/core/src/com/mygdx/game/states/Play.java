@@ -1689,7 +1689,7 @@ public class Play extends GameState {
        String bgTextName = (String) mScene.getCustom(gameInfo, "bgTexture", null);
 
        paintForeground = true;
-       if (bgTextName.equals("data/images/background_space.png")) paintForeground = false;
+       if ((bgTextName != null) && (bgTextName.equals("data/images/background_space.png"))) paintForeground = false;
        if ((bgTextName == null) | (skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png"))) {
     	   paintBackdrop = false;
     	   timer.setColor(0.5f, 0.5f, 0.5f, 1);
