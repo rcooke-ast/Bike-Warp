@@ -114,13 +114,12 @@ public class DecorVars {
 			case textureWoodPlancksV: return "Wood Plancks (V)";
 			default: return "Default";
 		}
-    	return "Default";
     }
 
 	public static int GetPlatformIndexFromString(String textureName) {
 		switch (textureName) {
 			case "Default": return textureDefault;
-			case "Asphalt" return textureAsphalt;
+			case "Asphalt": return textureAsphalt;
 			case "Bark": return textureBark;
 			case "Bricks": return textureBricks;
 			case "Bubbles": return textureBubbles;
@@ -146,7 +145,6 @@ public class DecorVars {
 			case "Wood Plancks (V)": return textureWoodPlancksV;
 			default: return 0;
 		}
-		return 0;
 	}
 
 	public static int GetObjectNumber(String modeParent) {
