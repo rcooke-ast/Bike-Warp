@@ -36,6 +36,32 @@ public class DecorVars {
     
     // Define the textures that can be applied to platforms
     public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bricks", "Bubbles", "Cracked Mud", "Grass", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final int textureDefault = 0;
+	public static final int textureAsphalt = 1;
+	public static final int textureBark = 2;
+	public static final int textureBricks = 3;
+	public static final int textureBubbles = 4;
+	public static final int textureCrackedMud = 5;
+	public static final int textureGrass = 6;
+	public static final int textureGravel = 7;
+	public static final int textureIce = 8;
+	public static final int textureLava = 9;
+	public static final int textureLeaves = 10;
+	public static final int textureMars = 11;
+	public static final int textureMetalBlack = 12;
+	public static final int textureMetalPlate = 13;
+	public static final int textureMoon = 14;
+	public static final int textureRoofTileGreen = 15;
+	public static final int textureRoofTileRed = 16;
+	public static final int textureSand = 17;
+	public static final int textureShade = 18;
+	public static final int textureSnow = 19;
+	public static final int textureSteel = 20;
+	public static final int textureWater = 21;
+	public static final int textureWood = 22;
+	public static final int textureWoodPlancksH = 23;
+	public static final int textureWoodPlancksV = 24;
+	//public static final int texture = ;
 
     public static boolean IsRoadSign(int dTyp) {
     	if  ((dTyp == RoadSign_Stop) | (dTyp == RoadSign_DoNotEnter) | (dTyp == RoadSign_RampAhead) |
@@ -59,11 +85,71 @@ public class DecorVars {
     }
     
     public static String GetPlatformTextureFromIndex(int idx) {
-    	if (idx == -1) return platformTextures[0];
-    	return platformTextures[idx];
+    	switch (idx) {
+			case -1: return "Default";
+			case textureDefault: return "Default";
+			case textureAsphalt: return "Asphalt";
+			case textureBark: return "Bark";
+			case textureBricks: return "Bricks";
+			case textureBubbles: return "Bubbles";
+			case textureCrackedMud: return "Cracked Mud";
+			case textureGrass: return "Grass";
+			case textureGravel: return "Gravel";
+			case textureIce: return "Ice";
+			case textureLava: return "Lava";
+			case textureLeaves: return "Leaves";
+			case textureMars: return "Mars";
+			case textureMetalBlack: return "Metal (Black)";
+			case textureMetalPlate: return "Metal (Plate)";
+			case textureMoon: return "Moon";
+			case textureRoofTileGreen: return "Roof tile (green)";
+			case textureRoofTileRed: return "Roof tile (red)";
+			case textureSand: return "Sand";
+			case textureShade: return "Shade";
+			case textureSnow: return "Snow";
+			case textureSteel: return "Steel";
+			case textureWater: return "Water";
+			case textureWood: return "Wood";
+			case textureWoodPlancksH: return "Wood Plancks (H)";
+			case textureWoodPlancksV: return "Wood Plancks (V)";
+			default: return "Default";
+		}
+    	return "Default";
     }
 
-    public static int GetObjectNumber(String modeParent) {
+	public static int GetPlatformIndexFromString(String textureName) {
+		switch (textureName) {
+			case "Default": return textureDefault;
+			case "Asphalt" return textureAsphalt;
+			case "Bark": return textureBark;
+			case "Bricks": return textureBricks;
+			case "Bubbles": return textureBubbles;
+			case "Cracked Mud": return textureCrackedMud;
+			case "Grass": return textureGrass;
+			case "Gravel": return textureGravel;
+			case "Ice": return textureIce;
+			case "Lava": return textureLava;
+			case "Leaves": return textureLeaves;
+			case "Mars": return textureMars;
+			case "Metal (Black)": return textureMetalBlack;
+			case "Metal (Plate)": return textureMetalPlate;
+			case "Moon": return textureMoon;
+			case "Roof tile (green)": return textureRoofTileGreen;
+			case "Roof tile (red)": return textureRoofTileRed;
+			case "Sand": return textureSand;
+			case "Shade": return textureShade;
+			case "Snow": return textureSnow;
+			case "Steel": return textureSteel;
+			case "Water": return textureWater;
+			case "Wood": return textureWood;
+			case "Wood Plancks (H)": return textureWoodPlancksH;
+			case "Wood Plancks (V)": return textureWoodPlancksV;
+			default: return 0;
+		}
+		return 0;
+	}
+
+	public static int GetObjectNumber(String modeParent) {
     	if (modeParent.equals("Sign (10)")) return RoadSign_10;
     	else if (modeParent.equals("Sign (20)")) return RoadSign_20;
     	else if (modeParent.equals("Sign (30)")) return RoadSign_30;

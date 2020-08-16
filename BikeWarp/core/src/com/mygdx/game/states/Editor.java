@@ -4260,7 +4260,7 @@ public class Editor extends GameState {
 	    		if (decorSelect == -1) SelectDecor("down", DecorVars.CollisionlessFG, false, false);
 	    		// Now update the platform texture
 	    		if (decorSelect != -1) {
-	    			allDecorPolys.set(decorSelect, GetListIndex(modeChild, platformTextures.clone()));
+	    			allDecorPolys.set(decorSelect, DecorVars.GetPlatformIndexFromString(modeChild));
 	    			decorSelect = -1;
 	    		}
 	    	}
