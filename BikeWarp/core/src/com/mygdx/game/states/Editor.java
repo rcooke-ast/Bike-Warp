@@ -2566,10 +2566,10 @@ public class Editor extends GameState {
 					MovePolygon(polySelect, endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED == true) & (polySelect != -1)) {
-				System.out.println("-----------");
-				for (int i=0; i<allPolygons.get(polySelect).length; i++) {
-					System.out.println(allPolygons.get(polySelect)[i]);
-				}
+//				System.out.println("-----------");
+//				for (int i=0; i<allPolygons.get(polySelect).length; i++) {
+//					System.out.println(allPolygons.get(polySelect)[i]);
+//				}
 				UpdatePolygon(polySelect);
 				polySelect = -1;
 			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG == true)) {
