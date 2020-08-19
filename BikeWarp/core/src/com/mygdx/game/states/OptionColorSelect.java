@@ -19,7 +19,7 @@ import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 
 public class OptionColorSelect extends GameState {
-	private float SCRWIDTH;
+	private float SCRWIDTH, SCRHEIGHT;
 	private BitmapFont menuText;
     private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite arrow, grass, dirt, sky, wheel, fsusp, rsusp, bwite, bolay, black;
@@ -39,7 +39,9 @@ public class OptionColorSelect extends GameState {
     }
 
     public void create() {
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
+        this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+        SCRWIDTH = BikeGame.viewport.width;
+        SCRHEIGHT = BikeGame.viewport.height;
 		// Prepare the Sprites to be used on this screen
 		arrow = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_arrow"),1));
 		black = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_black"),1));
@@ -55,7 +57,7 @@ public class OptionColorSelect extends GameState {
         fadeOut = -1.0f;
         fadeIn = 0.0f;
         // Set the widths and heights of the textures
-        oheight = BikeGame.V_HEIGHT*(1.0f - 0.5f*(446.0f/1090.0f))*(2.0f/3.0f);
+        oheight = SCRHEIGHT*(1.0f - 0.5f*(446.0f/1090.0f))*(2.0f/3.0f);
         owidth  = oheight*(1413.0f/1090.0f);
         wheight = oheight*(446.0f/1090.0f);
         wwidth  = wheight;
@@ -77,9 +79,9 @@ public class OptionColorSelect extends GameState {
         float bcx, bcy, wcx, wcy, mtopix = wwidth*(968.0f/446.0f);
         // Prepare the rear suspension (Left wheel)
         wcx = cam.position.x + 0.5f*mtopix;
-        wcy = cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight;
+        wcy = cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight;
         bcx = cam.position.x;
-        bcy = cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f));
+        bcy = cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f));
         float[] cCoord = new float[]{-0.143796f*-1.0f*mtopix,-0.218244f*mtopix};
         bcx += cCoord[0];
         bcy += cCoord[1];
@@ -92,7 +94,7 @@ public class OptionColorSelect extends GameState {
         // Prepare the rear suspension (Right wheel)
         wcx = cam.position.x-0.5f*mtopix;
         bcx = cam.position.x;
-        bcy = cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f));
+        bcy = cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f));
         cCoord = new float[]{-0.143796f*1.0f*mtopix,-0.218244f*mtopix};
         bcx += cCoord[0];
         bcy += cCoord[1];
@@ -106,7 +108,7 @@ public class OptionColorSelect extends GameState {
        	wcx = cam.position.x+0.5f*mtopix;
         cCoord = new float[]{0.2192f*mtopix,0.2614f*mtopix};
         bcx = cam.position.x + cCoord[0];
-        bcy = cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f)) + cCoord[1];
+        bcy = cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f)) + cCoord[1];
         fSuspHeightR = 0.06714876f*mtopix;
         fSuspWidthR = (512.0f/497.0f) * (float) Math.sqrt((bcx-wcx)*(bcx-wcx) + (bcy-wcy)*(bcy-wcy));
         fSuspAngR = PolygonOperations.GetAngle(wcx, wcy, bcx, bcy);
@@ -116,7 +118,7 @@ public class OptionColorSelect extends GameState {
        	wcx = cam.position.x - 0.5f*mtopix;
         cCoord = new float[]{-0.2192f*mtopix,0.2614f*mtopix};
         bcx = cam.position.x + cCoord[0];
-        bcy = cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f)) + cCoord[1];
+        bcy = cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight*(1.0f + (0.3f/0.22f)) + cCoord[1];
         fSuspHeightL = 0.06714876f*mtopix;
         fSuspWidthL = (512.0f/497.0f) * (float) Math.sqrt((bcx-wcx)*(bcx-wcx) + (bcy-wcy)*(bcy-wcy));
         fSuspAngL = PolygonOperations.GetAngle(wcx, wcy, bcx, bcy);
@@ -135,12 +137,12 @@ public class OptionColorSelect extends GameState {
         glyphLayout.setText(menuText, "Accelerate and switch direction to");
         mWidth = glyphLayout.width;
         mHeight = glyphLayout.height;
-        float topgap = BikeGame.V_HEIGHT*(11.0f/12.0f) - (0.5f*wheight + oheight);
+        float topgap = SCRHEIGHT*(11.0f/12.0f) - (0.5f*wheight + oheight);
         if (topgap < 3.0f*mHeight) scaleVal *= (topgap/(3.0f*mHeight)); 
         menuText.getData().setScale(scaleVal);
         glyphLayout.setText(menuText, "Accelerate and switch direction to");
         mHeight = glyphLayout.height;
-        mPos  = cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight + oheight; // This position marks the top of the player
+        mPos  = cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight + oheight; // This position marks the top of the player
         mPos += 0.75f*mHeight; // add half the menu height
     }
 
@@ -179,7 +181,7 @@ public class OptionColorSelect extends GameState {
 	@Override
 	public void update(float dt) {
     	// Always make sure the camera is in the correct location and zoom for this screen
-		cam.setToOrtho(false, SCRWIDTH, BikeGame.V_HEIGHT);
+		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 //		cam.position.set(SCRWIDTH/2, BikeGame.V_HEIGHT/2, 0);
 		cam.zoom = 1.0f;
     	cam.update();
@@ -217,22 +219,23 @@ public class OptionColorSelect extends GameState {
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    	Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+        //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw Sky
-        sb.draw(sky, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);        	
+        sb.draw(sky, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
         // Draw Bike Wheels
-        sb.draw(wheel, cam.position.x-0.5f*wwidth*(1.0f+(968.0f/446.0f)), cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f), wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
-        sb.draw(wheel, cam.position.x-0.5f*wwidth*(1.0f-(968.0f/446.0f)), cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f), wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
+        sb.draw(wheel, cam.position.x-0.5f*wwidth*(1.0f+(968.0f/446.0f)), cam.position.y - SCRHEIGHT*(5.0f/12.0f), wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
+        sb.draw(wheel, cam.position.x-0.5f*wwidth*(1.0f-(968.0f/446.0f)), cam.position.y - SCRHEIGHT*(5.0f/12.0f), wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
         sb.end();
         // Draw colored part of the bike
         Color rgbcol = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
     	sb.setColor(rgbcol.getRed()/255.0f, rgbcol.getGreen()/255.0f, rgbcol.getBlue()/255.0f, 1);
     	float bscale = (float)Math.sin(bikeScale*Math.PI/2);
         sb.begin();
-        sb.draw(bwite, cam.position.x-0.5f*wwidth*bscale*(1.0f+(968.0f/446.0f)), cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight, bscale*owidth/2.0f, oheight/2.0f, bscale*owidth, oheight, 1.0f, 1.0f, 0);
+        sb.draw(bwite, cam.position.x-0.5f*wwidth*bscale*(1.0f+(968.0f/446.0f)), cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight, bscale*owidth/2.0f, oheight/2.0f, bscale*owidth, oheight, 1.0f, 1.0f, 0);
         sb.end();
         // Draw rear suspension
         if (bikeDirc == 1.0f) {
@@ -270,14 +273,14 @@ public class OptionColorSelect extends GameState {
         dirt.setU2(((2*groundTimer)%1)+1);
         for (int i=0; i<dnwrapx; i++) {
         	for (int j=0; j<dnwrapy; j++) {
-                sb.draw(dirt, i*(dscale*wwidth*4.0f), cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) - 0.015625f*(dscale*wwidth)-(j+1)*(dscale*wwidth*4.0f), 0, 0, (dscale*wwidth*4.0f), (dscale*wwidth*4.0f), 1.0f, 1.0f, 0.0f);        	        		
+                sb.draw(dirt, i*(dscale*wwidth*4.0f), cam.position.y - SCRHEIGHT*(5.0f/12.0f) - 0.015625f*(dscale*wwidth)-(j+1)*(dscale*wwidth*4.0f), 0, 0, (dscale*wwidth*4.0f), (dscale*wwidth*4.0f), 1.0f, 1.0f, 0.0f);
         	}
         }        
         // Draw grass
         grass.setU((groundTimer/gscale)%1);
         grass.setU2((groundTimer/gscale)%1+1);
         for (int i=0; i<gnwrap; i++) {
-            sb.draw(grass, i*(gscale*dscale*wwidth*8.0f), cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) - 0.75f*(gscale*dscale*wheight), 0, 0, (gscale*dscale*wwidth*8.0f), (gscale*dscale*wheight*2.0f), 1.0f, 1.0f, 0.0f);        	
+            sb.draw(grass, i*(gscale*dscale*wwidth*8.0f), cam.position.y - SCRHEIGHT*(5.0f/12.0f) - 0.75f*(gscale*dscale*wheight), 0, 0, (gscale*dscale*wwidth*8.0f), (gscale*dscale*wheight*2.0f), 1.0f, 1.0f, 0.0f);
         }
         sb.end();
         // Draw menu text
@@ -305,7 +308,7 @@ public class OptionColorSelect extends GameState {
             if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, 1-fadeOut);
         	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, 1-fadeIn);
         	sb.begin();
-        	sb.draw(black, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+        	sb.draw(black, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
         	sb.end();
         }
 	}

@@ -17,7 +17,7 @@ public class MenuExit extends GameState {
     private Sprite background;
     private BitmapFont question, ansYes, ansNo;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
-    private float qWidth, qHeight, SCRWIDTH, yWidth, nWidth;
+    private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, yWidth, nWidth;
     private float fadeIn, fadeOut, fadeTime = 0.5f;
     //private float finAngle=0.0f, finishRad;
    
@@ -27,8 +27,9 @@ public class MenuExit extends GameState {
 	}
 
     public void create() {
-        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-        SCRWIDTH = SCTOSCRW/BikeGame.SCALE;
+		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		SCRWIDTH = BikeGame.viewport.width;
+		SCRHEIGHT = BikeGame.viewport.height;
         background = new Sprite(BikeGameTextures.LoadTexture("sky_evening",2));
         fadeOut = -1.0f;
         fadeIn = 0.0f;
@@ -87,6 +88,10 @@ public class MenuExit extends GameState {
 
 	@Override
 	public void update(float dt) {
+		// Always make sure the camera is in the correct location and zoom for this screen
+		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
+		cam.zoom = 1.0f;
+		cam.update();
     	handleInput();
     	if (fadeOut > 0.0f) {
     		fadeOut -= dt/fadeTime;
@@ -104,7 +109,8 @@ public class MenuExit extends GameState {
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    	Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+		//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	// Render QUESTION
     	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
@@ -112,7 +118,7 @@ public class MenuExit extends GameState {
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw Sky
-        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
         // Draw Exit Ball
         //sb.draw(finishFG, cam.position.x-finishRad, cam.position.y-finishRad, finishRad, finishRad, 2.0f*finishRad, 2.0f*finishRad, 1.0f, 1.0f, finAngle);
  	   	//finAngle += 5.0f;
@@ -121,7 +127,7 @@ public class MenuExit extends GameState {
     	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
     	else question.setColor(1, 1, 1, 1);
-        question.draw(sb, "Are you sure you want to exit?", (SCRWIDTH-qWidth)/2.0f,(BikeGame.V_HEIGHT+4.0f*qHeight)/2.0f);
+        question.draw(sb, "Are you sure you want to exit?", (SCRWIDTH-qWidth)/2.0f,(SCRHEIGHT+4.0f*qHeight)/2.0f);
         // Render YES
         if (currentOption == 1) {
         	if (fadeOut >= 0.0f) ansYes.setColor(1, 1, 1, fadeOut*0.5f);
@@ -132,7 +138,7 @@ public class MenuExit extends GameState {
         	else if (fadeIn < 1.0f) ansYes.setColor(1, 1, 1, fadeIn);
         	else ansYes.setColor(1, 1, 1, 1);
         }
-        ansYes.draw(sb, "Yes", (SCRWIDTH-yWidth)/2.0f,(BikeGame.V_HEIGHT+qHeight)/2.0f);
+        ansYes.draw(sb, "Yes", (SCRWIDTH-yWidth)/2.0f,(SCRHEIGHT+qHeight)/2.0f);
         // Render NO
         if (currentOption == 0) {
         	if (fadeOut >= 0.0f) ansNo.setColor(1, 1, 1, fadeOut*0.5f);
@@ -143,7 +149,7 @@ public class MenuExit extends GameState {
         	else if (fadeIn < 1.0f) ansNo.setColor(1, 1, 1, fadeIn);
         	else ansNo.setColor(1, 1, 1, 1);
         }
-        ansNo.draw(sb, "No", (SCRWIDTH-nWidth)/2.0f,(BikeGame.V_HEIGHT-qHeight)/2.0f);
+        ansNo.draw(sb, "No", (SCRWIDTH-nWidth)/2.0f,(SCRHEIGHT-qHeight)/2.0f);
         sb.end();
 	}
 

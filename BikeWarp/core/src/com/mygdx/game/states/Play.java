@@ -184,7 +184,7 @@ public class Play extends GameState {
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight, infoWidth;
     private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0, collectRocket=0;
     //private int[] animateJewel;
-    private float SCRWIDTH;
+    private float SCRWIDTH, SCRHEIGHT;
     private BitmapFont keyRedCntr, keyGreenCntr, keyBlueCntr, jewelCntr, nitrousCntr;
     private BitmapFont infoText;
     private int collectJewel;
@@ -274,22 +274,20 @@ public class Play extends GameState {
         }
         
         // Set up box2d camera
-        float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDisplayMode().height)/((float) Gdx.graphics.getDisplayMode().width);
-        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
+        this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+        SCRWIDTH = BikeGame.viewport.width;
+        SCRHEIGHT = BikeGame.viewport.height;
         b2dCam = new OrthographicCamera();
-        b2dCam.setToOrtho(false, Gdx.graphics.getWidth()/PPM, SCTOSCRH/PPM);
-        //b2dCam.setToOrtho(false, BikeGame.V_WIDTH/PPM, BikeGame.V_HEIGHT/PPM);
+        b2dCam.setToOrtho(false, SCRWIDTH/PPM, SCRHEIGHT/PPM);
         b2dCam.position.set(0, 0, 0);
-        //b2dCam.zoom = B2DVars.SCRWIDTH/(BikeGame.V_WIDTH/PPM);
-        b2dCam.zoom = B2DVars.SCRWIDTH/(Gdx.graphics.getWidth()/PPM);
+        b2dCam.zoom = B2DVars.SCRWIDTH/(SCRWIDTH/PPM);
         b2dCam.update();
 
         //hudCam.setToOrtho(false);
 
-        hudCam.setToOrtho(false, SCTOSCRW, Gdx.graphics.getHeight());
-        SCRWIDTH = SCTOSCRW/BikeGame.SCALE;
-        hudCam.position.set(SCRWIDTH/2,BikeGame.V_HEIGHT/2,0);
-        //hudCam.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,0);
+        hudCam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
+        hudCam.position.set(SCRWIDTH/2,SCRHEIGHT/2,0);
+        //hudCam.position.set(Gdx.graphics.getWidth()/2,SCRHEIGHT/2,0);
         hudCam.zoom = 1.0f/(BikeGame.SCALE);
         hudCam.update();
 
@@ -425,7 +423,7 @@ public class Play extends GameState {
         infoText.getData().setScale(scaleVal);
         glyphLayout.setText(infoText, "Press ESC to return to menu");
         infoWidth = glyphLayout.width;
-        scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/infoWidth;
+        scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/infoWidth;
         infoText.getData().setScale(scaleVal);
         infoWidth = glyphLayout.width;
 
@@ -1534,7 +1532,8 @@ public class Play extends GameState {
         // clear screen
     	Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1);
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+        //Gdx.gl.glViewport(0, 0, SCRWIDTH, SCRHEIGHT);
 
         switch (mState)
         {
@@ -2024,19 +2023,19 @@ public class Play extends GameState {
     	// Render the background Sky
 		mBatch.setProjectionMatrix(hudCam.combined);
     	mBatch.begin();
-    	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+    	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
     	if (paintBackdrop) {
     		//mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-    		float bgwidth = (BikeGame.V_HEIGHT*background.getWidth()/background.getHeight())/(0.5f+backgroundLimit);
+    		float bgwidth = (SCRHEIGHT*background.getWidth()/background.getHeight())/(0.5f+backgroundLimit);
       	    if (bikeDirc == 1.0f) {
-	    	 	 mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*backgroundLimit, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
+	    	 	 mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-SCRHEIGHT*backgroundLimit, 0, 0, bgwidth, SCRHEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
      	    } else {
-	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT*backgroundLimit, 0, 0, bgwidth, BikeGame.V_HEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
+	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-SCRHEIGHT*backgroundLimit, 0, 0, bgwidth, SCRHEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
      	    }
-//    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-     	    bgwidth = (BikeGame.V_HEIGHT*4096.0f/512.0f)/3.0f;
-            if (paintForeground) mBatch.draw(foreground, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, bgwidth, BikeGame.V_HEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
-    		//mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
+//    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH*2, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+     	    bgwidth = (SCRHEIGHT*4096.0f/512.0f)/3.0f;
+            if (paintForeground) mBatch.draw(foreground, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-SCRHEIGHT/2, 0, 0, bgwidth, SCRHEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
+    		//mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
     	}
     	mBatch.end();
 
@@ -2238,7 +2237,7 @@ public class Play extends GameState {
         if (mState == GAME_STATE.LOADED) {
     	    mBatch.begin();
     	    mBatch.setColor(1, 1, 1, 0.6f);
-    	    mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+    	    mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
     	    infoText.draw(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n"+LevelsListGame.gameLevelTips[levelID+1], hudCam.position.x-infoWidth/2.0f, hudCam.position.y, infoWidth, Align.center, true);
     	    mBatch.end();
         }
@@ -2252,10 +2251,10 @@ public class Play extends GameState {
         float pThick = 30.0f;
         mBatch.begin();
         // Draw the shading on the top bar
-        //mBatch.draw(panelShadeA, 0, BikeGame.V_HEIGHT-pThick, 0, 0, 1, 1, BikeGame.V_WIDTH, pThick, 0);
-        //mBatch.draw(panelShadeB, 0, BikeGame.V_HEIGHT-pThick-10, 0, 0, 1, 10, BikeGame.V_WIDTH, 1, 0);
-    	//mBatch.draw(panelShadeC, BikeGame.V_WIDTH - timerWidth - 10, BikeGame.V_HEIGHT-30, 0, 0, 7, 30, 1, 1, 0);
-    	//panelContainer.draw(mBatch, BikeGame.V_WIDTH - timerWidth - jcntrWidth - 128.0f*0.2f - 30.0f, BikeGame.V_HEIGHT-29, 128.0f*0.2f+jcntrWidth+10.0f, 28);
+        //mBatch.draw(panelShadeA, 0, SCRHEIGHT-pThick, 0, 0, 1, 1, BikeGame.V_WIDTH, pThick, 0);
+        //mBatch.draw(panelShadeB, 0, SCRHEIGHT-pThick-10, 0, 0, 1, 10, BikeGame.V_WIDTH, 1, 0);
+    	//mBatch.draw(panelShadeC, BikeGame.V_WIDTH - timerWidth - 10, SCRHEIGHT-30, 0, 0, 7, 30, 1, 1, 0);
+    	//panelContainer.draw(mBatch, BikeGame.V_WIDTH - timerWidth - jcntrWidth - 128.0f*0.2f - 30.0f, SCRHEIGHT-29, 128.0f*0.2f+jcntrWidth+10.0f, 28);
         float vshift = 0.0f;
         // Draw the timer
         String timeStr = GameVars.getTimeString(0);
@@ -2263,7 +2262,7 @@ public class Play extends GameState {
             timerCurrent = (int) (TimeUtils.millis()) - timerStart;
             timeStr = GameVars.getTimeString(timerCurrent);
         }
-    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, BikeGame.V_HEIGHT-(pThick-timerHeight)/2.0f);
+    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, SCRHEIGHT-(pThick-timerHeight)/2.0f);
     	// If this is a replay, don't display anything else on screen.
     	if (isReplay) {
     		mBatch.end();
@@ -2271,35 +2270,35 @@ public class Play extends GameState {
     	}
     	vshift += timerHeight +5;
     	// WR
-    	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f, BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+    	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
     	vshift += timerWRHeight + 5;
     	// PB
-    	timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f, BikeGame.V_HEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+    	timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
     	vshift += timerWRHeight + 8;
     	if (collectJewel != 0) {
 	        // Draw the jewel and it's counter
-	        jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f,BikeGame.V_HEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
-	        mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth - 128.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick-128.0f*0.2f)/2.0f-128.0f*0.2f, 0, 0, 128.0f, 128.0f, 0.2f, 0.2f, 0);
+	        jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f,SCRHEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
+	        mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth - 128.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick-128.0f*0.2f)/2.0f-128.0f*0.2f, 0, 0, 128.0f, 128.0f, 0.2f, 0.2f, 0);
 	        vshift += pThick;
     	}
 
     	// Draw the key counters
     	if (collectKeyRed != 0) {
-            keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed),     SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+            keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed),     SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
             vshift += 10;
-            mBatch.draw(keyRed,   SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
+            mBatch.draw(keyRed,   SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
             vshift += 5;
     	}
     	if (collectKeyGreen != 0) {
-    		keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+    		keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
             vshift += 10;
-            mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
+            mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
             vshift += 5;
     	}
     	if (collectKeyBlue != 0) {
-    		keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+    		keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
             vshift += 10;
-            mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
+            mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
             vshift += 5;
     	}
     	if (collectKeyRed+collectKeyGreen+collectKeyBlue != 0) vshift -= 5;
@@ -2307,14 +2306,14 @@ public class Play extends GameState {
     	// Draw the nitrous counter
     	vshift += 5;
     	if ((collectNitrous != 0) | (nitrousLevel != 0.0f)) {
-	        nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+	        nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
 	        vshift += 67.5f*0.2f;
 	        // Draw the nitrous image
-	        mBatch.draw(nitrous,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 67.5f, 0.2f, 0.2f, 0);
+	        mBatch.draw(nitrous,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 67.5f, 0.2f, 0.2f, 0);
 	        // Draw nitrous tube and fluid
 	        vshift += 10;
-	        mBatch.draw(nitrousFluid,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, nitrousLevel*135.0f, 50.0f, 0.2f, 0.2f, 0);       
-	        mBatch.draw(nitrousTube,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, BikeGame.V_HEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);       
+	        mBatch.draw(nitrousFluid,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, nitrousLevel*135.0f, 50.0f, 0.2f, 0.2f, 0);       
+	        mBatch.draw(nitrousTube,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);       
         }
         mBatch.end();
 

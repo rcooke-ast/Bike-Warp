@@ -24,9 +24,9 @@ public class MenuSelectPlayer extends GameState {
     private Sprite background;
     private BitmapFont question, playerList;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
-	private float qWidth, qHeight, SCRWIDTH, sheight, plyrWidth, plyrHeight, optWidth;
+	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sheight, plyrWidth, plyrHeight, optWidth;
     private float fadeIn, fadeOut, alpha, fadeTime = 0.5f;
-    private String header = "Select your player name, or create a new one";
+    private final String header = "Select your player name, or create a new one";
     private String newName = "";
     private boolean createPlayer = false;
    
@@ -50,9 +50,11 @@ public class MenuSelectPlayer extends GameState {
 	}
 
     public void create() {
-        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-        SCRWIDTH = SCTOSCRW/BikeGame.SCALE;
-		sheight = 0.7f*BikeGame.V_HEIGHT;
+//        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
+		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+        SCRWIDTH = BikeGame.viewport.width;
+		SCRHEIGHT = BikeGame.viewport.height;
+		sheight = 0.7f*BikeGame.viewport.height;
         background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
@@ -81,7 +83,7 @@ public class MenuSelectPlayer extends GameState {
 			tmpPlyrWidth = glyphLayout.width;
         	if (tmpPlyrWidth > plyrWidth) plyrWidth = tmpPlyrWidth;
         }
-        scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/plyrWidth;
+        scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/plyrWidth;
         playerList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         playerList.getData().setScale(scaleVal);
         SetNumPlyrShow();
@@ -156,7 +158,7 @@ public class MenuSelectPlayer extends GameState {
 	@Override
 	public void update(float dt) {
     	// Always make sure the camera is in the correct location and zoom for this screen
-		cam.setToOrtho(false, SCRWIDTH, BikeGame.V_HEIGHT);
+		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 		cam.zoom = 1.0f;
     	cam.update();
     	handleInput();
@@ -177,14 +179,15 @@ public class MenuSelectPlayer extends GameState {
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    	Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+    	//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	// Create player or display current list of players
     	if (createPlayer) {
     		sb.setColor(1, 1, 1, 1);
 	        sb.begin();
 	        // Draw Sky
-	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
@@ -215,7 +218,7 @@ public class MenuSelectPlayer extends GameState {
 	    	else sb.setColor(1, 1, 1, 1); 
 	        sb.begin();
 	        // Draw Sky
-	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);

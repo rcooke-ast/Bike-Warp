@@ -8,6 +8,7 @@ package com.mygdx.game.handlers;
 
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  *
@@ -16,10 +17,16 @@ import com.badlogic.gdx.InputMultiplexer;
 public class GameInputProcessor extends InputMultiplexer {
     
 	public static boolean disable_keys = false;
-	
+    public static Vector2 crop = new Vector2(0f, 0f);
+
 	public static void Disable(boolean dis) {
 		disable_keys = dis;
 	}
+
+	public static void SetCrop(float x, float y) {
+	    crop.x = x;
+        crop.y = y;
+    }
 
 	public boolean keyDown(int k) {
     	// Check the escape/restart key first (we always need escape/restart)
@@ -40,7 +47,6 @@ public class GameInputProcessor extends InputMultiplexer {
     	if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_CHDIR, true);
     	if (k == Keys.B) GameInput.setKey(GameInput.KEY_BUNNY, true);
     	if (k == Keys.N) GameInput.setKey(GameInput.KEY_NITROUS, true);
-    	if (k == Keys.V) GameInput.setKey(GameInput.KEY_ROCKET, true);
         // Other keys
         if (k == Keys.UP) GameInput.setKey(GameInput.KEY_UP, true);
         if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_DOWN, true);
@@ -89,7 +95,6 @@ public class GameInputProcessor extends InputMultiplexer {
     	if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_CHDIR, false);
     	if (k == Keys.B) GameInput.setKey(GameInput.KEY_BUNNY, false);
     	if (k == Keys.N) GameInput.setKey(GameInput.KEY_NITROUS, false);
-    	if (k == Keys.V) GameInput.setKey(GameInput.KEY_ROCKET, false);
         // Other keys
         if (k == Keys.UP) GameInput.setKey(GameInput.KEY_UP, false);
         if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_DOWN, false);
@@ -133,16 +138,16 @@ public class GameInputProcessor extends InputMultiplexer {
     }
 
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-    	GameInput.MBDOWNX = screenX;
-    	GameInput.MBDOWNY = screenY;
+    	GameInput.MBDOWNX = screenX - (int) crop.x;
+    	GameInput.MBDOWNY = screenY - (int) crop.y;
     	GameInput.MBISDOWN = true;
     	GameInput.MBRELEASE = false;
     	return true;
     }
 
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-    	GameInput.MBUPX = screenX;
-    	GameInput.MBUPY = screenY;
+    	GameInput.MBUPX = screenX - (int) crop.x;
+    	GameInput.MBUPY = screenY - (int) crop.y;
     	GameInput.MBISDOWN = false;
     	GameInput.MBRELEASE = true;
     	if (GameInput.MBDRAG) GameInput.MBJUSTDRAGGED = true;
@@ -152,15 +157,15 @@ public class GameInputProcessor extends InputMultiplexer {
     }
 
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-    	GameInput.MBDRAGX = screenX;
-    	GameInput.MBDRAGY = screenY;
+    	GameInput.MBDRAGX = screenX - (int) crop.x;
+    	GameInput.MBDRAGY = screenY - (int) crop.y;
     	GameInput.MBDRAG = true;
     	return true;
     }
 
     public boolean mouseMoved(int screenX, int screenY) {
-    	GameInput.MBMOVEX = screenX;
-    	GameInput.MBMOVEY = screenY;
+    	GameInput.MBMOVEX = screenX - (int) crop.x;
+    	GameInput.MBMOVEY = screenY - (int) crop.y;
     	return true;
     }
 
