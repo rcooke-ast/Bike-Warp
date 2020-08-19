@@ -12,10 +12,12 @@ import com.mygdx.game.handlers.GameStateManager;
 
 public class BikeGame implements ApplicationListener {
 	public static final String TITLE = "Bike Warp";
-//	public static final int V_WIDTH = 512;//512;//480;
-//	public static final int V_HEIGHT = 320;//384;//360;
-	public static final int V_WIDTH = 512;//480;
-	public static final int V_HEIGHT = 384;//360;
+//	public static final int V_WIDTH = 683;
+//	public static final int V_HEIGHT = 384;
+	public static final int V_WIDTH = 512;
+	public static final int V_HEIGHT = 320;
+//	public static final int V_WIDTH = 512;//480;
+//	public static final int V_HEIGHT = 384;//360;
 	private static final float ASPECT_RATIO = (float)V_WIDTH/(float)V_HEIGHT;
 	public static final int SCALE = 1;
 //	public static final int SCALE = 2;

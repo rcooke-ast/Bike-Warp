@@ -2027,14 +2027,19 @@ public class Play extends GameState {
     	if (paintBackdrop) {
     		//mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
     		float bgwidth = (SCRHEIGHT*background.getWidth()/background.getHeight())/(0.5f+backgroundLimit);
-      	    if (bikeDirc == 1.0f) {
-	    	 	 mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-SCRHEIGHT*backgroundLimit, 0, 0, bgwidth, SCRHEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
-     	    } else {
-	    		mBatch.draw(background, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyLW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-SCRHEIGHT*backgroundLimit, 0, 0, bgwidth, SCRHEIGHT*(0.5f+backgroundLimit), 1.0f, 1.0f, 0.0f);
-     	    }
+    		float scaling = 1.0f;
+    		if (bgwidth < SCRWIDTH) scaling = SCRWIDTH/bgwidth;
+    		bgwidth *= scaling;
+            if (bikeDirc == 1.0f) {
+                mBatch.draw(background, hudCam.position.x -SCRWIDTH / 2 - (bgwidth - SCRWIDTH) * (bikeBodyRW.getPosition().x - bounds.x) / (bounds.y - bounds.x), hudCam.position.y - scaling*SCRHEIGHT * backgroundLimit, 0, 0, bgwidth, scaling*SCRHEIGHT * (0.5f + backgroundLimit), 1.0f, 1.0f, 0.0f);
+            } else {
+                mBatch.draw(background, hudCam.position.x -SCRWIDTH / 2 - (bgwidth - SCRWIDTH) * (bikeBodyLW.getPosition().x - bounds.x) / (bounds.y - bounds.x), hudCam.position.y - scaling*SCRHEIGHT * backgroundLimit, 0, 0, bgwidth, scaling*SCRHEIGHT * (0.5f + backgroundLimit), 1.0f, 1.0f, 0.0f);
+            }
 //    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH*2, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-     	    bgwidth = (SCRHEIGHT*4096.0f/512.0f)/3.0f;
-            if (paintForeground) mBatch.draw(foreground, hudCam.position.x-SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-SCRHEIGHT/2, 0, 0, bgwidth, SCRHEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
+            if (paintForeground) {
+                bgwidth = (scaling*SCRHEIGHT*foreground.getWidth()/foreground.getHeight())/3.0f;
+                mBatch.draw(foreground, hudCam.position.x - SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-scaling*SCRHEIGHT/2, 0, 0, bgwidth, scaling*SCRHEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
+            }
     		//mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
     	}
     	mBatch.end();

@@ -68,7 +68,7 @@ public class MainMenu extends GameState {
         dscale = 0.2f;
         gspeed = 5.0f;
         gnwrap = 1 + (int) (SCRWIDTH/(gscale*dscale*wwidth*8.0f));
-        dnwrapx = 1 + (int) (SCRHEIGHT/(dscale*wwidth*4.0f));
+        dnwrapx = 1 + (int) (SCRWIDTH/(dscale*wwidth*4.0f));
         dnwrapy = 1 + (int) ((cam.position.y-wheight/2.0f-0.75f*(dscale*wheight))/(dscale*wwidth*4.0f));
         // Prepare the font for the menu option
         OptionsMainMenu.loadOptions();
