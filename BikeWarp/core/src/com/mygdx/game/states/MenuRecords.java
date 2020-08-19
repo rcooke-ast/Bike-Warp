@@ -25,7 +25,7 @@ import com.mygdx.game.handlers.LevelsListTraining;
  * @author rcooke
  */
 public class MenuRecords extends GameState {
-	private float SCRWIDTH;
+	private float SCRWIDTH, SCRHEIGHT;
 	//private Texture texture;
 	private BitmapFont times, textcarve, textcarveglow, menuText;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
@@ -45,8 +45,10 @@ public class MenuRecords extends GameState {
     }
     
     public void create() {
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-        sheight = 0.7f*BikeGame.V_HEIGHT;
+		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		SCRWIDTH = BikeGame.viewport.width;
+		SCRHEIGHT = BikeGame.viewport.height;
+        sheight = 0.7f*SCRHEIGHT;
         // Text for Record Times
         times = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         float scaleVal = 1.0f;
@@ -100,7 +102,7 @@ public class MenuRecords extends GameState {
         diamond = new Sprite(BikeGameTextures.LoadTexture("gem_diamond",0));
         dispOptVal = 0;
         // Set the widths and heights of the textures
-        wheight = 0.6f*BikeGame.V_HEIGHT;
+        wheight = 0.6f*SCRHEIGHT;
         wwidth  = wheight;
         //swidth  = wheight*(973.0f/760.0f);
         //mheight = wheight*(55.0f/760.0f);
@@ -183,7 +185,7 @@ public class MenuRecords extends GameState {
     
     public void update(float dt) {
     	// Always make sure the camera is in the correct location and zoom for this screen
-		cam.setToOrtho(false, SCRWIDTH, BikeGame.V_HEIGHT);
+		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 //		cam.position.set(SCRWIDTH/2, BikeGame.V_HEIGHT/2, 0);
 		cam.zoom = 1.0f;
     	cam.update();
@@ -214,14 +216,15 @@ public class MenuRecords extends GameState {
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    	Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+		//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, fadeIn);
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw Sky
-        sb.draw(sky, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);        	
+        sb.draw(sky, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
         // Draw menu
         sb.draw(menu, cam.position.x+SCRWIDTH/20+sheight/4, cam.position.y-wheight/2.0f-0.015625f*(dscale*wwidth), 0, 0, 0.5f*sheight, sheight, 1.0f, 1.0f, 0.0f);
     	if (fadeOut >= 0.0f) alpha=fadeOut;

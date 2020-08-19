@@ -29,7 +29,7 @@ import com.mygdx.game.utilities.EditorIO;
  * @author rcooke
  */
 public class LevelOptions extends GameState {
-	private float SCRWIDTH;
+	private float SCRWIDTH, SCRHEIGHT;
 	private BitmapFont menuText;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite metalpole, metalcorner;
@@ -54,8 +54,10 @@ public class LevelOptions extends GameState {
     public void create() {
     	firstPlay = true;
     	goToNext = false;
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-		sheight = 0.7f*BikeGame.V_HEIGHT;
+		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		SCRWIDTH = BikeGame.viewport.width;
+		SCRHEIGHT = BikeGame.viewport.height;
+		sheight = 0.7f*SCRHEIGHT;
 		GameVars.SetTimerTotal(-2);
 		saveReplay = false;
 		replayFilename = "";
@@ -70,7 +72,7 @@ public class LevelOptions extends GameState {
         metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
         float ratio = 4.0f;
         uRight = SCRWIDTH * ratio / metalmesh.getWidth();
-        vTop= BikeGame.V_HEIGHT * ratio / metalmesh.getHeight();
+        vTop= SCRHEIGHT * ratio / metalmesh.getHeight();
         // Load the black metal pole and the corner
         metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black",1));
         metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner",1));
@@ -135,7 +137,7 @@ public class LevelOptions extends GameState {
 			tmpMenuWidth = glyphLayout.width;
         	if (tmpMenuWidth > menuWidth) menuWidth = tmpMenuWidth;
         }
-        scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/menuWidth;
+        scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/menuWidth;
         menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         glyphLayout.setText(menuText, "My");
@@ -198,7 +200,7 @@ public class LevelOptions extends GameState {
     
     public void update(float dt) {
     	// Always make sure the camera is in the correct location and zoom for this screen
-		cam.setToOrtho(false, SCRWIDTH, BikeGame.V_HEIGHT);
+		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 		cam.zoom = 1.0f;
     	cam.update();
 		handleInput();
@@ -224,22 +226,23 @@ public class LevelOptions extends GameState {
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    	Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+		//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, fadeIn);
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw metal mesh, pole, and corners
-        sb.draw(metalmesh, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, SCRWIDTH, (float) BikeGame.V_HEIGHT, 0.0f, 0.0f, uRight, vTop);
-        sb.draw(metalpole, cam.position.x-SCRWIDTH/2+0.075f*BikeGame.V_HEIGHT, cam.position.y+0.425f*BikeGame.V_HEIGHT, 0, 0, SCRWIDTH-0.15f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);        	
-        sb.draw(metalpole, cam.position.x-SCRWIDTH/2-0.075f*BikeGame.V_HEIGHT, cam.position.y-BikeGame.V_HEIGHT/2, SCRWIDTH/2, 0.0375f*BikeGame.V_HEIGHT, SCRWIDTH-0.15f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 180.0f);        	
-        sb.draw(metalpole, cam.position.x-SCRWIDTH/2-BikeGame.V_HEIGHT/2+0.0375f*BikeGame.V_HEIGHT, cam.position.y-0.0375f*BikeGame.V_HEIGHT+0.075f*BikeGame.V_HEIGHT, BikeGame.V_HEIGHT/2, 0.0375f*BikeGame.V_HEIGHT, BikeGame.V_HEIGHT-0.15f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 90.0f);        	
-        sb.draw(metalpole, cam.position.x+SCRWIDTH/2-BikeGame.V_HEIGHT/2-0.0375f*BikeGame.V_HEIGHT, cam.position.y-0.0375f*BikeGame.V_HEIGHT-0.075f*BikeGame.V_HEIGHT, BikeGame.V_HEIGHT/2, 0.0375f*BikeGame.V_HEIGHT, BikeGame.V_HEIGHT-0.15f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 270.0f);        	
-        sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y+0.425f*BikeGame.V_HEIGHT, 0.0375f*BikeGame.V_HEIGHT, 0.0375f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 180.0f);
-        sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*BikeGame.V_HEIGHT, cam.position.y+0.425f*BikeGame.V_HEIGHT, 0.0375f*BikeGame.V_HEIGHT, 0.0375f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 90.0f);
-        sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*BikeGame.V_HEIGHT, cam.position.y-BikeGame.V_HEIGHT/2, 0.0375f*BikeGame.V_HEIGHT, 0.0375f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
-        sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0.0375f*BikeGame.V_HEIGHT, 0.0375f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 0.075f*BikeGame.V_HEIGHT, 1.0f, 1.0f, 270.0f);
+        sb.draw(metalmesh, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH, (float) SCRHEIGHT, 0.0f, 0.0f, uRight, vTop);
+        sb.draw(metalpole, cam.position.x-SCRWIDTH/2+0.075f*SCRHEIGHT, cam.position.y+0.425f*SCRHEIGHT, 0, 0, SCRWIDTH-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+        sb.draw(metalpole, cam.position.x-SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, 0.0375f*SCRHEIGHT, SCRWIDTH-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+        sb.draw(metalpole, cam.position.x-SCRWIDTH/2-SCRHEIGHT/2+0.0375f*SCRHEIGHT, cam.position.y-0.0375f*SCRHEIGHT+0.075f*SCRHEIGHT, SCRHEIGHT/2, 0.0375f*SCRHEIGHT, SCRHEIGHT-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
+        sb.draw(metalpole, cam.position.x+SCRWIDTH/2-SCRHEIGHT/2-0.0375f*SCRHEIGHT, cam.position.y-0.0375f*SCRHEIGHT-0.075f*SCRHEIGHT, SCRHEIGHT/2, 0.0375f*SCRHEIGHT, SCRHEIGHT-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
+        sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y+0.425f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+        sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y+0.425f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
+        sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+        sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
         // Draw level names
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;
@@ -252,8 +255,8 @@ public class LevelOptions extends GameState {
         	glyphLayout.setText(menuText, allOptions[i]);
         	lvlWidth = glyphLayout.width;
         	if (allOptions[i].equalsIgnoreCase("Watch Replay")) shift = 0.6f;
-        	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
-        	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1+shift)*menuHeight);
+        	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
+        	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1+shift)*menuHeight);
         }
         String dispText = "";
         if (saveReplay) {
@@ -284,7 +287,7 @@ public class LevelOptions extends GameState {
 		//  lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
 		glyphLayout.setText(menuText, dispText);
 		lvlWidth = glyphLayout.height;
-		menuText.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT), Align.center, true);
+		menuText.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
         sb.end();
     }
     

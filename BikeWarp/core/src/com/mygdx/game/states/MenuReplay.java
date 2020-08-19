@@ -23,7 +23,7 @@ public class MenuReplay extends GameState {
     private Sprite background;
     private BitmapFont question, replayList;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
-	private float qWidth, qHeight, SCRWIDTH, sheight, replayWidth, replayHeight, optWidth;
+	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sheight, replayWidth, replayHeight, optWidth;
     private float fadeIn, fadeOut, alpha, fadeTime = 0.5f;
     private final String header = "Select a replay to watch";
     private String newName = "";
@@ -40,9 +40,10 @@ public class MenuReplay extends GameState {
     	// First load the list of replays
     	replayFiles = ReplayVars.GetReplayList();
     	// Setup the canvas
-        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-        SCRWIDTH = SCTOSCRW/BikeGame.SCALE;
-		sheight = 0.7f*BikeGame.V_HEIGHT;
+		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		SCRWIDTH = BikeGame.viewport.width;
+		SCRHEIGHT = BikeGame.viewport.height;
+		sheight = 0.7f*SCRHEIGHT;
         background = new Sprite(BikeGameTextures.LoadTexture("sky_mars",2));
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
@@ -71,7 +72,7 @@ public class MenuReplay extends GameState {
         	tstReplayWidth = glyphLayout.width;
         	if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
         }
-        scaleVal = 0.25f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)/replayWidth;
+        scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/replayWidth;
         replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         replayList.getData().setScale(scaleVal);
         SetNumReplayShow();
@@ -120,7 +121,7 @@ public class MenuReplay extends GameState {
 	@Override
 	public void update(float dt) {
     	// Always make sure the camera is in the correct location and zoom for this screen
-		cam.setToOrtho(false, SCRWIDTH, BikeGame.V_HEIGHT);
+		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 		cam.zoom = 1.0f;
     	cam.update();
     	handleInput();
@@ -141,7 +142,8 @@ public class MenuReplay extends GameState {
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    	Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+		//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	// Create player or display current list of players
 
@@ -151,7 +153,7 @@ public class MenuReplay extends GameState {
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw Sky
-        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);
+        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
         // Draw the text
     	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);

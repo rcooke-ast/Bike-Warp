@@ -22,7 +22,7 @@ import com.mygdx.game.utilities.FileUtils;
  * @author rcooke
  */
 public class MainMenu extends GameState {
-	private float SCRWIDTH;
+	private float SCRWIDTH, SCRHEIGHT;
 	//private Texture texture;
     private Sprite wheel, shaft, grass, dirt, sky;
     private float wwidth, wheight, mwidth, mheight, mxcen, mycen, swidth, angle;
@@ -41,7 +41,9 @@ public class MainMenu extends GameState {
     }
     
     public void create() {
-		SCRWIDTH = ((float) BikeGame.V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
+		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		SCRWIDTH = BikeGame.viewport.width;
+		SCRHEIGHT = BikeGame.viewport.height;
         wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_wheel"),1));
         shaft = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_shaft"),1));
         sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky"),2));
@@ -51,7 +53,7 @@ public class MainMenu extends GameState {
         fadeOut = -1.0f;
         fadeIn = 0.0f;
         // Set the widths and heights of the textures
-        wheight = 0.6f*BikeGame.V_HEIGHT;
+        wheight = 0.6f*SCRHEIGHT;
         wwidth  = wheight;
         swidth  = wheight*(973.0f/760.0f);
         mheight = wheight*(55.0f/760.0f);
@@ -65,8 +67,8 @@ public class MainMenu extends GameState {
         gscale = 0.5f;
         dscale = 0.2f;
         gspeed = 5.0f;
-        gnwrap = 1 + (int) (Gdx.graphics.getWidth()/(gscale*dscale*wwidth*8.0f));
-        dnwrapx = 1 + (int) (Gdx.graphics.getWidth()/(dscale*wwidth*4.0f));
+        gnwrap = 1 + (int) (SCRWIDTH/(gscale*dscale*wwidth*8.0f));
+        dnwrapx = 1 + (int) (SCRHEIGHT/(dscale*wwidth*4.0f));
         dnwrapy = 1 + (int) ((cam.position.y-wheight/2.0f-0.75f*(dscale*wheight))/(dscale*wwidth*4.0f));
         // Prepare the font for the menu option
         OptionsMainMenu.loadOptions();
@@ -137,7 +139,7 @@ public class MainMenu extends GameState {
     
     public void update(float dt) {
     	// Always make sure the camera is in the correct location and zoom for this screen
-		cam.setToOrtho(false, SCRWIDTH, BikeGame.V_HEIGHT);
+		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 //		cam.position.set(SCRWIDTH/2, BikeGame.V_HEIGHT/2, 0);
 		cam.zoom = 1.0f;
     	cam.update();
@@ -167,14 +169,15 @@ public class MainMenu extends GameState {
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-    	Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+    	//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, fadeIn);
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw Sky
-        sb.draw(sky, cam.position.x-SCRWIDTH/2, cam.position.y-BikeGame.V_HEIGHT/2, 0, 0, SCRWIDTH, BikeGame.V_HEIGHT, 1.0f, 1.0f, 0.0f);        	
+        sb.draw(sky, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
         // Draw bike
         sb.draw(wheel, cam.position.x+SCRWIDTH/2-swidth, cam.position.y-wheight/2.0f, wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
         sb.draw(shaft, cam.position.x+SCRWIDTH/2-swidth, cam.position.y-wheight/2.0f, wwidth/2.0f, wheight/2.0f, swidth, wheight, 1.0f, 1.0f, 0.0f);

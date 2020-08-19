@@ -17,7 +17,8 @@ public class BikeGame implements ApplicationListener {
 	public static final int V_WIDTH = 512;//480;
 	public static final int V_HEIGHT = 384;//360;
 	private static final float ASPECT_RATIO = (float)V_WIDTH/(float)V_HEIGHT;
-	public static final int SCALE = 2;
+	public static final int SCALE = 1;
+//	public static final int SCALE = 2;
 
 	public static final float STEP = 1 / 100f;
 	public float accum;
@@ -25,7 +26,7 @@ public class BikeGame implements ApplicationListener {
 	private SpriteBatch sb;
 	private OrthographicCamera cam;
 	private OrthographicCamera hudCam;
-	private Rectangle viewport;
+	public static Rectangle viewport;
 
 	private GameStateManager gsm;
 
@@ -45,12 +46,13 @@ public class BikeGame implements ApplicationListener {
 		sb = new SpriteBatch();
 		cam = new OrthographicCamera();
 		//cam.setToOrtho(false);
-		float SCRWIDTH = ((float) V_HEIGHT*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-		cam.setToOrtho(false, SCRWIDTH, V_HEIGHT);
+		cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
 		hudCam = new OrthographicCamera();
 		//hudCam.setToOrtho(false);
 		hudCam.setToOrtho(false, V_WIDTH, V_HEIGHT);
 		gsm = new GameStateManager(this);
+		// Initialise the viewport
+		resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 	}
 
 	@Override
@@ -72,28 +74,23 @@ public class BikeGame implements ApplicationListener {
 	@Override
 	public void resize (int w, int h) {
 		// calculate new viewport
-//		float aspectRatio = (float)w/(float)h;
-//		float scale = 1f;
-//		Vector2 crop = new Vector2(0f, 0f);
-//
-//		if(aspectRatio > ASPECT_RATIO)
-//		{
-//			scale = (float)h/(float)V_HEIGHT;
-//			crop.x = (w - V_WIDTH*scale)/2f;
-//		}
-//		else if(aspectRatio < ASPECT_RATIO)
-//		{
-//			scale = (float)w/(float)V_WIDTH;
-//			crop.y = (h - V_HEIGHT*scale)/2f;
-//		}
-//		else
-//		{
-//			scale = (float)w/(float)V_WIDTH;
-//		}
-//
-//		float wid = (float)V_WIDTH*scale;
-//		float hei = (float)V_HEIGHT*scale;
-//		viewport = new Rectangle(crop.x, crop.y, wid, hei);
+		float aspectRatio = (float)w/(float)h;
+		float scale = 1f;
+		Vector2 crop = new Vector2(0f, 0f);
+
+		if (aspectRatio > ASPECT_RATIO) {
+			scale = (float)h/(float)V_HEIGHT;
+			crop.x = (w - V_WIDTH*scale)/2f;
+		} else if (aspectRatio < ASPECT_RATIO) {
+			scale = (float)w/(float)V_WIDTH;
+			crop.y = (h - V_HEIGHT*scale)/2f;
+		} else {
+			scale = (float)w/(float)V_WIDTH;
+		}
+
+		float wid = (float)V_WIDTH*scale;
+		float hei = (float)V_HEIGHT*scale;
+		viewport = new Rectangle(crop.x, crop.y, wid, hei);
 	}
 
 	@Override

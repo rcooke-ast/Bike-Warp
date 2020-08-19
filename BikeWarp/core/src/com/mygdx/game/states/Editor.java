@@ -48,6 +48,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
@@ -138,7 +139,7 @@ public class Editor extends GameState {
 	private static final float maxsize = 1000.0f/B2DVars.EPPM;  // The boundary where polygons can be drawn
 	private float posx, posy;
 	private float cursposx = 0, cursposy = 0;
-	private float scrwidth, scrheight, scrscale, SCTOSCRW;
+	private float SCRWIDTH, SCRHEIGHT;
 	private float startX, startY, endX, endY;
 	private float nullvarA, nullvarB, nullvarC, nullvarD;
 
@@ -249,16 +250,26 @@ public class Editor extends GameState {
     	Gdx.input.setCursorCatched(false);
     	//Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
     	// First step is to set the hudCam for rendering messages
-        //float SCTOSCRH = ((float) Gdx.graphics.getWidth()*Gdx.graphics.getDesktopDisplayMode().height)/((float) Gdx.graphics.getDesktopDisplayMode().width);
-        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-        hudCam.setToOrtho(false, SCTOSCRW, Gdx.graphics.getHeight());
-        hudCam.position.set(SCTOSCRW/(BikeGame.SCALE*2),BikeGame.V_HEIGHT/2,0);
+		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		SCRWIDTH = BikeGame.viewport.width;
+		SCRHEIGHT = BikeGame.viewport.height;
+		GameInputProcessor.SetCrop(BikeGame.viewport.x, BikeGame.viewport.y);
+        hudCam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
+        hudCam.position.set(SCRWIDTH/2,SCRHEIGHT/2,0);
         //hudCam.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,0);
         hudCam.zoom = 1.0f/(BikeGame.SCALE);
         hudCam.update();
     	// Create the stage for the toolbar
 		stage = new Stage();
-		scrscale = (((float)BikeGame.V_HEIGHT)/(float)BikeGame.V_WIDTH)* ((float) Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
+		// Set the viewport
+		stage.getViewport().setScreenX((int) BikeGame.viewport.x);
+		stage.getViewport().setScreenY((int) BikeGame.viewport.y);
+		stage.getViewport().setScreenWidth((int) (SCRWIDTH));
+		stage.getViewport().setScreenHeight((int) SCRHEIGHT);
+//		stage.getViewport().update((int) (0.15f*SCRWIDTH), (int) SCRHEIGHT, false);
+//		stage.getViewport().getCamera().position.x = BikeGame.viewport.x-SCRWIDTH/2;
+//		stage.getViewport().getCamera().position.y = BikeGame.viewport.y-SCRHEIGHT/2;
+//		stage.getViewport().getCamera().update();
 		//Gdx.input.setInputProcessor(stage);
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(stage);
@@ -362,8 +373,8 @@ public class Editor extends GameState {
 		Window window = new Window("Toolbar", skin);
 		window.align(Align.top | Align.center);
 		window.getTitleLabel().setAlignment(Align.center);
-		window.setPosition(0, 0);
-		window.setPosition(0, 0);
+		window.setPosition(BikeGame.viewport.x, BikeGame.viewport.y, Align.left);
+		//window.setPosition(0, 0);
 		window.defaults().spaceBottom(3);
 		window.row().fill().expandX().colspan(2);
 		//window.add(buttonLoad);
@@ -407,9 +418,9 @@ public class Editor extends GameState {
 		scrollPaneTBar.setSmoothScrolling(true);
 		scrollPaneTBar.setScrollBarPositions(false, true);
 		//scrollPaneTBar.setScrollingDisabled(true, false);
-		scrollPaneTBar.setHeight(BikeGame.V_HEIGHT*BikeGame.SCALE);
+		scrollPaneTBar.setHeight(SCRHEIGHT);
 		scrollPaneTBar.setWidth((window.getPrefWidth()+2));
-		toolbarWidth = scrscale*(window.getPrefWidth()+2)/BikeGame.SCALE;
+		toolbarWidth = (window.getPrefWidth()+2)/BikeGame.SCALE;
 		stage.addActor(scrollPaneTBar);
 		// Hover over the toolbar
 		scrollPaneTBar.addListener(new ChangeListener() {
@@ -1003,9 +1014,11 @@ public class Editor extends GameState {
 					}
 				}
 		    	// When we come back from the level, make sure we reset the hudCam (used for messages)
-		        SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-		        hudCam.setToOrtho(false, SCTOSCRW, Gdx.graphics.getHeight());
-		        hudCam.position.set(SCTOSCRW/(BikeGame.SCALE*2),BikeGame.V_HEIGHT/2,0);
+				this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+				SCRWIDTH = BikeGame.viewport.width;
+				SCRHEIGHT = BikeGame.viewport.height;
+		        hudCam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
+		        hudCam.position.set(SCRWIDTH/2,SCRHEIGHT/2,0);
 		        //hudCam.position.set(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,0);
 		        hudCam.zoom = 1.0f/(BikeGame.SCALE);
 		        hudCam.update();
@@ -1240,9 +1253,9 @@ public class Editor extends GameState {
 		}
 		if (setCursor == true) {
 			if (GameInput.MBJUSTPRESSED == true) {
-				cursposx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				//cursposx = cam.position.x + cam.zoom*(GameInput.MBUPX/(BikeGame.SCALE) - 0.5f*BikeGame.V_WIDTH);
-				cursposy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				cursposx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				//cursposx = cam.position.x + cam.zoom*(GameInput.MBUPX/(BikeGame.SCALE) - 0.5f*SCRWIDTH);
+				cursposy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				setCursor = false;
 			}
 			return;
@@ -1376,7 +1389,8 @@ public class Editor extends GameState {
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+        //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.setProjectionMatrix(cam.combined);
 
         shapeRenderer.begin(ShapeType.Line);
@@ -1834,12 +1848,12 @@ public class Editor extends GameState {
         	if (shapeDraw != null) {
         		// Drawing a circle or a rectangle
             	if (shapeDraw.length == 3) {
-	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
             		shapeRenderer.circle(shapeDraw[0], shapeDraw[1], (float) Math.sqrt((tempx-shapeDraw[0])*(tempx-shapeDraw[0]) + (tempy-shapeDraw[1])*(tempy-shapeDraw[1])));
             	} else if (shapeDraw.length == 8) {
-	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    			shapeDraw[2] = tempx;
 	    			shapeDraw[3] = shapeDraw[1];
 	    			shapeDraw[4] = tempx;
@@ -1856,14 +1870,14 @@ public class Editor extends GameState {
         		}
         		shapeRenderer.point(polyDraw.get(polyDraw.size()-1)[0], polyDraw.get(polyDraw.size()-1)[1], 0);
         		// Draw the vertex that is currently being investigated
-        		tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-        		tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+        		tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+        		tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		if (GameInput.MBMOVEX >= 0) {
         			shapeRenderer.line(polyDraw.get(polyDraw.size()-1)[0], polyDraw.get(polyDraw.size()-1)[1], tempx, tempy);
         			// If the cursor is close to closing the polygon, draw a yellow circle
         			if (polyDraw.size() >= 3) {
-        				if (Math.sqrt((tempx-polyDraw.get(0)[0])*(tempx-polyDraw.get(0)[0]) + (tempy-polyDraw.get(0)[1])*(tempy-polyDraw.get(0)[1])) < cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold) {
-        					shapeRenderer.circle(polyDraw.get(0)[0], polyDraw.get(0)[1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+        				if (Math.sqrt((tempx-polyDraw.get(0)[0])*(tempx-polyDraw.get(0)[0]) + (tempy-polyDraw.get(0)[1])*(tempy-polyDraw.get(0)[1])) < cam.zoom*SCRWIDTH*polyEndThreshold) {
+        					shapeRenderer.circle(polyDraw.get(0)[0], polyDraw.get(0)[1], cam.zoom*SCRWIDTH*polyEndThreshold);
         				}
         			}
         		}
@@ -1945,16 +1959,16 @@ public class Editor extends GameState {
 	        	shapeRenderer.line(allPolygonPaths.get(polySelect)[6+2*segmSelect],allPolygonPaths.get(polySelect)[6+2*segmSelect+1],allPolygonPaths.get(polySelect)[6+2*(segmSelect+1)],allPolygonPaths.get(polySelect)[6+2*(segmSelect+1)+1]);
 	        } else if ((vertSelect != -1) & (polySelect != -1)) {
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertSelect], allPolygonPaths.get(polySelect)[6+2*vertSelect+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertSelect], allPolygonPaths.get(polySelect)[6+2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
 	        } else if ((segmHover != -1) & (vertHover != -1) & (polySelect != -1)) {
 	            // Draw the hover segment
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
 	        	shapeRenderer.line(allPolygonPaths.get(polySelect)[6+2*segmHover],allPolygonPaths.get(polySelect)[6+2*segmHover+1],allPolygonPaths.get(polySelect)[6+2*(segmHover+1)],allPolygonPaths.get(polySelect)[6+2*(segmHover+1)+1]);        	
-	            shapeRenderer.circle(0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)]), 0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover+1]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)+1]), cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	            shapeRenderer.circle(0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)]), 0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover+1]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
 	        } else if ((vertHover != -1) & (polySelect != -1)) {
 	            // Draw the hover vertex
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertHover], allPolygonPaths.get(polySelect)[6+2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertHover], allPolygonPaths.get(polySelect)[6+2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
 	        }
         } else if (mode==5) {
 	        if ((segmSelect != -1) & (vertSelect != -1) & (objectSelect != -1)) {
@@ -1965,7 +1979,7 @@ public class Editor extends GameState {
 	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
 	        } else if ((vertSelect != -1) & (objectSelect != -1)) {
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allObjects.get(objectSelect)[2*vertSelect], allObjects.get(objectSelect)[2*vertSelect+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold); 
+	        	shapeRenderer.circle(allObjects.get(objectSelect)[2*vertSelect], allObjects.get(objectSelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold); 
 	        } else if ((segmHover != -1) & (vertHover != -1) & (objectHover != -1)) {
 	            // Draw the hover segment
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -1973,11 +1987,11 @@ public class Editor extends GameState {
 	        	if (segmNext==allObjects.get(objectHover).length/2) segmNext = 0;
 	        	shapeRenderer.line(allObjects.get(objectHover)[2*segmNext],allObjects.get(objectHover)[2*segmNext+1],allObjects.get(objectHover)[2*segmHover],allObjects.get(objectHover)[2*segmHover+1]);
 	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
-	            shapeRenderer.circle(0.5f*(allObjects.get(objectHover)[2*segmNext]+allObjects.get(objectHover)[2*segmHover]), 0.5f*(allObjects.get(objectHover)[2*segmNext+1]+allObjects.get(objectHover)[2*segmHover+1]), cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	            shapeRenderer.circle(0.5f*(allObjects.get(objectHover)[2*segmNext]+allObjects.get(objectHover)[2*segmHover]), 0.5f*(allObjects.get(objectHover)[2*segmNext+1]+allObjects.get(objectHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
 	        } else if ((vertHover != -1) & (objectHover != -1)) {
 	            // Draw the hover vertex
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allObjects.get(objectHover)[2*vertHover], allObjects.get(objectHover)[2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        	shapeRenderer.circle(allObjects.get(objectHover)[2*vertHover], allObjects.get(objectHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
 	        }
 	    } else if (mode==6) {
 	        if ((segmSelect != -1) & (vertSelect != -1) & (decorSelect != -1)) {
@@ -1988,7 +2002,7 @@ public class Editor extends GameState {
 	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
 	        } else if ((vertSelect != -1) & (decorSelect != -1)) {
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allDecors.get(decorSelect)[2*vertSelect], allDecors.get(decorSelect)[2*vertSelect+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold); 
+	        	shapeRenderer.circle(allDecors.get(decorSelect)[2*vertSelect], allDecors.get(decorSelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold); 
 	        } else if ((segmHover != -1) & (vertHover != -1) & (decorHover != -1)) {
 	            // Draw the hover segment
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -1996,11 +2010,11 @@ public class Editor extends GameState {
 	        	if (segmNext==allDecors.get(decorHover).length/2) segmNext = 0;
 	        	shapeRenderer.line(allDecors.get(decorHover)[2*segmNext],allDecors.get(decorHover)[2*segmNext+1],allDecors.get(decorHover)[2*segmHover],allDecors.get(decorHover)[2*segmHover+1]);
 	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
-	            shapeRenderer.circle(0.5f*(allDecors.get(decorHover)[2*segmNext]+allDecors.get(decorHover)[2*segmHover]), 0.5f*(allDecors.get(decorHover)[2*segmNext+1]+allDecors.get(decorHover)[2*segmHover+1]), cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	            shapeRenderer.circle(0.5f*(allDecors.get(decorHover)[2*segmNext]+allDecors.get(decorHover)[2*segmHover]), 0.5f*(allDecors.get(decorHover)[2*segmNext+1]+allDecors.get(decorHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
 	        } else if ((vertHover != -1) & (decorHover != -1)) {
 	            // Draw the hover vertex
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allDecors.get(decorHover)[2*vertHover], allDecors.get(decorHover)[2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        	shapeRenderer.circle(allDecors.get(decorHover)[2*vertHover], allDecors.get(decorHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
 	        }
         } else if (allPolygons.size()!=0) {
 	        if ((segmSelect != -1) & (vertSelect != -1) & (polySelect != -1)) {
@@ -2011,8 +2025,8 @@ public class Editor extends GameState {
 	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
 	        } else if ((vertSelect != -1) & (polySelect != -1)) {
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	if (mode==6) shapeRenderer.circle(allDecors.get(polySelect)[2*vertSelect], allDecors.get(polySelect)[2*vertSelect+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold); 
-	        	else shapeRenderer.circle(allPolygons.get(polySelect)[2*vertSelect], allPolygons.get(polySelect)[2*vertSelect+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        	if (mode==6) shapeRenderer.circle(allDecors.get(polySelect)[2*vertSelect], allDecors.get(polySelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold); 
+	        	else shapeRenderer.circle(allPolygons.get(polySelect)[2*vertSelect], allPolygons.get(polySelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
 	        } else if ((segmHover != -1) & (vertHover != -1) & (polyHover != -1)) {
 	            // Draw the hover segment
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -2020,12 +2034,12 @@ public class Editor extends GameState {
 	        	if (segmNext==allPolygons.get(polyHover).length/2) segmNext = 0;
 	        	shapeRenderer.line(allPolygons.get(polyHover)[2*segmNext],allPolygons.get(polyHover)[2*segmNext+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);
 	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
-	            shapeRenderer.circle(0.5f*(allPolygons.get(polyHover)[2*segmNext]+allPolygons.get(polyHover)[2*segmHover]), 0.5f*(allPolygons.get(polyHover)[2*segmNext+1]+allPolygons.get(polyHover)[2*segmHover+1]), cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	            shapeRenderer.circle(0.5f*(allPolygons.get(polyHover)[2*segmNext]+allPolygons.get(polyHover)[2*segmHover]), 0.5f*(allPolygons.get(polyHover)[2*segmNext+1]+allPolygons.get(polyHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
 	        } else if ((vertHover != -1) & (polyHover != -1)) {
 	            // Draw the hover vertex
 	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	if (mode==6) shapeRenderer.circle(allDecors.get(polyHover)[2*vertHover], allDecors.get(polyHover)[2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
-	        	else shapeRenderer.circle(allPolygons.get(polyHover)[2*vertHover], allPolygons.get(polyHover)[2*vertHover+1], cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+	        	if (mode==6) shapeRenderer.circle(allDecors.get(polyHover)[2*vertHover], allDecors.get(polyHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+	        	else shapeRenderer.circle(allPolygons.get(polyHover)[2*vertHover], allPolygons.get(polyHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
 	        }
         }
         // If a convex polygon has been calculated, draw it
@@ -2037,7 +2051,7 @@ public class Editor extends GameState {
 //        }
         // Draw the cursor
         shapeRenderer.setColor(1, 0, 0, 1.0f);
-        shapeRenderer.circle(cursposx, cursposy, cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold);
+        shapeRenderer.circle(cursposx, cursposy, cam.zoom*SCRWIDTH*polyEndThreshold);
         shapeRenderer.end();
 
         // Draw the decoration signs
@@ -2131,7 +2145,7 @@ public class Editor extends GameState {
         		if (warnType[i] == 0) warnFont.setColor(0.1f, 0.9f, 0.1f, 1);
         		else if (warnType[i] == 1) warnFont.setColor(1, 0.5f, 0, 1);
         		else warnFont.setColor(1, 0, 0, 1);
-				warnFont.draw(sb, warnMessage[i], toolbarWidth*1.1f, BikeGame.V_HEIGHT-(1.1f*i+2)*warnHeight);
+				warnFont.draw(sb, warnMessage[i], toolbarWidth*1.1f, SCRHEIGHT-(1.1f*i+2)*warnHeight);
         	}
         }
         sb.end();
@@ -2462,13 +2476,13 @@ public class Editor extends GameState {
 		if (listChild.getSelected() == null) return;
 		modeChild = listChild.getSelected().toString();
 		if ((modeChild.equals("Put")) & (GameInput.MBJUSTPRESSED==true)) {
-			trcImgProp[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			trcImgProp[1] = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			trcImgProp[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			trcImgProp[1] = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
-			startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     		nullvarA = (float) (Math.sqrt((endX-trcImgProp[0])*(endX-trcImgProp[0]) + (endY-trcImgProp[1])*(endY-trcImgProp[1]))/Math.sqrt((startX-trcImgProp[0])*(startX-trcImgProp[0]) + (startY-trcImgProp[1])*(startY-trcImgProp[1])));
     		if (nullvarA < 0.0f) nullvarA *= -1.0f;
     		trcImgProp[2] = nullvarB*nullvarA;
@@ -2477,10 +2491,10 @@ public class Editor extends GameState {
 			nullvarB = trcImgProp[2];
 			nullvarC = trcImgProp[3];
 		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
-			startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     		nullvarA = (float) Math.sqrt((endX-trcImgProp[0])*(endX-trcImgProp[0]) + (endY-trcImgProp[1])*(endY-trcImgProp[1]));
     		nullvarB = (float) Math.sqrt((startX-trcImgProp[0])*(startX-trcImgProp[0]) + (startY-trcImgProp[1])*(startY-trcImgProp[1]));
     		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -2516,8 +2530,8 @@ public class Editor extends GameState {
 			LevelVars.set(LevelVars.PROP_BG_TEXTURE, modeChild);
 		} else if (modeParent.equals("Level Bounds")) {
 			if (((modeChild.equals("Set Bounds")) & (GameInput.MBDRAG==true))) {
-				boundsBG[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				boundsBG[1] = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
+				boundsBG[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				boundsBG[1] = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 			} else if (modeChild.equals("Reset Bounds")) {
 				boundsBG = new float[] {0.0f, boundaryX};
 			}
@@ -2558,10 +2572,10 @@ public class Editor extends GameState {
 					SelectPolygon("down");
 					// Deal with the case when the user selects a trigger but not the trigger platform
 					if ((polySelect != -1) & (triggerSelect == true)) polySelect = -1;
-					startX = GameInput.MBDOWNX * scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom * (GameInput.MBDRAGX * scrscale - startX) / BikeGame.SCALE;
+					endX = cam.zoom * (GameInput.MBDRAGX - startX) / BikeGame.SCALE;
 					endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
 					MovePolygon(polySelect, endX, endY);
 				}
@@ -2575,11 +2589,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG == true)) {
 				if (polySelect == -1) {
 					SelectPolygon("down");
-					startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 				} else {
-					endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 					nullvarA = (float) (Math.sqrt((endX - cursposx) * (endX - cursposx) + (endY - cursposy) * (endY - cursposy)) / Math.sqrt((startX - cursposx) * (startX - cursposx) + (startY - cursposy) * (startY - cursposy)));
 					ScalePolygon(polySelect, nullvarA);
 				}
@@ -2603,11 +2617,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG == true)) {
 				if (polySelect == -1) {
 					SelectPolygon("down");
-					startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 				} else {
-					endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 					nullvarA = (float) Math.sqrt((endX - cursposx) * (endX - cursposx) + (endY - cursposy) * (endY - cursposy));
 					nullvarB = (float) Math.sqrt((startX - cursposx) * (startX - cursposx) + (startY - cursposy) * (startY - cursposy));
 					nullvarC = (float) Math.sqrt((startX - endX) * (startX - endX) + (startY - endY) * (startY - endY));
@@ -2628,14 +2642,14 @@ public class Editor extends GameState {
 				polySelect = -1;
 				GameInput.MBRELEASE = false;
 			} else if (modeChild.equals("Add Vertex")) {
-				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 				if (GameInput.MBDRAG == true) {
 					if (vertSelect == -1) {
 						FindNearestSegment(false);
 					} else {
-						startX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						startY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						startX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						startY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						int segmNext = segmSelect + 1;
 						if (segmNext == allPolygons.get(polySelect).length / 2) segmNext = 0;
 						if (segmNext < segmSelect) AddVertex(polySelect, segmNext, segmSelect, startX, startY);
@@ -2647,8 +2661,8 @@ public class Editor extends GameState {
 					vertSelect = -1;
 				} else FindNearestSegment(true);
 			} else if (modeChild.equals("Delete Vertex")) {
-				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 				if (engageDelete == false) {
 					FindNearestVertex(true);
 				}
@@ -2657,15 +2671,15 @@ public class Editor extends GameState {
 					engageDelete = true;
 				}
 			} else if (modeChild.equals("Move Vertex")) {
-				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+				tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 				if (GameInput.MBDRAG == true) {
 					if (vertSelect == -1) {
 						FindNearestVertex(false);
-						startX = GameInput.MBDOWNX * scrscale;
+						startX = GameInput.MBDOWNX;
 						startY = GameInput.MBDOWNY;
 					} else {
-						endX = cam.zoom * (GameInput.MBDRAGX * scrscale - startX) / BikeGame.SCALE;
+						endX = cam.zoom * (GameInput.MBDRAGX - startX) / BikeGame.SCALE;
 						endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
 						MoveVertex(polySelect, vertSelect, endX, endY);
 					}
@@ -2679,8 +2693,8 @@ public class Editor extends GameState {
 				if ((modeChild.equals("Set Sign")) & (GameInput.MBDRAG == true)) {
 					if (polySelect == -1) SelectPolygon("down");
 					else {
-						tempx = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						tempy = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						tempx = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						tempy = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						MoveFallingSign(polySelect);
 					}
 				} else if ((modeChild.equals("Set Sign")) & (GameInput.MBRELEASE == true) & (polySelect != -1)) {
@@ -2690,7 +2704,7 @@ public class Editor extends GameState {
 				} else if ((modeChild.equals("Set Fall Time")) & (GameInput.MBDRAG == true)) {
 					if (polySelect == -1) SelectPolygon("down");
 					else {
-						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						float fallTime = (allPolygonPaths.get(polySelect)[3] - endY) * B2DVars.EPPM;
 						if (fallTime < 0.0f) fallTime = 0.0f;
 						warnMessage[warnNumber] = "Fall time = " + String.format("%.2f", fallTime) + " seconds";
@@ -2706,7 +2720,7 @@ public class Editor extends GameState {
 				} else if ((modeChild.equals("Set Damping")) & (GameInput.MBDRAG == true)) {
 					if (polySelect == -1) SelectPolygon("down");
 					else {
-						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						float damping = (allPolygonPaths.get(polySelect)[3] - endY) * B2DVars.EPPM;
 						if (damping > 0.0f) damping = 0.0f;
 						warnMessage[warnNumber] = "Damping = " + String.format("%.2f", -damping) + " per second";
@@ -2727,10 +2741,10 @@ public class Editor extends GameState {
 						SelectPolygon("down");
 						// Deal with the case when the user selects a trigger platform but not the trigger
 						if ((polySelect != -1) & (triggerSelect == false)) polySelect = -1;
-						startX = GameInput.MBDOWNX * scrscale;
+						startX = GameInput.MBDOWNX;
 						startY = GameInput.MBDOWNY;
 					} else {
-						endX = cam.zoom * (GameInput.MBDRAGX * scrscale - startX) / BikeGame.SCALE;
+						endX = cam.zoom * (GameInput.MBDRAGX - startX) / BikeGame.SCALE;
 						endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
 						MovePath(polySelect, endX, endY);
 					}
@@ -2741,11 +2755,11 @@ public class Editor extends GameState {
 				} else if ((modeChild.equals("Scale Trigger")) & (GameInput.MBDRAG == true)) {
 					if (polySelect == -1) {
 						SelectPolygon("down");
-						startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 					} else if (triggerSelect) {
-						endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						nullvarA = (float) (Math.sqrt((endX - allPolygonPaths.get(polySelect)[2]) * (endX - allPolygonPaths.get(polySelect)[2]) + (endY - allPolygonPaths.get(polySelect)[3]) * (endY - allPolygonPaths.get(polySelect)[3])) / Math.sqrt((startX - allPolygonPaths.get(polySelect)[2]) * (startX - allPolygonPaths.get(polySelect)[2]) + (startY - allPolygonPaths.get(polySelect)[3]) * (startY - allPolygonPaths.get(polySelect)[3])));
 						ScalePath(polySelect, nullvarA);
 					}
@@ -2756,11 +2770,11 @@ public class Editor extends GameState {
 				} else if ((modeChild.equals("Rotate Trigger")) & (GameInput.MBDRAG == true)) {
 					if (polySelect == -1) {
 						SelectPolygon("down");
-						startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						startX = cam.position.x + cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 					} else {
-						endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						endX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						float trigx = allPolygonPaths.get(polySelect)[2];
 						float trigy = allPolygonPaths.get(polySelect)[3];
 						nullvarA = (float) Math.sqrt((endX - trigx) * (endX - trigx) + (endY - trigy) * (endY - trigy));
@@ -2789,8 +2803,8 @@ public class Editor extends GameState {
 			if (modeChild.equals("Add")) {
 				if (GameInput.MBJUSTPRESSED) {
 					if (drawingPoly) {
-						tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						shapeDraw[2] = tempx;
 						shapeDraw[3] = shapeDraw[1];
 						shapeDraw[4] = tempx;
@@ -2805,8 +2819,8 @@ public class Editor extends GameState {
 					} else {
 						shapeDraw = new float[8];
 						drawingPoly = true;
-						shapeDraw[0] = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						shapeDraw[1] = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						shapeDraw[0] = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						shapeDraw[1] = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 					}
 				}
 			}
@@ -2814,8 +2828,8 @@ public class Editor extends GameState {
 			if (modeChild.equals("Add")) {
 				if (GameInput.MBJUSTPRESSED) {
 					if (drawingPoly == true) {
-						tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						tempx = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						tempy = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						shapeDraw[2] = (float) Math.sqrt((tempx - shapeDraw[0]) * (tempx - shapeDraw[0]) + (tempy - shapeDraw[1]) * (tempy - shapeDraw[1]));
 						if (falling == 0) AddPolygon(shapeDraw, 1, 3);
 						else if (falling == 1) AddPolygon(shapeDraw, 5, 3);
@@ -2825,8 +2839,8 @@ public class Editor extends GameState {
 					} else {
 						shapeDraw = new float[3];
 						drawingPoly = true;
-						shapeDraw[0] = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-						shapeDraw[1] = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+						shapeDraw[0] = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						shapeDraw[1] = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 					}
 				}
 			}
@@ -2862,14 +2876,14 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (polySelect == -1) {
     				SelectPolygon("down");
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-    				//startX = GameInput.MBDOWNX*scrscale;
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+    				//startX = GameInput.MBDOWNX;
     				//startY = GameInput.MBDOWNY;
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-					//endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+					//endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		//endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MovePolygon(polySelect, endX-startX, endY-startY);
     			}
@@ -2902,11 +2916,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
     			if (polySelect == -1) {
     				SelectPolygon("down");
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) (Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy))/Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy)));
 	            	ScalePolygon(polySelect, nullvarA);
     			}
@@ -2916,11 +2930,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (polySelect == -1) {
     				SelectPolygon("down");
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy));
 		    		nullvarB = (float) Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -2940,14 +2954,14 @@ public class Editor extends GameState {
     			polySelect = -1;
             	GameInput.MBRELEASE=false;
     		} else if (modeChild.equals("Add Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		if (GameInput.MBDRAG==true) {
         			if (vertSelect == -1) {
         				FindNearestSegment(false);
         			} else {
-            			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-            			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+            			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+            			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
             			int segmNext = segmSelect + 1;
             			if (segmNext==allPolygons.get(polySelect).length/2) segmNext = 0;
             			if (segmNext < segmSelect) AddVertex(polySelect, segmNext, segmSelect, startX, startY);
@@ -2959,8 +2973,8 @@ public class Editor extends GameState {
              			vertSelect = -1;
         		} else FindNearestSegment(true);
     		} else if (modeChild.equals("Delete Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			if (engageDelete==false) {
     				FindNearestVertex(true);
     			}
@@ -2969,15 +2983,15 @@ public class Editor extends GameState {
     				engageDelete = true;
     			}
     		} else if (modeChild.equals("Move Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		if (GameInput.MBDRAG==true) {
         			if (vertSelect == -1) {
         				FindNearestVertex(false);
-        				startX = GameInput.MBDOWNX*scrscale;
+        				startX = GameInput.MBDOWNX;
         				startY = GameInput.MBDOWNY;
         			} else {
-    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+    					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
     		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
     	            	MoveVertex(polySelect, vertSelect, endX, endY);
         			}
@@ -2991,8 +3005,8 @@ public class Editor extends GameState {
     		if (modeChild.equals("Add")) {
     	    	if (GameInput.MBJUSTPRESSED) {
     	        	if (drawingPoly) {
-    	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     	    			shapeDraw[2] = tempx;
     	    			shapeDraw[3] = shapeDraw[1];
     	    			shapeDraw[4] = tempx;
@@ -3005,8 +3019,8 @@ public class Editor extends GameState {
     	        	} else {
     	        		shapeDraw = new float[8];
     	        		drawingPoly = true;
-    	        		shapeDraw[0] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	        		shapeDraw[1] = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    	        		shapeDraw[0] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    	        		shapeDraw[1] = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     	        	}
     	    	}
     		}
@@ -3014,8 +3028,8 @@ public class Editor extends GameState {
     		if (modeChild.equals("Add")) {
     	    	if (GameInput.MBJUSTPRESSED) {
     	        	if (drawingPoly == true) {
-    	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     	    			shapeDraw[2] = (float) Math.sqrt((tempx-shapeDraw[0])*(tempx-shapeDraw[0]) + (tempy-shapeDraw[1])*(tempy-shapeDraw[1]));
     	    			AddPolygon(shapeDraw, 3, 3);
     			    	drawingPoly = false;
@@ -3023,8 +3037,8 @@ public class Editor extends GameState {
     	        	} else {
     	        		shapeDraw = new float[3];
     	        		drawingPoly = true;
-    	        		shapeDraw[0] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    	        		shapeDraw[1] = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    	        		shapeDraw[0] = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    	        		shapeDraw[1] = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     	        	}
     	    	}
     		}
@@ -3063,21 +3077,21 @@ public class Editor extends GameState {
 				updatePathVertex = null;
 			} else if ((modeChild.equals("Extend Path")) & (polySelect != -1)) {
 				updatePathVertex = new float[2];
-				updatePathVertex[0] = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				updatePathVertex[1] = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				updatePathVertex[0] = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				updatePathVertex[1] = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 			} else if ((modeChild.equals("Move Path")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
-				startX = GameInput.MBDOWNX*scrscale;
+				startX = GameInput.MBDOWNX;
 				startY = GameInput.MBDOWNY;
-				endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+				endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 				endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 				MovePath(polySelect, endX, endY);
     		} else if ((modeChild.equals("Move Path")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (updatePath!=null)) {
     			UpdatePath(polySelect);
     		} else if ((modeChild.equals("Rotate Path")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
-   				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-   				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-				endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+   				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    		tempx = allPolygonPaths.get(polySelect)[4];
 	    		tempy = allPolygonPaths.get(polySelect)[5];;
 	    		nullvarA = (float) Math.sqrt((endX-tempx)*(endX-tempx) + (endY-tempy)*(endY-tempy));
@@ -3097,10 +3111,10 @@ public class Editor extends GameState {
     			UpdatePath(polySelect);
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Scale Path")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
-   				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-   				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-				endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+   				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    		nullvarB = allPolygonPaths.get(polySelect)[4];
 	    		nullvarC = allPolygonPaths.get(polySelect)[5];
 	    		nullvarA = (float) (Math.sqrt((endX-nullvarB)*(endX-nullvarB) + (endY-nullvarC)*(endY-nullvarC))/Math.sqrt((startX-nullvarB)*(startX-nullvarB) + (startY-nullvarC)*(startY-nullvarC)));
@@ -3115,13 +3129,13 @@ public class Editor extends GameState {
             	FlipPath(polySelect, "y");
     			UpdatePath(polySelect);
     		} else if ((modeChild.equals("Insert Vertex")) & (polySelect != -1)) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		if (GameInput.MBDRAG==true) {
         			if (vertSelect == -1) FindNearestSegmentPath(false, polySelect, false);
         			else {
-            			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-            			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+            			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+            			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
             			AddVertexPath(polySelect, segmSelect, segmSelect+1, startX, startY);
         			}
         		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1) & (updatePath!=null)) {
@@ -3129,15 +3143,15 @@ public class Editor extends GameState {
         			vertSelect = -1;
         		} else FindNearestSegmentPath(true, polySelect, false);
     		} else if ((modeChild.equals("Move Vertex")) & (polySelect != -1)) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		if (GameInput.MBDRAG==true) {
         			if (vertSelect == -1) {
         				FindNearestVertexPath(false, polySelect);
-        				startX = GameInput.MBDOWNX*scrscale;
+        				startX = GameInput.MBDOWNX;
         				startY = GameInput.MBDOWNY;
         			} else {
-    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+    					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
     		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
     	            	MoveVertexPath(polySelect, vertSelect, endX, endY);
         			}
@@ -3146,13 +3160,13 @@ public class Editor extends GameState {
         			vertSelect = -1;
         		} else FindNearestVertexPath(true, polySelect);
     		} else if ((modeChild.equals("Move Ghost")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		FindNearestSegmentPath(false, polySelect, true);
     		} else if ((modeChild.equals("Delete Vertex")) & (polySelect != -1)) {
     			if (allPolygonPaths.get(polySelect).length > 6) {
-	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    			if (engageDelete==false) FindNearestVertexPath(true, polySelect);
 	    			if (GameInput.MBJUSTPRESSED==true) {
 	    				FindNearestVertexPath(false, polySelect);
@@ -3161,15 +3175,15 @@ public class Editor extends GameState {
     			}
     		} else if ((modeChild.equals("Set Rotation")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
     			float[] newArr = allPolygonPaths.get(polySelect).clone();
-    			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			float angle = PolygonOperations.GetAngle(newArr[4], newArr[5], endX, endY);
     			newArr[0] = MathUtils.radiansToDegrees*angle;
     			allPolygonPaths.set(polySelect, newArr.clone());
     		} else if ((modeChild.equals("Set Speed")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
     			float[] newArr = allPolygonPaths.get(polySelect).clone();
-    			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			newArr[1] = (float) Math.sqrt((newArr[4]-endX)*(newArr[4]-endX) + (newArr[5]-endY)*(newArr[5]-endY));
     			allPolygonPaths.set(polySelect, newArr.clone());
     		}
@@ -3190,8 +3204,8 @@ public class Editor extends GameState {
 		modeChild = listChild.getSelected().toString();
 		if ((modeParent.equals("Ball & Chain")) | (modeParent.equals("Pendulum"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Ball & Chain")) AddObject(ObjectVars.BallChain, tempx, tempy, -999.9f);
 				else if (modeParent.equals("Pendulum")) AddObject(ObjectVars.Pendulum, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
@@ -3202,10 +3216,10 @@ public class Editor extends GameState {
 				if (objectSelect == -1) {
 					if (modeParent.equals("Ball & Chain"))  SelectObject("down", ObjectVars.BallChain, false, true);
 					else if (modeParent.equals("Pendulum")) SelectObject("down", ObjectVars.Pendulum, false, true);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "moveball", endX, endY);
 				}
@@ -3216,10 +3230,10 @@ public class Editor extends GameState {
 				if (objectSelect == -1) {
 					if (modeParent.equals("Ball & Chain"))  SelectObject("down", ObjectVars.BallChain, false, false);
 					else if (modeParent.equals("Pendulum")) SelectObject("down", ObjectVars.Pendulum, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "moveanchor", endX, endY);
 				}
@@ -3229,10 +3243,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Set Max Length")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					if (modeParent.equals("Ball & Chain"))  SelectObject("down", ObjectVars.BallChain, false, true);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "moveball", endX, endY);
 				}
@@ -3254,8 +3268,8 @@ public class Editor extends GameState {
 			}
 		} else if (modeParent.equals("Boulder")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddObject(ObjectVars.Boulder, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectObject("up", ObjectVars.Boulder, false, true);
@@ -3263,10 +3277,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.Boulder, false, true);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "circle", endX, endY);
 				}
@@ -3276,8 +3290,8 @@ public class Editor extends GameState {
 			}
 		} else if (modeParent.equals("Bridge")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddObject(ObjectVars.Bridge, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectObject("up", ObjectVars.Bridge, false, false);
@@ -3285,10 +3299,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move Anchor")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.Bridge, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "moveentry", endX, endY);
 				}
@@ -3300,7 +3314,7 @@ public class Editor extends GameState {
 					SelectObject("down", ObjectVars.Bridge, false, false);
 					startY = GameInput.MBDOWNY;
 				} else {
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		float bsag = 0.0f;
 		    		if (tentry==1) bsag = (allObjects.get(objectSelect)[1]-endY)*B2DVars.EPPM;
 		    		else if (tentry==2) bsag = (allObjects.get(objectSelect)[9]-endY)*B2DVars.EPPM;
@@ -3326,8 +3340,8 @@ public class Editor extends GameState {
 			}
 		} else if (modeParent.equals("Crate")) {
     		if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			AddObject(ObjectVars.Crate, tempx, tempy, -999.9f);
     		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
     			SelectObject("up", ObjectVars.Crate, false, false);
@@ -3335,10 +3349,10 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ObjectVars.Crate, false, false);
-    				startX = GameInput.MBDOWNX*scrscale;
+    				startX = GameInput.MBDOWNX;
     				startY = GameInput.MBDOWNY;
     			} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
@@ -3348,11 +3362,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ObjectVars.Crate, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -3375,8 +3389,8 @@ public class Editor extends GameState {
 		} else if (modeParent.equals("Diamond")) {
 			if ((modeChild.equals("Put")) & (GameInput.MBJUSTPRESSED)) {
 				objectSelect = 2;
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				newPoly = ObjectVars.objectJewel.clone();
 				ShiftObject(tempx, tempy);
 				updatePoly = allObjects.set(objectSelect, newPoly.clone());
@@ -3398,8 +3412,8 @@ public class Editor extends GameState {
 			else if (modeParent.equals("Key (red)")) ctype = ObjectVars.KeyRed;
 			else System.out.println("Door/Key color not specified");
     		if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			AddObject(ctype, tempx, tempy, -999.9f);
     		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
     			SelectObject("up", ctype, false, false);
@@ -3407,10 +3421,10 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ctype, false, false);
-    				startX = GameInput.MBDOWNX*scrscale;
+    				startX = GameInput.MBDOWNX;
     				startY = GameInput.MBDOWNY;
     			} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
@@ -3420,11 +3434,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ctype, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -3446,8 +3460,8 @@ public class Editor extends GameState {
     		}
 		} else if (modeParent.equals("Gate Switch")) {
     		if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			AddObject(ObjectVars.GateSwitch, tempx, tempy, -999.9f);
     		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
     			SelectObject("up", ObjectVars.GateSwitch, false, false);
@@ -3455,10 +3469,10 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Move Gate/Switch")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.GateSwitch, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "moveentry", endX, endY);
 				}
@@ -3468,11 +3482,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Rotate Gate/Switch")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ObjectVars.GateSwitch, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		xcen = 0.25f*(allObjects.get(objectSelect)[0+8*(tentry-1)] + allObjects.get(objectSelect)[2+8*(tentry-1)] + allObjects.get(objectSelect)[4+8*(tentry-1)] + allObjects.get(objectSelect)[6+8*(tentry-1)]);
 		    		ycen = 0.25f*(allObjects.get(objectSelect)[1+8*(tentry-1)] + allObjects.get(objectSelect)[3+8*(tentry-1)] + allObjects.get(objectSelect)[5+8*(tentry-1)] + allObjects.get(objectSelect)[7+8*(tentry-1)]);
 		    		nullvarA = (float) Math.sqrt((endX-xcen)*(endX-xcen) + (endY-ycen)*(endY-ycen));
@@ -3498,8 +3512,8 @@ public class Editor extends GameState {
     			else if (tentry==1) {
 					xcen = 0.5f*(allObjects.get(objectSelect)[0] + allObjects.get(objectSelect)[4]);
 					ycen = 0.5f*(allObjects.get(objectSelect)[1] + allObjects.get(objectSelect)[5]);
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = PolygonOperations.GetAngle(allObjects.get(objectSelect)[2], allObjects.get(objectSelect)[3], allObjects.get(objectSelect)[4], allObjects.get(objectSelect)[5]);
 		    		nullvarB = PolygonOperations.GetAngle(xcen, ycen, endX, endY) - nullvarA;
 		    		//nullvarB = 0.5f*PolygonOperations.SideLength(allObjects.get(objectSelect)[2], allObjects.get(objectSelect)[3], allObjects.get(objectSelect)[4], allObjects.get(objectSelect)[5]);
@@ -3535,8 +3549,8 @@ public class Editor extends GameState {
     		}
 		} else if (modeParent.equals("Gravity")) {
     		if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			AddObject(ObjectVars.Gravity, tempx, tempy, 0.0f);
     		}
     		else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
@@ -3546,10 +3560,10 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectGravity("down", ObjectVars.Gravity, false, false);
-    				startX = GameInput.MBDOWNX*scrscale;
+    				startX = GameInput.MBDOWNX;
     				startY = GameInput.MBDOWNY;
     			} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
@@ -3559,11 +3573,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectGravity("down", ObjectVars.Gravity, true, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -3584,8 +3598,8 @@ public class Editor extends GameState {
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
     			// Select the object
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectGravity("down", ObjectVars.Gravity, false, false);
 				// Increment variation by 1
 				if (objectSelect >= 3) {
@@ -3594,8 +3608,8 @@ public class Editor extends GameState {
 			}
     	} else if (modeParent.equals("Emerald")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddObject(ObjectVars.Jewel, tempx, tempy, -999.9f);
 				numJewels += 1;
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
@@ -3604,10 +3618,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.Jewel, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "polygon", endX, endY);
 				}
@@ -3617,11 +3631,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ObjectVars.Jewel, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -3643,8 +3657,8 @@ public class Editor extends GameState {
     		}
 		} else if (modeParent.equals("Log")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddObject(ObjectVars.Log, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectObject("up", ObjectVars.Log, false, true);
@@ -3652,10 +3666,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.Log, false, true);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "circle", endX, endY);
 				}
@@ -3665,8 +3679,8 @@ public class Editor extends GameState {
 			}
 		} else if (modeParent.equals("Nitrous")) {
     		if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			AddObject(ObjectVars.Nitrous, tempx, tempy, -999.9f);
     		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
     			SelectObject("up", ObjectVars.Nitrous, false, false);
@@ -3674,10 +3688,10 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ObjectVars.Nitrous, false, false);
-    				startX = GameInput.MBDOWNX*scrscale;
+    				startX = GameInput.MBDOWNX;
     				startY = GameInput.MBDOWNY;
     			} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
@@ -3687,11 +3701,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ObjectVars.Nitrous, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -3713,8 +3727,8 @@ public class Editor extends GameState {
     		}
 		} else if (modeParent.equals("Planet")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * BikeGame.V_WIDTH) * scrscale;
-				tempy = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+				tempy = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 				AddObject(ObjectVars.PlanetSun, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectPlanet("up", ObjectVars.PlanetSun, false, true);
@@ -3722,10 +3736,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectPlanet("down", ObjectVars.PlanetSun, false, true);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 					MoveObject(objectSelect, "moveplanet", endX, endY);
 				}
@@ -3734,8 +3748,8 @@ public class Editor extends GameState {
 				objectSelect = -1;
 			} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
 				// Select the object
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectPlanet("down", ObjectVars.PlanetSun, false, true);
 				// Increment variation by 1
 				if (objectSelect != -1) {
@@ -3744,8 +3758,8 @@ public class Editor extends GameState {
 			}
 		} else if (modeParent.equals("Spike")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddObject(ObjectVars.Spike, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectObject("up", ObjectVars.Spike, false, true);
@@ -3753,10 +3767,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.Spike, false, true);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "circle", endX, endY);
 				}
@@ -3766,8 +3780,8 @@ public class Editor extends GameState {
 			}
 		} else if (modeParent.equals("Spike Zone")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddObject(ObjectVars.SpikeZone, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectObject("up", ObjectVars.SpikeZone, false, false);
@@ -3775,10 +3789,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.SpikeZone, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "polygon", endX, endY);
 				}
@@ -3786,14 +3800,14 @@ public class Editor extends GameState {
 				UpdateObject(objectSelect, "move");
 				objectSelect = -1;
     		} else if (modeChild.equals("Move Segment")) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    		if (GameInput.MBDRAG==true) {
 	    			if (vertSelect == -1) {
 	    				FindNearestSegmentObject(false);
 	    			} else {
-	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	        			int segmNext = segmSelect + 1;
 	        			if (segmNext==allObjects.get(objectSelect).length/2) segmNext = 0;
 	        			if (segmNext < segmSelect) MoveSegment(objectSelect, segmNext, segmSelect, startX, startY);
@@ -3809,8 +3823,8 @@ public class Editor extends GameState {
 			int transIdx = ObjectVars.Transport;
 			if (modeParent.equals("Transport (invisible)")) transIdx = ObjectVars.TransportInvisible;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Transport")) AddObject(transIdx, tempx, tempy, -999.9f);
 				else if (modeParent.equals("Transport (invisible)")) AddObject(transIdx, tempx, tempy, 0.0f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
@@ -3819,10 +3833,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move Entry")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectTransport("down", transIdx, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveObject(objectSelect, "moveentry", endX, endY);
 				}
@@ -3832,11 +3846,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Rotate Entry")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectTransport("down", transIdx, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		xcen = 0.5f*(allObjects.get(objectSelect)[0+8*(tentry-1)] + allObjects.get(objectSelect)[4+8*(tentry-1)]);
 		    		ycen = 0.5f*(allObjects.get(objectSelect)[1+8*(tentry-1)] + allObjects.get(objectSelect)[5+8*(tentry-1)]);
 		    		nullvarA = (float) Math.sqrt((endX-xcen)*(endX-xcen) + (endY-ycen)*(endY-ycen));
@@ -3860,11 +3874,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate Gravity")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectTransport("down", transIdx, true, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -3885,8 +3899,8 @@ public class Editor extends GameState {
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
     			// Select the object
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectTransport("down", transIdx, false, false);
 				// Increment variation by 1
 				if (objectSelect != -1) {
@@ -3896,8 +3910,8 @@ public class Editor extends GameState {
 		} else if (modeParent.equals("Start")) {
 			if ((modeChild.equals("Put")) & (GameInput.MBJUSTPRESSED)) {
 				objectSelect = 1;
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				newPoly = ObjectVars.objectStart.clone();
 				ShiftObject(tempx, tempy);
 				updatePoly = allObjects.set(objectSelect, newPoly.clone());
@@ -3918,10 +3932,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.Start, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 					MoveObject(objectSelect, "polygon", endX, endY);
 				}
@@ -3931,11 +3945,11 @@ public class Editor extends GameState {
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
     				SelectObject("down", ObjectVars.Start, true, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allObjectCoords.get(objectSelect)[0])*(endX-allObjectCoords.get(objectSelect)[0]) + (endY-allObjectCoords.get(objectSelect)[1])*(endY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allObjectCoords.get(objectSelect)[0])*(startX-allObjectCoords.get(objectSelect)[0]) + (startY-allObjectCoords.get(objectSelect)[1])*(startY-allObjectCoords.get(objectSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -3958,8 +3972,8 @@ public class Editor extends GameState {
     	} else if (modeParent.equals("Finish")) {
 			if ((modeChild.equals("Put")) & (GameInput.MBJUSTPRESSED)) {
 				objectSelect = finishObjNumber;
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				newPoly = ObjectVars.objectFinish.clone();
 				ShiftObject(tempx, tempy);
 				updatePoly = allObjects.set(objectSelect, newPoly.clone());
@@ -3972,10 +3986,10 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					SelectObject("down", ObjectVars.Finish, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 					MoveObject(objectSelect, "polygon", endX, endY);
 				}
@@ -3992,21 +4006,21 @@ public class Editor extends GameState {
 		if (modeParent.startsWith("Sign")) {
 			int objNum = DecorVars.GetObjectNumber(modeParent);
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddDecor(objNum, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectDecor("up", objNum, false, true);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					SelectDecor("down", objNum, false, true);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveDecor(decorSelect, "circle", endX, endY);
 				}
@@ -4016,11 +4030,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (decorSelect == -1) {
     				SelectDecor("down", objNum, true, true);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-allDecors.get(decorSelect)[0])*(endX-allDecors.get(decorSelect)[0]) + (endY-allDecors.get(decorSelect)[1])*(endY-allDecors.get(decorSelect)[1]));
 		    		nullvarB = (float) Math.sqrt((startX-allDecors.get(decorSelect)[0])*(startX-allDecors.get(decorSelect)[0]) + (startY-allDecors.get(decorSelect)[1])*(startY-allDecors.get(decorSelect)[1]));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -4041,8 +4055,8 @@ public class Editor extends GameState {
             	GameInput.MBRELEASE=false;
     		}
 		} else if (modeParent.equals("Grass")) {
-			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				AddDecor(DecorVars.Grass, tempx, tempy, -999.9f);
 			} else if (modeChild.equals("Add")) {
@@ -4051,15 +4065,15 @@ public class Editor extends GameState {
 				SelectDecor("up", DecorVars.Grass, false, false);
 				engageDelete = true;
     		} else if (modeChild.equals("Move Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		if (GameInput.MBDRAG==true) {
         			if (vertSelect == -1) {
         				FindNearestVertex(false);
-        				startX = GameInput.MBDOWNX*scrscale;
+        				startX = GameInput.MBDOWNX;
         				startY = GameInput.MBDOWNY;
         			} else {
-    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+    					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
     		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
     	            	MoveVertex(decorSelect, vertSelect, endX, endY);
         			}
@@ -4075,13 +4089,13 @@ public class Editor extends GameState {
         	}
 		} else if ((modeParent.equals("Rain")) | (modeParent.equals("Waterfall"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Rain")) AddDecor(DecorVars.Rain, tempx, tempy, -999.9f);
 				else if (modeParent.equals("Waterfall")) AddDecor(DecorVars.Waterfall, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Rain")) SelectDecor("up", DecorVars.Rain, false, false);
 				else if (modeParent.equals("Waterfall")) SelectDecor("up", DecorVars.Waterfall, false, false);
 				engageDelete = true;
@@ -4089,10 +4103,10 @@ public class Editor extends GameState {
 				if (decorSelect == -1) {
 					if (modeParent.equals("Rain")) SelectDecor("down", DecorVars.Rain, false, false);
 					else if (modeParent.equals("Waterfall")) SelectDecor("down", DecorVars.Waterfall, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveDecor(decorSelect, "polygon", endX, endY);
 				}
@@ -4100,14 +4114,14 @@ public class Editor extends GameState {
 				UpdateDecor(decorSelect, "move");
 				decorSelect = -1;
     		} else if (modeChild.equals("Move Segment")) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    		if (GameInput.MBDRAG==true) {
 	    			if (vertSelect == -1) {
 	    				FindNearestSegmentDecor(false);
 	    			} else {
-	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	        			int segmNext = segmSelect + 1;
 	        			if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
 	        			if (segmNext < segmSelect) MoveSegment(decorSelect, segmNext, segmSelect, startX, startY);
@@ -4133,17 +4147,17 @@ public class Editor extends GameState {
     	        	}
     	    	}
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectDecor("up", typeCol, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					SelectDecor("down", typeCol, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveDecor(decorSelect, "polygon", endX, endY);
 				}
@@ -4151,15 +4165,15 @@ public class Editor extends GameState {
 				UpdateDecor(decorSelect, "move");
 				decorSelect = -1;
     		} else if (modeChild.equals("Move Vertex")) {
-    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
         		if (GameInput.MBDRAG==true) {
         			if (vertSelect == -1) {
         				FindNearestVertex(false);
-        				startX = GameInput.MBDOWNX*scrscale;
+        				startX = GameInput.MBDOWNX;
         				startY = GameInput.MBDOWNY;
         			} else {
-    					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+    					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
     		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
     	            	MoveVertex(decorSelect, vertSelect, endX, endY);
         			}
@@ -4171,11 +4185,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					SelectDecor("down", typeCol, false, false);
-					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) (Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy))/Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy)));
 	            	ScalePolygon(decorSelect, nullvarA);
 				}
@@ -4199,11 +4213,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					SelectDecor("down", typeCol, false, false);
-					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				} else {
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-cursposx)*(endX-cursposx) + (endY-cursposy)*(endY-cursposy));
 		    		nullvarB = (float) Math.sqrt((startX-cursposx)*(startX-cursposx) + (startY-cursposy)*(startY-cursposy));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -4223,14 +4237,14 @@ public class Editor extends GameState {
 				decorSelect = -1;
 	        	GameInput.MBRELEASE=false;
 			} else if (modeChild.equals("Add Vertex")) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    		if (GameInput.MBDRAG==true) {
 	    			if (vertSelect == -1) {
 	    				FindNearestSegmentDecor(false);
 	    			} else {
-	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	        			int segmNext = segmSelect + 1;
 	        			if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
 	        			if (segmNext < segmSelect) AddVertex(decorSelect, segmNext, segmSelect, startX, startY);
@@ -4242,8 +4256,8 @@ public class Editor extends GameState {
 	         			vertSelect = -1;
 	    		} else FindNearestSegmentDecor(true);
 			} else if (modeChild.equals("Delete Vertex")) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (engageDelete==false) {
 					FindNearestVertex(true);
 				}
@@ -4270,21 +4284,21 @@ public class Editor extends GameState {
 			if (modeParent.equals("Bin Bag")) objNum=DecorVars.BinBag;
 			else return;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddDecor(objNum, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectDecor("up", objNum, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					SelectDecor("down", objNum, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveDecor(decorSelect, "polygon", endX, endY);
 				}
@@ -4294,13 +4308,13 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (decorSelect == -1) {
     				SelectDecor("down", objNum, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
     				float xcen = 0.5f*(allDecors.get(decorSelect)[0]+allDecors.get(decorSelect)[4]);
     				float ycen = 0.5f*(allDecors.get(decorSelect)[1]+allDecors.get(decorSelect)[5]);
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-xcen)*(endX-xcen) + (endY-ycen)*(endY-ycen));
 		    		nullvarB = (float) Math.sqrt((startX-xcen)*(startX-xcen) + (startY-ycen)*(startY-ycen));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -4325,21 +4339,21 @@ public class Editor extends GameState {
 			if (modeParent.equals("Tyre Stack")) objNum=DecorVars.TyreStack;
 			else return;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				AddDecor(objNum, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectDecor("up", objNum, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					SelectDecor("down", objNum, false, false);
-					startX = GameInput.MBDOWNX*scrscale;
+					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX*scrscale-startX)/BikeGame.SCALE;
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 	            	MoveDecor(decorSelect, "polygon", endX, endY);
 				}
@@ -4349,13 +4363,13 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (decorSelect == -1) {
     				SelectDecor("down", objNum, false, false);
-    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
     				float xcen = 0.5f*(allDecors.get(decorSelect)[0]+allDecors.get(decorSelect)[4]);
     				float ycen = 0.5f*(allDecors.get(decorSelect)[1]+allDecors.get(decorSelect)[5]);
-					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		    		endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		    		nullvarA = (float) Math.sqrt((endX-xcen)*(endX-xcen) + (endY-ycen)*(endY-ycen));
 		    		nullvarB = (float) Math.sqrt((startX-xcen)*(startX-xcen) + (startY-ycen)*(startY-ycen));
 		    		nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
@@ -4376,8 +4390,8 @@ public class Editor extends GameState {
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
     			// Select the decoration
-				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				SelectDecor("down", objNum, false, false);
 				// Increment variation by 1
 				if (decorSelect != -1) {
@@ -4398,8 +4412,8 @@ public class Editor extends GameState {
 			if ((GameInput.MBJUSTPRESSED==true) & (polySelect == -1) & (groupPolySelect.size() == 0)) {
    				SelectPolygon("up");
    				if (polySelect != -1) {
-   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
    	   				copyPoly = true;
    				}
 			} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (updatePoly!=null)) {
@@ -4418,8 +4432,8 @@ public class Editor extends GameState {
 				rotPoly=false;
 				copyPoly = false;
 			} else if (polySelect != -1) {
-    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				updatePoly = allPolygons.get(polySelect).clone();
 		    	CheckFlipRotate(false);
 		    	if (allPolygonTypes.get(polySelect)%2 == 0) {
@@ -4439,8 +4453,8 @@ public class Editor extends GameState {
 					warnType[warnNumber] = 2;
 					warnNumber += 1;
 				} else {
-   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
    	   				copyPoly = true;
 				}
 			} else if ((GameInput.MBJUSTPRESSED==true) & (groupPolySelect.size() != 0) & (updateGroupPoly!=null)) {
@@ -4461,8 +4475,8 @@ public class Editor extends GameState {
 				rotPoly=false;
 				copyPoly = false;
 			} else if (groupPolySelect.size() != 0) {
-    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			updateGroupPoly = new ArrayList<float[]>();
     			for (int i=0; i<groupPolySelect.size(); i++) {
     				updatePoly = allPolygons.get(groupPolySelect.get(i)).clone();
@@ -4487,8 +4501,8 @@ public class Editor extends GameState {
    				SelectObjectAny("up");
 				if (objectSelect <= 3) objectSelect = -1;  // Can't select the starting objects
    				if (objectSelect != -1) {
-   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
    				}
 			} else if ((GameInput.MBJUSTPRESSED==true) & (objectSelect != -1) & (newPoly!=null)) {
 				if ((startX==endX)&(startY==endY)) {
@@ -4505,8 +4519,8 @@ public class Editor extends GameState {
 				newPoly = null;
 				updatePoly = null;
 			} else if (objectSelect != -1) {
-    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	    		if (doX) shiftX += (endX-startX);
 	    		if (doY) shiftY += (endY-startY);
     			MoveObjectCopy(objectSelect, shiftX, shiftY);
@@ -4515,8 +4529,8 @@ public class Editor extends GameState {
 			if ((GameInput.MBJUSTPRESSED==true) & (decorSelect == -1) & (groupPolySelect.size() == 0)) {
    				SelectDecor("up", -1, false, false);
    				if (decorSelect != -1) {
-   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
    	   				copyPoly = true;
    				}
 			} else if ((GameInput.MBJUSTPRESSED==true) & (decorSelect != -1) & (updatePoly!=null)) {
@@ -4535,8 +4549,8 @@ public class Editor extends GameState {
 				rotPoly=false;
 				copyPoly = false;
 			} else if (decorSelect != -1) {
-    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				updatePoly = allDecors.get(decorSelect).clone();
 		    	CheckFlipRotate(false);
 	    		for (int i = 0; i<allDecors.get(decorSelect).length; i++){
@@ -4552,8 +4566,8 @@ public class Editor extends GameState {
 //					warnType[warnNumber] = 2;
 //					warnNumber += 1;
 //				} else {
-//   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-//   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+//   	   				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+//   	   				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 //   	   				copyPoly = true;
 //				}
 //			} else if ((GameInput.MBJUSTPRESSED==true) & (groupPolySelect.size() != 0) & (updateGroupPoly!=null)) {
@@ -4574,8 +4588,8 @@ public class Editor extends GameState {
 //				rotPoly=false;
 //				copyPoly = false;
 //			} else if (groupPolySelect.size() != 0) {
-//    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-//    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+//    			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+//    			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 //    			updateGroupPoly = new ArrayList<float[]>();
 //    			for (int i=0; i<groupPolySelect.size(); i++) {
 //    				updatePoly = allPolygons.get(groupPolySelect.get(i)).clone();
@@ -5180,11 +5194,11 @@ public class Editor extends GameState {
    
 	public void DrawPolygon(int typeAdd) {
 		// Make sure the new point is valid (does not intersect other lines and is not out of bounds)
-		tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		// If the point is acceptable, add it to the polygon or close the polygon
 		if (polyDraw.size() >= 3) {
-			if (Math.sqrt((tempx-polyDraw.get(0)[0])*(tempx-polyDraw.get(0)[0]) + (tempy-polyDraw.get(0)[1])*(tempy-polyDraw.get(0)[1])) < cam.zoom*BikeGame.V_WIDTH*scrscale*polyEndThreshold) {
+			if (Math.sqrt((tempx-polyDraw.get(0)[0])*(tempx-polyDraw.get(0)[0]) + (tempy-polyDraw.get(0)[1])*(tempy-polyDraw.get(0)[1])) < cam.zoom*SCRWIDTH*polyEndThreshold) {
 				MakePolygon();
 				if (mode == 3) AddPolygon(newPoly, 0, polyDraw.size());
 				else if (mode == 4) AddPolygon(newPoly, 2, polyDraw.size());
@@ -5905,10 +5919,10 @@ public class Editor extends GameState {
     	ResetSelect();
     	float x1, x2, y1, y2, tmp;
     	float[] meanxy = new float[2];
-		x1 = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		y1 = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-		x2 = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		y2 = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+		x1 = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		y1 = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		x2 = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		y2 = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		// Check the min max values
     	if (x1 > x2) {
     		tmp = x2;
@@ -5938,11 +5952,11 @@ public class Editor extends GameState {
 	public void SelectPolygon(String downup) {
 		ResetSelect();
 		if (downup.equals("down")) {
-			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		} else if (downup.equals("up")){
-			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);			
+			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);			
 		}
 		boolean inside = false;
 		triggerSelect = false;
@@ -6494,11 +6508,11 @@ public class Editor extends GameState {
 	public void SelectObject(String downup, int otype, boolean rotate, boolean circle) {
 		ResetSelect();
 		if (downup.equals("down")) {
-			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		} else if (downup.equals("up")){
-			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);			
+			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);			
 		}
 		boolean inside = false;
 		for (int i = 0; i<allObjects.size(); i++){
@@ -6576,11 +6590,11 @@ public class Editor extends GameState {
 	public void SelectObjectAny(String downup) {
 		ResetSelect();
 		if (downup.equals("down")) {
-			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		} else if (downup.equals("up")){
-			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);			
+			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);			
 		}
 		boolean inside = false;
 		int otype;
@@ -7182,11 +7196,11 @@ public class Editor extends GameState {
 		// otype = -1 means don't check the object type
 		ResetSelect();
 		if (downup.equals("down")) {
-			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
+			tempx = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 		} else if (downup.equals("up")) {
-			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);			
+			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);			
 		}
 		boolean inside = false;
 		decorSelect = -1;
@@ -7256,30 +7270,30 @@ public class Editor extends GameState {
 
 	private void ControlPan() {
 		// Perform Pan
-		//startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH);
-		//startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-		//endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH);
-		//endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-		posx = cam.zoom*(GameInput.MBDOWNX-GameInput.MBDRAGX)*scrscale/BikeGame.SCALE;
+		//startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		//startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		//endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		//endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		posx = cam.zoom*(GameInput.MBDOWNX-GameInput.MBDRAGX)/BikeGame.SCALE;
 		posy = cam.zoom*(GameInput.MBDRAGY-GameInput.MBDOWNY)/BikeGame.SCALE;
-		if ((cam.position.x>(maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale) & (cam.position.x<(maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale))) {
+		if ((cam.position.x>(maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH) & (cam.position.x<(maxzoom-0.5f*cam.zoom*SCRWIDTH))) {
 			cam.translate(posx,0,0);
 		}
-		if ((cam.position.y>(maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT) & (cam.position.y<(maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT))) {
+		if ((cam.position.y>(maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT) & (cam.position.y<(maxzoom-0.5f*cam.zoom*SCRHEIGHT))) {
 			cam.translate(0,posy,0);
 		}
 		// Make sure that we are within bounds
-		if ((cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale) & (cam.position.x > (maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale))){
-		} else if (cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale) {
-			cam.translate((maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale-cam.position.x,0,0);
-		} else if (cam.position.x > (maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale)) {
-			cam.translate((maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale)-cam.position.x,0,0);
+		if ((cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH) & (cam.position.x > (maxzoom-0.5f*cam.zoom*SCRWIDTH))){
+		} else if (cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH) {
+			cam.translate((maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH-cam.position.x,0,0);
+		} else if (cam.position.x > (maxzoom-0.5f*cam.zoom*SCRWIDTH)) {
+			cam.translate((maxzoom-0.5f*cam.zoom*SCRWIDTH)-cam.position.x,0,0);
 		}
-		if ((cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT) & (cam.position.y > (maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT))) {
-		} else if (cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT) {
-			cam.translate(0,(maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT-cam.position.y,0);
-		} else if (cam.position.y > (maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT)) {
-			cam.translate(0,(maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT)-cam.position.y,0);
+		if ((cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT) & (cam.position.y > (maxzoom-0.5f*cam.zoom*SCRHEIGHT))) {
+		} else if (cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT) {
+			cam.translate(0,(maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT-cam.position.y,0);
+		} else if (cam.position.y > (maxzoom-0.5f*cam.zoom*SCRHEIGHT)) {
+			cam.translate(0,(maxzoom-0.5f*cam.zoom*SCRHEIGHT)-cam.position.y,0);
 		}
 		// Update the cursor position
 	    GameInput.MBDOWNX = GameInput.MBDRAGX;
@@ -7289,10 +7303,10 @@ public class Editor extends GameState {
 
 	private void ControlZoom() {
 		// Perform Zoom
-		scrwidth = cam.zoom*BikeGame.V_WIDTH*scrscale;
-		scrheight = cam.zoom*BikeGame.V_HEIGHT;
-		if ((scrwidth > maxzoom) & (scrheight > maxzoom)) {
-			cam.zoom = Math.max(maxzoom/(BikeGame.V_WIDTH*scrscale), maxzoom/BikeGame.V_HEIGHT);
+		float scrwid = cam.zoom*SCRWIDTH;
+		float scrhei = cam.zoom*SCRHEIGHT;
+		if ((scrwid > maxzoom) & (scrhei > maxzoom)) {
+			cam.zoom = Math.max(maxzoom/(SCRWIDTH), maxzoom/SCRHEIGHT);
 			return;
 		}
 
@@ -7325,29 +7339,29 @@ public class Editor extends GameState {
 		}
 		
 		// Translate to zoom in on cursor position
-		posx = - nullvarA*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*BikeGame.V_WIDTH)*scrscale;
-		posy = nullvarA*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*BikeGame.V_HEIGHT);
-		if ((cam.position.x>(maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale) & (cam.position.x<(maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale))) {
+		posx = - nullvarA*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		posy = nullvarA*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		if ((cam.position.x>(maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH) & (cam.position.x<(maxzoom-0.5f*cam.zoom*SCRWIDTH))) {
 			cam.translate(posx,0,0);
 		}
-		if ((cam.position.y>(maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT) & (cam.position.y<(maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT))) {
+		if ((cam.position.y>(maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT) & (cam.position.y<(maxzoom-0.5f*cam.zoom*SCRHEIGHT))) {
 			cam.translate(0,posy,0);
 		}
 		// Apply new zoom
 		cam.zoom += nullvarA;
 
 		// Perform corrections if the zoom takes us out of bounds
-		if ((cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale) & (cam.position.x > (maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale))) {
-		} else if (cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale) {
-			cam.translate((maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale-cam.position.x,0,0);
-		} else if (cam.position.x > (maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale)) {
-			cam.translate((maxzoom-0.5f*cam.zoom*BikeGame.V_WIDTH*scrscale)-cam.position.x,0,0);
+		if ((cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH) & (cam.position.x > (maxzoom-0.5f*cam.zoom*SCRWIDTH))) {
+		} else if (cam.position.x < (maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH) {
+			cam.translate((maxsize-maxzoom)+0.5f*cam.zoom*SCRWIDTH-cam.position.x,0,0);
+		} else if (cam.position.x > (maxzoom-0.5f*cam.zoom*SCRWIDTH)) {
+			cam.translate((maxzoom-0.5f*cam.zoom*SCRWIDTH)-cam.position.x,0,0);
 		}
-		if ((cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT) & (cam.position.y > (maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT))) {
-		} else if (cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT) {
-			cam.translate(0,(maxsize-maxzoom)+0.5f*cam.zoom*BikeGame.V_HEIGHT-cam.position.y,0);
-		} else if (cam.position.y > (maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT)) {
-			cam.translate(0,(maxzoom-0.5f*cam.zoom*BikeGame.V_HEIGHT)-cam.position.y,0);
+		if ((cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT) & (cam.position.y > (maxzoom-0.5f*cam.zoom*SCRHEIGHT))) {
+		} else if (cam.position.y < (maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT) {
+			cam.translate(0,(maxsize-maxzoom)+0.5f*cam.zoom*SCRHEIGHT-cam.position.y,0);
+		} else if (cam.position.y > (maxzoom-0.5f*cam.zoom*SCRHEIGHT)) {
+			cam.translate(0,(maxzoom-0.5f*cam.zoom*SCRHEIGHT)-cam.position.y,0);
 		}
 		//System.out.println("---------");
 	}
