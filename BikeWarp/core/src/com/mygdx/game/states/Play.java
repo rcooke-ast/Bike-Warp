@@ -184,7 +184,7 @@ public class Play extends GameState {
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight, infoWidth;
     private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0, collectRocket=0;
     //private int[] animateJewel;
-    private float SCRWIDTH, SCRHEIGHT;
+    private float SCRWIDTH, SCRHEIGHT, HUDScaleFactor;
     private BitmapFont keyRedCntr, keyGreenCntr, keyBlueCntr, jewelCntr, nitrousCntr;
     private BitmapFont infoText;
     private int collectJewel;
@@ -387,32 +387,36 @@ public class Play extends GameState {
         glyphLayout.setText(timer, "00:00:000");
         timerWidth = glyphLayout.width;
         timerHeight = glyphLayout.height;
+        HUDScaleFactor = 0.2f*SCRWIDTH/timerWidth;
+        timerWidth *= HUDScaleFactor;
+        timerHeight *= HUDScaleFactor;
+        timer.getData().setScale(0.35f*HUDScaleFactor);
         // World Record Timer
         timerWR = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         timerWR.setColor(0.8f, 0.725f, 0, 1);
-        timerWR.getData().setScale(0.2f);
+        timerWR.getData().setScale(0.2f*HUDScaleFactor);
         // Personal Best Timer
         timerPB = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
         timerPB.setColor(0.5f, 0.5f, 0.5f, 1);
-        timerPB.getData().setScale(0.2f);
+        timerPB.getData().setScale(0.2f*HUDScaleFactor);
         glyphLayout.setText(timerWR, "WR  00:00:000");
         timerWRWidth = glyphLayout.width;
         timerWRHeight = glyphLayout.height;
         keyRedCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        keyRedCntr.getData().setScale(0.25f);
+        keyRedCntr.getData().setScale(0.25f*HUDScaleFactor);
         keyRedCntr.setColor(1, 0, 0, 1);
         keyGreenCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        keyGreenCntr.getData().setScale(0.25f);
+        keyGreenCntr.getData().setScale(0.25f*HUDScaleFactor);
         keyGreenCntr.setColor(0.2f, 1, 0.2f, 1);
         keyBlueCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        keyBlueCntr.getData().setScale(0.25f);
+        keyBlueCntr.getData().setScale(0.25f*HUDScaleFactor);
         keyBlueCntr.setColor(0, 0.7f, 1, 1);
         jewelCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        jewelCntr.getData().setScale(0.25f);
+        jewelCntr.getData().setScale(0.25f*HUDScaleFactor);
         //jewelCntr.setColor(0.85f, 0.85f, 0, 1);
         jewelCntr.setColor(0.1f, 0.8f, 0.1f, 1);
         nitrousCntr = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        nitrousCntr.getData().setScale(0.25f);
+        nitrousCntr.getData().setScale(0.25f*HUDScaleFactor);
         nitrousCntr.setColor(0.2f, 0.2f, 1, 1);
         glyphLayout.setText(jewelCntr, "00");
         jcntrWidth = glyphLayout.width;
@@ -1530,7 +1534,8 @@ public class Play extends GameState {
 
     public void render() {
         // clear screen
-    	Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1);
+        Gdx.gl.glClearColor(1, 1, 1, 1);  // Black
+        //Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1); // Lilac
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
         //Gdx.gl.glViewport(0, 0, SCRWIDTH, SCRHEIGHT);
@@ -2253,7 +2258,7 @@ public class Play extends GameState {
     private void renderHUD()
     {
         mBatch.setProjectionMatrix(hudCam.combined);
-        float pThick = 30.0f;
+        float pThick = 30.0f*HUDScaleFactor;
         mBatch.begin();
         // Draw the shading on the top bar
         //mBatch.draw(panelShadeA, 0, SCRHEIGHT-pThick, 0, 0, 1, 1, BikeGame.V_WIDTH, pThick, 0);
@@ -2267,58 +2272,58 @@ public class Play extends GameState {
             timerCurrent = (int) (TimeUtils.millis()) - timerStart;
             timeStr = GameVars.getTimeString(timerCurrent);
         }
-    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f, SCRHEIGHT-(pThick-timerHeight)/2.0f);
+    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f*HUDScaleFactor, SCRHEIGHT-(pThick-timerHeight)/2.0f);
     	// If this is a replay, don't display anything else on screen.
     	if (isReplay) {
     		mBatch.end();
     		return;
     	}
-    	vshift += timerHeight +5;
+    	vshift += timerHeight + 5*HUDScaleFactor;
     	// WR
-    	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
-    	vshift += timerWRHeight + 5;
+    	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+    	vshift += timerWRHeight + 5*HUDScaleFactor;
     	// PB
-    	timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
-    	vshift += timerWRHeight + 8;
+    	timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+    	vshift += timerWRHeight + 8*HUDScaleFactor;
     	if (collectJewel != 0) {
 	        // Draw the jewel and it's counter
-	        jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f,SCRHEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
-	        mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth - 128.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick-128.0f*0.2f)/2.0f-128.0f*0.2f, 0, 0, 128.0f, 128.0f, 0.2f, 0.2f, 0);
+	        jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor,SCRHEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
+	        mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth + (-128.0f*0.15f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-128.0f*0.15f*HUDScaleFactor)/2.0f-128.0f*0.15f*HUDScaleFactor, 0, 0, 128.0f*HUDScaleFactor, 128.0f*HUDScaleFactor, 0.15f, 0.15f, 0);
 	        vshift += pThick;
     	}
 
     	// Draw the key counters
     	if (collectKeyRed != 0) {
-            keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed),     SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-            vshift += 10;
-            mBatch.draw(keyRed,   SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
-            vshift += 5;
+            keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed),     SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+            vshift += 10*HUDScaleFactor;
+            mBatch.draw(keyRed,   SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
+            vshift += 5*HUDScaleFactor;
     	}
     	if (collectKeyGreen != 0) {
-    		keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-            vshift += 10;
-            mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
-            vshift += 5;
+    		keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+            vshift += 10*HUDScaleFactor;
+            mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
+            vshift += 5*HUDScaleFactor;
     	}
     	if (collectKeyBlue != 0) {
-    		keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-            vshift += 10;
-            mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);
-            vshift += 5;
+    		keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+            vshift += 10*HUDScaleFactor;
+            mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
+            vshift += 5*HUDScaleFactor;
     	}
-    	if (collectKeyRed+collectKeyGreen+collectKeyBlue != 0) vshift -= 5;
+    	if (collectKeyRed+collectKeyGreen+collectKeyBlue != 0) vshift -= 5*HUDScaleFactor;
 
     	// Draw the nitrous counter
-    	vshift += 5;
+    	vshift += 5*HUDScaleFactor;
     	if ((collectNitrous != 0) | (nitrousLevel != 0.0f)) {
-	        nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-	        vshift += 67.5f*0.2f;
+	        nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+	        vshift += 67.5f*0.2f*HUDScaleFactor;
 	        // Draw the nitrous image
-	        mBatch.draw(nitrous,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 67.5f, 0.2f, 0.2f, 0);
+	        mBatch.draw(nitrous,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 67.5f*HUDScaleFactor, 0.2f, 0.2f, 0);
 	        // Draw nitrous tube and fluid
-	        vshift += 10;
-	        mBatch.draw(nitrousFluid,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, nitrousLevel*135.0f, 50.0f, 0.2f, 0.2f, 0);       
-	        mBatch.draw(nitrousTube,  SCRWIDTH - jcntrWidth - 135.0f*0.2f - 20.0f, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f, 50.0f, 0.2f, 0.2f, 0);       
+	        vshift += 10*HUDScaleFactor;
+	        mBatch.draw(nitrousFluid,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, nitrousLevel*135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
+	        mBatch.draw(nitrousTube,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
         }
         mBatch.end();
 

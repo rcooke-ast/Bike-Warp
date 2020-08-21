@@ -19,8 +19,7 @@ public class BikeGame implements ApplicationListener {
 //	public static final int V_WIDTH = 512;//480;
 //	public static final int V_HEIGHT = 384;//360;
 	private static final float ASPECT_RATIO = (float)V_WIDTH/(float)V_HEIGHT;
-	public static final int SCALE = 1;
-//	public static final int SCALE = 2;
+	public static final int SCALE = 1;  // Probably best to not change this.
 
 	public static final float STEP = 1 / 100f;
 	public float accum;

@@ -72,10 +72,10 @@ public class LevelSelectGame extends GameState {
     	totalLevels = GameVars.GetNumLevels();
         float scaleVal = 1.0f;
         menuText.getData().setScale(scaleVal);
-        glyphLayout.setText(menuText, LevelsListGame.gameLevelNames[0]);
+        glyphLayout.setText(menuText, "XXXXXXXXXXXXXXX");
         menuWidth = glyphLayout.width;
         float tstMenuWidth;
-        for (int i=1; i<totalLevels; i++) {
+        for (int i=0; i<totalLevels; i++) {
             glyphLayout.setText(menuText, LevelsListGame.gameLevelNames[i]);
             tstMenuWidth = glyphLayout.width;
         	if (tstMenuWidth > menuWidth) menuWidth = tstMenuWidth;
