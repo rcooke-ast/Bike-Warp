@@ -41,11 +41,11 @@ public class MenuExit extends GameState {
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         question.setColor(1, 1, 1, 1);
-        float scaleVal = 0.5f;
+        float scaleVal = 1.0f;
         question.getData().setScale(scaleVal);
 		glyphLayout.setText(question, "Are you sure you want to exit?");
         qWidth = glyphLayout.width;
-        if ((qWidth/0.5f) > SCRWIDTH) scaleVal = 0.25f*SCRWIDTH/qWidth;
+        if ((qWidth) > 0.5f*SCRWIDTH) scaleVal = 0.5f*SCRWIDTH/qWidth;
         question.getData().setScale(scaleVal);
         glyphLayout.setText(question, "Are you sure you want to exit?");
         qWidth = glyphLayout.width;

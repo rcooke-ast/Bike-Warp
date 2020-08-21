@@ -54,10 +54,10 @@ public class LevelSelectCustom extends GameState {
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         float scaleVal = 1.0f;
         menuText.getData().setScale(scaleVal);
-        glyphLayout.setText(menuText, LevelsListCustom.customLevelNames[0]);
+        glyphLayout.setText(menuText, "XXXXXXXXXXXXXXX");
         menuWidth = glyphLayout.width;
         float tstMenuWidth;
-        for (int i=1; i<totalItems; i++) {
+        for (int i=0; i<totalItems; i++) {
             glyphLayout.setText(menuText, LevelsListCustom.customLevelNames[i]);
             tstMenuWidth = glyphLayout.width;
         	if (tstMenuWidth > menuWidth) menuWidth = tstMenuWidth;

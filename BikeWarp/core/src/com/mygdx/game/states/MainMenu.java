@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
+import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.OptionsMainMenu;
 import com.mygdx.game.utilities.FileUtils;
@@ -44,7 +45,7 @@ public class MainMenu extends GameState {
 		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
-        wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_wheel"),1));
+		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_wheel"),1));
         shaft = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_shaft"),1));
         sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky"),2));
         grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep"),2));
