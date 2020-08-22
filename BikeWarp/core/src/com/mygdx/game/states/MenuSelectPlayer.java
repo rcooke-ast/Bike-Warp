@@ -51,7 +51,7 @@ public class MenuSelectPlayer extends GameState {
 
     public void create() {
 //        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
-		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.7f*BikeGame.viewport.height;

@@ -54,7 +54,7 @@ public class LevelOptions extends GameState {
     public void create() {
     	firstPlay = true;
     	goToNext = false;
-		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.7f*SCRHEIGHT;

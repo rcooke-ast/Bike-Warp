@@ -250,7 +250,7 @@ public class Editor extends GameState {
     	Gdx.input.setCursorCatched(false);
     	//Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
     	// First step is to set the hudCam for rendering messages
-		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		GameInputProcessor.SetCrop(BikeGame.viewport.x, BikeGame.viewport.y);

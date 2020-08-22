@@ -53,7 +53,7 @@ public class BikeGame implements ApplicationListener {
 		hudCam.setToOrtho(false, V_WIDTH, V_HEIGHT);
 		gsm = new GameStateManager(this);
 		// Initialise the viewport
-		resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 	}
 
 	@Override

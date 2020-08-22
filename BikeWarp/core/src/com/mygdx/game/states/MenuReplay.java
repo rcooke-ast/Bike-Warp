@@ -40,7 +40,7 @@ public class MenuReplay extends GameState {
     	// First load the list of replays
     	replayFiles = ReplayVars.GetReplayList();
     	// Setup the canvas
-		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.7f*SCRHEIGHT;
