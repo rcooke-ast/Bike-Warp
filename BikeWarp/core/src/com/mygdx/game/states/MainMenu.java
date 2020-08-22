@@ -42,7 +42,7 @@ public class MainMenu extends GameState {
     }
     
     public void create() {
-		this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_wheel"),1));

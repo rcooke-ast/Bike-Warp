@@ -39,7 +39,7 @@ public class OptionColorSelect extends GameState {
     }
 
     public void create() {
-        this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
+        this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         SCRWIDTH = BikeGame.viewport.width;
         SCRHEIGHT = BikeGame.viewport.height;
 		// Prepare the Sprites to be used on this screen
