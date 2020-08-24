@@ -35,6 +35,7 @@ public class BikeGameTextures {
     }
 
     public static float BackgroundLimit(String fname) {
+        if (fname == null) return 0.5f;
         if (fname.equalsIgnoreCase("background_waterfall")) return 0.35f;
         return 0.5f;
     }

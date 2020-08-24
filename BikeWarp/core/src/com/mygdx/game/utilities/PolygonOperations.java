@@ -213,11 +213,12 @@ public class PolygonOperations {
 	}
 
 	public static boolean CheckAreas(float[] poly) {
-		float failval = 0.0023f; // This is a fixed value in the box2d code, no length^2 can be less than this value.
+		float failval = 1.0E-7f; // This is a fixed value in the box2d code, no length^2 can be less than this value.
 		int lenpoly = poly.length/2;
 		int i1, i2;
 		float tst = 0.0f;
 		float e1x, e1y, e2x, e2y;
+		float xcen=0.0f, ycen=0.0f;
 		// Compute the area
 		for (int i=0; i<lenpoly; i++) {
 			i1 = i;
@@ -228,9 +229,15 @@ public class PolygonOperations {
 			e2x = poly[2*i2];
 			e2y = poly[2*i2+1];
 			tst += e1x * e2y - e1y * e2x;
+			xcen += poly[2*i1];;
+			ycen += poly[2*i1+1];
 		}
+		xcen /= lenpoly;
+		ycen /= lenpoly;
+		float dist = (float) Math.sqrt(xcen*xcen + ycen*ycen);
 		tst *= 0.5f * (B2DVars.EPPM * B2DVars.EPPM);// * (PolySpatial.PIXELS_PER_METER*PolySpatial.PIXELS_PER_METER);
-		if (tst < failval) return true;
+//		System.out.println(tst/dist);
+		if (tst/dist < failval) return true;
 		return false;
 	}
 
