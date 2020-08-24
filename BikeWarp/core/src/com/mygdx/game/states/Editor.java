@@ -4735,6 +4735,8 @@ public class Editor extends GameState {
 		boolean doX = false;
 		boolean doY = false;
 		float shiftX, shiftY;
+		int otype;
+		String strmode;
 		if ((modeChild.equals("Move X and Y")) | (modeChild.equals("Move X only"))) doX = true;
 		if ((modeChild.equals("Move X and Y")) | (modeChild.equals("Move Y only"))) doY = true;
 		if ((modeChild.equals("Copy X and Y")) | (modeChild.equals("Copy X only"))) doX = true;
@@ -4798,7 +4800,32 @@ public class Editor extends GameState {
 							//newPoly = null;
 							//polySelect = -1;
 						} else if (groupPOD.get(i) == 1) {
-							MoveObjectCopy(groupArrays.get(i), shiftX, shiftY);
+							// TODO :: CURRENTLY UP TO HERE!! what is tentry supposed to be?
+							otype = groupTypes.get(i);
+							if ((otype==ObjectVars.BallChain) | (otype==ObjectVars.Pendulum)) {
+								MoveObject(groupArrays.get(i), "moveball", shiftX, shiftY);
+								UpdateObject(otype, "moveball");
+								MoveObject(groupArrays.get(i), "moveanchor", shiftX, shiftY);
+								UpdateObject(otype, "moveanchor");
+							} else if (ObjectVars.IsPlanet(otype)) {
+								MoveObject(groupArrays.get(i), "moveplanet", shiftX, shiftY);
+								// TODO :: does this work?
+								UpdateObject(otype, "move");
+							} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.TransportInvisible) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
+								tentry = 0;
+								MoveObject(groupArrays.get(i), "moveentry", shiftX, shiftY);
+								UpdateObject(otype, "moveentry");
+								tentry = 1;
+								MoveObject(groupArrays.get(i), "moveentry", shiftX, shiftY);
+								UpdateObject(otype, "moveentry");
+								tentry = 0; // Reset
+							} else if ((otype==ObjectVars.Boulder) | (otype==ObjectVars.Spike) | (otype==ObjectVars.Log)) {
+								MoveObject(groupArrays.get(i), "circle", shiftX, shiftY);
+								UpdateObject(otype, "move");
+							} else {
+								MoveObject(groupArrays.get(i), "polygon", shiftX, shiftY);
+								UpdateObject(otype, "move");
+							}
 						} else if (groupPOD.get(i) == 2) {
 							MoveDecor(groupArrays.get(i), "mode", shiftX, shiftY);
 						}
@@ -6618,6 +6645,7 @@ public class Editor extends GameState {
 	}
 
 	public void MoveObject(int idx, String mode, float shiftX, float shiftY) {
+		// Now perform the operation
 		if (mode.equals("polygon")) {
 			updatePoly = allObjects.get(idx).clone();
 			for (int i = 0; i<allObjects.get(idx).length/2; i++){
@@ -6696,6 +6724,8 @@ public class Editor extends GameState {
 			}
 		} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.TransportInvisible) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
 			updatePoly = new float[8];
+			int tmp = tentry;
+			if ((tentry!=1) && (tentry!=2)) tentry = 1;  // This is a hack because mode=11 (group select) doesn't set tentry.
 			updatePoly[0] = allObjects.get(idx)[0+8*(tentry-1)] + shiftX;
 			updatePoly[1] = allObjects.get(idx)[1+8*(tentry-1)] + shiftY;
 			updatePoly[2] = allObjects.get(idx)[2+8*(tentry-1)] + shiftX;
@@ -6703,26 +6733,38 @@ public class Editor extends GameState {
 			updatePoly[4] = allObjects.get(idx)[4+8*(tentry-1)] + shiftX;
 			updatePoly[5] = allObjects.get(idx)[5+8*(tentry-1)] + shiftY;
 			updatePoly[6] = allObjects.get(idx)[6+8*(tentry-1)] + shiftX;
-			updatePoly[7] = allObjects.get(idx)[7+8*(tentry-1)] + shiftY;			
+			updatePoly[7] = allObjects.get(idx)[7+8*(tentry-1)] + shiftY;
+			tentry = tmp;
 			for (int i=0; i<8; i++) {
 				newPoly[2*i] += shiftX;
 				newPoly[2*i+1] += shiftY;
 			}
-		} else {
-			if ((otype==ObjectVars.Boulder) | (otype==ObjectVars.Spike) | (otype==ObjectVars.Log)) {
-				updatePoly = allObjects.get(idx).clone();
-				updatePoly[0] += shiftX;
-				updatePoly[1] += shiftY;
-				newPoly[0] += shiftX;
-				newPoly[1] += shiftY;
-			} else {
-				updatePoly = allObjects.get(idx).clone();
+		} else if (ObjectVars.IsPlanet(otype)) {
+			if (allObjectTypes.get(idx)==ObjectVars.PlanetSaturn) {
+				newPoly = allObjects.get(idx).clone();
 				for (int i = 0; i<allObjects.get(idx).length/2; i++){
-					updatePoly[2*i] += shiftX;
-					updatePoly[2*i+1] += shiftY;
 					newPoly[2*i] += shiftX;
 					newPoly[2*i+1] += shiftY;
 				}
+			} else {
+				newPoly = allObjects.get(idx).clone();
+				newPoly[0] += shiftX;
+				newPoly[1] += shiftY;
+			}
+			updatePoly = newPoly.clone();
+		} else if ((otype==ObjectVars.Boulder) | (otype==ObjectVars.Spike) | (otype==ObjectVars.Log)) {
+			updatePoly = allObjects.get(idx).clone();
+			updatePoly[0] += shiftX;
+			updatePoly[1] += shiftY;
+			newPoly[0] += shiftX;
+			newPoly[1] += shiftY;
+		} else {
+			updatePoly = allObjects.get(idx).clone();
+			for (int i = 0; i<allObjects.get(idx).length/2; i++) {
+				updatePoly[2*i] += shiftX;
+				updatePoly[2*i+1] += shiftY;
+				newPoly[2*i] += shiftX;
+				newPoly[2*i+1] += shiftY;
 			}
 		}
 	}
@@ -7501,7 +7543,7 @@ public class Editor extends GameState {
 	}
 
 	public void MoveDecor(int idx, String mode, float shiftX, float shiftY) {
-		if ((mode.equals("circle")) || (allDecors.get(idx).length==3)) {
+		if ((mode.equals("circle")) || (allDecors.get(idx).length==3) || (DecorVars.IsRoadSign(allDecorTypes.get(idx)))) {
 			updatePoly = allDecors.get(idx).clone();
 			updatePoly[0] += shiftX;
 			updatePoly[1] += shiftY;
