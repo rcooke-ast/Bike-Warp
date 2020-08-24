@@ -115,6 +115,12 @@ public class Editor extends GameState {
 	private float warnTime = 5.0f, warnHeight, toolbarWidth;
 	private int warnNumber;
 
+	// Setup the arrays to store new polygons
+	private ArrayList<float[]> allPolygons = new ArrayList<float[]>();
+	private ArrayList<Integer> allPolygonTypes = new ArrayList<Integer>();
+	private ArrayList<float[]> allPolygonPaths = new ArrayList<float[]>();
+	private ArrayList<String> allPolygonTextures = new ArrayList<String>();
+
 	// Define the object list
 	private ArrayList<float[]> allObjects = new ArrayList<float[]>();
 	private ArrayList<float[]> allObjectArrows = new ArrayList<float[]>();
@@ -125,6 +131,16 @@ public class Editor extends GameState {
 	private ArrayList<float[]> allDecors = new ArrayList<float[]>();
 	private ArrayList<Integer> allDecorTypes = new ArrayList<Integer>();
 	private ArrayList<Integer> allDecorPolys = new ArrayList<Integer>();
+
+	// Decor the groups list
+	private ArrayList<float[]> updateGroup;
+	private ArrayList<Integer> groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
+	private ArrayList<Integer> groupPOD = new ArrayList<Integer>(); // Polygon (0), Object (1), or Decor (2)
+	private ArrayList<Integer> groupTypes = new ArrayList<Integer>(); // allPolygonTypes, allObjectTypes, allDecorTypes
+	private ArrayList<float[]> groupPaths = new ArrayList<float[]>(); // allPolygonPaths, allObjectArrows
+	private ArrayList<String> groupTextures = new ArrayList<String>(); // allPolygonTextures
+	private ArrayList<float[]> groupCoords = new ArrayList<float[]>(); // allObjectCoords
+	private ArrayList<Integer> groupPolys = new ArrayList<Integer>(); // allDecorPolys
 
 	// Define properties of the toolbar
 	private Stage stage;
@@ -143,11 +159,6 @@ public class Editor extends GameState {
 	private float startX, startY, endX, endY;
 	private float nullvarA, nullvarB, nullvarC, nullvarD;
 
-	// Setup the arrays to store new polygons
-	private ArrayList<float[]> allPolygons = new ArrayList<float[]>();
-	private ArrayList<Integer> allPolygonTypes = new ArrayList<Integer>();
-	private ArrayList<float[]> allPolygonPaths = new ArrayList<float[]>();
-	private ArrayList<String> allPolygonTextures = new ArrayList<String>();
 	private float[] trcImgProp;
 	private String jsonLevelString;
 	private float[] newPoly = null;
@@ -185,7 +196,7 @@ public class Editor extends GameState {
 	private ArrayList<ArrayList<Object>> undoArray = new ArrayList<ArrayList<Object>>();
 	private int undoIndex = 0, undoCurrent = 0;
 	private final int undoMax = 10;
-	
+
 	// Setup some toolbar buttons
 	//private TextButton buttonLoad;
 	private SelectBox selectLoadLevel;
@@ -202,6 +213,7 @@ public class Editor extends GameState {
 	private TextButton buttonAddFalling;
 	private TextButton buttonAddTrigger;
 	private TextButton buttonCopyPaste;
+	private TextButton buttonGroupSelect;
 	private TextButton buttonAddObject;
 	private TextButton buttonDecorate;
 	private TextField textInputSave;
@@ -210,7 +222,7 @@ public class Editor extends GameState {
 	private SplitPane splitPaneParent;
 	private SplitPane splitPaneChild;
 	private ScrollPane scrollPaneTBar;
-	
+
 	// Use an integer to identify which mode is currently active
 	/* mode:
 	 * = 1  -->  pan/zoom
@@ -232,13 +244,14 @@ public class Editor extends GameState {
 	// 8 = copy/paste
 	// 9 = Trigger platform (controlled by 3)  <-- this is the same as a falling platform, but there's a different trigger
 	// 10 = Pan/Zoom
+	// 11 = Group Select
 	// 999 = Execute level
 	// -999 = Load/Save level
 
 	private int mode = 1;
 	private String modeParent = "";
 	private String modeChild = "";
-	
+
 	//private Matrix4 viewMatrix = new Matrix4();
 
 	public Editor(GameStateManager gsm) {
@@ -318,7 +331,7 @@ public class Editor extends GameState {
 		warnHeight = 1.2f*glyphLayout.height;
 		signFont.setColor(1, 0, 0, 1);
 		signFont.getData().setScale(1.5f);
-		
+
 		//buttonLoad = new TextButton("Load", skin);
 		selectLoadLevel = new SelectBox(skin);
 		buttonSave = new TextButton("Save", skin);
@@ -331,6 +344,7 @@ public class Editor extends GameState {
 		buttonLevelProp = new TextButton("Level Properties", skin);
 		buttonTraceImage = new TextButton("Trace Image", skin);
 		buttonCopyPaste = new TextButton("Copy and Paste", skin);
+		buttonGroupSelect = new TextButton("Group Select", skin);
 		buttonAddStatic = new TextButton("Static Platform", skin);
 		buttonAddKinetic = new TextButton("Moving Platform", skin);
 		buttonAddFalling = new TextButton("Falling Platform", skin);
@@ -354,7 +368,7 @@ public class Editor extends GameState {
 		scrollPaneParent.setHeight(scrollPaneParent.getPrefHeight());
 		//splitPaneParent = new SplitPane(scrollPaneP, scrollPaneP, true, skin, "default-horizontal");
 		//splitPaneParent.setHeight(100.0f);
-		
+
 		listChild = new List(skin);
 		listChild.setItems(nullList);
 		listChild.getSelection().setMultiple(false);
@@ -395,6 +409,8 @@ public class Editor extends GameState {
 		window.add(buttonTraceImage);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonCopyPaste);
+		window.row().fill().expandX().colspan(2);
+		window.add(buttonGroupSelect);
 		window.row().fill().expandX().colspan(2);
 		window.add(buttonAddStatic);
 		window.row().fill().expandX().colspan(2);
@@ -758,6 +774,24 @@ public class Editor extends GameState {
 			}
 		});
 
+		buttonGroupSelect.addListener(new ClickListener() {
+			public void clicked (InputEvent event, float x, float y) {
+				if (!hideToolbar) {
+					if (!drawingPoly) {
+						mode = 11;
+						UncheckButtons(false);
+						listParent.setItems("Copy", "Delete", "Move");
+						SetChildList();
+						ResetHoverSelect();
+						buttonGroupSelect.setChecked(true);
+						Message("Select a mode (Move/Copy/Delete) and then click and", 0);
+						Message("drag over multiple platforms/objects/decorations", 0);
+						Message("Click again to move/paste, press 'd' to confirm delete", 0);
+					}
+				}
+			}
+		});
+
 		buttonAddObject.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
@@ -773,7 +807,7 @@ public class Editor extends GameState {
 				}
 			}
 		});
-		
+
 		buttonDecorate.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
@@ -790,7 +824,7 @@ public class Editor extends GameState {
 				}
 			}
 		});
-		
+
 		scrollPaneParent.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
@@ -830,7 +864,7 @@ public class Editor extends GameState {
 						} else if ((mode==4) & (modeParent.equals("Set Path")) & (listChild.getSelected().toString().equals("Flip Direction")) & (polySelect != -1)) {
 							float[] tempArr = allPolygonPaths.get(polySelect).clone();
 							tempArr[3] *= -1;
-							allPolygonPaths.set(polySelect, tempArr.clone());					
+							allPolygonPaths.set(polySelect, tempArr.clone());
 						} else if ((mode==4) & (modeParent.equals("Set Path")) & (listChild.getSelected().toString().equals("Flip Rotation")) & (polySelect != -1)) {
 							float[] tempArr = allPolygonPaths.get(polySelect).clone();
 							tempArr[2] *= -1;
@@ -893,6 +927,8 @@ public class Editor extends GameState {
 				            file.flush();
 						} catch (IOException e) {
 							System.out.println(e);
+						} catch (JSONException e) {
+							System.out.println(e);
 						}
 						if (jsonLevelString.equalsIgnoreCase("GRASS_ERROR")) {
 							Message("Level is not playable!", 2);
@@ -908,7 +944,7 @@ public class Editor extends GameState {
 								if (jsonLevelString.split(" ")[2].equals("P")) {
 									Message("Two vertices in this polygon are too close together", 1);
 									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
-										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
+										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) +
 												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
 										if (dist < clsdist) {
 											clsdist = dist;
@@ -923,7 +959,7 @@ public class Editor extends GameState {
 										ycen += allDecors.get(gotoPoly)[2*i+1];
 									}
 									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
-									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
+									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);
 									MoveCameraTo(xcen,ycen,true);
 								} else if (jsonLevelString.split(" ")[2].equals("Pl")) {
 									Message("This planet is too small - Two vertices in the polygon are too close together", 1);
@@ -948,7 +984,7 @@ public class Editor extends GameState {
 									Message("Cannot decompose this polygon", 1);
 									Message("Please check there are no overlapping vertices, intersections, or very small segments", 1);
 									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
-										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
+										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) +
 												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
 										if (dist < clsdist) {
 											clsdist = dist;
@@ -964,7 +1000,7 @@ public class Editor extends GameState {
 										ycen += allDecors.get(gotoPoly)[2*i+1];
 									}
 									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
-									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
+									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);
 									MoveCameraTo(xcen,ycen,true);
 								}
 							} catch (Exception e) {}
@@ -978,7 +1014,7 @@ public class Editor extends GameState {
 									Message("Two vertices in this polygon are too close together (generating a small area)", 1);
 									Message("Try separating these vertices", 1);
 									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
-										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) + 
+										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) +
 												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
 										if (dist < clsdist) {
 											clsdist = dist;
@@ -994,7 +1030,7 @@ public class Editor extends GameState {
 										ycen += allDecors.get(gotoPoly)[2*i+1];
 									}
 									xcen = xcen/(float) (allDecors.get(gotoPoly).length/2);
-									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);										
+									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);
 									MoveCameraTo(xcen,ycen,true);
 								}
 							} catch (Exception e) {}
@@ -1031,7 +1067,7 @@ public class Editor extends GameState {
 			}
 		}
     }
-    
+
     public void ResetSelect() {
     	polySelect = -1;
     	vertSelect = -1;
@@ -1044,8 +1080,8 @@ public class Editor extends GameState {
     	objectSelect = -1;
     	decorSelect = -1;
     	currentTexture = "";
-    }
-    
+	}
+
     public void ResetLevelDefaults() {
 		System.out.println("LEVEL WAS RESET!");
     	// Prepare storage arrays
@@ -1060,6 +1096,14 @@ public class Editor extends GameState {
     	allDecors = new ArrayList<float[]>();
     	allDecorTypes = new ArrayList<Integer>();
     	allDecorPolys = new ArrayList<Integer>();
+		updateGroup = null;
+		groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
+		groupPOD = new ArrayList<Integer>(); // Polygon (0), Object (1), or Decor (2)
+		groupTypes = new ArrayList<Integer>(); // allPolygonTypes, allObjectTypes, allDecorTypes
+		groupPaths = new ArrayList<float[]>(); // allPolygonPaths, allObjectArrows
+		groupTextures = new ArrayList<String>(); // allPolygonTextures
+		groupCoords = new ArrayList<float[]>(); // allObjectCoords
+		groupPolys = new ArrayList<Integer>(); // allDecorPolys
     	// Prepare undo array (need to reset this after adding start/finish/diamond)
     	undoArray = new ArrayList<ArrayList<Object>>();
     	for (int i=0; i<undoMax; i++) undoArray.add(null);
@@ -1146,7 +1190,7 @@ public class Editor extends GameState {
 		// Determine the number of jewels in the level
 		numJewels = 0;
 		for (int i=finishObjNumber; i<allObjectTypes.size(); i++) {
-			if (allObjectTypes.get(i) == ObjectVars.Jewel) numJewels += 1;			
+			if (allObjectTypes.get(i) == ObjectVars.Jewel) numJewels += 1;
 		}
 		//
     }
@@ -1175,7 +1219,7 @@ public class Editor extends GameState {
 		}
     	return false;
     }
-    
+
     public void handleInput() {
 		if (GameInput.isPressed(GameInput.KEY_T)) hideToolbar = !hideToolbar;
 		if (GameInput.isPressed(GameInput.KEY_C)) setCursor = true;
@@ -1269,34 +1313,34 @@ public class Editor extends GameState {
         if (mode==1) {
     		try {
     			ControlMode1();
-    		} catch (Exception e) {}
+    		} catch (Exception e) {System.out.println(e);}
 //        	if (GameInput.MBDRAG==true) {
 //        		ControlPan();
 //        	}
         } else if (mode==2) {
     		try {
     			ControlMode2();
-    		} catch (Exception e) {}
+    		} catch (Exception e) {System.out.println(e);}
         } else if (mode==3) {
         	try {
         		ControlMode3(0);
-        	} catch (Exception e) {}
+        	} catch (Exception e) {System.out.println(e);}
         } else if (mode==4) {
         	try {
         		ControlMode4();
-        	} catch (Exception e) {}
+        	} catch (Exception e) {System.out.println(e);}
         } else if (mode==5) {
         	try {
         		ControlMode5();
-        	} catch (Exception e) {}
+        	} catch (Exception e) {System.out.println(e);}
         } else if (mode==6) {
         	try {
         		ControlMode6();
-        	} catch (Exception e) {}
+        	} catch (Exception e) {System.out.println(e);}
         } else if (mode==7) {
         	try {
         		ControlMode3(1); // Use Control Mode 3, but set the platform to be a falling platform (i.e. set the argument to 1)
-        	} catch (Exception e) {}
+        	} catch (Exception e) {System.out.println(e);}
         } else if (mode==8) {
         	ControlMode8();
 //        	try {
@@ -1305,19 +1349,23 @@ public class Editor extends GameState {
         } else if (mode==9) {
         	try {
         		ControlMode3(2); // Use Control Mode 3, but set the platform to be a trigger platform (i.e. set the argument to 2)
-        	} catch (Exception e) {}        	
+        	} catch (Exception e) {System.out.println(e);}
         } else if (mode==10) {
         	if (GameInput.MBDRAG==true) {
         		ControlPan();
         	}
-        }
+        } else if (mode==11) {
+        	try {
+				ControlMode11();
+			} catch (Throwable e) {e.printStackTrace();}
+		}
         GameInput.MBJUSTPRESSED = false;
         GameInput.MBJUSTDRAGGED = false;
 //        if (GameInput.isPressed(GameInput.BUTTON2)) {
 //        	cam.translate(-10,-5,0);
 //        	System.out.println("BUTTON2 pressed");
 //        }
-    
+
     }
 
 	public void update(float dt) {
@@ -1405,33 +1453,88 @@ public class Editor extends GameState {
         shapeRenderer.setColor(1, 1, 0.1f, 0.1f);
         shapeRenderer.rect(boundsBG[0], 0, boundsBG[1]-boundsBG[0], boundaryY);
         shapeRenderer.end();
+
         // Draw the polygons (not including the current polygon)
         shapeRenderer.begin(ShapeType.Line);
         Gdx.gl20.glLineWidth(2);
-        float rxcen, rycen, rangle;
-        float[] rCoord;
-        float[] extraPoly;
-        if (allPolygons.size() != 0) {
-	        for (int i = 0; i<allPolygons.size(); i++) {
-	        	if (allPolygonTypes.get(i) <= 1) {
-	        		// Static Polygons
-	        		if (polySelect == i) shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 1);
-	        		else shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 0.5f);
-	        		// Draw the static polygon
-		        	if (allPolygonTypes.get(i) == 0) {
-		        		shapeRenderer.polygon(allPolygons.get(i));
-		        	} else if (allPolygonTypes.get(i) == 1) {
-		        		shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
-		        	}
-	        	} else if (allPolygonTypes.get(i) <= 3) {
-	        		// Kinematic Polygons
-	        		if (polySelect == i) opacity = 1.0f;
-	        		else opacity = 0.5f;
-	        		shapeRenderer.setColor(0.1f, 0.5f, 1, opacity);
-	        		int sz = allPolygonPaths.get(i).length;
-	        		// Draw the starting point of the kinematic polygon
-		        	if (allPolygonTypes.get(i) == 2) {
-		        		shapeRenderer.polygon(allPolygons.get(i));
+        renderPolygons();
+
+        // Draw the objects
+		renderObjects();
+
+        // Draw the decorations
+		renderDecors();
+
+        // Draw the current polygon
+		renderCurrentPoly();
+
+        // Draw all of the things that are being updated
+        renderUpdates();
+
+        // Draw a selected vertex or segment if necessary
+		renderVertexSegments();
+
+        // Draw the cursor
+        shapeRenderer.setColor(1, 0, 0, 1.0f);
+        shapeRenderer.circle(cursposx, cursposy, cam.zoom*SCRWIDTH*polyEndThreshold);
+        shapeRenderer.end();
+
+        // Draw the decoration signs
+        sb.setProjectionMatrix(cam.combined);
+        sb.begin();
+        renderSigns();
+        sb.end();
+
+        // If there are any warning/error messages, write them to screen
+		sb.setProjectionMatrix(hudCam.combined);
+		sb.begin();
+		renderInfoWarnErrors();
+		sb.end();
+
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+
+        // Draw a trace image, if it exists
+        if (traceImage != null) {
+        	mBatch.setColor(1, 1, 1, 0.5f);
+			mBatch.setProjectionMatrix(cam.combined);
+	    	mBatch.begin();
+	    	mBatch.draw(traceImage, trcImgProp[0]-trcImgProp[2]/2, trcImgProp[1]-trcImgProp[3]/2, trcImgProp[2]/2, trcImgProp[3]/2, trcImgProp[2], trcImgProp[3], 1, 1, trcImgProp[5]);
+	    	mBatch.end();
+        }
+
+        // Draw rectangular decorations
+		renderDecorsRect();
+
+        // Finally, draw the toolbar
+        if (!hideToolbar) {
+			stage.act(Gdx.graphics.getDeltaTime());
+			stage.draw();
+        }
+    }
+
+    private void renderPolygons() {
+		float[] extraPoly;
+		if (allPolygons.size() != 0) {
+			for (int i = 0; i<allPolygons.size(); i++) {
+				if (allPolygonTypes.get(i) <= 1) {
+					// Static Polygons
+					if (polySelect == i) shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 1);
+					else shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 0.5f);
+					// Draw the static polygon
+					if (allPolygonTypes.get(i) == 0) {
+						shapeRenderer.polygon(allPolygons.get(i));
+					} else if (allPolygonTypes.get(i) == 1) {
+						shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
+					}
+				} else if (allPolygonTypes.get(i) <= 3) {
+					// Kinematic Polygons
+					if (polySelect == i) opacity = 1.0f;
+					else opacity = 0.5f;
+					shapeRenderer.setColor(0.1f, 0.5f, 1, opacity);
+					int sz = allPolygonPaths.get(i).length;
+					// Draw the starting point of the kinematic polygon
+					if (allPolygonTypes.get(i) == 2) {
+						shapeRenderer.polygon(allPolygons.get(i));
 						if (sz > 6) {
 							extraPoly = allPolygons.get(i).clone();
 							if ((ghostPoly != null)&(polySelect==i)) {
@@ -1448,8 +1551,8 @@ public class Editor extends GameState {
 							shapeRenderer.setColor(0.2f, 0.4f, 0.9f, 0.5f*opacity);
 							shapeRenderer.polygon(extraPoly);
 						}
-		        	} else if (allPolygonTypes.get(i) == 3) {
-		        		shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
+					} else if (allPolygonTypes.get(i) == 3) {
+						shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
 						if (sz > 6) {
 							extraPoly = allPolygons.get(i).clone();
 							if ((ghostPoly != null)&(polySelect==i)) {
@@ -1462,14 +1565,14 @@ public class Editor extends GameState {
 							shapeRenderer.setColor(0.2f, 0.4f, 0.9f, 0.5f*opacity);
 							shapeRenderer.circle(extraPoly[0],extraPoly[1],extraPoly[2]);
 						}
-		        	}
-		        	// Draw the centre of the body
-		        	// omega,velocity,omegaDir,velocityDir,xcen,ycen
-		        	shapeRenderer.setColor(1, 0, 0, opacity);
-		        	shapeRenderer.circle(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5], 5);
-		        	shapeRenderer.line(allPolygonPaths.get(i)[4]-5, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[4]+5, allPolygonPaths.get(i)[5]);
-		        	shapeRenderer.line(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5]-5, allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5]+5);
-	        		// Draw the path (and the path being currently updated)
+					}
+					// Draw the centre of the body
+					// omega,velocity,omegaDir,velocityDir,xcen,ycen
+					shapeRenderer.setColor(1, 0, 0, opacity);
+					shapeRenderer.circle(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5], 5);
+					shapeRenderer.line(allPolygonPaths.get(i)[4]-5, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[4]+5, allPolygonPaths.get(i)[5]);
+					shapeRenderer.line(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5]-5, allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5]+5);
+					// Draw the path (and the path being currently updated)
 					if (sz > 6) {
 						for (int j=0; j < (sz-6)/2 - 1; j++) shapeRenderer.line(allPolygonPaths.get(i)[6+2*j], allPolygonPaths.get(i)[6+2*j+1], allPolygonPaths.get(i)[6+2*j+2], allPolygonPaths.get(i)[6+2*j+3]);
 						if ((updatePathVertex != null) & (polySelect==i)) {
@@ -1487,11 +1590,11 @@ public class Editor extends GameState {
 							// Extending path for the first time
 							shapeRenderer.line(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5], updatePathVertex[0], updatePathVertex[1]);
 						} else if (updatePathVertex.length == 4) {
-							
+
 						}
-						shapeRenderer.setColor(1, 0, 0, opacity);							
+						shapeRenderer.setColor(1, 0, 0, opacity);
 					}
-	        		// Draw the initial velocity vector
+					// Draw the initial velocity vector
 					shapeRenderer.setColor(1, 0.75f, 0.75f, opacity);
 					float[] arrowArray = ObjectVars.objectArrow1D.clone();
 					if (sz >= 10) {
@@ -1534,17 +1637,17 @@ public class Editor extends GameState {
 							}
 							shapeRenderer.line(arrowArray[2], arrowArray[3], allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5]);
 							shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[0], arrowArray[1]);
-							shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[4], arrowArray[5]);						
+							shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[4], arrowArray[5]);
 						}
 					}
-	        		// Draw the rotation angle per second
+					// Draw the rotation angle per second
 					arrowArray = ObjectVars.objectArrow1D.clone();
 					PolygonOperations.RotateXYArray(arrowArray, MathUtils.PI/2, 0.0f, 0.0f);
 					arrowArray[0] += 30.0f;
 					arrowArray[2] += 30.0f;
 					arrowArray[4] += 30.0f;
-		        	if (allPolygonPaths.get(i)[2]==1) PolygonOperations.RotateXYArray(arrowArray, (allPolygonPaths.get(i)[0])*MathUtils.degreesToRadians, 0.0f, 0.0f);
-		        	else PolygonOperations.RotateXYArray(arrowArray, (360-allPolygonPaths.get(i)[0])*MathUtils.degreesToRadians, 0.0f, 0.0f);
+					if (allPolygonPaths.get(i)[2]==1) PolygonOperations.RotateXYArray(arrowArray, (allPolygonPaths.get(i)[0])*MathUtils.degreesToRadians, 0.0f, 0.0f);
+					else PolygonOperations.RotateXYArray(arrowArray, (360-allPolygonPaths.get(i)[0])*MathUtils.degreesToRadians, 0.0f, 0.0f);
 					arrowArray[1] *= allPolygonPaths.get(i)[2];
 					arrowArray[3] *= allPolygonPaths.get(i)[2];
 					arrowArray[5] *= allPolygonPaths.get(i)[2];
@@ -1552,179 +1655,226 @@ public class Editor extends GameState {
 						arrowArray[2*j] += allPolygonPaths.get(i)[4];
 						arrowArray[2*j+1] += allPolygonPaths.get(i)[5];
 					}
-		        	if (allPolygonPaths.get(i)[2]==1) shapeRenderer.arc(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5], 30, 0, allPolygonPaths.get(i)[0]);
-		        	else shapeRenderer.arc(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5], 30, allPolygonPaths.get(i)[0], 360-allPolygonPaths.get(i)[0]);
+					if (allPolygonPaths.get(i)[2]==1) shapeRenderer.arc(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5], 30, 0, allPolygonPaths.get(i)[0]);
+					else shapeRenderer.arc(allPolygonPaths.get(i)[4], allPolygonPaths.get(i)[5], 30, allPolygonPaths.get(i)[0], 360-allPolygonPaths.get(i)[0]);
 					shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[0], arrowArray[1]);
-					shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[4], arrowArray[5]);						
-	        	} else if (allPolygonTypes.get(i) <= 5) {
-	        		// Falling Polygons
-	        		if (polySelect == i) shapeRenderer.setColor(1, 0, 0, 1);
-	        		else shapeRenderer.setColor(1, 0, 0, 0.5f);
-	        		// Draw the falling polygon
-		        	if (allPolygonTypes.get(i) == 4) {
-		        		shapeRenderer.polygon(allPolygons.get(i));
-		        	} else if (allPolygonTypes.get(i) == 5) {
-		        		shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
-		        	}
-		        	// Draw the centre of the body
-		        	// fall time, damping, sign x, sign y
-		        	shapeRenderer.setColor(0.8f, 0.2f, 0.2f, opacity);
-		        	shapeRenderer.circle(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3], 5);
-		        	shapeRenderer.line(allPolygonPaths.get(i)[2]-5, allPolygonPaths.get(i)[3], allPolygonPaths.get(i)[2]+5, allPolygonPaths.get(i)[3]);
-		        	shapeRenderer.line(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]-5, allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]+5);
-		        	// Draw the fall time arrow
-		        	shapeRenderer.line(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[0]/B2DVars.EPPM);
-		        	shapeRenderer.line(allPolygonPaths.get(i)[2]-10, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[0]/B2DVars.EPPM, allPolygonPaths.get(i)[2]+10, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[0]/B2DVars.EPPM);
-		        	// Draw the damping arrow
-		        	shapeRenderer.line(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM);
-		        	shapeRenderer.line(allPolygonPaths.get(i)[2]-10, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM, allPolygonPaths.get(i)[2]+10, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM);
-	        	} else if (allPolygonTypes.get(i) <= 7) {
-	        		// Trigger Polygons
-	        		if (polySelect == i) shapeRenderer.setColor(1, 0, 1, 1);
-	        		else shapeRenderer.setColor(1, 0, 1, 0.5f);
-	        		// Draw the trigger polygon
-		        	if (allPolygonTypes.get(i) == 6) {
-		        		shapeRenderer.polygon(allPolygons.get(i));
-		        	} else if (allPolygonTypes.get(i) == 7) {
-		        		shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
-		        	}
-		        	// Draw a line between the body and the centre of the trigger
-	        		if (polySelect == i) shapeRenderer.setColor(0.9f, 0.5f, 0.9f, 1);
-	        		else shapeRenderer.setColor(0.9f, 0.5f, 0.9f, 0.5f);
-		        	shapeRenderer.line(allPolygonPaths.get(i)[0], allPolygonPaths.get(i)[1], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
-	        		// Draw Trigger
-		        	extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
-		        			allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
-		        	PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
-		        	shapeRenderer.polygon(extraPoly);
-	        	}
-	        }
-        }
-        // Draw the objects
-        if (allObjects.size() != 0) {
-	        for (int i = 0; i<allObjects.size(); i++){
-	        	if (objectSelect == i) opacity=1.0f;
-	        	else opacity = 0.5f;
-	        	if  (allObjectTypes.get(i) == ObjectVars.BallChain) {
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-	        		shapeRenderer.rect(allObjects.get(i)[3], allObjects.get(i)[4],allObjects.get(i)[5],allObjects.get(i)[6]);
-	        		// Render the line of maximum length
-	        		rxcen = allObjects.get(i)[3]+0.5f*allObjects.get(i)[5];
-	        		rycen = allObjects.get(i)[4]+0.5f*allObjects.get(i)[6];
-	        		rangle = PolygonOperations.GetAngle(rxcen, rycen, allObjects.get(i)[0], allObjects.get(i)[1]);
-	        		rCoord = PolygonOperations.RotateCoordinate(rxcen+allObjects.get(i)[7], rycen, MathUtils.radiansToDegrees*rangle, rxcen, rycen);
-	        		shapeRenderer.line(rxcen,rycen,rCoord[0],rCoord[1]);
-	        		shapeRenderer.setColor(1.0f, 1.0f, 0, 0.8f);
-	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[3]+0.5f*allObjects.get(i)[5], allObjects.get(i)[4]+0.5f*allObjects.get(i)[6]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Boulder) {
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Bridge) {
-	        		shapeRenderer.setColor(1, 0.5f, 0, opacity);
-	        		for (int j=0; j<3; j++) {
-	        			shapeRenderer.line(allObjects.get(i)[2*j], allObjects.get(i)[2*j+1], allObjects.get(i)[2*j+2], allObjects.get(i)[2*j+3]);
-	        			shapeRenderer.line(allObjects.get(i)[8+2*j], allObjects.get(i)[8+2*j+1], allObjects.get(i)[8+2*j+2], allObjects.get(i)[8+2*j+3]);
-	        		}
-        			shapeRenderer.line(allObjects.get(i)[2*3], allObjects.get(i)[2*3+1], allObjects.get(i)[0], allObjects.get(i)[1]);
-        			shapeRenderer.line(allObjects.get(i)[8+2*3], allObjects.get(i)[8+2*3+1], allObjects.get(i)[8], allObjects.get(i)[9]);
-	        		// Draw the line connecting the two bridge ends
-        			shapeRenderer.line(0.5f*(allObjects.get(i)[0]+allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1]+allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8]+allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9]+allObjects.get(i)[13]));
-        			// Draw the Bridge Sag
-	        		rxcen = 0.25f*(allObjects.get(i)[0]+allObjects.get(i)[4]+allObjects.get(i)[8]+allObjects.get(i)[12]);
-	        		rycen = 0.25f*(allObjects.get(i)[1]+allObjects.get(i)[5]+allObjects.get(i)[9]+allObjects.get(i)[13]);
-	        		shapeRenderer.line(rxcen, rycen, rxcen, rycen-allObjects.get(i)[16]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Crate) {
-	        		shapeRenderer.setColor(1, 0.5f, 0, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
-	        		shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.DoorBlue) {
-	        		shapeRenderer.setColor(0, 0.7f, 1, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.DoorGreen) {
-	        		shapeRenderer.setColor(0, 1, 0, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.DoorRed) {
-	        		shapeRenderer.setColor(1, 0, 0, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.KeyBlue) {
-	        		shapeRenderer.setColor(0, 0.7f, 1, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        	} else if (allObjectTypes.get(i) == ObjectVars.KeyGreen) {
-	        		shapeRenderer.setColor(0, 1, 0, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        	} else if (allObjectTypes.get(i) == ObjectVars.KeyRed) {
-	        		shapeRenderer.setColor(1, 0, 0, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        	} else if (allObjectTypes.get(i) == ObjectVars.GateSwitch) {
-	        		// Draw line connecting switch box and gate
-	        		shapeRenderer.setColor(1, 1, 1, opacity);
-	        		rxcen = 0.25f*(allObjects.get(i)[8]+allObjects.get(i)[10]+allObjects.get(i)[12]+allObjects.get(i)[14]);
-	        		rycen = 0.25f*(allObjects.get(i)[9]+allObjects.get(i)[11]+allObjects.get(i)[13]+allObjects.get(i)[15]);
-	        		shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), rxcen, rycen);
-	        		// Draw Gate
-	        		shapeRenderer.setColor(0.7f*(1.0f-allObjects.get(i)[17]), 0.7f*allObjects.get(i)[17], 0, opacity);
-	        		for (int j = 0; j<8; j++) {
-	        			transPoly[j] = allObjects.get(i)[j];
-	        		}
-	        		shapeRenderer.polygon(transPoly);
-	        		// Draw Switch box
-	        		for (int j = 8; j<16; j++) {
-	        			transPoly[j-8] = allObjects.get(i)[j];
-	        		}
-	        		shapeRenderer.polygon(transPoly);
-	        		// Draw Switch
-	        		rangle = PolygonOperations.GetAngle(allObjects.get(i)[8], allObjects.get(i)[9], allObjects.get(i)[10], allObjects.get(i)[11]);
-	        		rCoord = PolygonOperations.RotateCoordinate(0.0f, 10.0f, ((MathUtils.radiansToDegrees*rangle)+allObjects.get(i)[16]), 0.0f, 0.0f);
-		    		shapeRenderer.line(rxcen, rycen, rxcen+rCoord[0], rycen+rCoord[1]);
-	        	} else if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
-	        		if (i==0) shapeRenderer.setColor(1, 0.8f, 0, opacity);
-	        		else if (allObjectTypes.get(i) == ObjectVars.GravityEarth) shapeRenderer.setColor(0, 0.7f, 1, opacity);
-	        		else if (allObjectTypes.get(i) == ObjectVars.GravityMars) shapeRenderer.setColor(1, 0.1f, 0, opacity);
-	        		else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		else if (allObjectTypes.get(i) == ObjectVars.GravityZero) shapeRenderer.setColor(0.3f, 0.3f, 0.3f, opacity);
-	        		else shapeRenderer.setColor(1, 0.5f, 1, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.polygon(allObjectArrows.get(i));
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Jewel) {
-	        		if (i==2) {
-	        			// Diamond Jewel
-	        			shapeRenderer.setColor(0.85f, 0.85f, 0.85f, opacity);
-	        			xcen = (0.5f*13.0f*(allObjects.get(i)[0]+allObjects.get(i)[4]) + 2.3f*allObjects.get(i)[2])/(13.0f+2.3f);
-		        		ycen = (0.5f*13.0f*(allObjects.get(i)[1]+allObjects.get(i)[5]) + 2.3f*allObjects.get(i)[3])/(13.0f+2.3f);
-		        		shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]); // Use the same radius as the start wheels
-		        	} else shapeRenderer.setColor(0.0f, 0.7f, 0, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 0, 60, 2);
-	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 60, 60, 2);
-	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 120, 60, 2);
-	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 180, 60, 2);
-	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 240, 60, 2);
-	        		//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 300, 60, 2);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Log) {
-	        		shapeRenderer.setColor(1, 0.5f, 0, opacity);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.75f*allObjects.get(i)[2]);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.50f*allObjects.get(i)[2]);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.25f*allObjects.get(i)[2]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Nitrous) {
-	        		shapeRenderer.setColor(0, 0.7f, 1, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.setColor(1, 0.65f, 0, opacity);
-	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
-	        		shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Pendulum) {
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-	        		shapeRenderer.rect(allObjects.get(i)[3], allObjects.get(i)[4],allObjects.get(i)[5],allObjects.get(i)[6]);
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, 0.8f);
-	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[3]+0.5f*allObjects.get(i)[5], allObjects.get(i)[4]+0.5f*allObjects.get(i)[6]);
+					shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[4], arrowArray[5]);
+				} else if (allPolygonTypes.get(i) <= 5) {
+					// Falling Polygons
+					if (polySelect == i) shapeRenderer.setColor(1, 0, 0, 1);
+					else shapeRenderer.setColor(1, 0, 0, 0.5f);
+					// Draw the falling polygon
+					if (allPolygonTypes.get(i) == 4) {
+						shapeRenderer.polygon(allPolygons.get(i));
+					} else if (allPolygonTypes.get(i) == 5) {
+						shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
+					}
+					// Draw the centre of the body
+					// fall time, damping, sign x, sign y
+					shapeRenderer.setColor(0.8f, 0.2f, 0.2f, opacity);
+					shapeRenderer.circle(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3], 5);
+					shapeRenderer.line(allPolygonPaths.get(i)[2]-5, allPolygonPaths.get(i)[3], allPolygonPaths.get(i)[2]+5, allPolygonPaths.get(i)[3]);
+					shapeRenderer.line(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]-5, allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]+5);
+					// Draw the fall time arrow
+					shapeRenderer.line(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[0]/B2DVars.EPPM);
+					shapeRenderer.line(allPolygonPaths.get(i)[2]-10, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[0]/B2DVars.EPPM, allPolygonPaths.get(i)[2]+10, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[0]/B2DVars.EPPM);
+					// Draw the damping arrow
+					shapeRenderer.line(allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM);
+					shapeRenderer.line(allPolygonPaths.get(i)[2]-10, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM, allPolygonPaths.get(i)[2]+10, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[1]/B2DVars.EPPM);
+				} else if (allPolygonTypes.get(i) <= 7) {
+					// Trigger Polygons
+					if (polySelect == i) shapeRenderer.setColor(1, 0, 1, 1);
+					else shapeRenderer.setColor(1, 0, 1, 0.5f);
+					// Draw the trigger polygon
+					if (allPolygonTypes.get(i) == 6) {
+						shapeRenderer.polygon(allPolygons.get(i));
+					} else if (allPolygonTypes.get(i) == 7) {
+						shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
+					}
+					// Draw a line between the body and the centre of the trigger
+					if (polySelect == i) shapeRenderer.setColor(0.9f, 0.5f, 0.9f, 1);
+					else shapeRenderer.setColor(0.9f, 0.5f, 0.9f, 0.5f);
+					shapeRenderer.line(allPolygonPaths.get(i)[0], allPolygonPaths.get(i)[1], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
+					// Draw Trigger
+					extraPoly = new float[] {allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+							allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]-allPolygonPaths.get(i)[4]/2,
+							allPolygonPaths.get(i)[2]+ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2,
+							allPolygonPaths.get(i)[2]-ObjectVars.objectTriggerWidth, allPolygonPaths.get(i)[3]+allPolygonPaths.get(i)[4]/2};
+					PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
+					shapeRenderer.polygon(extraPoly);
+				}
+			}
+		}
+	}
+
+	private void renderCurrentPoly() {
+		if (drawingPoly == true) {
+			shapeRenderer.setColor(1, 1, 0.1f, 1.0f);
+			if (shapeDraw != null) {
+				// Drawing a circle or a rectangle
+				if (shapeDraw.length == 3) {
+					tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+					shapeRenderer.circle(shapeDraw[0], shapeDraw[1], (float) Math.sqrt((tempx-shapeDraw[0])*(tempx-shapeDraw[0]) + (tempy-shapeDraw[1])*(tempy-shapeDraw[1])));
+				} else if (shapeDraw.length == 8) {
+					tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+					shapeDraw[2] = tempx;
+					shapeDraw[3] = shapeDraw[1];
+					shapeDraw[4] = tempx;
+					shapeDraw[5] = tempy;
+					shapeDraw[6] = shapeDraw[0];
+					shapeDraw[7] = tempy;
+					shapeRenderer.polygon(shapeDraw);
+				}
+			} else {
+				// Drawing a polygon
+				for (int i = 0; i<polyDraw.size()-1; i++){
+					shapeRenderer.point(polyDraw.get(i)[0], polyDraw.get(i)[1], 0);
+					shapeRenderer.line(polyDraw.get(i)[0], polyDraw.get(i)[1], polyDraw.get(i+1)[0], polyDraw.get(i+1)[1]);
+				}
+				shapeRenderer.point(polyDraw.get(polyDraw.size()-1)[0], polyDraw.get(polyDraw.size()-1)[1], 0);
+				// Draw the vertex that is currently being investigated
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				if (GameInput.MBMOVEX >= 0) {
+					shapeRenderer.line(polyDraw.get(polyDraw.size()-1)[0], polyDraw.get(polyDraw.size()-1)[1], tempx, tempy);
+					// If the cursor is close to closing the polygon, draw a yellow circle
+					if (polyDraw.size() >= 3) {
+						if (Math.sqrt((tempx-polyDraw.get(0)[0])*(tempx-polyDraw.get(0)[0]) + (tempy-polyDraw.get(0)[1])*(tempy-polyDraw.get(0)[1])) < cam.zoom*SCRWIDTH*polyEndThreshold) {
+							shapeRenderer.circle(polyDraw.get(0)[0], polyDraw.get(0)[1], cam.zoom*SCRWIDTH*polyEndThreshold);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private void renderObjects() {
+		float rxcen, rycen, rangle;
+		float[] rCoord;
+		if (allObjects.size() != 0) {
+			for (int i = 0; i<allObjects.size(); i++){
+				if (objectSelect == i) opacity=1.0f;
+				else opacity = 0.5f;
+				if  (allObjectTypes.get(i) == ObjectVars.BallChain) {
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
+					shapeRenderer.rect(allObjects.get(i)[3], allObjects.get(i)[4],allObjects.get(i)[5],allObjects.get(i)[6]);
+					// Render the line of maximum length
+					rxcen = allObjects.get(i)[3]+0.5f*allObjects.get(i)[5];
+					rycen = allObjects.get(i)[4]+0.5f*allObjects.get(i)[6];
+					rangle = PolygonOperations.GetAngle(rxcen, rycen, allObjects.get(i)[0], allObjects.get(i)[1]);
+					rCoord = PolygonOperations.RotateCoordinate(rxcen+allObjects.get(i)[7], rycen, MathUtils.radiansToDegrees*rangle, rxcen, rycen);
+					shapeRenderer.line(rxcen,rycen,rCoord[0],rCoord[1]);
+					shapeRenderer.setColor(1.0f, 1.0f, 0, 0.8f);
+					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[3]+0.5f*allObjects.get(i)[5], allObjects.get(i)[4]+0.5f*allObjects.get(i)[6]);
+				} else if (allObjectTypes.get(i) == ObjectVars.Boulder) {
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
+				} else if (allObjectTypes.get(i) == ObjectVars.Bridge) {
+					shapeRenderer.setColor(1, 0.5f, 0, opacity);
+					for (int j=0; j<3; j++) {
+						shapeRenderer.line(allObjects.get(i)[2*j], allObjects.get(i)[2*j+1], allObjects.get(i)[2*j+2], allObjects.get(i)[2*j+3]);
+						shapeRenderer.line(allObjects.get(i)[8+2*j], allObjects.get(i)[8+2*j+1], allObjects.get(i)[8+2*j+2], allObjects.get(i)[8+2*j+3]);
+					}
+					shapeRenderer.line(allObjects.get(i)[2*3], allObjects.get(i)[2*3+1], allObjects.get(i)[0], allObjects.get(i)[1]);
+					shapeRenderer.line(allObjects.get(i)[8+2*3], allObjects.get(i)[8+2*3+1], allObjects.get(i)[8], allObjects.get(i)[9]);
+					// Draw the line connecting the two bridge ends
+					shapeRenderer.line(0.5f*(allObjects.get(i)[0]+allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1]+allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8]+allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9]+allObjects.get(i)[13]));
+					// Draw the Bridge Sag
+					rxcen = 0.25f*(allObjects.get(i)[0]+allObjects.get(i)[4]+allObjects.get(i)[8]+allObjects.get(i)[12]);
+					rycen = 0.25f*(allObjects.get(i)[1]+allObjects.get(i)[5]+allObjects.get(i)[9]+allObjects.get(i)[13]);
+					shapeRenderer.line(rxcen, rycen, rxcen, rycen-allObjects.get(i)[16]);
+				} else if (allObjectTypes.get(i) == ObjectVars.Crate) {
+					shapeRenderer.setColor(1, 0.5f, 0, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
+					shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
+				} else if (allObjectTypes.get(i) == ObjectVars.DoorBlue) {
+					shapeRenderer.setColor(0, 0.7f, 1, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
+				} else if (allObjectTypes.get(i) == ObjectVars.DoorGreen) {
+					shapeRenderer.setColor(0, 1, 0, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
+				} else if (allObjectTypes.get(i) == ObjectVars.DoorRed) {
+					shapeRenderer.setColor(1, 0, 0, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
+				} else if (allObjectTypes.get(i) == ObjectVars.KeyBlue) {
+					shapeRenderer.setColor(0, 0.7f, 1, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+				} else if (allObjectTypes.get(i) == ObjectVars.KeyGreen) {
+					shapeRenderer.setColor(0, 1, 0, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+				} else if (allObjectTypes.get(i) == ObjectVars.KeyRed) {
+					shapeRenderer.setColor(1, 0, 0, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+				} else if (allObjectTypes.get(i) == ObjectVars.GateSwitch) {
+					// Draw line connecting switch box and gate
+					shapeRenderer.setColor(1, 1, 1, opacity);
+					rxcen = 0.25f*(allObjects.get(i)[8]+allObjects.get(i)[10]+allObjects.get(i)[12]+allObjects.get(i)[14]);
+					rycen = 0.25f*(allObjects.get(i)[9]+allObjects.get(i)[11]+allObjects.get(i)[13]+allObjects.get(i)[15]);
+					shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), rxcen, rycen);
+					// Draw Gate
+					shapeRenderer.setColor(0.7f*(1.0f-allObjects.get(i)[17]), 0.7f*allObjects.get(i)[17], 0, opacity);
+					for (int j = 0; j<8; j++) {
+						transPoly[j] = allObjects.get(i)[j];
+					}
+					shapeRenderer.polygon(transPoly);
+					// Draw Switch box
+					for (int j = 8; j<16; j++) {
+						transPoly[j-8] = allObjects.get(i)[j];
+					}
+					shapeRenderer.polygon(transPoly);
+					// Draw Switch
+					rangle = PolygonOperations.GetAngle(allObjects.get(i)[8], allObjects.get(i)[9], allObjects.get(i)[10], allObjects.get(i)[11]);
+					rCoord = PolygonOperations.RotateCoordinate(0.0f, 10.0f, ((MathUtils.radiansToDegrees*rangle)+allObjects.get(i)[16]), 0.0f, 0.0f);
+					shapeRenderer.line(rxcen, rycen, rxcen+rCoord[0], rycen+rCoord[1]);
+				} else if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
+					if (i==0) shapeRenderer.setColor(1, 0.8f, 0, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.GravityEarth) shapeRenderer.setColor(0, 0.7f, 1, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.GravityMars) shapeRenderer.setColor(1, 0.1f, 0, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					else if (allObjectTypes.get(i) == ObjectVars.GravityZero) shapeRenderer.setColor(0.3f, 0.3f, 0.3f, opacity);
+					else shapeRenderer.setColor(1, 0.5f, 1, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.polygon(allObjectArrows.get(i));
+				} else if (allObjectTypes.get(i) == ObjectVars.Jewel) {
+					if (i==2) {
+						// Diamond Jewel
+						shapeRenderer.setColor(0.85f, 0.85f, 0.85f, opacity);
+						xcen = (0.5f*13.0f*(allObjects.get(i)[0]+allObjects.get(i)[4]) + 2.3f*allObjects.get(i)[2])/(13.0f+2.3f);
+						ycen = (0.5f*13.0f*(allObjects.get(i)[1]+allObjects.get(i)[5]) + 2.3f*allObjects.get(i)[3])/(13.0f+2.3f);
+						shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]); // Use the same radius as the start wheels
+					} else shapeRenderer.setColor(0.0f, 0.7f, 0, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 0, 60, 2);
+					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 60, 60, 2);
+					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 120, 60, 2);
+					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 180, 60, 2);
+					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 240, 60, 2);
+					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 300, 60, 2);
+				} else if (allObjectTypes.get(i) == ObjectVars.Log) {
+					shapeRenderer.setColor(1, 0.5f, 0, opacity);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.75f*allObjects.get(i)[2]);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.50f*allObjects.get(i)[2]);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.25f*allObjects.get(i)[2]);
+				} else if (allObjectTypes.get(i) == ObjectVars.Nitrous) {
+					shapeRenderer.setColor(0, 0.7f, 1, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.setColor(1, 0.65f, 0, opacity);
+					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
+					shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
+				} else if (allObjectTypes.get(i) == ObjectVars.Pendulum) {
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
+					shapeRenderer.rect(allObjects.get(i)[3], allObjects.get(i)[4],allObjects.get(i)[5],allObjects.get(i)[6]);
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, 0.8f);
+					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[3]+0.5f*allObjects.get(i)[5], allObjects.get(i)[4]+0.5f*allObjects.get(i)[6]);
 				} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
 					if (allObjectTypes.get(i) == ObjectVars.PlanetSun) shapeRenderer.setColor(1, 0.8f, 0, opacity);
 					else if (allObjectTypes.get(i) == ObjectVars.PlanetMercury) shapeRenderer.setColor(0.6f, 0.6f, 0.6f, opacity);
@@ -1738,387 +1888,398 @@ public class Editor extends GameState {
 					else shapeRenderer.setColor(1, 1, 1, opacity);
 					if (allObjectTypes.get(i) == ObjectVars.PlanetSaturn) shapeRenderer.polygon(allObjects.get(i));
 					else shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Spike) {
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-	        		shapeRenderer.triangle(allObjects.get(i)[0], allObjects.get(i)[1]+1.3f*allObjects.get(i)[2], allObjects.get(i)[0]-1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2], allObjects.get(i)[0]+1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.SpikeZone) {
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
-	        		shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
-	        	} else if ((allObjectTypes.get(i) == ObjectVars.Transport) | ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
-	        		shapeRenderer.setColor(1, 1, 1, opacity);
-	        		shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8] + allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9] + allObjects.get(i)[13]));
-	        		for (int j = 0; j<8; j++) {
-	        			transPoly[j] = allObjects.get(i)[j];
-	        		}
-	        		if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
-	        			// Render the gravity arrow
-		        		shapeRenderer.polygon(allObjectArrows.get(i));
-	        		}
-	        		shapeRenderer.polygon(transPoly);
-	        		for (int j = 8; j<16; j++) {
-	        			transPoly[j-8] = allObjects.get(i)[j];
-	        		}
-	        		shapeRenderer.polygon(transPoly);
-	        		// Entry and exit blue/red lines
-	        		shapeRenderer.setColor(1, 0, 0, opacity);
-		    		shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], allObjects.get(i)[3]);
-		    		shapeRenderer.line(allObjects.get(i)[8], allObjects.get(i)[9], allObjects.get(i)[10], allObjects.get(i)[11]);
-	        		shapeRenderer.setColor(0, 0.7f, 1, opacity);
-		    		shapeRenderer.line(allObjects.get(i)[4], allObjects.get(i)[5], allObjects.get(i)[6], allObjects.get(i)[7]);
-		    		shapeRenderer.line(allObjects.get(i)[12], allObjects.get(i)[13], allObjects.get(i)[14], allObjects.get(i)[15]);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Start) {
-	        		shapeRenderer.setColor(1, 0.8f, 0, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.polygon(allObjectArrows.get(i));
-	        		rangle = PolygonOperations.GetAngle(allObjectArrows.get(i)[0], allObjectArrows.get(i)[1], allObjectArrows.get(i)[2], allObjectArrows.get(i)[3]);
-	        		xcen = allObjects.get(i)[0]-ObjectVars.objectStart[0];
-	        		ycen = allObjects.get(i)[1]-ObjectVars.objectStart[1];
-	        		shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 0.7f*opacity);
-	        		shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]);
-	        		shapeRenderer.circle(xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle), ObjectVars.objectStartWheels[2]);
-	        		shapeRenderer.line(xcen, ycen, xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
-	        		shapeRenderer.line(xcen, ycen, xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f));
-	        		shapeRenderer.line(xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f), xcen+ ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
-	        		// Draw the starting direction
-	        		// Make a copy of the arrow
-        			startDirPoly = ObjectVars.objectArrow.clone();
-	        		// Rotate the Arrow in the appropriate direction
-	        		if (LevelVars.get(LevelVars.PROP_START_DIRECTION).equals("Left")) PolygonOperations.RotateXYArray(startDirPoly, rangle+1.5f*(float)Math.PI, 0, 0);
-	        		else PolygonOperations.RotateXYArray(startDirPoly, rangle+0.5f*(float)Math.PI, 0, 0);
-	        		// Draw the Head and the head arrow
-	        		rangle += Math.atan(ObjectVars.objectStartWheels[6]/ObjectVars.objectStartWheels[5]);
-	        		float length = (float) Math.sqrt(ObjectVars.objectStartWheels[6]*ObjectVars.objectStartWheels[6] + ObjectVars.objectStartWheels[5]*ObjectVars.objectStartWheels[5]);
-	        		shapeRenderer.setColor(1, 0.705f, 0.522f, opacity);
-	        		shapeRenderer.circle(xcen + length*(float)Math.cos(rangle), ycen + length*(float)Math.sin(rangle), ObjectVars.objectStartWheels[4]);
-	        		for (int j=0; j<startDirPoly.length/2; j++) {
-	        			startDirPoly[2*j] += xcen+length*(float)Math.cos(rangle);
-	        			startDirPoly[2*j+1] += ycen+length*(float)Math.sin(rangle);
-	        		}
-	        		shapeRenderer.polygon(startDirPoly);
-	        	} else if (allObjectTypes.get(i) == ObjectVars.Finish) {
-	        		rxcen = allObjects.get(i)[0]-ObjectVars.objectFinish[0];
-	        		rycen = allObjects.get(i)[1]-ObjectVars.objectFinish[1];
-	        		shapeRenderer.setColor(0, 0.7f, 1.0f, opacity);
-	        		shapeRenderer.polygon(allObjects.get(i));
-	        		shapeRenderer.circle(rxcen, rycen, ObjectVars.objectFinishBall[2]);
-	        	}
-	        }
-        }
-        // Draw the decorations
-        int dTyp;
-        if (allDecors.size() != 0) {
-	        for (int i = 0; i<allDecors.size(); i++){
-	        	dTyp = allDecorTypes.get(i);
-	        	if (decorSelect == i) opacity=1.0f;
-	        	else opacity = 0.5f;
-	        	if  (DecorVars.IsRoadSign(dTyp)) {
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		shapeRenderer.circle(allDecors.get(i)[0], allDecors.get(i)[1],allDecors.get(i)[2]);
-	        		// Render the pole
-	        		rCoord = PolygonOperations.RotateCoordinate(allDecors.get(i)[0], allDecors.get(i)[1]-5.0f*allDecors.get(i)[2], MathUtils.radiansToDegrees*allDecors.get(i)[3], allDecors.get(i)[0], allDecors.get(i)[1]);
-	        		shapeRenderer.line(allDecors.get(i)[0], allDecors.get(i)[1], rCoord[0], rCoord[1]);
-	        	} else if (dTyp == DecorVars.Grass) {
-	        		shapeRenderer.setColor(0, 1, 0, opacity);
-	        		shapeRenderer.polygon(allDecors.get(i));
-	        	} else if (dTyp == DecorVars.Rain) {
-	        		shapeRenderer.setColor(0, 0, 0.6f, opacity);
-	        		shapeRenderer.polygon(allDecors.get(i));
-	        	} else if (dTyp == DecorVars.Waterfall) {
-	        		shapeRenderer.setColor(0, 0, 0.8f, opacity);
-	        		shapeRenderer.polygon(allDecors.get(i));
-	        	} else if (dTyp == DecorVars.CollisionlessBG) {
-	        		shapeRenderer.setColor(0.4f, 0.4f, 0.4f, opacity);
-	        		shapeRenderer.polygon(allDecors.get(i));
-	        	} else if (dTyp == DecorVars.CollisionlessFG) {
-	        		shapeRenderer.setColor(0.8f, 0.8f, 0.8f, opacity);
-	        		shapeRenderer.polygon(allDecors.get(i));
-	        	} else if (dTyp == DecorVars.LargeStone) {
-	        		shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-	        		shapeRenderer.circle(allDecors.get(i)[0], allDecors.get(i)[1],allDecors.get(i)[2]);
-	        	}
-	        }
-        }
+				} else if (allObjectTypes.get(i) == ObjectVars.Spike) {
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
+					shapeRenderer.triangle(allObjects.get(i)[0], allObjects.get(i)[1]+1.3f*allObjects.get(i)[2], allObjects.get(i)[0]-1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2], allObjects.get(i)[0]+1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2]);
+				} else if (allObjectTypes.get(i) == ObjectVars.SpikeZone) {
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
+					shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
+				} else if ((allObjectTypes.get(i) == ObjectVars.Transport) | ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
+					shapeRenderer.setColor(1, 1, 1, opacity);
+					shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8] + allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9] + allObjects.get(i)[13]));
+					for (int j = 0; j<8; j++) {
+						transPoly[j] = allObjects.get(i)[j];
+					}
+					if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
+						// Render the gravity arrow
+						shapeRenderer.polygon(allObjectArrows.get(i));
+					}
+					shapeRenderer.polygon(transPoly);
+					for (int j = 8; j<16; j++) {
+						transPoly[j-8] = allObjects.get(i)[j];
+					}
+					shapeRenderer.polygon(transPoly);
+					// Entry and exit blue/red lines
+					shapeRenderer.setColor(1, 0, 0, opacity);
+					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], allObjects.get(i)[3]);
+					shapeRenderer.line(allObjects.get(i)[8], allObjects.get(i)[9], allObjects.get(i)[10], allObjects.get(i)[11]);
+					shapeRenderer.setColor(0, 0.7f, 1, opacity);
+					shapeRenderer.line(allObjects.get(i)[4], allObjects.get(i)[5], allObjects.get(i)[6], allObjects.get(i)[7]);
+					shapeRenderer.line(allObjects.get(i)[12], allObjects.get(i)[13], allObjects.get(i)[14], allObjects.get(i)[15]);
+				} else if (allObjectTypes.get(i) == ObjectVars.Start) {
+					shapeRenderer.setColor(1, 0.8f, 0, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.polygon(allObjectArrows.get(i));
+					rangle = PolygonOperations.GetAngle(allObjectArrows.get(i)[0], allObjectArrows.get(i)[1], allObjectArrows.get(i)[2], allObjectArrows.get(i)[3]);
+					xcen = allObjects.get(i)[0]-ObjectVars.objectStart[0];
+					ycen = allObjects.get(i)[1]-ObjectVars.objectStart[1];
+					shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 0.7f*opacity);
+					shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]);
+					shapeRenderer.circle(xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle), ObjectVars.objectStartWheels[2]);
+					shapeRenderer.line(xcen, ycen, xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
+					shapeRenderer.line(xcen, ycen, xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f));
+					shapeRenderer.line(xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f), xcen+ ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
+					// Draw the starting direction
+					// Make a copy of the arrow
+					startDirPoly = ObjectVars.objectArrow.clone();
+					// Rotate the Arrow in the appropriate direction
+					if (LevelVars.get(LevelVars.PROP_START_DIRECTION).equals("Left")) PolygonOperations.RotateXYArray(startDirPoly, rangle+1.5f*(float)Math.PI, 0, 0);
+					else PolygonOperations.RotateXYArray(startDirPoly, rangle+0.5f*(float)Math.PI, 0, 0);
+					// Draw the Head and the head arrow
+					rangle += Math.atan(ObjectVars.objectStartWheels[6]/ObjectVars.objectStartWheels[5]);
+					float length = (float) Math.sqrt(ObjectVars.objectStartWheels[6]*ObjectVars.objectStartWheels[6] + ObjectVars.objectStartWheels[5]*ObjectVars.objectStartWheels[5]);
+					shapeRenderer.setColor(1, 0.705f, 0.522f, opacity);
+					shapeRenderer.circle(xcen + length*(float)Math.cos(rangle), ycen + length*(float)Math.sin(rangle), ObjectVars.objectStartWheels[4]);
+					for (int j=0; j<startDirPoly.length/2; j++) {
+						startDirPoly[2*j] += xcen+length*(float)Math.cos(rangle);
+						startDirPoly[2*j+1] += ycen+length*(float)Math.sin(rangle);
+					}
+					shapeRenderer.polygon(startDirPoly);
+				} else if (allObjectTypes.get(i) == ObjectVars.Finish) {
+					rxcen = allObjects.get(i)[0]-ObjectVars.objectFinish[0];
+					rycen = allObjects.get(i)[1]-ObjectVars.objectFinish[1];
+					shapeRenderer.setColor(0, 0.7f, 1.0f, opacity);
+					shapeRenderer.polygon(allObjects.get(i));
+					shapeRenderer.circle(rxcen, rycen, ObjectVars.objectFinishBall[2]);
+				}
+			}
+		}
+	}
 
-        // Draw the current polygon
-        if (drawingPoly == true) {
-        	shapeRenderer.setColor(1, 1, 0.1f, 1.0f);
-        	if (shapeDraw != null) {
-        		// Drawing a circle or a rectangle
-            	if (shapeDraw.length == 3) {
-	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
-	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-            		shapeRenderer.circle(shapeDraw[0], shapeDraw[1], (float) Math.sqrt((tempx-shapeDraw[0])*(tempx-shapeDraw[0]) + (tempy-shapeDraw[1])*(tempy-shapeDraw[1])));
-            	} else if (shapeDraw.length == 8) {
-	    			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
-	    			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-	    			shapeDraw[2] = tempx;
-	    			shapeDraw[3] = shapeDraw[1];
-	    			shapeDraw[4] = tempx;
-	    			shapeDraw[5] = tempy;
-	    			shapeDraw[6] = shapeDraw[0];
-	    			shapeDraw[7] = tempy;
-	    			shapeRenderer.polygon(shapeDraw);
-            	}
-        	} else {
-        		// Drawing a polygon
-        		for (int i = 0; i<polyDraw.size()-1; i++){
-        			shapeRenderer.point(polyDraw.get(i)[0], polyDraw.get(i)[1], 0);
-        			shapeRenderer.line(polyDraw.get(i)[0], polyDraw.get(i)[1], polyDraw.get(i+1)[0], polyDraw.get(i+1)[1]);
-        		}
-        		shapeRenderer.point(polyDraw.get(polyDraw.size()-1)[0], polyDraw.get(polyDraw.size()-1)[1], 0);
-        		// Draw the vertex that is currently being investigated
-        		tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
-        		tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-        		if (GameInput.MBMOVEX >= 0) {
-        			shapeRenderer.line(polyDraw.get(polyDraw.size()-1)[0], polyDraw.get(polyDraw.size()-1)[1], tempx, tempy);
-        			// If the cursor is close to closing the polygon, draw a yellow circle
-        			if (polyDraw.size() >= 3) {
-        				if (Math.sqrt((tempx-polyDraw.get(0)[0])*(tempx-polyDraw.get(0)[0]) + (tempy-polyDraw.get(0)[1])*(tempy-polyDraw.get(0)[1])) < cam.zoom*SCRWIDTH*polyEndThreshold) {
-        					shapeRenderer.circle(polyDraw.get(0)[0], polyDraw.get(0)[1], cam.zoom*SCRWIDTH*polyEndThreshold);
-        				}
-        			}
-        		}
-        	}
-        }
-        // Draw the updated group polygons
-        if (updateGroupPoly != null) {
-        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-        	for (int i = 0; i<updateGroupPoly.size(); i++){
-        			if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 0) shapeRenderer.polygon(updateGroupPoly.get(i));
-        			else if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 1) shapeRenderer.circle(updateGroupPoly.get(i)[0], updateGroupPoly.get(i)[1], updateGroupPoly.get(i)[2]);        			
-        	}
-        }
-        // Draw the updated polygon
-        if (updatePoly != null) {
-        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-        	if (polySelect != -1) {
-        		if (mode==6) {
-        			shapeRenderer.polygon(updatePoly);
-        		} else {
-        			if (allPolygonTypes.get(polySelect)%2 == 0) shapeRenderer.polygon(updatePoly);
-        			else if (allPolygonTypes.get(polySelect)%2 == 1) shapeRenderer.circle(updatePoly[0], updatePoly[1], updatePoly[2]);        			
-        		}
-        	} else if (objectSelect != -1) {
-        		if (updatePoly.length == 3) shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
-        		else if (updatePoly.length == 4) shapeRenderer.line(updatePoly[0],updatePoly[1],updatePoly[2],updatePoly[3]);
-            	else shapeRenderer.polygon(updatePoly);
-        	} else if (decorSelect != -1) {
-        		if (DecorVars.IsRoadSign(allDecorTypes.get(decorSelect))) {
-        			shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
-	        		rCoord = PolygonOperations.RotateCoordinate(updatePoly[0], updatePoly[1]-5.0f*updatePoly[2], MathUtils.radiansToDegrees*updatePoly[3], updatePoly[0], updatePoly[1]);
-	        		shapeRenderer.line(updatePoly[0], updatePoly[1], rCoord[0], rCoord[1]);
-        		} else if (allDecorTypes.get(decorSelect) == DecorVars.Rain) {
-	        		shapeRenderer.polygon(updatePoly);
-        		} else if (allDecorTypes.get(decorSelect) == DecorVars.Waterfall) {
-	        		shapeRenderer.polygon(updatePoly);
-        		} else if (allDecorTypes.get(decorSelect) == DecorVars.CollisionlessBG) {
-	        		shapeRenderer.polygon(updatePoly);
-        		} else if (allDecorTypes.get(decorSelect) == DecorVars.CollisionlessFG) {
-	        		shapeRenderer.polygon(updatePoly);
-        		} else if (DecorVars.IsRect(allDecorTypes.get(decorSelect))) {
-        			float[] rectUpdPoly = new float[8];
-        			for (int i=0; i<8; i++) rectUpdPoly[i] = updatePoly[i];
-        			shapeRenderer.polygon(rectUpdPoly);
-        		} else shapeRenderer.polygon(updatePoly);
-        	}
-        }
-        // Draw the updated path
-        if (updatePath != null) {
-        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-        	if (polySelect != -1) {
-        		if (mode==4) { // Moving Platform
-        			for (int i=0; i<(updatePath.length-6)/2-1; i++) shapeRenderer.line(updatePath[6+2*i],updatePath[6+2*i+1],updatePath[6+2*i+2],updatePath[6+2*i+3]);
-        		} else if (mode==7) { // Falling platform
-        			// Draw the sign location
-		        	shapeRenderer.circle(updatePath[2], updatePath[3], 5);
-		        	shapeRenderer.line(updatePath[2]-5, updatePath[3], updatePath[2]+5, updatePath[3]);
-		        	shapeRenderer.line(updatePath[2], updatePath[3]-5, updatePath[2], updatePath[3]+5);
-		        	// Draw the fall time arrow
-		        	shapeRenderer.line(updatePath[2], updatePath[3], updatePath[2], updatePath[3]-updatePath[0]/B2DVars.EPPM);
-		        	shapeRenderer.line(updatePath[2]-10, updatePath[3]-updatePath[0]/B2DVars.EPPM, updatePath[2]+10, updatePath[3]-updatePath[0]/B2DVars.EPPM);
-		        	// Draw the damping arrow
-		        	shapeRenderer.line(updatePath[2], updatePath[3], updatePath[2], updatePath[3]+updatePath[1]/B2DVars.EPPM);
-		        	shapeRenderer.line(updatePath[2]-10, updatePath[3]+updatePath[1]/B2DVars.EPPM, updatePath[2]+10, updatePath[3]+updatePath[1]/B2DVars.EPPM);
-        		} else if (mode==9) {
-		        	extraPoly = new float[] {updatePath[2]-5.0f, updatePath[3]-updatePath[4]/2,
-		        			updatePath[2]+5.0f, updatePath[3]-updatePath[4]/2,
-		        			updatePath[2]+5.0f, updatePath[3]+updatePath[4]/2,
-		        			updatePath[2]-5.0f, updatePath[3]+updatePath[4]/2};
-		        	PolygonOperations.RotateXYArray(extraPoly, updatePath[5], updatePath[2], updatePath[3]);
-		        	shapeRenderer.polygon(extraPoly);
-        		}
-        	}
-        }
-        // Draw a selected vertex or segment if necessary
-        if ((mode==4)&(modeParent.equals("Set Path"))) {
-	        if ((segmSelect != -1) & (vertSelect != -1) & (polySelect != -1) & (allPolygons.size()!=0)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.line(allPolygonPaths.get(polySelect)[6+2*segmSelect],allPolygonPaths.get(polySelect)[6+2*segmSelect+1],allPolygonPaths.get(polySelect)[6+2*(segmSelect+1)],allPolygonPaths.get(polySelect)[6+2*(segmSelect+1)+1]);
-	        } else if ((vertSelect != -1) & (polySelect != -1)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertSelect], allPolygonPaths.get(polySelect)[6+2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
-	        } else if ((segmHover != -1) & (vertHover != -1) & (polySelect != -1)) {
-	            // Draw the hover segment
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.line(allPolygonPaths.get(polySelect)[6+2*segmHover],allPolygonPaths.get(polySelect)[6+2*segmHover+1],allPolygonPaths.get(polySelect)[6+2*(segmHover+1)],allPolygonPaths.get(polySelect)[6+2*(segmHover+1)+1]);        	
-	            shapeRenderer.circle(0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)]), 0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover+1]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
-	        } else if ((vertHover != -1) & (polySelect != -1)) {
-	            // Draw the hover vertex
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	            shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertHover], allPolygonPaths.get(polySelect)[6+2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
-	        }
-        } else if (mode==5) {
-	        if ((segmSelect != -1) & (vertSelect != -1) & (objectSelect != -1)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	int segmNext = segmSelect + 1;
-	        	if (segmNext==allObjects.get(objectSelect).length/2) segmNext = 0;
-	        	shapeRenderer.line(allObjects.get(objectSelect)[2*segmNext],allObjects.get(objectSelect)[2*segmNext+1],allObjects.get(objectSelect)[2*segmSelect],allObjects.get(objectSelect)[2*segmSelect+1]);
-	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
-	        } else if ((vertSelect != -1) & (objectSelect != -1)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allObjects.get(objectSelect)[2*vertSelect], allObjects.get(objectSelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold); 
-	        } else if ((segmHover != -1) & (vertHover != -1) & (objectHover != -1)) {
-	            // Draw the hover segment
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	int segmNext = segmHover + 1;
-	        	if (segmNext==allObjects.get(objectHover).length/2) segmNext = 0;
-	        	shapeRenderer.line(allObjects.get(objectHover)[2*segmNext],allObjects.get(objectHover)[2*segmNext+1],allObjects.get(objectHover)[2*segmHover],allObjects.get(objectHover)[2*segmHover+1]);
-	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
-	            shapeRenderer.circle(0.5f*(allObjects.get(objectHover)[2*segmNext]+allObjects.get(objectHover)[2*segmHover]), 0.5f*(allObjects.get(objectHover)[2*segmNext+1]+allObjects.get(objectHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
-	        } else if ((vertHover != -1) & (objectHover != -1)) {
-	            // Draw the hover vertex
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allObjects.get(objectHover)[2*vertHover], allObjects.get(objectHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
-	        }
-	    } else if (mode==6) {
-	        if ((segmSelect != -1) & (vertSelect != -1) & (decorSelect != -1)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	int segmNext = segmSelect + 1;
-	        	if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
-	        	shapeRenderer.line(allDecors.get(decorSelect)[2*segmNext],allDecors.get(decorSelect)[2*segmNext+1],allDecors.get(decorSelect)[2*segmSelect],allDecors.get(decorSelect)[2*segmSelect+1]);
-	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
-	        } else if ((vertSelect != -1) & (decorSelect != -1)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allDecors.get(decorSelect)[2*vertSelect], allDecors.get(decorSelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold); 
-	        } else if ((segmHover != -1) & (vertHover != -1) & (decorHover != -1)) {
-	            // Draw the hover segment
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	int segmNext = segmHover + 1;
-	        	if (segmNext==allDecors.get(decorHover).length/2) segmNext = 0;
-	        	shapeRenderer.line(allDecors.get(decorHover)[2*segmNext],allDecors.get(decorHover)[2*segmNext+1],allDecors.get(decorHover)[2*segmHover],allDecors.get(decorHover)[2*segmHover+1]);
-	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
-	            shapeRenderer.circle(0.5f*(allDecors.get(decorHover)[2*segmNext]+allDecors.get(decorHover)[2*segmHover]), 0.5f*(allDecors.get(decorHover)[2*segmNext+1]+allDecors.get(decorHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
-	        } else if ((vertHover != -1) & (decorHover != -1)) {
-	            // Draw the hover vertex
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	shapeRenderer.circle(allDecors.get(decorHover)[2*vertHover], allDecors.get(decorHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
-	        }
-        } else if (allPolygons.size()!=0) {
-	        if ((segmSelect != -1) & (vertSelect != -1) & (polySelect != -1)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	int segmNext = segmSelect + 1;
-	        	if (segmNext==allPolygons.get(polySelect).length/2) segmNext = 0;
-	        	shapeRenderer.line(allPolygons.get(polySelect)[2*segmNext],allPolygons.get(polySelect)[2*segmNext+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
-	        	//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
-	        } else if ((vertSelect != -1) & (polySelect != -1)) {
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	if (mode==6) shapeRenderer.circle(allDecors.get(polySelect)[2*vertSelect], allDecors.get(polySelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold); 
-	        	else shapeRenderer.circle(allPolygons.get(polySelect)[2*vertSelect], allPolygons.get(polySelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
-	        } else if ((segmHover != -1) & (vertHover != -1) & (polyHover != -1)) {
-	            // Draw the hover segment
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	int segmNext = segmHover + 1;
-	        	if (segmNext==allPolygons.get(polyHover).length/2) segmNext = 0;
-	        	shapeRenderer.line(allPolygons.get(polyHover)[2*segmNext],allPolygons.get(polyHover)[2*segmNext+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);
-	        	//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);        	
-	            shapeRenderer.circle(0.5f*(allPolygons.get(polyHover)[2*segmNext]+allPolygons.get(polyHover)[2*segmHover]), 0.5f*(allPolygons.get(polyHover)[2*segmNext+1]+allPolygons.get(polyHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
-	        } else if ((vertHover != -1) & (polyHover != -1)) {
-	            // Draw the hover vertex
-	        	shapeRenderer.setColor(1, 1, 0.1f, 1);
-	        	if (mode==6) shapeRenderer.circle(allDecors.get(polyHover)[2*vertHover], allDecors.get(polyHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
-	        	else shapeRenderer.circle(allPolygons.get(polyHover)[2*vertHover], allPolygons.get(polyHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
-	        }
-        }
-        // If a convex polygon has been calculated, draw it
-//        if (convexPolygons != null) {
-//	        for (int i = 0; i<convexPolygons.size(); i++){
-//	        	shapeRenderer.setColor(0, 0, 1, 1);
-//        		shapeRenderer.polygon(convexPolygons.get(i));
-//	        }
-//        }
-        // Draw the cursor
-        shapeRenderer.setColor(1, 0, 0, 1.0f);
-        shapeRenderer.circle(cursposx, cursposy, cam.zoom*SCRWIDTH*polyEndThreshold);
-        shapeRenderer.end();
+	private void renderDecors() {
+		int dTyp;
+		float[] rCoord;
+		if (allDecors.size() != 0) {
+			for (int i = 0; i<allDecors.size(); i++){
+				dTyp = allDecorTypes.get(i);
+				if (decorSelect == i) opacity=1.0f;
+				else opacity = 0.5f;
+				if  (DecorVars.IsRoadSign(dTyp)) {
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					shapeRenderer.circle(allDecors.get(i)[0], allDecors.get(i)[1],allDecors.get(i)[2]);
+					// Render the pole
+					rCoord = PolygonOperations.RotateCoordinate(allDecors.get(i)[0], allDecors.get(i)[1]-5.0f*allDecors.get(i)[2], MathUtils.radiansToDegrees*allDecors.get(i)[3], allDecors.get(i)[0], allDecors.get(i)[1]);
+					shapeRenderer.line(allDecors.get(i)[0], allDecors.get(i)[1], rCoord[0], rCoord[1]);
+				} else if (dTyp == DecorVars.Grass) {
+					shapeRenderer.setColor(0, 1, 0, opacity);
+					shapeRenderer.polygon(allDecors.get(i));
+				} else if (dTyp == DecorVars.Rain) {
+					shapeRenderer.setColor(0, 0, 0.6f, opacity);
+					shapeRenderer.polygon(allDecors.get(i));
+				} else if (dTyp == DecorVars.Waterfall) {
+					shapeRenderer.setColor(0, 0, 0.8f, opacity);
+					shapeRenderer.polygon(allDecors.get(i));
+				} else if (dTyp == DecorVars.CollisionlessBG) {
+					shapeRenderer.setColor(0.4f, 0.4f, 0.4f, opacity);
+					shapeRenderer.polygon(allDecors.get(i));
+				} else if (dTyp == DecorVars.CollisionlessFG) {
+					shapeRenderer.setColor(0.8f, 0.8f, 0.8f, opacity);
+					shapeRenderer.polygon(allDecors.get(i));
+				} else if (dTyp == DecorVars.LargeStone) {
+					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+					shapeRenderer.circle(allDecors.get(i)[0], allDecors.get(i)[1],allDecors.get(i)[2]);
+				}
+			}
+		}
+	}
 
-        // Draw the decoration signs
-        sb.setProjectionMatrix(cam.combined);
-        sb.begin();
-        float signWidth;
-        if (allDecors.size() != 0) {
-	        for (int i = 0; i<allDecors.size(); i++){
-	        	dTyp = allDecorTypes.get(i);
-	        	if (decorSelect == i) opacity=1.0f;
-	        	else opacity = 0.5f;
-	        	if  (DecorVars.IsRoadSign(dTyp)) {
+	private void renderDecorsRect() {
+		String textName;
+		float [] extraPoly;
+		if (allDecors.size() != 0) {
+			mBatch.setColor(1, 1, 1, 0.6f);
+			mBatch.setProjectionMatrix(cam.combined);
+			mBatch.begin();
+			float xcen, ycen, xlen, ylen, rotAngle;
+			for (int i = 0; i<allDecors.size(); i++) {
+				if (DecorVars.IsRect(allDecorTypes.get(i))) {
+					textName = DecorVars.GetImageRect(allDecorTypes.get(i), (int) allDecors.get(i)[8]);
+					extraPoly = DecorVars.GetCoordRect(allDecorTypes.get(i), (int) allDecors.get(i)[8]);
+					xcen = 0.5f*(allDecors.get(i)[0]+allDecors.get(i)[4]);
+					ycen = 0.5f*(allDecors.get(i)[1]+allDecors.get(i)[5]);
+					xlen = extraPoly[4] - extraPoly[0];
+					ylen = extraPoly[5] - extraPoly[1];
+					rotAngle = PolygonOperations.GetAngle(allDecors.get(i)[0], allDecors.get(i)[1], allDecors.get(i)[2], allDecors.get(i)[3]);
+					decorImage = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textName), 2));
+					mBatch.draw(decorImage, xcen-xlen/2, ycen-ylen/2, xlen/2, ylen/2, xlen, ylen, 1, 1, (float) Math.toDegrees(rotAngle));
+				}
+			}
+			mBatch.end();
+		}
+	}
+
+	private void renderUpdates() {
+		float[] rCoord;
+		float [] extraPoly;
+		// Draw the updated group polygons
+		if (updateGroupPoly != null) {
+			shapeRenderer.setColor(1, 1, 0.1f, 1);
+			for (int i = 0; i<updateGroupPoly.size(); i++){
+				if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 0) shapeRenderer.polygon(updateGroupPoly.get(i));
+				else if (allPolygonTypes.get(groupPolySelect.get(i))%2 == 1) shapeRenderer.circle(updateGroupPoly.get(i)[0], updateGroupPoly.get(i)[1], updateGroupPoly.get(i)[2]);
+			}
+		}
+		// Draw the updated polygon
+		if (updatePoly != null) {
+			shapeRenderer.setColor(1, 1, 0.1f, 1);
+			if (polySelect != -1) {
+				if (mode==6) {
+					shapeRenderer.polygon(updatePoly);
+				} else {
+					if (allPolygonTypes.get(polySelect)%2 == 0) shapeRenderer.polygon(updatePoly);
+					else if (allPolygonTypes.get(polySelect)%2 == 1) shapeRenderer.circle(updatePoly[0], updatePoly[1], updatePoly[2]);
+				}
+			} else if (objectSelect != -1) {
+				if (updatePoly.length == 3) shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
+				else if (updatePoly.length == 4) shapeRenderer.line(updatePoly[0],updatePoly[1],updatePoly[2],updatePoly[3]);
+				else shapeRenderer.polygon(updatePoly);
+			} else if (decorSelect != -1) {
+				if (DecorVars.IsRoadSign(allDecorTypes.get(decorSelect))) {
+					shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
+					rCoord = PolygonOperations.RotateCoordinate(updatePoly[0], updatePoly[1]-5.0f*updatePoly[2], MathUtils.radiansToDegrees*updatePoly[3], updatePoly[0], updatePoly[1]);
+					shapeRenderer.line(updatePoly[0], updatePoly[1], rCoord[0], rCoord[1]);
+				} else if (allDecorTypes.get(decorSelect) == DecorVars.Rain) {
+					shapeRenderer.polygon(updatePoly);
+				} else if (allDecorTypes.get(decorSelect) == DecorVars.Waterfall) {
+					shapeRenderer.polygon(updatePoly);
+				} else if (allDecorTypes.get(decorSelect) == DecorVars.CollisionlessBG) {
+					shapeRenderer.polygon(updatePoly);
+				} else if (allDecorTypes.get(decorSelect) == DecorVars.CollisionlessFG) {
+					shapeRenderer.polygon(updatePoly);
+				} else if (DecorVars.IsRect(allDecorTypes.get(decorSelect))) {
+					float[] rectUpdPoly = new float[8];
+					for (int i=0; i<8; i++) rectUpdPoly[i] = updatePoly[i];
+					shapeRenderer.polygon(rectUpdPoly);
+				} else shapeRenderer.polygon(updatePoly);
+			}
+		}
+		// Draw the updated path
+		if (updatePath != null) {
+			shapeRenderer.setColor(1, 1, 0.1f, 1);
+			if (polySelect != -1) {
+				if (mode==4) { // Moving Platform
+					for (int i=0; i<(updatePath.length-6)/2-1; i++) shapeRenderer.line(updatePath[6+2*i],updatePath[6+2*i+1],updatePath[6+2*i+2],updatePath[6+2*i+3]);
+				} else if (mode==7) { // Falling platform
+					// Draw the sign location
+					shapeRenderer.circle(updatePath[2], updatePath[3], 5);
+					shapeRenderer.line(updatePath[2]-5, updatePath[3], updatePath[2]+5, updatePath[3]);
+					shapeRenderer.line(updatePath[2], updatePath[3]-5, updatePath[2], updatePath[3]+5);
+					// Draw the fall time arrow
+					shapeRenderer.line(updatePath[2], updatePath[3], updatePath[2], updatePath[3]-updatePath[0]/B2DVars.EPPM);
+					shapeRenderer.line(updatePath[2]-10, updatePath[3]-updatePath[0]/B2DVars.EPPM, updatePath[2]+10, updatePath[3]-updatePath[0]/B2DVars.EPPM);
+					// Draw the damping arrow
+					shapeRenderer.line(updatePath[2], updatePath[3], updatePath[2], updatePath[3]+updatePath[1]/B2DVars.EPPM);
+					shapeRenderer.line(updatePath[2]-10, updatePath[3]+updatePath[1]/B2DVars.EPPM, updatePath[2]+10, updatePath[3]+updatePath[1]/B2DVars.EPPM);
+				} else if (mode==9) {
+					extraPoly = new float[] {updatePath[2]-5.0f, updatePath[3]-updatePath[4]/2,
+							updatePath[2]+5.0f, updatePath[3]-updatePath[4]/2,
+							updatePath[2]+5.0f, updatePath[3]+updatePath[4]/2,
+							updatePath[2]-5.0f, updatePath[3]+updatePath[4]/2};
+					PolygonOperations.RotateXYArray(extraPoly, updatePath[5], updatePath[2], updatePath[3]);
+					shapeRenderer.polygon(extraPoly);
+				}
+			}
+		}
+		// Draw the updated group
+		float[] rectUpdPoly = new float[8];
+		if (updateGroup != null) {
+			shapeRenderer.setColor(1, 1, 0.1f, 1);
+			for (int pp=0; pp<updateGroup.size(); pp++) {
+				if (groupPOD.get(pp) == 2) {
+					// Decor
+					if (DecorVars.IsRoadSign(allDecorTypes.get(groupArrays.get(pp)))) {
+						shapeRenderer.circle(updateGroup.get(pp)[0],updateGroup.get(pp)[1],updateGroup.get(pp)[2]);
+						rCoord = PolygonOperations.RotateCoordinate(updateGroup.get(pp)[0], updateGroup.get(pp)[1]-5.0f*updateGroup.get(pp)[2], MathUtils.radiansToDegrees*updateGroup.get(pp)[3], updateGroup.get(pp)[0], updateGroup.get(pp)[1]);
+						shapeRenderer.line(updateGroup.get(pp)[0], updateGroup.get(pp)[1], rCoord[0], rCoord[1]);
+					} else if (DecorVars.IsRect(allDecorTypes.get(groupArrays.get(pp)))) {
+						rectUpdPoly = new float[8];
+						for (int i=0; i<8; i++) rectUpdPoly[i] = updateGroup.get(pp)[i];
+						shapeRenderer.polygon(rectUpdPoly);
+					} else shapeRenderer.polygon(updateGroup.get(pp));
+				} else if (groupPOD.get(pp) == 1) {
+					// Objects
+					// TODO :: NEED TO RENDER OBJECT UPDATE GROUPS!
+//						System.out.println("---------");
+//						System.out.println(groupPOD.get(pp));
+//						System.out.println(groupTypes.get(pp));
+				} else {
+					if (updateGroup.get(pp).length == 3) {
+						shapeRenderer.circle(updateGroup.get(pp)[0], updateGroup.get(pp)[1], updateGroup.get(pp)[2]);
+					} else {
+						shapeRenderer.polygon(updateGroup.get(pp));
+					}
+				}
+			}
+		}
+	}
+
+	private void renderVertexSegments() {
+		if ((mode==4)&(modeParent.equals("Set Path"))) {
+			if ((segmSelect != -1) & (vertSelect != -1) & (polySelect != -1) & (allPolygons.size()!=0)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.line(allPolygonPaths.get(polySelect)[6+2*segmSelect],allPolygonPaths.get(polySelect)[6+2*segmSelect+1],allPolygonPaths.get(polySelect)[6+2*(segmSelect+1)],allPolygonPaths.get(polySelect)[6+2*(segmSelect+1)+1]);
+			} else if ((vertSelect != -1) & (polySelect != -1)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertSelect], allPolygonPaths.get(polySelect)[6+2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((segmHover != -1) & (vertHover != -1) & (polySelect != -1)) {
+				// Draw the hover segment
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.line(allPolygonPaths.get(polySelect)[6+2*segmHover],allPolygonPaths.get(polySelect)[6+2*segmHover+1],allPolygonPaths.get(polySelect)[6+2*(segmHover+1)],allPolygonPaths.get(polySelect)[6+2*(segmHover+1)+1]);
+				shapeRenderer.circle(0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)]), 0.5f*(allPolygonPaths.get(polySelect)[6+2*segmHover+1]+allPolygonPaths.get(polySelect)[6+2*(segmHover+1)+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((vertHover != -1) & (polySelect != -1)) {
+				// Draw the hover vertex
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.circle(allPolygonPaths.get(polySelect)[6+2*vertHover], allPolygonPaths.get(polySelect)[6+2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			}
+		} else if (mode==5) {
+			if ((segmSelect != -1) & (vertSelect != -1) & (objectSelect != -1)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				int segmNext = segmSelect + 1;
+				if (segmNext==allObjects.get(objectSelect).length/2) segmNext = 0;
+				shapeRenderer.line(allObjects.get(objectSelect)[2*segmNext],allObjects.get(objectSelect)[2*segmNext+1],allObjects.get(objectSelect)[2*segmSelect],allObjects.get(objectSelect)[2*segmSelect+1]);
+				//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
+			} else if ((vertSelect != -1) & (objectSelect != -1)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.circle(allObjects.get(objectSelect)[2*vertSelect], allObjects.get(objectSelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((segmHover != -1) & (vertHover != -1) & (objectHover != -1)) {
+				// Draw the hover segment
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				int segmNext = segmHover + 1;
+				if (segmNext==allObjects.get(objectHover).length/2) segmNext = 0;
+				shapeRenderer.line(allObjects.get(objectHover)[2*segmNext],allObjects.get(objectHover)[2*segmNext+1],allObjects.get(objectHover)[2*segmHover],allObjects.get(objectHover)[2*segmHover+1]);
+				//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);
+				shapeRenderer.circle(0.5f*(allObjects.get(objectHover)[2*segmNext]+allObjects.get(objectHover)[2*segmHover]), 0.5f*(allObjects.get(objectHover)[2*segmNext+1]+allObjects.get(objectHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((vertHover != -1) & (objectHover != -1)) {
+				// Draw the hover vertex
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.circle(allObjects.get(objectHover)[2*vertHover], allObjects.get(objectHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			}
+		} else if (mode==6) {
+			if ((segmSelect != -1) & (vertSelect != -1) & (decorSelect != -1)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				int segmNext = segmSelect + 1;
+				if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
+				shapeRenderer.line(allDecors.get(decorSelect)[2*segmNext],allDecors.get(decorSelect)[2*segmNext+1],allDecors.get(decorSelect)[2*segmSelect],allDecors.get(decorSelect)[2*segmSelect+1]);
+				//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
+			} else if ((vertSelect != -1) & (decorSelect != -1)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.circle(allDecors.get(decorSelect)[2*vertSelect], allDecors.get(decorSelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((segmHover != -1) & (vertHover != -1) & (decorHover != -1)) {
+				// Draw the hover segment
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				int segmNext = segmHover + 1;
+				if (segmNext==allDecors.get(decorHover).length/2) segmNext = 0;
+				shapeRenderer.line(allDecors.get(decorHover)[2*segmNext],allDecors.get(decorHover)[2*segmNext+1],allDecors.get(decorHover)[2*segmHover],allDecors.get(decorHover)[2*segmHover+1]);
+				//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);
+				shapeRenderer.circle(0.5f*(allDecors.get(decorHover)[2*segmNext]+allDecors.get(decorHover)[2*segmHover]), 0.5f*(allDecors.get(decorHover)[2*segmNext+1]+allDecors.get(decorHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((vertHover != -1) & (decorHover != -1)) {
+				// Draw the hover vertex
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				shapeRenderer.circle(allDecors.get(decorHover)[2*vertHover], allDecors.get(decorHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			}
+		} else if (allPolygons.size()!=0) {
+			if ((segmSelect != -1) & (vertSelect != -1) & (polySelect != -1)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				int segmNext = segmSelect + 1;
+				if (segmNext==allPolygons.get(polySelect).length/2) segmNext = 0;
+				shapeRenderer.line(allPolygons.get(polySelect)[2*segmNext],allPolygons.get(polySelect)[2*segmNext+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
+				//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
+			} else if ((vertSelect != -1) & (polySelect != -1)) {
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				if (mode==6) shapeRenderer.circle(allDecors.get(polySelect)[2*vertSelect], allDecors.get(polySelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+				else shapeRenderer.circle(allPolygons.get(polySelect)[2*vertSelect], allPolygons.get(polySelect)[2*vertSelect+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((segmHover != -1) & (vertHover != -1) & (polyHover != -1)) {
+				// Draw the hover segment
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				int segmNext = segmHover + 1;
+				if (segmNext==allPolygons.get(polyHover).length/2) segmNext = 0;
+				shapeRenderer.line(allPolygons.get(polyHover)[2*segmNext],allPolygons.get(polyHover)[2*segmNext+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);
+				//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);
+				shapeRenderer.circle(0.5f*(allPolygons.get(polyHover)[2*segmNext]+allPolygons.get(polyHover)[2*segmHover]), 0.5f*(allPolygons.get(polyHover)[2*segmNext+1]+allPolygons.get(polyHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
+			} else if ((vertHover != -1) & (polyHover != -1)) {
+				// Draw the hover vertex
+				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				if (mode==6) shapeRenderer.circle(allDecors.get(polyHover)[2*vertHover], allDecors.get(polyHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+				else shapeRenderer.circle(allPolygons.get(polyHover)[2*vertHover], allPolygons.get(polyHover)[2*vertHover+1], cam.zoom*SCRWIDTH*polyEndThreshold);
+			}
+		}
+	}
+
+	private void renderSigns() {
+		String textName;
+		float signWidth;
+		int dTyp;
+		if (allDecors.size() != 0) {
+			for (int i = 0; i<allDecors.size(); i++){
+				dTyp = allDecorTypes.get(i);
+				if (decorSelect == i) opacity=1.0f;
+				else opacity = 0.5f;
+				if  (DecorVars.IsRoadSign(dTyp)) {
 					glyphLayout.setText(signFont, DecorVars.GetObjectName(allDecorTypes.get(i)));
 					signWidth = glyphLayout.width;  // This is actually height, not width
-	        		signFont.draw(sb, DecorVars.GetObjectName(allDecorTypes.get(i)), allDecors.get(i)[0]-signWidth/2, allDecors.get(i)[1]+0.3f*allDecors.get(i)[2]);
-	        	} else if (dTyp == DecorVars.LargeStone) {
-
-	        	}
-	        }
-        }
-        // Draw the texture names on each collisionless platform
-        String textName;
-        if (allDecors.size() != 0) {
-	        for (int i = 0; i<allDecors.size(); i++) {
-	        	if ((allDecorTypes.get(i)==DecorVars.CollisionlessBG) | (allDecorTypes.get(i)==DecorVars.CollisionlessFG)) {
-		        	textName = platformTextures[allDecorPolys.get(i)]; 
-		        	if (!textName.equals("Default")) {
+					signFont.draw(sb, DecorVars.GetObjectName(allDecorTypes.get(i)), allDecors.get(i)[0]-signWidth/2, allDecors.get(i)[1]+0.3f*allDecors.get(i)[2]);
+				}
+			}
+		}
+		// Draw the texture names on each collisionless platform
+		if (allDecors.size() != 0) {
+			for (int i = 0; i<allDecors.size(); i++) {
+				if ((allDecorTypes.get(i)==DecorVars.CollisionlessBG) | (allDecorTypes.get(i)==DecorVars.CollisionlessFG)) {
+					textName = platformTextures[allDecorPolys.get(i)];
+					if (!textName.equals("Default")) {
 						glyphLayout.setText(signFont, textName);
 						signWidth = glyphLayout.height;  // This is actually height, not width
-		        		signFont.draw(sb, textName, allDecors.get(i)[0], allDecors.get(i)[1]+signWidth/2);
-		        	}
-	        	}
-	        }
-        }
-        // Draw the texture names on each polygon
-        if (allPolygons.size() != 0) {
-	        for (int i = 0; i<allPolygons.size(); i++) {
-	        	textName = allPolygonTextures.get(i); 
-	        	if (!textName.equals("")) {
+						signFont.draw(sb, textName, allDecors.get(i)[0], allDecors.get(i)[1]+signWidth/2);
+					}
+				}
+			}
+		}
+		// Draw the texture names on each polygon
+		if (allPolygons.size() != 0) {
+			for (int i = 0; i<allPolygons.size(); i++) {
+				textName = allPolygonTextures.get(i);
+				if (!textName.equals("")) {
 					glyphLayout.setText(signFont, textName);
 					signWidth = glyphLayout.height;  // This is actually height, not width
-	        		signFont.draw(sb, textName, allPolygons.get(i)[0], allPolygons.get(i)[1]+signWidth/2);
-	        	}
-	        }
-        }
-        // Draw the gravity names next to each gravity/transport symbol
-        if (allObjects.size() > 3) {
-        	for (int i=3; i<allObjects.size(); i++) {
-        		if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
-            		if (allObjectTypes.get(i) == ObjectVars.GravityEarth) textName = "Earth";
-            		else if (allObjectTypes.get(i) == ObjectVars.GravityMars) textName = "Mars";
-            		else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) textName = "Moon";
-            		else if (allObjectTypes.get(i) == ObjectVars.GravityZero) textName = "Zero";
-            		else textName = "Default";
+					signFont.draw(sb, textName, allPolygons.get(i)[0], allPolygons.get(i)[1]+signWidth/2);
+				}
+			}
+		}
+		// Draw the gravity names next to each gravity/transport symbol
+		if (allObjects.size() > 3) {
+			for (int i=3; i<allObjects.size(); i++) {
+				if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
+					if (allObjectTypes.get(i) == ObjectVars.GravityEarth) textName = "Earth";
+					else if (allObjectTypes.get(i) == ObjectVars.GravityMars) textName = "Mars";
+					else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) textName = "Moon";
+					else if (allObjectTypes.get(i) == ObjectVars.GravityZero) textName = "Zero";
+					else textName = "Default";
 					glyphLayout.setText(signFont, textName);
 					signWidth = glyphLayout.height;  // This is actually height, not width
-	        		signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+25.0f+signWidth/2);
-        		} else if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
-            		if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleEarth) textName = "Earth";
-            		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleMars) textName = "Mars";
-            		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleMoon) textName = "Moon";
-            		else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleZero) textName = "Zero";
-            		else textName = "Default";
+					signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+25.0f+signWidth/2);
+				} else if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
+					if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleEarth) textName = "Earth";
+					else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleMars) textName = "Mars";
+					else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleMoon) textName = "Moon";
+					else if (allObjectTypes.get(i) == ObjectVars.TransportInvisibleZero) textName = "Zero";
+					else textName = "Default";
 					glyphLayout.setText(signFont, textName);
-            		signWidth = glyphLayout.height;  // This is actually height, not width
-	        		signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+signWidth/2);
-        		} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
+					signWidth = glyphLayout.height;  // This is actually height, not width
+					signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+signWidth/2);
+				} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
 					if (allObjectTypes.get(i) == ObjectVars.PlanetSun) textName = "Sun";
 					else if (allObjectTypes.get(i) == ObjectVars.PlanetMercury) textName = "Mercury";
 					else if (allObjectTypes.get(i) == ObjectVars.PlanetVenus) textName = "Venus";
@@ -2133,64 +2294,22 @@ public class Editor extends GameState {
 					signWidth = glyphLayout.height;  // This is actually height, not width
 					signFont.draw(sb, textName, allObjectCoords.get(i)[0], allObjectCoords.get(i)[1]+signWidth/2);
 				}
-        	}
-        }
-        sb.end();
+			}
+		}
+	}
 
-        // If there are any warning/error messages, write them to screen
-        sb.setProjectionMatrix(hudCam.combined);
-        sb.begin();
-		for (int i=0; i<totalNumMsgs; i++) {
-        	if (warnMessage[i] != null) {
-        		if (warnType[i] == 0) warnFont.setColor(0.1f, 0.9f, 0.1f, 1);
-        		else if (warnType[i] == 1) warnFont.setColor(1, 0.5f, 0, 1);
-        		else warnFont.setColor(1, 0, 0, 1);
-				warnFont.draw(sb, warnMessage[i], toolbarWidth*1.1f, SCRHEIGHT-(1.1f*i+2)*warnHeight);
-        	}
-        }
-        sb.end();
+	public void renderInfoWarnErrors() {
+		for (int i = 0; i < totalNumMsgs; i++) {
+			if (warnMessage[i] != null) {
+				if (warnType[i] == 0) warnFont.setColor(0.1f, 0.9f, 0.1f, 1);
+				else if (warnType[i] == 1) warnFont.setColor(1, 0.5f, 0, 1);
+				else warnFont.setColor(1, 0, 0, 1);
+				warnFont.draw(sb, warnMessage[i], toolbarWidth * 1.1f, SCRHEIGHT - (1.1f * i + 2) * warnHeight);
+			}
+		}
+	}
 
-        Gdx.gl.glDisable(GL20.GL_BLEND);
-
-        // Draw a trace image, if it exists
-        if (traceImage != null) {
-        	mBatch.setColor(1, 1, 1, 0.5f);
-			mBatch.setProjectionMatrix(cam.combined);
-	    	mBatch.begin();
-	    	mBatch.draw(traceImage, trcImgProp[0]-trcImgProp[2]/2, trcImgProp[1]-trcImgProp[3]/2, trcImgProp[2]/2, trcImgProp[3]/2, trcImgProp[2], trcImgProp[3], 1, 1, trcImgProp[5]);
-	    	mBatch.end();
-        }
-        
-        // Draw rectangular decorations
-        if (allDecors.size() != 0) {
-        	mBatch.setColor(1, 1, 1, 0.6f);
-			mBatch.setProjectionMatrix(cam.combined);
-	    	mBatch.begin();
-	    	float xcen, ycen, xlen, ylen, rotAngle;
-	        for (int i = 0; i<allDecors.size(); i++) {
-	        	if (DecorVars.IsRect(allDecorTypes.get(i))) {
-		        	textName = DecorVars.GetImageRect(allDecorTypes.get(i), (int) allDecors.get(i)[8]);
-		        	extraPoly = DecorVars.GetCoordRect(allDecorTypes.get(i), (int) allDecors.get(i)[8]);
-		    		xcen = 0.5f*(allDecors.get(i)[0]+allDecors.get(i)[4]);
-		    		ycen = 0.5f*(allDecors.get(i)[1]+allDecors.get(i)[5]);
-		    		xlen = extraPoly[4] - extraPoly[0];
-		    		ylen = extraPoly[5] - extraPoly[1];
-		    		rotAngle = PolygonOperations.GetAngle(allDecors.get(i)[0], allDecors.get(i)[1], allDecors.get(i)[2], allDecors.get(i)[3]);
-		        	decorImage = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textName), 2));
-			    	mBatch.draw(decorImage, xcen-xlen/2, ycen-ylen/2, xlen/2, ylen/2, xlen, ylen, 1, 1, (float) Math.toDegrees(rotAngle));
-	        	}
-	        }
-	    	mBatch.end();
-        }
-
-        // Finally, draw the toolbar
-        if (!hideToolbar) {
-			stage.act(Gdx.graphics.getDeltaTime());
-			stage.draw();        	
-        }
-    }
-   
-    public void dispose() {
+	public void dispose() {
     	if (stage != null) stage.dispose();
     	if (skin != null) skin.dispose();
     	if (warnFont != null) warnFont.dispose();
@@ -2584,7 +2703,7 @@ public class Editor extends GameState {
 //				for (int i=0; i<allPolygons.get(polySelect).length; i++) {
 //					System.out.println(allPolygons.get(polySelect)[i]);
 //				}
-				UpdatePolygon(polySelect);
+				UpdatePolygon(polySelect, true);
 				polySelect = -1;
 			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG == true)) {
 				if (polySelect == -1) {
@@ -2598,20 +2717,20 @@ public class Editor extends GameState {
 					ScalePolygon(polySelect, nullvarA);
 				}
 			} else if ((modeChild.equals("Scale")) & (GameInput.MBJUSTPRESSED == true) & (polySelect != -1)) {
-				UpdatePolygon(polySelect);
+				UpdatePolygon(polySelect, true);
 				polySelect = -1;
 			} else if ((modeChild.equals("Flip x")) & (GameInput.MBJUSTPRESSED == true) & (polySelect == -1)) {
 				SelectPolygon("up");
 				if (polySelect != -1) {
 					FlipPolygon(polySelect, "x");
-					UpdatePolygon(polySelect);
+					UpdatePolygon(polySelect, true);
 					polySelect = -1;
 				}
 			} else if ((modeChild.equals("Flip y")) & (GameInput.MBJUSTPRESSED == true) & (polySelect == -1)) {
 				SelectPolygon("up");
 				if (polySelect != -1) {
 					FlipPolygon(polySelect, "y");
-					UpdatePolygon(polySelect);
+					UpdatePolygon(polySelect, true);
 					polySelect = -1;
 				}
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG == true)) {
@@ -2638,7 +2757,7 @@ public class Editor extends GameState {
 					RotatePolygon(polySelect, nullvarD);
 				}
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE == true) & (polySelect != -1)) {
-				UpdatePolygon(polySelect);
+				UpdatePolygon(polySelect, true);
 				polySelect = -1;
 				GameInput.MBRELEASE = false;
 			} else if (modeChild.equals("Add Vertex")) {
@@ -2656,7 +2775,7 @@ public class Editor extends GameState {
 						else AddVertex(polySelect, segmSelect, segmNext, startX, startY);
 					}
 				} else if ((GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (vertSelect != -1)) {
-					UpdatePolygon(polySelect);
+					UpdatePolygon(polySelect, true);
 					polySelect = -1;
 					vertSelect = -1;
 				} else FindNearestSegment(true);
@@ -2684,7 +2803,7 @@ public class Editor extends GameState {
 						MoveVertex(polySelect, vertSelect, endX, endY);
 					}
 				} else if ((GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (vertSelect != -1)) {
-					UpdatePolygon(polySelect);
+					UpdatePolygon(polySelect, true);
 					polySelect = -1;
 					vertSelect = -1;
 				} else FindNearestVertex(true);
@@ -2897,20 +3016,20 @@ public class Editor extends GameState {
     			}
     			allPolygonPaths.set(polySelect, updatePath.clone());
     			updatePath = null;
-    			UpdatePolygon(polySelect);
+    			UpdatePolygon(polySelect, true);
     			polySelect = -1;
     		} else if ((modeChild.equals("Flip x")) & (GameInput.MBJUSTPRESSED==true) & (polySelect == -1)) {
     			SelectPolygon("up");
     			if (polySelect != -1) {
 	            	FlipPolygon(polySelect, "x");
-	    			UpdatePolygon(polySelect);
+	    			UpdatePolygon(polySelect, true);
 	    			polySelect = -1;	            	
     			}
     		} else if ((modeChild.equals("Flip y")) & (GameInput.MBJUSTPRESSED==true) & (polySelect == -1)) {
     			SelectPolygon("up");
     			if (polySelect != -1) {
 	            	FlipPolygon(polySelect, "y");
-	    			UpdatePolygon(polySelect);
+	    			UpdatePolygon(polySelect, true);
 	    			polySelect = -1;	            	
     			}
     		} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
@@ -2925,7 +3044,7 @@ public class Editor extends GameState {
 	            	ScalePolygon(polySelect, nullvarA);
     			}
     		} else if ((modeChild.equals("Scale")) & (GameInput.MBJUSTPRESSED==true) & (polySelect != -1)) {
-    			UpdatePolygon(polySelect);
+    			UpdatePolygon(polySelect, true);
     			polySelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (polySelect == -1) {
@@ -2950,7 +3069,7 @@ public class Editor extends GameState {
 	            	RotatePolygon(polySelect, nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (polySelect != -1)) {
-    			UpdatePolygon(polySelect);
+    			UpdatePolygon(polySelect, true);
     			polySelect = -1;
             	GameInput.MBRELEASE=false;
     		} else if (modeChild.equals("Add Vertex")) {
@@ -2968,7 +3087,7 @@ public class Editor extends GameState {
             			else AddVertex(polySelect, segmSelect, segmNext, startX, startY);
         			}
         		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
-             			UpdatePolygon(polySelect);
+             			UpdatePolygon(polySelect, true);
              			polySelect = -1;
              			vertSelect = -1;
         		} else FindNearestSegment(true);
@@ -2996,7 +3115,7 @@ public class Editor extends GameState {
     	            	MoveVertex(polySelect, vertSelect, endX, endY);
         			}
         		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
-        			UpdatePolygon(polySelect);
+        			UpdatePolygon(polySelect, true);
         			polySelect = -1;
         			vertSelect = -1;
         		} else FindNearestVertex(true);
@@ -4446,7 +4565,7 @@ public class Editor extends GameState {
 		    		if (doY) updatePoly[1] += (endY-startY);
 		    	}
 			} else if ((GameInput.MBJUSTDRAGGED) & (polySelect == -1) & (groupPolySelect.size() == 0)) {
-				SelectGroupPolygons();
+				SelectGroupPolygons(1);
 				if (groupPolySelect.size() == 0) {
 					warnMessage[warnNumber] = "No polygons inside selection box";
 					warnElapse[warnNumber] = 0.0f;
@@ -4610,6 +4729,139 @@ public class Editor extends GameState {
 		}
 	}
 
+	public void ControlMode11() {
+		if (listChild.getSelected() == null) return;
+		modeChild = listChild.getSelected().toString();
+		boolean doX = false;
+		boolean doY = false;
+		float shiftX, shiftY;
+		if ((modeChild.equals("Move X and Y")) | (modeChild.equals("Move X only"))) doX = true;
+		if ((modeChild.equals("Move X and Y")) | (modeChild.equals("Move Y only"))) doY = true;
+		if ((modeChild.equals("Copy X and Y")) | (modeChild.equals("Copy X only"))) doX = true;
+		if ((modeChild.equals("Copy X and Y")) | (modeChild.equals("Copy Y only"))) doY = true;
+		// Define the action
+		int action = 0; // Copy=0, Delete=1, Move=2
+		if (modeParent.equals("Copy")) action = 0;
+		else if (modeParent.equals("Delete")) action = 1;
+		else if (modeParent.equals("Move")) action = 2;
+		// Perform the operation
+		if ((GameInput.MBJUSTDRAGGED) && (groupArrays.size() == 0)) {
+			SelectGroup();
+			System.out.println(groupArrays.size());
+			if (groupArrays.size() == 0) {
+				warnMessage[warnNumber] = "Nothing inside selection box";
+				warnElapse[warnNumber] = 0.0f;
+				warnType[warnNumber] = 2;
+				warnNumber += 1;
+				copyPoly = false;
+			} else {
+				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				copyPoly = true;
+			}
+		} else if ((GameInput.MBJUSTPRESSED) && (groupArrays.size() != 0) && (updateGroup != null)) {
+			if ((startX==endX)&(startY==endY)) {
+				if (action == 0) warnMessage[warnNumber] = "Cannot paste group exactly on top of the copy";
+				else if (action == 2) warnMessage[warnNumber] = "Cannot move group exactly on top of the copy";
+				else warnMessage[warnNumber] = "";
+				warnElapse[warnNumber] = 0.0f;
+				warnType[warnNumber] = 2;
+				warnNumber += 1;
+				copyPoly = false;
+			} else {
+				for (int i=0; i < groupArrays.size(); i++) {
+					// TODO :: complete this
+					if (action == 0) {// Copy
+						if (groupPOD.get(i) == 0) CopyPolygon(updateGroup.get(i).clone(), groupArrays.get(i));
+						else if (groupPOD.get(i) == 1) {
+							shiftX = 0.0f;
+							shiftY = 0.0f;
+							if (doX) shiftX = (endX-startX);
+							if (doY) shiftY = (endY-startY);
+							CopyObject(updateGroup.get(i).clone(), groupArrays.get(i), shiftX, shiftY);
+						}
+						else if (groupPOD.get(i) == 2) CopyDecor(updateGroup.get(i).clone(), groupArrays.get(i));
+					} else if (action == 1) {// Delete
+						// The reset is done below
+					} else if (action == 2) {// Move
+						shiftX = 0.0f;
+						shiftY = 0.0f;
+						if (doX) shiftX = (endX-startX);
+						if (doY) shiftY = (endY-startY);
+						if (groupPOD.get(i) == 0) {
+							//polySelect = groupArrays.get(i);
+							MovePolygon(groupArrays.get(i), shiftX, shiftY);
+							newPoly = allPolygons.set(groupArrays.get(i), updatePoly.clone());
+							MovePath(groupArrays.get(i), shiftX, shiftY);
+							if (updatePath != null) newPoly = allPolygonPaths.set(groupArrays.get(i), updatePath.clone());
+							//UpdatePolygon(groupArrays.get(i), false);
+							//newPoly = null;
+							//polySelect = -1;
+						} else if (groupPOD.get(i) == 1) {
+							MoveObjectCopy(groupArrays.get(i), shiftX, shiftY);
+						} else if (groupPOD.get(i) == 2) {
+							MoveDecor(groupArrays.get(i), "mode", shiftX, shiftY);
+						}
+					}
+				}
+			}
+			// Reset
+			groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
+			groupPOD = new ArrayList<Integer>(); // Polygon (0), Object (1), or Decor (2)
+			groupTypes = new ArrayList<Integer>(); // allPolygonTypes, allObjectTypes, allDecorTypes
+			groupPaths = new ArrayList<float[]>(); // allPolygonPaths, allObjectArrows
+			groupTextures = new ArrayList<String>(); // allPolygonTextures
+			groupCoords = new ArrayList<float[]>(); // allObjectCoords
+			groupPolys = new ArrayList<Integer>(); // allDecorPolys
+			updateGroup = null;
+			copyPoly = false;
+		} else if (groupArrays.size() != 0) {
+			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+			updateGroup = new ArrayList<float[]>();
+			int polidx;
+			for (int i=0; i<groupArrays.size(); i++) {
+				polidx = groupArrays.get(i);
+				if (groupPOD.get(i)==0) {
+					updatePoly = allPolygons.get(polidx).clone();
+					if (groupTypes.get(i)%2 == 0) {
+						for (int j=0; j<allPolygons.get(polidx).length; j++){
+							if ((j%2==0)&(doX)) updatePoly[j] += (endX-startX);
+							else if ((j%2==1)&(doY)) updatePoly[j] += (endY-startY);
+						}
+					} else if (groupTypes.get(i)%2 == 1) {
+						if (doX) updatePoly[0] += (endX-startX);
+						if (doY) updatePoly[1] += (endY-startY);
+					}
+				} else if (groupPOD.get(i)==1) {
+					updatePoly = allObjects.get(polidx).clone();
+					if (allObjects.get(polidx).length == 3) {
+						if (doX) updatePoly[0] += (endX-startX);
+						if (doY) updatePoly[1] += (endY-startY);
+					} else {
+						for (int j=0; j<allObjects.get(polidx).length; j++){
+							if ((j%2==0)&(doX)) updatePoly[j] += (endX-startX);
+							else if ((j%2==1)&(doY)) updatePoly[j] += (endY-startY);
+						}
+					}
+				} else if (groupPOD.get(i)==2) {
+					updatePoly = allDecors.get(polidx).clone();
+					if (allDecors.get(polidx).length == 3) {
+						if (doX) updatePoly[0] += (endX-startX);
+						if (doY) updatePoly[1] += (endY-startY);
+					} else {
+						for (int j=0; j<allDecors.get(polidx).length; j++){
+							if ((j%2==0)&(doX)) updatePoly[j] += (endX-startX);
+							else if ((j%2==1)&(doY)) updatePoly[j] += (endY-startY);
+						}
+					}
+				}
+				updateGroup.add(updatePoly.clone());
+			}
+			updatePoly = null;
+		}
+	}
+
 	public void UncheckButtons(boolean keybrd) {
 		//buttonLoad.setChecked(false);
 		buttonSave.setChecked(false);
@@ -4625,6 +4877,7 @@ public class Editor extends GameState {
 		buttonAddFalling.setChecked(false);
 		buttonAddTrigger.setChecked(false);
 		buttonCopyPaste.setChecked(false);
+		buttonGroupSelect.setChecked(false);
 		buttonAddObject.setChecked(false);
 		buttonDecorate.setChecked(false);
 		//convexPolygons = null;
@@ -4885,6 +5138,13 @@ public class Editor extends GameState {
 				break;
 			case 10 :
 				listChild.setItems(nullList);
+				break;
+			case 11 :
+				if (modeParent.equals("Copy")) {
+					listChild.setItems("Copy X and Y", "Copy X only", "Copy Y only");
+				} else if (modeParent.equals("Move")) {
+					listChild.setItems("Move X and Y", "Move X only", "Move Y only");
+				} else listChild.setItems(nullList);
 				break;
 			default :
 				listChild.setItems(nullList);
@@ -5172,7 +5432,7 @@ public class Editor extends GameState {
         			cntr += 1;
         		}
         	}
-    		UpdatePolygon(idx);
+    		UpdatePolygon(idx, true);
     	}
 	}
    
@@ -5765,12 +6025,32 @@ public class Editor extends GameState {
 	}
 
     public void MovePath(int idx, float shiftX, float shiftY) {
+		updatePath = null;
+		if (allPolygonPaths.get(idx) == null) return;
     	updatePath = allPolygonPaths.get(idx).clone();
     	if (mode == 9) {
     		// Trigger platforms
     		updatePath[2] += shiftX;
     		updatePath[3] += shiftY;
-    	} else {
+    	} else if (mode == 11) {
+			if ((allPolygonTypes.get(idx)==6) || (allPolygonTypes.get(idx)==7)) {
+				// Trigger platforms
+				updatePath[0] += shiftX;
+				updatePath[1] += shiftY;
+				updatePath[2] += shiftX;
+				updatePath[3] += shiftY;
+			} else if ((allPolygonTypes.get(idx)==4) || (allPolygonTypes.get(idx)==5)) {
+				for (int i = 2; i<allPolygonPaths.get(idx).length; i++) {
+					if (i%2==0) updatePath[i] += shiftX;
+					else updatePath[i] += shiftY;
+				}
+			} else if ((allPolygonTypes.get(idx)==2) || (allPolygonTypes.get(idx)==3)) {
+				for (int i = 4; i<allPolygonPaths.get(idx).length; i++) {
+					if (i%2==0) updatePath[i] += shiftX;
+					else updatePath[i] += shiftY;
+				}
+			}
+		} else {
 	    	for (int i = 4; i<allPolygonPaths.get(idx).length; i++) {
 	    		if (i%2==0) updatePath[i] += shiftX;
 	    		else updatePath[i] += shiftY;
@@ -5790,7 +6070,17 @@ public class Editor extends GameState {
 	    		updatePoly[0] += shiftX;
 	    		updatePoly[1] += shiftY;
 	    	}
-    	}
+    	} else if (mode == 11) {
+    		if (updatePoly.length==3) {
+				updatePoly[0] += shiftX;
+				updatePoly[1] += shiftY;
+			} else {
+				for (int i = 0; i<allPolygons.get(idx).length/2; i++){
+					updatePoly[2*i] += shiftX;
+					updatePoly[2*i+1] += shiftY;
+				}
+			}
+		}
 	}
 
     public void MoveVertex(int idx, int vert, float shiftX, float shiftY) {
@@ -5915,7 +6205,24 @@ public class Editor extends GameState {
     	}
 	}
 
-    public void SelectGroupPolygons() {
+	public void SelectGroup() {
+		// Reset groups
+		updateGroup = null;
+		groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
+		groupPOD = new ArrayList<Integer>(); // Polygon (0), Object (1), or Decor (2)
+		groupTypes = new ArrayList<Integer>(); // allPolygonTypes, allObjectTypes, allDecorTypes
+		groupPaths = new ArrayList<float[]>(); // allPolygonPaths, allObjectArrows
+		groupTextures = new ArrayList<String>(); // allPolygonTextures
+		groupCoords = new ArrayList<float[]>(); // allObjectCoords
+		groupPolys = new ArrayList<Integer>(); // allDecorPolys
+		// Select all types of items within a selection box
+		SelectGroupPolygons(0);
+		SelectGroupObjects();
+		SelectGroupDecors();
+		ResetSelect();
+	}
+
+    public void SelectGroupPolygons(int polyOnly) {
     	ResetSelect();
     	float x1, x2, y1, y2, tmp;
     	float[] meanxy = new float[2];
@@ -5935,7 +6242,7 @@ public class Editor extends GameState {
     		y1 = tmp;
     	}
     	// Loop through all polygons and find the polys that are inside the selection boundary
-		for (int i = 0; i<allPolygons.size(); i++){
+		for (int i=0; i<allPolygons.size(); i++){
 			if (allPolygonTypes.get(i)%2 == 0) {
 				meanxy = PolygonOperations.MeanXY(allPolygons.get(i).clone());
 			} else if (allPolygonTypes.get(i)%2 == 1) {
@@ -5944,7 +6251,16 @@ public class Editor extends GameState {
 			}
 			if ((x1 < meanxy[0]) & (meanxy[0] < x2) & (y1 < meanxy[1]) & (meanxy[1] < y2)) {
 				// Poly is inside selection
-				groupPolySelect.add(i);
+				if (polyOnly==1) groupPolySelect.add(i);
+				else {
+					groupArrays.add(i);
+					groupPOD.add(0);
+					groupTypes.add(allPolygonTypes.get(i));
+					groupPaths.add(allPolygonPaths.get(i));
+					groupTextures.add(allPolygonTextures.get(i));
+					groupCoords.add(null);
+					groupPolys.add(null);
+				}
 			}				
 		}
     }
@@ -6012,10 +6328,10 @@ public class Editor extends GameState {
 		SaveLevel(true);
 	}
 
-	public void UpdatePolygon(int idx) {
+	public void UpdatePolygon(int idx, boolean autosave) {
 		changesMade = true;
 		newPoly = allPolygons.set(idx, updatePoly.clone());
-		if (mode==7) {
+		if ((allPolygonTypes.get(polySelect)==4) || (allPolygonTypes.get(polySelect)==5)) {
 			// Update the location of the sign for a falling platform
 			updatePath = allPolygonPaths.get(polySelect).clone();
 			int imax = 0;
@@ -6030,7 +6346,7 @@ public class Editor extends GameState {
 			updatePath[3] = updatePoly[2*imax+1];
 			allPolygonPaths.set(idx, updatePath.clone());
 			updatePath=null;
-		} else if (mode == 9) {
+		} else if ((allPolygonTypes.get(polySelect)==6) || (allPolygonTypes.get(polySelect)==7)) {
 			// Update the path properties for a trigger platform
 			updatePath = allPolygonPaths.get(polySelect).clone();
 			int imax = 0;
@@ -6047,7 +6363,11 @@ public class Editor extends GameState {
 			updatePath=null;
 		}
 		updatePoly = null;
-		SaveLevel(true);
+		if (autosave) SaveLevel(true);
+	}
+
+	public void UpdateTriggerPolygon(int idx) {
+
 	}
 
     /////////////////////////////////
@@ -6503,6 +6823,39 @@ public class Editor extends GameState {
 		if (objectSelect != -1) return;
 		SelectObject(downup, ObjectVars.PlanetNeptune, rotate, true);
 		if (objectSelect != -1) return;
+	}
+
+	public void SelectGroupObjects() {
+		ResetSelect();
+		float x1, x2, y1, y2, tmp;
+		x1 = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		y1 = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		x2 = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		y2 = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		// Check the min max values
+		if (x1 > x2) {
+			tmp = x2;
+			x2 = x1;
+			x1 = tmp;
+		}
+		if (y1 > y2) {
+			tmp = y2;
+			y2 = y1;
+			y1 = tmp;
+		}
+		// Loop through all polygons and find the polys that are inside the selection boundary
+		for (int i = 0; i<allObjects.size(); i++){
+			if ((x1 < allObjectCoords.get(i)[0]) & (allObjectCoords.get(i)[0] < x2) & (y1 < allObjectCoords.get(i)[1]) & (allObjectCoords.get(i)[1] < y2)) {
+				// Object is inside selection
+				groupArrays.add(i);
+				groupPOD.add(1);
+				groupTypes.add(allObjectTypes.get(i));
+				groupPaths.add(allObjectArrows.get(i));
+				groupTextures.add("");
+				groupCoords.add(allObjectCoords.get(i));
+				groupPolys.add(null);
+			}
+		}
 	}
 
 	public void SelectObject(String downup, int otype, boolean rotate, boolean circle) {
@@ -7148,16 +7501,23 @@ public class Editor extends GameState {
 	}
 
 	public void MoveDecor(int idx, String mode, float shiftX, float shiftY) {
-		if (mode.equals("polygon")) {
-			updatePoly = allDecors.get(idx).clone();
-			for (int i = 0; i<allDecors.get(idx).length/2; i++){
-				updatePoly[2*i] += shiftX;
-				updatePoly[2*i+1] += shiftY;
-			}
-		} else if (mode.equals("circle")) {
+		if ((mode.equals("circle")) || (allDecors.get(idx).length==3)) {
 			updatePoly = allDecors.get(idx).clone();
 			updatePoly[0] += shiftX;
 			updatePoly[1] += shiftY;
+		} else if (mode.equals("polygon")) {
+			updatePoly = allDecors.get(idx).clone();
+			for (int i = 0; i<allDecors.get(idx).length/2; i++) {
+				updatePoly[2*i] += shiftX;
+				updatePoly[2*i+1] += shiftY;
+			}
+		} else {
+			// Just do the same as polygon
+			updatePoly = allDecors.get(idx).clone();
+			for (int i = 0; i<allDecors.get(idx).length/2; i++) {
+				updatePoly[2*i] += shiftX;
+				updatePoly[2*i+1] += shiftY;
+			}
 		}
 	}
 	
@@ -7190,6 +7550,46 @@ public class Editor extends GameState {
     		updatePoly = allDecors.get(idx).clone();
     		updatePoly[3] = angle;
     	}
+	}
+
+	public void SelectGroupDecors() {
+		ResetSelect();
+		float x1, x2, y1, y2, tmp;
+		float[] meanxy = new float[2];
+		x1 = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		y1 = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		x2 = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+		y2 = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+		// Check the min max values
+		if (x1 > x2) {
+			tmp = x2;
+			x2 = x1;
+			x1 = tmp;
+		}
+		if (y1 > y2) {
+			tmp = y2;
+			y2 = y1;
+			y1 = tmp;
+		}
+		// Loop through all polygons and find the polys that are inside the selection boundary
+		for (int i = 0; i<allDecors.size(); i++){
+			if (allDecors.get(i).length == 3) {
+				// It's a circle
+				meanxy[0] = allDecors.get(i)[0];
+				meanxy[1] = allDecors.get(i)[1];
+			} else meanxy = PolygonOperations.MeanXY(allDecors.get(i).clone());
+			// Test if the decor is inside the bounding box
+			if ((x1 < meanxy[0]) & (meanxy[0] < x2) & (y1 < meanxy[1]) & (meanxy[1] < y2)) {
+				// Poly is inside selection
+				groupArrays.add(i);
+				groupPOD.add(2);
+				groupTypes.add(allDecorTypes.get(i));
+				groupPaths.add(null);
+				groupTextures.add("");
+				groupCoords.add(null);
+				groupPolys.add(allDecorPolys.get(i));
+			}
+		}
 	}
 
 	public void SelectDecor(String downup, int otype, boolean rotate, boolean circle) {

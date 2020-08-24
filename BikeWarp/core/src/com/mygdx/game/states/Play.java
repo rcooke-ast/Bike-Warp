@@ -1605,14 +1605,14 @@ public class Play extends GameState {
         		  mScene = loader.addScene(Gdx.files.internal(LEVEL_FILE_LIST[mRubeFileList][mRubeFileIndex++]));
         	  }
           }
-          processScene();
-	   	  gravityOld = mWorld.getGravity().cpy();
-	   	  gravityNew = mWorld.getGravity().cpy();
-          updateCameraPostion();
+          int failed = processScene();
+          if (failed==0) {
+              gravityOld = mWorld.getGravity().cpy();
+              gravityNew = mWorld.getGravity().cpy();
+              updateCameraPostion();
+          }
           mNextState = GAME_STATE.LOADED;
-       }
-       else if (mAssetManager.update())
-       {
+       } else if (mAssetManager.update()) {
           // each iteration adds to the scene that is ultimately returned...
           mScene = mAssetManager.get(LEVEL_FILE_LIST[mRubeFileList][mRubeFileIndex++], RubeScene.class);
           if (mRubeFileIndex < LEVEL_FILE_LIST[mRubeFileList].length)
@@ -1621,7 +1621,7 @@ public class Play extends GameState {
           }
           else
           {
-             processScene();
+             int failed = processScene();
              mNextState = GAME_STATE.LOADED;
           }
        }
@@ -1630,8 +1630,7 @@ public class Play extends GameState {
     /**
      * Builds up world based on info from the scene...
      */
-    private void processScene()
-    {
+    private int processScene() {
         createSpatialsFromRubeImages(mScene);
         createPolySpatialsFromRubeFixtures(mScene);
 
@@ -1662,11 +1661,9 @@ public class Play extends GameState {
         try {
     	    gameInfo = mScene.getNamed(Body.class, "GameInfo").first();
         } catch (NullPointerException e) {
-    	    // TODO :: Level was not compiled correctly... return
-    	    System.out.println("TRIED TO FIX IT HERE - BUT THIS DOESN'T WORK!!!");
        	    gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
        	    gsm.SetPlaying(false);
-       	    return;
+       	    return 1;
         }
         startPosition = (Vector2) mScene.getCustom(gameInfo, "startPosition", null);
         finishPosition = (Vector2) mScene.getCustom(gameInfo, "finishPosition", null);
@@ -1694,7 +1691,7 @@ public class Play extends GameState {
             paintBackdrop = false;
         } else background = new Sprite(BikeGameTextures.LoadTexture(bgTextName,2));
         // Change the timer colour if certain backgrounds are being used
-        if ((paintBackdrop == false) | (skyTextureName.equals("data/images/sky_mars.png")) | (skyTextureName.equals("data/images/sky_moon.png")) | (bgTextName.equalsIgnoreCase("background_space"))) {
+        if ((paintBackdrop == false) || (skyTextureName.equals("data/images/sky_mars.png")) || (skyTextureName.equals("data/images/sky_moon.png")) || (bgTextName.equalsIgnoreCase("background_space"))) {
     	    timer.setColor(0.5f, 0.5f, 0.5f, 1);
         }
 
@@ -1980,6 +1977,7 @@ public class Play extends GameState {
         soundTimeNitrous = 0.0f;
         soundTimeDoor = 0.0f;
         soundTimeGravity = 0.0f;
+        return 0;
     }
     
     @Override
