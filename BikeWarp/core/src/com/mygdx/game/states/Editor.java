@@ -326,7 +326,7 @@ public class Editor extends GameState {
 		warnElapse = new float[totalNumMsgs];
 		warnType = new int[totalNumMsgs];
 		warnFont.setColor(1, 0.5f, 0, 1);
-		warnFont.getData().setScale(0.5f);
+		warnFont.getData().setScale(1);
 		glyphLayout.setText(warnFont, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
 		warnHeight = 1.2f*glyphLayout.height;
 		signFont.setColor(1, 0, 0, 1);
@@ -1082,6 +1082,19 @@ public class Editor extends GameState {
     	currentTexture = "";
 	}
 
+	public void ResetGroups() {
+		groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
+		groupPOD = new ArrayList<Integer>(); // Polygon (0), Object (1), or Decor (2)
+		groupTypes = new ArrayList<Integer>(); // allPolygonTypes, allObjectTypes, allDecorTypes
+		groupPaths = new ArrayList<float[]>(); // allPolygonPaths, allObjectArrows
+		groupTextures = new ArrayList<String>(); // allPolygonTextures
+		groupCoords = new ArrayList<float[]>(); // allObjectCoords
+		groupPolys = new ArrayList<Integer>(); // allDecorPolys
+		updateGroup = null;
+		copyPoly = false;
+		engageDelete = false;
+	}
+
     public void ResetLevelDefaults() {
 		System.out.println("LEVEL WAS RESET!");
     	// Prepare storage arrays
@@ -1252,6 +1265,34 @@ public class Editor extends GameState {
 						segmHover = -1;
 					}
 				}
+			} else if ((mode == 11) & (engageDelete)) {
+				// Group delete
+				int cntr_poly = 0;
+				int cntr_obj = 0;
+				int cntr_decor = 0;
+				for (int gg=0; gg<groupArrays.size(); gg++) {
+					if (groupPOD.get(gg) == 0) {
+						polySelect = groupArrays.get(gg)-cntr_poly;
+						DeletePolygon(polySelect, false);
+						cntr_poly += 1;
+					} else if (groupPOD.get(gg) == 1) {
+						objectSelect = groupArrays.get(gg)-cntr_obj;
+						DeleteObject(objectSelect, false);
+						cntr_obj += 1;
+					} else if (groupPOD.get(gg) == 2) {
+						decorSelect = groupArrays.get(gg)-cntr_decor;
+						DeleteDecor(decorSelect, false);
+						cntr_decor += 1;
+					}
+				}
+				Message(cntr_poly + " platforms deleted", 0);
+				Message(cntr_obj + " objects deleted", 0);
+				Message(cntr_decor + " decorations deleted", 0);
+				polySelect = -1;
+				objectSelect = -1;
+				decorSelect = -1;
+				ResetGroups();
+				SaveLevel(true);
 			} else {
 				if (clearGrass) {
 					DeleteAllGrass();
@@ -1261,25 +1302,25 @@ public class Editor extends GameState {
 					addGrass = false;
 				} else if (polySelect != -1) {
 					if (vertSelect != -1) {
-						if (allPolygons.get(polySelect).length <= 6) DeletePolygon(polySelect);
+						if (allPolygons.get(polySelect).length <= 6) DeletePolygon(polySelect, true);
 						else DeleteVertex(polySelect, vertSelect);
 						vertSelect = -1;
 					} else {
-						DeletePolygon(polySelect);
+						DeletePolygon(polySelect, true);
 					}
 					engageDelete = false;
 					polySelect = -1;
 				} else if (objectSelect != -1) {
-					DeleteObject(objectSelect);
+					DeleteObject(objectSelect, true);
 					engageDelete = false;
 					objectSelect = -1;
 				} else if (decorSelect != -1) {
 					if (vertSelect != -1) {
-						if (allDecors.get(decorSelect).length <= 6) DeleteDecor(decorSelect);
+						if (allDecors.get(decorSelect).length <= 6) DeleteDecor(decorSelect, true);
 						else DeleteVertex(decorSelect, vertSelect);
 						vertSelect = -1;
 					} else {
-						DeleteDecor(decorSelect);
+						DeleteDecor(decorSelect, true);
 					}
 					engageDelete = false;
 					decorSelect = -1;
@@ -1313,34 +1354,34 @@ public class Editor extends GameState {
         if (mode==1) {
     		try {
     			ControlMode1();
-    		} catch (Exception e) {System.out.println(e);}
+    		} catch (Throwable e) {e.printStackTrace();}
 //        	if (GameInput.MBDRAG==true) {
 //        		ControlPan();
 //        	}
         } else if (mode==2) {
     		try {
     			ControlMode2();
-    		} catch (Exception e) {System.out.println(e);}
+    		} catch (Throwable e) {e.printStackTrace();}
         } else if (mode==3) {
         	try {
         		ControlMode3(0);
-        	} catch (Exception e) {System.out.println(e);}
+        	} catch (Throwable e) {e.printStackTrace();}
         } else if (mode==4) {
         	try {
         		ControlMode4();
-        	} catch (Exception e) {System.out.println(e);}
+        	} catch (Throwable e) {e.printStackTrace();}
         } else if (mode==5) {
         	try {
         		ControlMode5();
-        	} catch (Exception e) {System.out.println(e);}
+        	} catch (Throwable e) {e.printStackTrace();}
         } else if (mode==6) {
         	try {
         		ControlMode6();
-        	} catch (Exception e) {System.out.println(e);}
+        	} catch (Throwable e) {e.printStackTrace();}
         } else if (mode==7) {
         	try {
         		ControlMode3(1); // Use Control Mode 3, but set the platform to be a falling platform (i.e. set the argument to 1)
-        	} catch (Exception e) {System.out.println(e);}
+        	} catch (Throwable e) {e.printStackTrace();}
         } else if (mode==8) {
         	ControlMode8();
 //        	try {
@@ -1349,7 +1390,7 @@ public class Editor extends GameState {
         } else if (mode==9) {
         	try {
         		ControlMode3(2); // Use Control Mode 3, but set the platform to be a trigger platform (i.e. set the argument to 2)
-        	} catch (Exception e) {System.out.println(e);}
+        	} catch (Throwable e) {e.printStackTrace();}
         } else if (mode==10) {
         	if (GameInput.MBDRAG==true) {
         		ControlPan();
@@ -1460,7 +1501,7 @@ public class Editor extends GameState {
         renderPolygons();
 
         // Draw the objects
-		renderObjects();
+		renderAllObjects();
 
         // Draw the decorations
 		renderDecors();
@@ -1750,212 +1791,245 @@ public class Editor extends GameState {
 		}
 	}
 
-	private void renderObjects() {
+	private void renderAllObjects() {
+		if (allObjects.size() != 0) {
+			for (int i = 0; i < allObjects.size(); i++) {
+				renderObject(allObjects.get(i), allObjectTypes.get(i), i, false);
+			}
+		}
+	}
+
+	private void renderObject(float[] objarray, int otype, int i, boolean isUpdate) {
 		float rxcen, rycen, rangle;
 		float[] rCoord;
-		if (allObjects.size() != 0) {
-			for (int i = 0; i<allObjects.size(); i++){
-				if (objectSelect == i) opacity=1.0f;
-				else opacity = 0.5f;
-				if  (allObjectTypes.get(i) == ObjectVars.BallChain) {
-					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-					shapeRenderer.rect(allObjects.get(i)[3], allObjects.get(i)[4],allObjects.get(i)[5],allObjects.get(i)[6]);
-					// Render the line of maximum length
-					rxcen = allObjects.get(i)[3]+0.5f*allObjects.get(i)[5];
-					rycen = allObjects.get(i)[4]+0.5f*allObjects.get(i)[6];
-					rangle = PolygonOperations.GetAngle(rxcen, rycen, allObjects.get(i)[0], allObjects.get(i)[1]);
-					rCoord = PolygonOperations.RotateCoordinate(rxcen+allObjects.get(i)[7], rycen, MathUtils.radiansToDegrees*rangle, rxcen, rycen);
-					shapeRenderer.line(rxcen,rycen,rCoord[0],rCoord[1]);
-					shapeRenderer.setColor(1.0f, 1.0f, 0, 0.8f);
-					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[3]+0.5f*allObjects.get(i)[5], allObjects.get(i)[4]+0.5f*allObjects.get(i)[6]);
-				} else if (allObjectTypes.get(i) == ObjectVars.Boulder) {
-					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-				} else if (allObjectTypes.get(i) == ObjectVars.Bridge) {
-					shapeRenderer.setColor(1, 0.5f, 0, opacity);
-					for (int j=0; j<3; j++) {
-						shapeRenderer.line(allObjects.get(i)[2*j], allObjects.get(i)[2*j+1], allObjects.get(i)[2*j+2], allObjects.get(i)[2*j+3]);
-						shapeRenderer.line(allObjects.get(i)[8+2*j], allObjects.get(i)[8+2*j+1], allObjects.get(i)[8+2*j+2], allObjects.get(i)[8+2*j+3]);
-					}
-					shapeRenderer.line(allObjects.get(i)[2*3], allObjects.get(i)[2*3+1], allObjects.get(i)[0], allObjects.get(i)[1]);
-					shapeRenderer.line(allObjects.get(i)[8+2*3], allObjects.get(i)[8+2*3+1], allObjects.get(i)[8], allObjects.get(i)[9]);
-					// Draw the line connecting the two bridge ends
-					shapeRenderer.line(0.5f*(allObjects.get(i)[0]+allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1]+allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8]+allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9]+allObjects.get(i)[13]));
-					// Draw the Bridge Sag
-					rxcen = 0.25f*(allObjects.get(i)[0]+allObjects.get(i)[4]+allObjects.get(i)[8]+allObjects.get(i)[12]);
-					rycen = 0.25f*(allObjects.get(i)[1]+allObjects.get(i)[5]+allObjects.get(i)[9]+allObjects.get(i)[13]);
-					shapeRenderer.line(rxcen, rycen, rxcen, rycen-allObjects.get(i)[16]);
-				} else if (allObjectTypes.get(i) == ObjectVars.Crate) {
-					shapeRenderer.setColor(1, 0.5f, 0, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
-					shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
-				} else if (allObjectTypes.get(i) == ObjectVars.DoorBlue) {
-					shapeRenderer.setColor(0, 0.7f, 1, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
-				} else if (allObjectTypes.get(i) == ObjectVars.DoorGreen) {
-					shapeRenderer.setColor(0, 1, 0, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
-				} else if (allObjectTypes.get(i) == ObjectVars.DoorRed) {
-					shapeRenderer.setColor(1, 0, 0, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.circle(0.5f*(allObjects.get(i)[4]+allObjects.get(i)[6]),0.5f*(allObjects.get(i)[5]+allObjects.get(i)[7]),1.5f*ObjectVars.objectDoor[4]);
-				} else if (allObjectTypes.get(i) == ObjectVars.KeyBlue) {
-					shapeRenderer.setColor(0, 0.7f, 1, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-				} else if (allObjectTypes.get(i) == ObjectVars.KeyGreen) {
-					shapeRenderer.setColor(0, 1, 0, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-				} else if (allObjectTypes.get(i) == ObjectVars.KeyRed) {
-					shapeRenderer.setColor(1, 0, 0, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-				} else if (allObjectTypes.get(i) == ObjectVars.GateSwitch) {
-					// Draw line connecting switch box and gate
-					shapeRenderer.setColor(1, 1, 1, opacity);
-					rxcen = 0.25f*(allObjects.get(i)[8]+allObjects.get(i)[10]+allObjects.get(i)[12]+allObjects.get(i)[14]);
-					rycen = 0.25f*(allObjects.get(i)[9]+allObjects.get(i)[11]+allObjects.get(i)[13]+allObjects.get(i)[15]);
-					shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), rxcen, rycen);
-					// Draw Gate
-					shapeRenderer.setColor(0.7f*(1.0f-allObjects.get(i)[17]), 0.7f*allObjects.get(i)[17], 0, opacity);
-					for (int j = 0; j<8; j++) {
-						transPoly[j] = allObjects.get(i)[j];
-					}
-					shapeRenderer.polygon(transPoly);
-					// Draw Switch box
-					for (int j = 8; j<16; j++) {
-						transPoly[j-8] = allObjects.get(i)[j];
-					}
-					shapeRenderer.polygon(transPoly);
-					// Draw Switch
-					rangle = PolygonOperations.GetAngle(allObjects.get(i)[8], allObjects.get(i)[9], allObjects.get(i)[10], allObjects.get(i)[11]);
-					rCoord = PolygonOperations.RotateCoordinate(0.0f, 10.0f, ((MathUtils.radiansToDegrees*rangle)+allObjects.get(i)[16]), 0.0f, 0.0f);
-					shapeRenderer.line(rxcen, rycen, rxcen+rCoord[0], rycen+rCoord[1]);
-				} else if (ObjectVars.IsGravity(allObjectTypes.get(i))) {
-					if (i==0) shapeRenderer.setColor(1, 0.8f, 0, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.GravityEarth) shapeRenderer.setColor(0, 0.7f, 1, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.GravityMars) shapeRenderer.setColor(1, 0.1f, 0, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.GravityMoon) shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.GravityZero) shapeRenderer.setColor(0.3f, 0.3f, 0.3f, opacity);
-					else shapeRenderer.setColor(1, 0.5f, 1, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.polygon(allObjectArrows.get(i));
-				} else if (allObjectTypes.get(i) == ObjectVars.Jewel) {
-					if (i==2) {
-						// Diamond Jewel
-						shapeRenderer.setColor(0.85f, 0.85f, 0.85f, opacity);
-						xcen = (0.5f*13.0f*(allObjects.get(i)[0]+allObjects.get(i)[4]) + 2.3f*allObjects.get(i)[2])/(13.0f+2.3f);
-						ycen = (0.5f*13.0f*(allObjects.get(i)[1]+allObjects.get(i)[5]) + 2.3f*allObjects.get(i)[3])/(13.0f+2.3f);
-						shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]); // Use the same radius as the start wheels
-					} else shapeRenderer.setColor(0.0f, 0.7f, 0, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 0, 60, 2);
-					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 60, 60, 2);
-					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 120, 60, 2);
-					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 180, 60, 2);
-					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 240, 60, 2);
-					//shapeRenderer.arc(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], 300, 60, 2);
-				} else if (allObjectTypes.get(i) == ObjectVars.Log) {
-					shapeRenderer.setColor(1, 0.5f, 0, opacity);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.75f*allObjects.get(i)[2]);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.50f*allObjects.get(i)[2]);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],0.25f*allObjects.get(i)[2]);
-				} else if (allObjectTypes.get(i) == ObjectVars.Nitrous) {
-					shapeRenderer.setColor(0, 0.7f, 1, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.setColor(1, 0.65f, 0, opacity);
-					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
-					shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
-				} else if (allObjectTypes.get(i) == ObjectVars.Pendulum) {
-					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-					shapeRenderer.rect(allObjects.get(i)[3], allObjects.get(i)[4],allObjects.get(i)[5],allObjects.get(i)[6]);
-					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, 0.8f);
-					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[3]+0.5f*allObjects.get(i)[5], allObjects.get(i)[4]+0.5f*allObjects.get(i)[6]);
-				} else if (ObjectVars.IsPlanet(allObjectTypes.get(i))) {
-					if (allObjectTypes.get(i) == ObjectVars.PlanetSun) shapeRenderer.setColor(1, 0.8f, 0, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetMercury) shapeRenderer.setColor(0.6f, 0.6f, 0.6f, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetVenus) shapeRenderer.setColor(0.9f, 0.9f, 0, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetEarth) shapeRenderer.setColor(0.0f, 0.7f, 0.7f, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetMars) shapeRenderer.setColor(1.0f, 0.0f, 0.0f, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetJupiter) shapeRenderer.setColor(1f, 0.2f, 0.2f, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetSaturn) shapeRenderer.setColor(1.0f, 0.9f, 0.2f, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetUranus) shapeRenderer.setColor(0.2f, 0.8f, 1.0f, opacity);
-					else if (allObjectTypes.get(i) == ObjectVars.PlanetNeptune) shapeRenderer.setColor(0.0f, 0.0f, 1.0f, opacity);
-					else shapeRenderer.setColor(1, 1, 1, opacity);
-					if (allObjectTypes.get(i) == ObjectVars.PlanetSaturn) shapeRenderer.polygon(allObjects.get(i));
-					else shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-				} else if (allObjectTypes.get(i) == ObjectVars.Spike) {
-					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-					shapeRenderer.circle(allObjects.get(i)[0], allObjects.get(i)[1],allObjects.get(i)[2]);
-					shapeRenderer.triangle(allObjects.get(i)[0], allObjects.get(i)[1]+1.3f*allObjects.get(i)[2], allObjects.get(i)[0]-1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2], allObjects.get(i)[0]+1.126f*allObjects.get(i)[2], allObjects.get(i)[1]-0.65f*allObjects.get(i)[2]);
-				} else if (allObjectTypes.get(i) == ObjectVars.SpikeZone) {
-					shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[4], allObjects.get(i)[5]);
-					shapeRenderer.line(allObjects.get(i)[2], allObjects.get(i)[3], allObjects.get(i)[6], allObjects.get(i)[7]);
-				} else if ((allObjectTypes.get(i) == ObjectVars.Transport) | ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
-					shapeRenderer.setColor(1, 1, 1, opacity);
-					shapeRenderer.line(0.5f*(allObjects.get(i)[0] + allObjects.get(i)[4]), 0.5f*(allObjects.get(i)[1] + allObjects.get(i)[5]), 0.5f*(allObjects.get(i)[8] + allObjects.get(i)[12]), 0.5f*(allObjects.get(i)[9] + allObjects.get(i)[13]));
-					for (int j = 0; j<8; j++) {
-						transPoly[j] = allObjects.get(i)[j];
-					}
-					if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
-						// Render the gravity arrow
-						shapeRenderer.polygon(allObjectArrows.get(i));
-					}
-					shapeRenderer.polygon(transPoly);
-					for (int j = 8; j<16; j++) {
-						transPoly[j-8] = allObjects.get(i)[j];
-					}
-					shapeRenderer.polygon(transPoly);
-					// Entry and exit blue/red lines
-					shapeRenderer.setColor(1, 0, 0, opacity);
-					shapeRenderer.line(allObjects.get(i)[0], allObjects.get(i)[1], allObjects.get(i)[2], allObjects.get(i)[3]);
-					shapeRenderer.line(allObjects.get(i)[8], allObjects.get(i)[9], allObjects.get(i)[10], allObjects.get(i)[11]);
-					shapeRenderer.setColor(0, 0.7f, 1, opacity);
-					shapeRenderer.line(allObjects.get(i)[4], allObjects.get(i)[5], allObjects.get(i)[6], allObjects.get(i)[7]);
-					shapeRenderer.line(allObjects.get(i)[12], allObjects.get(i)[13], allObjects.get(i)[14], allObjects.get(i)[15]);
-				} else if (allObjectTypes.get(i) == ObjectVars.Start) {
-					shapeRenderer.setColor(1, 0.8f, 0, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.polygon(allObjectArrows.get(i));
-					rangle = PolygonOperations.GetAngle(allObjectArrows.get(i)[0], allObjectArrows.get(i)[1], allObjectArrows.get(i)[2], allObjectArrows.get(i)[3]);
-					xcen = allObjects.get(i)[0]-ObjectVars.objectStart[0];
-					ycen = allObjects.get(i)[1]-ObjectVars.objectStart[1];
-					shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 0.7f*opacity);
-					shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]);
-					shapeRenderer.circle(xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle), ObjectVars.objectStartWheels[2]);
-					shapeRenderer.line(xcen, ycen, xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
-					shapeRenderer.line(xcen, ycen, xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f));
-					shapeRenderer.line(xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f), xcen+ ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
-					// Draw the starting direction
-					// Make a copy of the arrow
-					startDirPoly = ObjectVars.objectArrow.clone();
-					// Rotate the Arrow in the appropriate direction
-					if (LevelVars.get(LevelVars.PROP_START_DIRECTION).equals("Left")) PolygonOperations.RotateXYArray(startDirPoly, rangle+1.5f*(float)Math.PI, 0, 0);
-					else PolygonOperations.RotateXYArray(startDirPoly, rangle+0.5f*(float)Math.PI, 0, 0);
-					// Draw the Head and the head arrow
-					rangle += Math.atan(ObjectVars.objectStartWheels[6]/ObjectVars.objectStartWheels[5]);
-					float length = (float) Math.sqrt(ObjectVars.objectStartWheels[6]*ObjectVars.objectStartWheels[6] + ObjectVars.objectStartWheels[5]*ObjectVars.objectStartWheels[5]);
-					shapeRenderer.setColor(1, 0.705f, 0.522f, opacity);
-					shapeRenderer.circle(xcen + length*(float)Math.cos(rangle), ycen + length*(float)Math.sin(rangle), ObjectVars.objectStartWheels[4]);
-					for (int j=0; j<startDirPoly.length/2; j++) {
-						startDirPoly[2*j] += xcen+length*(float)Math.cos(rangle);
-						startDirPoly[2*j+1] += ycen+length*(float)Math.sin(rangle);
-					}
-					shapeRenderer.polygon(startDirPoly);
-				} else if (allObjectTypes.get(i) == ObjectVars.Finish) {
-					rxcen = allObjects.get(i)[0]-ObjectVars.objectFinish[0];
-					rycen = allObjects.get(i)[1]-ObjectVars.objectFinish[1];
-					shapeRenderer.setColor(0, 0.7f, 1.0f, opacity);
-					shapeRenderer.polygon(allObjects.get(i));
-					shapeRenderer.circle(rxcen, rycen, ObjectVars.objectFinishBall[2]);
-				}
+		if (objectSelect == i) opacity=1.0f;
+		else opacity = 0.5f;
+		if  (otype == ObjectVars.BallChain) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+			shapeRenderer.circle(objarray[0], objarray[1], objarray[2]);
+			shapeRenderer.rect(objarray[3], objarray[4],objarray[5],objarray[6]);
+			// Render the line of maximum length
+			rxcen = objarray[3]+0.5f*objarray[5];
+			rycen = objarray[4]+0.5f*objarray[6];
+			rangle = PolygonOperations.GetAngle(rxcen, rycen, objarray[0], objarray[1]);
+			rCoord = PolygonOperations.RotateCoordinate(rxcen+objarray[7], rycen, MathUtils.radiansToDegrees*rangle, rxcen, rycen);
+			shapeRenderer.line(rxcen,rycen,rCoord[0],rCoord[1]);
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1.0f, 1.0f, 0, 0.8f);
+			shapeRenderer.line(objarray[0], objarray[1], objarray[3]+0.5f*objarray[5], objarray[4]+0.5f*objarray[6]);
+		} else if (otype == ObjectVars.Boulder) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+			shapeRenderer.circle(objarray[0], objarray[1],objarray[2]);
+		} else if (otype == ObjectVars.Bridge) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0.5f, 0, opacity);
+			for (int j=0; j<3; j++) {
+				shapeRenderer.line(objarray[2*j], objarray[2*j+1], objarray[2*j+2], objarray[2*j+3]);
+				shapeRenderer.line(objarray[8+2*j], objarray[8+2*j+1], objarray[8+2*j+2], objarray[8+2*j+3]);
 			}
+			shapeRenderer.line(objarray[2*3], objarray[2*3+1], objarray[0], objarray[1]);
+			shapeRenderer.line(objarray[8+2*3], objarray[8+2*3+1], objarray[8], objarray[9]);
+			// Draw the line connecting the two bridge ends
+			shapeRenderer.line(0.5f*(objarray[0]+objarray[4]), 0.5f*(objarray[1]+objarray[5]), 0.5f*(objarray[8]+objarray[12]), 0.5f*(objarray[9]+objarray[13]));
+			// Draw the Bridge Sag
+			rxcen = 0.25f*(objarray[0]+objarray[4]+objarray[8]+objarray[12]);
+			rycen = 0.25f*(objarray[1]+objarray[5]+objarray[9]+objarray[13]);
+			shapeRenderer.line(rxcen, rycen, rxcen, rycen-objarray[16]);
+		} else if (otype == ObjectVars.Crate) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0.5f, 0, opacity);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.line(objarray[0], objarray[1], objarray[4], objarray[5]);
+			shapeRenderer.line(objarray[2], objarray[3], objarray[6], objarray[7]);
+		} else if (otype == ObjectVars.DoorBlue) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0, 0.7f, 1, opacity);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.circle(0.5f*(objarray[4]+objarray[6]),0.5f*(objarray[5]+objarray[7]),1.5f*ObjectVars.objectDoor[4]);
+		} else if (otype == ObjectVars.DoorGreen) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0, 1, 0, opacity);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.circle(0.5f*(objarray[4]+objarray[6]),0.5f*(objarray[5]+objarray[7]),1.5f*ObjectVars.objectDoor[4]);
+		} else if (otype == ObjectVars.DoorRed) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0, 0, opacity);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.circle(0.5f*(objarray[4]+objarray[6]),0.5f*(objarray[5]+objarray[7]),1.5f*ObjectVars.objectDoor[4]);
+		} else if (otype == ObjectVars.KeyBlue) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0, 0.7f, 1, opacity);
+			shapeRenderer.polygon(objarray);
+		} else if (otype == ObjectVars.KeyGreen) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0, 1, 0, opacity);
+			shapeRenderer.polygon(objarray);
+		} else if (otype == ObjectVars.KeyRed) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0, 0, opacity);
+			shapeRenderer.polygon(objarray);
+		} else if (otype == ObjectVars.GateSwitch) {
+			// Draw line connecting switch box and gate
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 1, 1, opacity);
+			rxcen = 0.25f*(objarray[8]+objarray[10]+objarray[12]+objarray[14]);
+			rycen = 0.25f*(objarray[9]+objarray[11]+objarray[13]+objarray[15]);
+			shapeRenderer.line(0.5f*(objarray[0] + objarray[4]), 0.5f*(objarray[1] + objarray[5]), rxcen, rycen);
+			// Draw Gate
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.7f*(1.0f-objarray[17]), 0.7f*objarray[17], 0, opacity);
+			for (int j = 0; j<8; j++) {
+				transPoly[j] = objarray[j];
+			}
+			shapeRenderer.polygon(transPoly);
+			// Draw Switch box
+			for (int j = 8; j<16; j++) {
+				transPoly[j-8] = objarray[j];
+			}
+			shapeRenderer.polygon(transPoly);
+			// Draw Switch
+			rangle = PolygonOperations.GetAngle(objarray[8], objarray[9], objarray[10], objarray[11]);
+			rCoord = PolygonOperations.RotateCoordinate(0.0f, 10.0f, ((MathUtils.radiansToDegrees*rangle)+objarray[16]), 0.0f, 0.0f);
+			shapeRenderer.line(rxcen, rycen, rxcen+rCoord[0], rycen+rCoord[1]);
+		} else if (ObjectVars.IsGravity(otype)) {
+			if (i==0) shapeRenderer.setColor(1, 0.8f, 0, opacity);
+			else if (otype == ObjectVars.GravityEarth) shapeRenderer.setColor(0, 0.7f, 1, opacity);
+			else if (otype == ObjectVars.GravityMars) shapeRenderer.setColor(1, 0.1f, 0, opacity);
+			else if (otype == ObjectVars.GravityMoon) shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+			else if (otype == ObjectVars.GravityZero) shapeRenderer.setColor(0.3f, 0.3f, 0.3f, opacity);
+			else shapeRenderer.setColor(1, 0.5f, 1, opacity);
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.polygon(allObjectArrows.get(i));
+		} else if (otype == ObjectVars.Jewel) {
+			if (i==2) {
+				// Diamond Jewel
+				if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+				else shapeRenderer.setColor(0.85f, 0.85f, 0.85f, opacity);
+				xcen = (0.5f*13.0f*(objarray[0]+objarray[4]) + 2.3f*objarray[2])/(13.0f+2.3f);
+				ycen = (0.5f*13.0f*(objarray[1]+objarray[5]) + 2.3f*objarray[3])/(13.0f+2.3f);
+				shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]); // Use the same radius as the start wheels
+			} else shapeRenderer.setColor(0.0f, 0.7f, 0, opacity);
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			shapeRenderer.polygon(objarray);
+			//shapeRenderer.arc(objarray[0], objarray[1], objarray[2], 0, 60, 2);
+			//shapeRenderer.arc(objarray[0], objarray[1], objarray[2], 60, 60, 2);
+			//shapeRenderer.arc(objarray[0], objarray[1], objarray[2], 120, 60, 2);
+			//shapeRenderer.arc(objarray[0], objarray[1], objarray[2], 180, 60, 2);
+			//shapeRenderer.arc(objarray[0], objarray[1], objarray[2], 240, 60, 2);
+			//shapeRenderer.arc(objarray[0], objarray[1], objarray[2], 300, 60, 2);
+		} else if (otype == ObjectVars.Log) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0.5f, 0, opacity);
+			shapeRenderer.circle(objarray[0], objarray[1],objarray[2]);
+			shapeRenderer.circle(objarray[0], objarray[1],0.75f*objarray[2]);
+			shapeRenderer.circle(objarray[0], objarray[1],0.50f*objarray[2]);
+			shapeRenderer.circle(objarray[0], objarray[1],0.25f*objarray[2]);
+		} else if (otype == ObjectVars.Nitrous) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0, 0.7f, 1, opacity);
+			shapeRenderer.polygon(objarray);
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0.65f, 0, opacity);
+			shapeRenderer.line(objarray[0], objarray[1], objarray[4], objarray[5]);
+			shapeRenderer.line(objarray[2], objarray[3], objarray[6], objarray[7]);
+		} else if (otype == ObjectVars.Pendulum) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+			shapeRenderer.circle(objarray[0], objarray[1],objarray[2]);
+			shapeRenderer.rect(objarray[3], objarray[4],objarray[5],objarray[6]);
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.7f, 0.7f, 0.7f, 0.8f);
+			shapeRenderer.line(objarray[0], objarray[1], objarray[3]+0.5f*objarray[5], objarray[4]+0.5f*objarray[6]);
+		} else if (ObjectVars.IsPlanet(otype)) {
+			if (otype == ObjectVars.PlanetSun) shapeRenderer.setColor(1, 0.8f, 0, opacity);
+			else if (otype == ObjectVars.PlanetMercury) shapeRenderer.setColor(0.6f, 0.6f, 0.6f, opacity);
+			else if (otype == ObjectVars.PlanetVenus) shapeRenderer.setColor(0.9f, 0.9f, 0, opacity);
+			else if (otype == ObjectVars.PlanetEarth) shapeRenderer.setColor(0.0f, 0.7f, 0.7f, opacity);
+			else if (otype == ObjectVars.PlanetMars) shapeRenderer.setColor(1.0f, 0.0f, 0.0f, opacity);
+			else if (otype == ObjectVars.PlanetJupiter) shapeRenderer.setColor(1f, 0.2f, 0.2f, opacity);
+			else if (otype == ObjectVars.PlanetSaturn) shapeRenderer.setColor(1.0f, 0.9f, 0.2f, opacity);
+			else if (otype == ObjectVars.PlanetUranus) shapeRenderer.setColor(0.2f, 0.8f, 1.0f, opacity);
+			else if (otype == ObjectVars.PlanetNeptune) shapeRenderer.setColor(0.0f, 0.0f, 1.0f, opacity);
+			else shapeRenderer.setColor(1, 1, 1, opacity);
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			if (otype == ObjectVars.PlanetSaturn) shapeRenderer.polygon(objarray);
+			else shapeRenderer.circle(objarray[0], objarray[1],objarray[2]);
+		} else if (otype == ObjectVars.Spike) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+			shapeRenderer.circle(objarray[0], objarray[1],objarray[2]);
+			shapeRenderer.triangle(objarray[0], objarray[1]+1.3f*objarray[2], objarray[0]-1.126f*objarray[2], objarray[1]-0.65f*objarray[2], objarray[0]+1.126f*objarray[2], objarray[1]-0.65f*objarray[2]);
+		} else if (otype == ObjectVars.SpikeZone) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.line(objarray[0], objarray[1], objarray[4], objarray[5]);
+			shapeRenderer.line(objarray[2], objarray[3], objarray[6], objarray[7]);
+		} else if ((otype == ObjectVars.Transport) | ObjectVars.IsTransportInvisible(otype)) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 1, 1, opacity);
+			shapeRenderer.line(0.5f*(objarray[0] + objarray[4]), 0.5f*(objarray[1] + objarray[5]), 0.5f*(objarray[8] + objarray[12]), 0.5f*(objarray[9] + objarray[13]));
+			for (int j = 0; j<8; j++) {
+				transPoly[j] = objarray[j];
+			}
+			if (ObjectVars.IsTransportInvisible(otype)) {
+				// Render the gravity arrow
+				shapeRenderer.polygon(allObjectArrows.get(i));
+			}
+			shapeRenderer.polygon(transPoly);
+			for (int j = 8; j<16; j++) {
+				transPoly[j-8] = objarray[j];
+			}
+			shapeRenderer.polygon(transPoly);
+			// Entry and exit blue/red lines
+			shapeRenderer.setColor(1, 0, 0, opacity);
+			shapeRenderer.line(objarray[0], objarray[1], objarray[2], objarray[3]);
+			shapeRenderer.line(objarray[8], objarray[9], objarray[10], objarray[11]);
+			shapeRenderer.setColor(0, 0.7f, 1, opacity);
+			shapeRenderer.line(objarray[4], objarray[5], objarray[6], objarray[7]);
+			shapeRenderer.line(objarray[12], objarray[13], objarray[14], objarray[15]);
+		} else if (otype == ObjectVars.Start) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0.8f, 0, opacity);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.polygon(allObjectArrows.get(i));
+			rangle = PolygonOperations.GetAngle(allObjectArrows.get(i)[0], allObjectArrows.get(i)[1], allObjectArrows.get(i)[2], allObjectArrows.get(i)[3]);
+			xcen = objarray[0]-ObjectVars.objectStart[0];
+			ycen = objarray[1]-ObjectVars.objectStart[1];
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 0.7f*opacity);
+			shapeRenderer.circle(xcen, ycen, ObjectVars.objectStartWheels[2]);
+			shapeRenderer.circle(xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle), ObjectVars.objectStartWheels[2]);
+			shapeRenderer.line(xcen, ycen, xcen + ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
+			shapeRenderer.line(xcen, ycen, xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f));
+			shapeRenderer.line(xcen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle+0.5f), ycen + 0.5f*ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle+0.5f), xcen+ ObjectVars.objectStartWheels[3]*(float)Math.cos(rangle), ycen + ObjectVars.objectStartWheels[3]*(float)Math.sin(rangle));
+			// Draw the starting direction
+			// Make a copy of the arrow
+			startDirPoly = ObjectVars.objectArrow.clone();
+			// Rotate the Arrow in the appropriate direction
+			if (LevelVars.get(LevelVars.PROP_START_DIRECTION).equals("Left")) PolygonOperations.RotateXYArray(startDirPoly, rangle+1.5f*(float)Math.PI, 0, 0);
+			else PolygonOperations.RotateXYArray(startDirPoly, rangle+0.5f*(float)Math.PI, 0, 0);
+			// Draw the Head and the head arrow
+			rangle += Math.atan(ObjectVars.objectStartWheels[6]/ObjectVars.objectStartWheels[5]);
+			float length = (float) Math.sqrt(ObjectVars.objectStartWheels[6]*ObjectVars.objectStartWheels[6] + ObjectVars.objectStartWheels[5]*ObjectVars.objectStartWheels[5]);
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(1, 0.705f, 0.522f, opacity);
+			shapeRenderer.circle(xcen + length*(float)Math.cos(rangle), ycen + length*(float)Math.sin(rangle), ObjectVars.objectStartWheels[4]);
+			for (int j=0; j<startDirPoly.length/2; j++) {
+				startDirPoly[2*j] += xcen+length*(float)Math.cos(rangle);
+				startDirPoly[2*j+1] += ycen+length*(float)Math.sin(rangle);
+			}
+			shapeRenderer.polygon(startDirPoly);
+		} else if (otype == ObjectVars.Finish) {
+			rxcen = objarray[0]-ObjectVars.objectFinish[0];
+			rycen = objarray[1]-ObjectVars.objectFinish[1];
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0, 0.7f, 1.0f, opacity);
+			shapeRenderer.polygon(objarray);
+			shapeRenderer.circle(rxcen, rycen, ObjectVars.objectFinishBall[2]);
 		}
 	}
 
@@ -2096,10 +2170,10 @@ public class Editor extends GameState {
 		// Draw the updated group
 		float[] rectUpdPoly = new float[8];
 		if (updateGroup != null) {
-			shapeRenderer.setColor(1, 1, 0.1f, 1);
 			for (int pp=0; pp<updateGroup.size(); pp++) {
 				if (groupPOD.get(pp) == 2) {
 					// Decor
+					shapeRenderer.setColor(1, 1, 0.1f, 1);
 					if (DecorVars.IsRoadSign(allDecorTypes.get(groupArrays.get(pp)))) {
 						shapeRenderer.circle(updateGroup.get(pp)[0],updateGroup.get(pp)[1],updateGroup.get(pp)[2]);
 						rCoord = PolygonOperations.RotateCoordinate(updateGroup.get(pp)[0], updateGroup.get(pp)[1]-5.0f*updateGroup.get(pp)[2], MathUtils.radiansToDegrees*updateGroup.get(pp)[3], updateGroup.get(pp)[0], updateGroup.get(pp)[1]);
@@ -2110,12 +2184,10 @@ public class Editor extends GameState {
 						shapeRenderer.polygon(rectUpdPoly);
 					} else shapeRenderer.polygon(updateGroup.get(pp));
 				} else if (groupPOD.get(pp) == 1) {
-					// Objects
-					// TODO :: NEED TO RENDER OBJECT UPDATE GROUPS!
-//						System.out.println("---------");
-//						System.out.println(groupPOD.get(pp));
-//						System.out.println(groupTypes.get(pp));
+					// Color is set for each object separately
+					renderObject(updateGroup.get(pp), allObjectTypes.get(groupArrays.get(pp)), groupArrays.get(pp), true);
 				} else {
+					shapeRenderer.setColor(1, 1, 0.1f, 1);
 					if (updateGroup.get(pp).length == 3) {
 						shapeRenderer.circle(updateGroup.get(pp)[0], updateGroup.get(pp)[1], updateGroup.get(pp)[2]);
 					} else {
@@ -3343,7 +3415,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "moveball", endX, endY);
 				}
 			} else if ((modeChild.equals("Move Ball")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "moveball");
+				UpdateObject(objectSelect, "moveball", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Move Anchor")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
@@ -3357,7 +3429,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "moveanchor", endX, endY);
 				}
 			} else if ((modeChild.equals("Move Anchor")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "moveanchor");
+				UpdateObject(objectSelect, "moveanchor", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Set Max Length")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
@@ -3376,7 +3448,7 @@ public class Editor extends GameState {
 				tempx = (float) Math.sqrt((updatePoly[0]-txv)*(updatePoly[0]-txv) + (updatePoly[1]-tyv)*(updatePoly[1]-tyv));
 				tempy = (float) Math.sqrt((newPoly[0]-txv)*(newPoly[0]-txv) + (newPoly[1]-tyv)*(newPoly[1]-tyv));
 				if (tempx < tempy) {
-					UpdateObject(objectSelect, "moveball");
+					UpdateObject(objectSelect, "moveball", true);
 					newPoly = allObjects.get(objectSelect);
 					tempx *= 1.00001f; // Make the maximum length just a fraction longer
 				}
@@ -3404,7 +3476,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "circle", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
 			}
 		} else if (modeParent.equals("Bridge")) {
@@ -3426,7 +3498,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "moveentry", endX, endY);
 				}
 			} else if ((modeChild.equals("Move Anchor")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "moveentry");
+				UpdateObject(objectSelect, "moveentry", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Set Bridge Sag")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
@@ -3476,7 +3548,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
     		} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "move");
+    			UpdateObject(objectSelect, "move", true);
     			objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -3501,7 +3573,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "object", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotateobject");
+    			UpdateObject(objectSelect, "rotateobject", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
@@ -3548,7 +3620,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
     		} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "move");
+    			UpdateObject(objectSelect, "move", true);
     			objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -3573,7 +3645,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "object", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotateobject");
+    			UpdateObject(objectSelect, "rotateobject", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
@@ -3596,7 +3668,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "moveentry", endX, endY);
 				}
 			} else if ((modeChild.equals("Move Gate/Switch")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "moveentry");
+				UpdateObject(objectSelect, "moveentry", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Rotate Gate/Switch")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -3623,7 +3695,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "rotateentry", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate Gate/Switch")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotateentry");
+    			UpdateObject(objectSelect, "rotateentry", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Scale Gate")) & (GameInput.MBDRAG==true)) {
@@ -3640,7 +3712,7 @@ public class Editor extends GameState {
 	            	ScaleObject(objectSelect, nullvarC, nullvarA);
     			}
     		} else if ((modeChild.equals("Scale Gate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1) & (tentry==1)) {
-    			UpdateObject(objectSelect, "scalegate");
+    			UpdateObject(objectSelect, "scalegate", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Gate Open/Close")) & (GameInput.MBRELEASE==true) & (GameInput.MBJUSTPRESSED)) {
@@ -3687,7 +3759,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
     		} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "move");
+    			UpdateObject(objectSelect, "move", true);
     			objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -3712,7 +3784,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "arrow", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotatearrow");
+    			UpdateObject(objectSelect, "rotatearrow", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
@@ -3745,7 +3817,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "polygon", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -3770,7 +3842,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "object", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotateobject");
+    			UpdateObject(objectSelect, "rotateobject", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
@@ -3793,7 +3865,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "circle", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
 			}
 		} else if (modeParent.equals("Nitrous")) {
@@ -3815,7 +3887,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "polygon", endX, endY);
     			}
     		} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "move");
+    			UpdateObject(objectSelect, "move", true);
     			objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -3840,7 +3912,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "object", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotateobject");
+    			UpdateObject(objectSelect, "rotateobject", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
@@ -3863,7 +3935,7 @@ public class Editor extends GameState {
 					MoveObject(objectSelect, "moveplanet", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
 				// Select the object
@@ -3894,7 +3966,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "circle", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
 			}
 		} else if (modeParent.equals("Spike Zone")) {
@@ -3916,7 +3988,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "polygon", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
     		} else if (modeChild.equals("Move Segment")) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -3933,7 +4005,7 @@ public class Editor extends GameState {
 	        			else MoveSegment(objectSelect, segmSelect, segmNext, startX, startY);
 	    			}
 	    		} else if ((GameInput.MBJUSTPRESSED==true) & (objectSelect != -1) & (vertSelect != -1)) {
-	         			UpdateObject(objectSelect, "update");
+	         			UpdateObject(objectSelect, "update", true);
 	         			objectSelect = -1;
 	         			vertSelect = -1;
 	    		} else FindNearestSegmentObject(true);
@@ -3960,7 +4032,7 @@ public class Editor extends GameState {
 	            	MoveObject(objectSelect, "moveentry", endX, endY);
 				}
 			} else if ((modeChild.equals("Move Entry")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "moveentry");
+				UpdateObject(objectSelect, "moveentry", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Rotate Entry")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -3987,7 +4059,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "rotateentry", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate Entry")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotateentry");
+    			UpdateObject(objectSelect, "rotateentry", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Rotate Gravity")) & (GameInput.MBDRAG==true)) {
@@ -4013,7 +4085,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "arrow", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate Gravity")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotatearrow");
+    			UpdateObject(objectSelect, "rotatearrow", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
@@ -4059,7 +4131,7 @@ public class Editor extends GameState {
 					MoveObject(objectSelect, "polygon", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
@@ -4084,7 +4156,7 @@ public class Editor extends GameState {
 	            	RotateObject(objectSelect, "arrow", nullvarD);
     			}
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
-    			UpdateObject(objectSelect, "rotatearrow");
+    			UpdateObject(objectSelect, "rotatearrow", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
@@ -4113,7 +4185,7 @@ public class Editor extends GameState {
 					MoveObject(objectSelect, "polygon", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move");
+				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
 			}
     	}
@@ -4735,8 +4807,8 @@ public class Editor extends GameState {
 		boolean doX = false;
 		boolean doY = false;
 		float shiftX, shiftY;
+		int polidx;
 		int otype;
-		String strmode;
 		if ((modeChild.equals("Move X and Y")) | (modeChild.equals("Move X only"))) doX = true;
 		if ((modeChild.equals("Move X and Y")) | (modeChild.equals("Move Y only"))) doY = true;
 		if ((modeChild.equals("Copy X and Y")) | (modeChild.equals("Copy X only"))) doX = true;
@@ -4748,18 +4820,31 @@ public class Editor extends GameState {
 		else if (modeParent.equals("Move")) action = 2;
 		// Perform the operation
 		if ((GameInput.MBJUSTDRAGGED) && (groupArrays.size() == 0)) {
-			SelectGroup();
-			System.out.println(groupArrays.size());
+			if (action == 2) SelectGroup(0); // Allowed to move start/finish/diamond/initial gravity objects
+			else SelectGroup(4); // cannot delete/copy the start/finish/diamond/initial gravity objects
 			if (groupArrays.size() == 0) {
 				warnMessage[warnNumber] = "Nothing inside selection box";
 				warnElapse[warnNumber] = 0.0f;
 				warnType[warnNumber] = 2;
 				warnNumber += 1;
 				copyPoly = false;
+				engageDelete = false;
 			} else {
 				startX = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				startY = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-				copyPoly = true;
+				if (action==1) {
+					boolean hasGrass = CheckGroupGrass();
+					if (hasGrass) {
+						Message("A selected polygon has grass on it. You should only", 1);
+						Message("apply grass when the level is finished. Please delete", 1);
+						Message("all grass: Decorations -> Grass -> Delete All Grass", 1);
+						ResetGroups();
+					} else {
+						engageDelete = true;
+						Message("Press 'd' to delete", 0);
+					}
+				}
+				else copyPoly = true;
 			}
 		} else if ((GameInput.MBJUSTPRESSED) && (groupArrays.size() != 0) && (updateGroup != null)) {
 			if ((startX==endX)&(startY==endY)) {
@@ -4770,9 +4855,9 @@ public class Editor extends GameState {
 				warnType[warnNumber] = 2;
 				warnNumber += 1;
 				copyPoly = false;
+				engageDelete = false;
 			} else {
 				for (int i=0; i < groupArrays.size(); i++) {
-					// TODO :: complete this
 					if (action == 0) {// Copy
 						if (groupPOD.get(i) == 0) CopyPolygon(updateGroup.get(i).clone(), groupArrays.get(i));
 						else if (groupPOD.get(i) == 1) {
@@ -4784,7 +4869,8 @@ public class Editor extends GameState {
 						}
 						else if (groupPOD.get(i) == 2) CopyDecor(updateGroup.get(i).clone(), groupArrays.get(i));
 					} else if (action == 1) {// Delete
-						// The reset is done below
+						engageDelete = false;
+						//  Only need to reset the group arrays, which is done below (after this if loop)
 					} else if (action == 2) {// Move
 						shiftX = 0.0f;
 						shiftY = 0.0f;
@@ -4800,53 +4886,55 @@ public class Editor extends GameState {
 							//newPoly = null;
 							//polySelect = -1;
 						} else if (groupPOD.get(i) == 1) {
-							// TODO :: CURRENTLY UP TO HERE!! what is tentry supposed to be?
 							otype = groupTypes.get(i);
 							if ((otype==ObjectVars.BallChain) | (otype==ObjectVars.Pendulum)) {
 								MoveObject(groupArrays.get(i), "moveball", shiftX, shiftY);
-								UpdateObject(otype, "moveball");
+								UpdateObject(groupArrays.get(i), "moveball", false);
 								MoveObject(groupArrays.get(i), "moveanchor", shiftX, shiftY);
-								UpdateObject(otype, "moveanchor");
+								UpdateObject(groupArrays.get(i), "moveanchor", false);
 							} else if (ObjectVars.IsPlanet(otype)) {
 								MoveObject(groupArrays.get(i), "moveplanet", shiftX, shiftY);
-								// TODO :: does this work?
-								UpdateObject(otype, "move");
+								UpdateObject(groupArrays.get(i), "move", false);
 							} else if ((otype==ObjectVars.Transport) | (otype==ObjectVars.TransportInvisible) | (otype==ObjectVars.GateSwitch) | (otype==ObjectVars.Bridge)) {
-								tentry = 0;
-								MoveObject(groupArrays.get(i), "moveentry", shiftX, shiftY);
-								UpdateObject(otype, "moveentry");
 								tentry = 1;
 								MoveObject(groupArrays.get(i), "moveentry", shiftX, shiftY);
-								UpdateObject(otype, "moveentry");
+								UpdateObject(groupArrays.get(i), "moveentry", false);
+								tentry = 2;
+								MoveObject(groupArrays.get(i), "moveentry", shiftX, shiftY);
+								UpdateObject(groupArrays.get(i), "moveentry", false);
 								tentry = 0; // Reset
 							} else if ((otype==ObjectVars.Boulder) | (otype==ObjectVars.Spike) | (otype==ObjectVars.Log)) {
 								MoveObject(groupArrays.get(i), "circle", shiftX, shiftY);
-								UpdateObject(otype, "move");
+								UpdateObject(groupArrays.get(i), "move", false);
 							} else {
 								MoveObject(groupArrays.get(i), "polygon", shiftX, shiftY);
-								UpdateObject(otype, "move");
+								UpdateObject(groupArrays.get(i), "move", false);
 							}
 						} else if (groupPOD.get(i) == 2) {
+							otype = groupTypes.get(i);
 							MoveDecor(groupArrays.get(i), "mode", shiftX, shiftY);
+							if (DecorVars.IsRoadSign(otype)) {
+								UpdateDecor(groupArrays.get(i), "movecircle");
+							} else {
+								UpdateDecor(groupArrays.get(i), "move");
+							}
 						}
 					}
 				}
 			}
 			// Reset
-			groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
-			groupPOD = new ArrayList<Integer>(); // Polygon (0), Object (1), or Decor (2)
-			groupTypes = new ArrayList<Integer>(); // allPolygonTypes, allObjectTypes, allDecorTypes
-			groupPaths = new ArrayList<float[]>(); // allPolygonPaths, allObjectArrows
-			groupTextures = new ArrayList<String>(); // allPolygonTextures
-			groupCoords = new ArrayList<float[]>(); // allObjectCoords
-			groupPolys = new ArrayList<Integer>(); // allDecorPolys
-			updateGroup = null;
-			copyPoly = false;
+			ResetGroups();
+			SaveLevel(true);
 		} else if (groupArrays.size() != 0) {
-			endX = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
-			endY = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+			if (action == 1) {
+				// When deleting, just use the same position as the objects started
+				endX = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+				endY = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+			} else {
+				endX = cam.position.x + cam.zoom * (GameInput.MBMOVEX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+				endY = cam.position.y - cam.zoom * (GameInput.MBMOVEY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+			}
 			updateGroup = new ArrayList<float[]>();
-			int polidx;
 			for (int i=0; i<groupArrays.size(); i++) {
 				polidx = groupArrays.get(i);
 				if (groupPOD.get(i)==0) {
@@ -4865,6 +4953,16 @@ public class Editor extends GameState {
 					if (allObjects.get(polidx).length == 3) {
 						if (doX) updatePoly[0] += (endX-startX);
 						if (doY) updatePoly[1] += (endY-startY);
+					} else if ((allObjectTypes.get(polidx)==ObjectVars.BallChain) | (allObjectTypes.get(polidx)==ObjectVars.Pendulum)) {
+						if (doX) updatePoly[0] += (endX-startX);
+						if (doY) updatePoly[1] += (endY-startY);
+						if (doX) updatePoly[3] += (endX-startX);
+						if (doY) updatePoly[4] += (endY-startY);
+					} else if (allObjectTypes.get(polidx)==ObjectVars.Bridge) {
+						for (int j=0; j<allObjects.get(polidx).length-1; j++){
+							if ((j%2==0)&(doX)) updatePoly[j] += (endX-startX);
+							else if ((j%2==1)&(doY)) updatePoly[j] += (endY-startY);
+						}
 					} else {
 						for (int j=0; j<allObjects.get(polidx).length; j++){
 							if ((j%2==0)&(doX)) updatePoly[j] += (endX-startX);
@@ -4873,9 +4971,14 @@ public class Editor extends GameState {
 					}
 				} else if (groupPOD.get(i)==2) {
 					updatePoly = allDecors.get(polidx).clone();
-					if (allDecors.get(polidx).length == 3) {
+					if ((allDecors.get(polidx).length == 3) || (DecorVars.IsRoadSign(allDecorTypes.get(polidx)))) {
 						if (doX) updatePoly[0] += (endX-startX);
 						if (doY) updatePoly[1] += (endY-startY);
+					} else if (DecorVars.IsRect(allDecorTypes.get(polidx))) {
+						for (int j=0; j<allDecors.get(polidx).length-1; j++){
+							if ((j%2==0)&(doX)) updatePoly[j] += (endX-startX);
+							else if ((j%2==1)&(doY)) updatePoly[j] += (endY-startY);
+						}
 					} else {
 						for (int j=0; j<allDecors.get(polidx).length; j++){
 							if ((j%2==0)&(doX)) updatePoly[j] += (endX-startX);
@@ -5169,6 +5272,8 @@ public class Editor extends GameState {
 			case 11 :
 				if (modeParent.equals("Copy")) {
 					listChild.setItems("Copy X and Y", "Copy X only", "Copy Y only");
+				} else if (modeParent.equals("Delete")) {
+					listChild.setItems(" ");
 				} else if (modeParent.equals("Move")) {
 					listChild.setItems("Move X and Y", "Move X only", "Move Y only");
 				} else listChild.setItems(nullList);
@@ -5412,7 +5517,7 @@ public class Editor extends GameState {
 		SaveLevel(true);
 	}
 
-    public void DeletePolygon(int idx) {
+    public void DeletePolygon(int idx, boolean autosave) {
     	changesMade = true;
 		allPolygons.remove(idx);
 		allPolygonTypes.remove(idx);
@@ -5434,7 +5539,7 @@ public class Editor extends GameState {
 			}
 		}
 		polySelect = -1;
-		SaveLevel(true);
+		if (autosave) SaveLevel(true);
 	}
 
     public void DeleteVertex(int idx, int vert) {
@@ -6232,7 +6337,7 @@ public class Editor extends GameState {
     	}
 	}
 
-	public void SelectGroup() {
+	public void SelectGroup(int objmin) {
 		// Reset groups
 		updateGroup = null;
 		groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
@@ -6244,7 +6349,7 @@ public class Editor extends GameState {
 		groupPolys = new ArrayList<Integer>(); // allDecorPolys
 		// Select all types of items within a selection box
 		SelectGroupPolygons(0);
-		SelectGroupObjects();
+		SelectGroupObjects(objmin);
 		SelectGroupDecors();
 		ResetSelect();
 	}
@@ -6442,7 +6547,7 @@ public class Editor extends GameState {
 		SaveLevel(true);
 	}
 
-	public void DeleteObject(int idx) {
+	public void DeleteObject(int idx, boolean autosave) {
 		changesMade = true;
 		if (allObjectTypes.get(idx) == ObjectVars.Jewel) numJewels -= 1;
 		allObjects.remove(idx);
@@ -6450,7 +6555,7 @@ public class Editor extends GameState {
 		allObjectCoords.remove(idx);
 		allObjectArrows.remove(idx);
 		objectSelect = -1;
-		SaveLevel(true);
+		if (autosave) SaveLevel(true);
 	}
   	
 	public void FindNearestSegmentObject(boolean hover) {
@@ -6867,7 +6972,7 @@ public class Editor extends GameState {
 		if (objectSelect != -1) return;
 	}
 
-	public void SelectGroupObjects() {
+	public void SelectGroupObjects(int objmin) {
 		ResetSelect();
 		float x1, x2, y1, y2, tmp;
 		x1 = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -6886,7 +6991,7 @@ public class Editor extends GameState {
 			y1 = tmp;
 		}
 		// Loop through all polygons and find the polys that are inside the selection boundary
-		for (int i = 0; i<allObjects.size(); i++){
+		for (int i = objmin; i<allObjects.size(); i++){
 			if ((x1 < allObjectCoords.get(i)[0]) & (allObjectCoords.get(i)[0] < x2) & (y1 < allObjectCoords.get(i)[1]) & (allObjectCoords.get(i)[1] < y2)) {
 				// Object is inside selection
 				groupArrays.add(i);
@@ -7134,7 +7239,7 @@ public class Editor extends GameState {
 		}
 	}
 
-	public void UpdateObject(int idx, String mode) {
+	public void UpdateObject(int idx, String mode, boolean saveit) {
 		changesMade = true;
 		if (mode.equals("update")) {
 			newPoly = allObjects.set(idx, updatePoly.clone());
@@ -7144,7 +7249,7 @@ public class Editor extends GameState {
 			float shiftY = updatePoly[1]-allObjects.get(idx)[1];
 			newPoly = allObjects.set(idx, updatePoly.clone());
 			// Update the Coordinate
-			newCoord = allObjectCoords.get(idx);
+			newCoord = allObjectCoords.get(idx).clone();
 			newCoord[0] += shiftX;
 			newCoord[1] += shiftY;
 			newPoly = allObjectCoords.set(idx, newCoord.clone());
@@ -7164,22 +7269,23 @@ public class Editor extends GameState {
 			newPoly[1] = updatePoly[1];
 			updatePoly = allObjects.set(idx, newPoly.clone());
 			// Update the Coordinate
-			newCoord = allObjectCoords.get(idx);
+			newCoord = allObjectCoords.get(idx).clone();
 			newCoord[0] += shiftX;
 			newCoord[1] += shiftY;
 			newPoly = allObjectCoords.set(idx, newCoord.clone());
 		} else if ((mode.equals("moveentry")) | (mode.equals("rotateentry"))) {
 			float shiftX = updatePoly[0]-allObjects.get(idx)[0+8*(tentry-1)];
 			float shiftY = updatePoly[1]-allObjects.get(idx)[1+8*(tentry-1)];
-			// Update the Arrow
-			if ((allObjectArrows.get(idx) != null) & (tentry==1) & (mode.equals("moveentry"))) {
-				// Update the Coordinate
-				newCoord = allObjectCoords.get(idx);
+			// Update the Coordinate
+			if ((mode.equals("moveentry")) & (tentry==1)) {
+				newCoord = allObjectCoords.get(idx).clone();
 				newCoord[0] += shiftX;
 				newCoord[1] += shiftY;
 				newPoly = allObjectCoords.set(idx, newCoord.clone());
-				// Now do the arrow
-				newPoly = allObjectArrows.get(idx);
+			}
+			// Update the Arrow
+			if ((allObjectArrows.get(idx) != null) & (tentry==1) & (mode.equals("moveentry"))) {
+				newPoly = allObjectArrows.get(idx).clone();
 				for (int i = 0; i<allObjectArrows.get(idx).length/2; i++){
 					newPoly[2*i] += shiftX;
 					newPoly[2*i+1] += shiftY;
@@ -7217,7 +7323,7 @@ public class Editor extends GameState {
 		}
 		// Nullify the update Polygon
 		updatePoly = null;
-		SaveLevel(true);
+		if (saveit) SaveLevel(true);
 	}
 
     /////////////////////////////////
@@ -7278,7 +7384,7 @@ public class Editor extends GameState {
     		noGrass = true;
 			for (int i = 0; i<allDecors.size(); i++) {
 				if (allDecorTypes.get(i) == DecorVars.Grass) {
-					DeleteDecor(i);
+					DeleteDecor(i, true);
 					noGrass=false;
 					break;
 				}
@@ -7287,13 +7393,13 @@ public class Editor extends GameState {
     	}
     }
 	
-	public void DeleteDecor(int idx) {
+	public void DeleteDecor(int idx, boolean autosave) {
 		changesMade = true;
 		allDecors.remove(idx);
 		allDecorTypes.remove(idx);
 		allDecorPolys.remove(idx);
 		decorSelect = -1;
-		SaveLevel(true);
+		if (autosave) SaveLevel(true);
 	}
   	
 	public void FlipDecor(int xy) {
@@ -7377,6 +7483,15 @@ public class Editor extends GameState {
 		} else if (otype==DecorVars.TyreStack) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		}
+	}
+
+	private boolean CheckGroupGrass() {
+		for (int ii=0; ii<groupPOD.size(); ii++) {
+			if ((groupPOD.get(ii)==2) & (groupTypes.get(ii)==DecorVars.Grass)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void MakeGrass() {
@@ -7615,7 +7730,7 @@ public class Editor extends GameState {
 		}
 		// Loop through all polygons and find the polys that are inside the selection boundary
 		for (int i = 0; i<allDecors.size(); i++){
-			if (allDecors.get(i).length == 3) {
+			if ((allDecors.get(i).length == 3) || (DecorVars.IsRoadSign(allDecorTypes.get(i)))) {
 				// It's a circle
 				meanxy[0] = allDecors.get(i)[0];
 				meanxy[1] = allDecors.get(i)[1];
