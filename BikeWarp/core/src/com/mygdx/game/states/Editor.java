@@ -4837,7 +4837,7 @@ public class Editor extends GameState {
 					if (hasGrass) {
 						Message("A selected polygon has grass on it. You should only", 1);
 						Message("apply grass when the level is finished. Please delete", 1);
-						Message("all grass: Decorations -> Grass -> Delete All Grass", 1);
+						Message("all grass: Decorate > Grass > Delete All Grass", 1);
 						ResetGroups();
 					} else {
 						engageDelete = true;
