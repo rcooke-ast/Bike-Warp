@@ -36,4 +36,17 @@ public class ColorUtils {
 	    return rs + gs + bs;
 	}
 
+	public static float[] ConvertStringToColor(String colstr) {
+		float[] retarr = new float[4];
+		if (colstr.startsWith("COLOR_")) {
+			String[] arr = colstr.split("_");
+			retarr[0] = Float.parseFloat(arr[1]);
+			retarr[1] = Float.parseFloat(arr[2]);
+			retarr[2] = Float.parseFloat(arr[3]);
+			retarr[3] = Float.parseFloat(arr[4]);
+		}
+		return retarr;
+	}
+
+
 }
