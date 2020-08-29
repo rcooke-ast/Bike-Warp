@@ -345,6 +345,7 @@ public class EditorIO {
 
 	public static String GetTexture(String textName, String defval) {
 		if (textName.equals("Default")) return defval;
+		else if (textName.startsWith("COLOR_")) return textName;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
@@ -374,6 +375,7 @@ public class EditorIO {
 	
 	public static String GetFGTexture(String textName, String defval) {
 		if (textName.equals("Default")) return defval;
+		else if (textName.startsWith("COLOR_")) return textName;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";

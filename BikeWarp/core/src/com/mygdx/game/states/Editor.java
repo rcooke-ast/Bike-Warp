@@ -20,12 +20,10 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.TextInputListener;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.EarClippingTriangulator;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -48,14 +46,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.ShortArray;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.gushikustudios.rube.PolySpatial;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.mygdx.game.handlers.DecorVars;
@@ -64,10 +61,7 @@ import com.mygdx.game.handlers.GameInputProcessor;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.LevelVars;
 import com.mygdx.game.handlers.ObjectVars;
-import com.mygdx.game.utilities.BayazitDecomposer;
-import com.mygdx.game.utilities.EditorIO;
-import com.mygdx.game.utilities.FileUtils;
-import com.mygdx.game.utilities.PolygonOperations;
+import com.mygdx.game.utilities.*;
 import com.mygdx.game.utilities.json.JSONException;
 import com.mygdx.game.utilities.json.JSONObject;
 
@@ -80,13 +74,14 @@ public class Editor extends GameState {
 	private InputMultiplexer inputMultiplexer;
 	private ShapeRenderer shapeRenderer = new ShapeRenderer();
 	private SpriteBatch mBatch = new SpriteBatch();
+	private PolygonSpriteBatch polyBatch = new PolygonSpriteBatch();
 	private Sprite traceImage;
 	private Sprite decorImage;
 	private String[] traceList;
 	private String[] nullList = new String[0];
 	private String[] itemsXYonly = {"Move X and Y", "Move X only", "Move Y only"};
-	private String[] itemsPRC = {"Polygon", "Rectangle", "Circle", "Set Texture"};
-	private String[] itemsPRCP = {"Polygon", "Rectangle", "Circle", "Set Path", "Set Texture"};
+	private String[] itemsPRC = {"Polygon", "Rectangle", "Circle", "Set Texture", "Set Color"};
+	private String[] itemsPRCP = {"Polygon", "Rectangle", "Circle", "Set Path", "Set Texture", "Set Color"};
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
@@ -95,12 +90,17 @@ public class Editor extends GameState {
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
 			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Rain", "Tyre Stack", "Waterfall"};
+//			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Collisionless Color", "Rain", "Tyre Stack", "Waterfall"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
 	private String[] fgTextureList = {"None", "Plants", "Trees"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
+	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust opacity",
+			"Set white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
+			"Set green", "Set blue", "Set purple", "Set invisible"};
+	private float[] platformColor;
 	private String[] gravityList = {"Earth", "Moon", "Mars", "Zero"};
 	private String[] loadList = {"Load Level", "New Level"};
 	private String saveFName;
@@ -1147,6 +1147,7 @@ public class Editor extends GameState {
     	numJewels = 0; // Number of jewels currently inserted (1=Diamond jewel)
     	transPoly = new float[8];
     	startDirPoly = new float[ObjectVars.objectArrow.length];
+		platformColor = new float[4];
 
     	// Use an integer to identify which mode is currently active
     	/* mode:
@@ -1481,6 +1482,7 @@ public class Editor extends GameState {
 		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
         //Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         shapeRenderer.setProjectionMatrix(cam.combined);
+		polyBatch.setProjectionMatrix(cam.combined);
 
         shapeRenderer.begin(ShapeType.Line);
         // Draw the boundary region
@@ -1496,11 +1498,11 @@ public class Editor extends GameState {
         shapeRenderer.end();
 
         // Draw the polygons (not including the current polygon)
-        shapeRenderer.begin(ShapeType.Line);
-        Gdx.gl20.glLineWidth(2);
         renderPolygons();
 
         // Draw the objects
+		shapeRenderer.begin(ShapeType.Line);
+		Gdx.gl20.glLineWidth(2);
 		renderAllObjects();
 
         // Draw the decorations
@@ -1555,8 +1557,33 @@ public class Editor extends GameState {
 
     private void renderPolygons() {
 		float[] extraPoly;
+		float[] colarr;
 		if (allPolygons.size() != 0) {
 			for (int i = 0; i<allPolygons.size(); i++) {
+				if (allPolygonTextures.get(i).startsWith("COLOR_")) {
+					colarr = ColorUtils.ConvertStringToColor(allPolygonTextures.get(i));
+					if (allPolygonTypes.get(i)%2 == 0) {
+						Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+						pix.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
+						pix.fill();
+						Texture textureFilled = new Texture(pix);
+						TextureRegion textReg = new TextureRegion(textureFilled);
+						EarClippingTriangulator triangulator = new EarClippingTriangulator();
+						short [] triangleIndices = triangulator.computeTriangles(allPolygons.get(i)).toArray();
+						PolygonRegion polyReg = new PolygonRegion(textReg, allPolygons.get(i), triangleIndices);
+						PolygonSprite polySpr = new PolygonSprite(polyReg);
+						polyBatch.begin();
+						polySpr.draw(polyBatch);
+						polyBatch.end();
+					} else {
+						shapeRenderer.begin(ShapeType.Filled);
+						shapeRenderer.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
+						shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
+						shapeRenderer.end();
+					}
+				}
+				shapeRenderer.begin(ShapeType.Line);
+				Gdx.gl20.glLineWidth(2);
 				if (allPolygonTypes.get(i) <= 1) {
 					// Static Polygons
 					if (polySelect == i) shapeRenderer.setColor(0.8f, 0.8f, 0.8f, 1);
@@ -1744,6 +1771,7 @@ public class Editor extends GameState {
 					PolygonOperations.RotateXYArray(extraPoly, allPolygonPaths.get(i)[5], allPolygonPaths.get(i)[2], allPolygonPaths.get(i)[3]);
 					shapeRenderer.polygon(extraPoly);
 				}
+				shapeRenderer.end();
 			}
 		}
 	}
@@ -3044,6 +3072,71 @@ public class Editor extends GameState {
 				}
 			}
 			currentTexture = "";
+		} else if (modeParent.equals("Set Color")) {
+			if (GameInput.MBDRAG == true) {
+				if (polySelect == -1) {
+					SelectPolygon("down");
+					if ((polySelect != -1) && !(allPolygonTextures.get(polySelect).startsWith("COLOR_"))) {
+						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (polySelect == -1) {
+						Message("No polygon selected", 1);
+					} else if (allPolygonTextures.get(polySelect).startsWith("COLOR_")) {
+						platformColor = ColorUtils.ConvertStringToColor(allPolygonTextures.get(polySelect));
+					}
+					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+				} else {
+					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+					float changeValue = 1.0f-(GameInput.MBDRAGY / BikeGame.SCALE)/SCRHEIGHT;
+					if (modeChild.equals("Adjust red value")) {
+						if (changeValue < 0.0f) platformColor[0] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[0] = 1.0f;
+						else platformColor[0] = changeValue;
+					} else if (modeChild.equals("Adjust green value")) {
+						if (changeValue < 0.0f) platformColor[1] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[1] = 1.0f;
+						else platformColor[1] = changeValue;
+					} else if (modeChild.equals("Adjust blue value")) {
+						if (changeValue < 0.0f) platformColor[2] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[2] = 1.0f;
+						else platformColor[2] = changeValue;
+					} else if (modeChild.equals("Adjust opacity")) {
+						if (changeValue < 0.0f) platformColor[3] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[3] = 1.0f;
+						else platformColor[3] = changeValue;
+					}
+					if (polySelect != -1) UpdatePlatformColor();
+				}
+			} else {
+				if (GameInput.MBJUSTPRESSED) {
+					SelectPolygon("down");
+				} else if (polySelect != -1) {
+					if (modeChild.equals("Set white")) {
+						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set light grey")) {
+						platformColor = new float[]{0.7f, 0.7f, 0.7f, 1.0f};
+					} else if (modeChild.equals("Set dark grey")) {
+						platformColor = new float[]{0.35f, 0.35f, 0.35f, 1.0f};
+					} else if (modeChild.equals("Set black")) {
+						platformColor = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set red")) {
+						platformColor = new float[]{1.0f, 0.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set orange")) {
+						platformColor = new float[]{1.0f, 0.8f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set yellow")) {
+						platformColor = new float[]{1.0f, 1.0f, 0.1f, 1.0f};
+					} else if (modeChild.equals("Set green")) {
+						platformColor = new float[]{0.0f, 1.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set blue")) {
+						platformColor = new float[]{0.0f, 0.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set purple")) {
+						platformColor = new float[]{1.0f, 0.5f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set invisible")) {
+						platformColor = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
+					}
+					if (polySelect != -1) UpdatePlatformColor();
+					polySelect = -1;
+				}
+			}
 		}
 	}
 
@@ -3387,7 +3480,72 @@ public class Editor extends GameState {
 	    		}
 	    	}
 			currentTexture = "";
-    	}
+    	} else if (modeParent.equals("Set Color")) {
+			if (GameInput.MBDRAG == true) {
+				if (polySelect == -1) {
+					SelectPolygon("down");
+					if ((polySelect != -1) && !(allPolygonTextures.get(polySelect).startsWith("COLOR_"))) {
+						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (polySelect == -1) {
+						Message("No polygon selected", 1);
+					} else if (allPolygonTextures.get(polySelect).startsWith("COLOR_")) {
+						platformColor = ColorUtils.ConvertStringToColor(allPolygonTextures.get(polySelect));
+					}
+					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+				} else {
+					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+					float changeValue = 1.0f-(GameInput.MBDRAGY / BikeGame.SCALE)/SCRHEIGHT;
+					if (modeChild.equals("Adjust red value")) {
+						if (changeValue < 0.0f) platformColor[0] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[0] = 1.0f;
+						else platformColor[0] = changeValue;
+					} else if (modeChild.equals("Adjust green value")) {
+						if (changeValue < 0.0f) platformColor[1] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[1] = 1.0f;
+						else platformColor[1] = changeValue;
+					} else if (modeChild.equals("Adjust blue value")) {
+						if (changeValue < 0.0f) platformColor[2] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[2] = 1.0f;
+						else platformColor[2] = changeValue;
+					} else if (modeChild.equals("Adjust opacity")) {
+						if (changeValue < 0.0f) platformColor[3] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[3] = 1.0f;
+						else platformColor[3] = changeValue;
+					}
+					if (polySelect != -1) UpdatePlatformColor();
+				}
+			} else {
+				if (GameInput.MBJUSTPRESSED) {
+					SelectPolygon("down");
+				} else if (polySelect != -1) {
+					if (modeChild.equals("Set white")) {
+						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set light grey")) {
+						platformColor = new float[]{0.7f, 0.7f, 0.7f, 1.0f};
+					} else if (modeChild.equals("Set dark grey")) {
+						platformColor = new float[]{0.35f, 0.35f, 0.35f, 1.0f};
+					} else if (modeChild.equals("Set black")) {
+						platformColor = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set red")) {
+						platformColor = new float[]{1.0f, 0.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set orange")) {
+						platformColor = new float[]{1.0f, 0.8f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set yellow")) {
+						platformColor = new float[]{1.0f, 1.0f, 0.1f, 1.0f};
+					} else if (modeChild.equals("Set green")) {
+						platformColor = new float[]{0.0f, 1.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set blue")) {
+						platformColor = new float[]{0.0f, 0.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set purple")) {
+						platformColor = new float[]{1.0f, 0.5f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set invisible")) {
+						platformColor = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
+					}
+					if (polySelect != -1) UpdatePlatformColor();
+					polySelect = -1;
+				}
+			}
+		}
 	}
 
 	public void ControlMode5() {
@@ -4470,6 +4628,71 @@ public class Editor extends GameState {
 	    		}
 	    	}
 			currentTexture = "";
+		} else if (modeParent.equals("Collisionless Color")) {
+			if (GameInput.MBDRAG == true) {
+				if (polySelect == -1) {
+					SelectPolygon("down");
+					if ((polySelect != -1) && !(allPolygonTextures.get(polySelect).startsWith("COLOR_"))) {
+						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (polySelect == -1) {
+						Message("No polygon selected", 1);
+					} else if (allPolygonTextures.get(polySelect).startsWith("COLOR_")) {
+						platformColor = ColorUtils.ConvertStringToColor(allPolygonTextures.get(polySelect));
+					}
+					startY = cam.position.y - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+				} else {
+					endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+					float changeValue = 1.0f-(GameInput.MBDRAGY / BikeGame.SCALE)/SCRHEIGHT;
+					if (modeChild.equals("Adjust red value")) {
+						if (changeValue < 0.0f) platformColor[0] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[0] = 1.0f;
+						else platformColor[0] = changeValue;
+					} else if (modeChild.equals("Adjust green value")) {
+						if (changeValue < 0.0f) platformColor[1] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[1] = 1.0f;
+						else platformColor[1] = changeValue;
+					} else if (modeChild.equals("Adjust blue value")) {
+						if (changeValue < 0.0f) platformColor[2] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[2] = 1.0f;
+						else platformColor[2] = changeValue;
+					} else if (modeChild.equals("Adjust opacity")) {
+						if (changeValue < 0.0f) platformColor[3] = 0.0f;
+						else if (changeValue > 1.0f) platformColor[3] = 1.0f;
+						else platformColor[3] = changeValue;
+					}
+					if (polySelect != -1) UpdatePlatformColor();
+				}
+			} else {
+				if (GameInput.MBJUSTPRESSED) {
+					SelectPolygon("down");
+				} else if (polySelect != -1) {
+					if (modeChild.equals("Set white")) {
+						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set light grey")) {
+						platformColor = new float[]{0.7f, 0.7f, 0.7f, 1.0f};
+					} else if (modeChild.equals("Set dark grey")) {
+						platformColor = new float[]{0.35f, 0.35f, 0.35f, 1.0f};
+					} else if (modeChild.equals("Set black")) {
+						platformColor = new float[]{0.0f, 0.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set red")) {
+						platformColor = new float[]{1.0f, 0.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set orange")) {
+						platformColor = new float[]{1.0f, 0.8f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set yellow")) {
+						platformColor = new float[]{1.0f, 1.0f, 0.1f, 1.0f};
+					} else if (modeChild.equals("Set green")) {
+						platformColor = new float[]{0.0f, 1.0f, 0.0f, 1.0f};
+					} else if (modeChild.equals("Set blue")) {
+						platformColor = new float[]{0.0f, 0.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set purple")) {
+						platformColor = new float[]{1.0f, 0.5f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set invisible")) {
+						platformColor = new float[]{0.0f, 0.0f, 0.0f, 0.0f};
+					}
+					if (polySelect != -1) UpdatePlatformColor();
+					polySelect = -1;
+				}
+			}
 		} else if (modeParent.equals("Bin Bag")) {
 			int objNum;
 			if (modeParent.equals("Bin Bag")) objNum=DecorVars.BinBag;
@@ -5097,7 +5320,11 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Set Texture")) {
 					listChild.setItems(platformTextures);
 					pStaticIndex = GetListIndex("Set Texture", itemsPRC);
-		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
+					Message("Select the texture, then click on the polygon to apply that texture", 0);
+				} else if (modeParent.equals("Set Color")) {
+					listChild.setItems(platformColors);
+					pStaticIndex = GetListIndex("Set Color", itemsPRC);
+					Message("Select an option then drag on a platform to change the color", 0);
 				}
 				break;
 			case 4 : 
@@ -5117,6 +5344,10 @@ public class Editor extends GameState {
 					listChild.setItems(platformTextures);
 					pKinematicIndex = GetListIndex("Set Texture",itemsPRCP);
 		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
+				} else if (modeParent.equals("Set Color")) {
+					listChild.setItems(platformColors);
+					pKinematicIndex = GetListIndex("Set Color", itemsPRCP);
+					Message("Select an option then drag on a platform to change the color", 0);
 				}
 				break;
 			case 5 :
@@ -5218,7 +5449,10 @@ public class Editor extends GameState {
 					listChild.setItems(itemsADMRSFv);
 				} else if (modeParent.equals("Collisionless Textures")) {
 					listChild.setItems(platformTextures);
-		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
+					Message("Select the texture, then click on the polygon to apply that texture", 0);
+				} else if (modeParent.equals("Collisionless Color")) {
+					listChild.setItems(platformColors);
+					Message("Select an option then drag on a collisionless platform to change the color", 0);
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
 				} else if (modeParent.equals("Tyre Stack")) {
@@ -5239,6 +5473,10 @@ public class Editor extends GameState {
 					listChild.setItems(platformTextures);
 					pFallingIndex = GetListIndex("Set Texture", itemsPRC);
 		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
+				} else if (modeParent.equals("Set Color")) {
+					listChild.setItems(platformColors);
+					pFallingIndex = GetListIndex("Set Color", itemsPRC);
+					Message("Select an option then drag on a platform to change the color", 0);
 				}
 				break;
 			case 8 :
@@ -5264,6 +5502,10 @@ public class Editor extends GameState {
 					listChild.setItems(platformTextures);
 					pTriggerIndex = GetListIndex("Set Texture", itemsPRC);
 		    		Message("Select the texture, then click on the polygon to apply that texture", 0);
+				} else if (modeParent.equals("Set Color")) {
+					listChild.setItems(platformColors);
+					pTriggerIndex = GetListIndex("Set Color", itemsPRC);
+					Message("Select an option then drag on a platform to change the color", 0);
 				}
 				break;
 			case 10 :
@@ -5297,11 +5539,15 @@ public class Editor extends GameState {
 		if (currentTexture.equals("Default")) {
 			allPolygonTextures.set(polySelect, "");
 		} else {
-			allPolygonTextures.set(polySelect, currentTexture);			
+			allPolygonTextures.set(polySelect, currentTexture);
 		}
 	}
-	
-    public void AddPolygon(float[] newPoly, int ptype, int psize) {
+	public void UpdatePlatformColor() {
+		String colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f",platformColor[0],platformColor[1],platformColor[2],platformColor[3]);
+		allPolygonTextures.set(polySelect, colorString);
+	}
+
+	public void AddPolygon(float[] newPoly, int ptype, int psize) {
     	changesMade = true;
     	if (mode == 6) {
     		allDecors.add(newPoly);

@@ -15,9 +15,7 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -29,7 +27,6 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
@@ -63,6 +60,7 @@ import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.BayazitDecomposer;
+import com.mygdx.game.utilities.ColorUtils;
 import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 import com.gushikustudios.rube.PolySpatial;
@@ -2455,7 +2453,9 @@ public class Play extends GameState {
                 	  isBG = false;
                 	  String testType = (String)scene.getCustom(fixture, "Type", null);
                 	  // Grab texture
-                      String textureFileName = "data/" + textureName;
+                      String textureFileName;
+                      if (textureName.startsWith("COLOR_")) textureFileName = textureName;
+                      else textureFileName = "data/" + textureName;
                       if (textureFileName.equalsIgnoreCase("data/images/waterfall.png")) {
                     	  containsWaterfall = true;
                     	  isWF = true;
@@ -2469,20 +2469,28 @@ public class Play extends GameState {
                     	  else if (testType.equalsIgnoreCase("CollisionlessFG")) isFG = true;
                       }
                       // Setup the texture region
-                      texture = mTextureMap.get(textureFileName);
-                      TextureRegion textureRegion = null;
-                      if (texture == null) {
-                    	  texture = new Texture(textureFileName);
-                    	  texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
-                    	  texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-                    	  mTextureMap.put(textureFileName, texture);
-                    	  textureRegion = new TextureRegion(texture);
-                    	  mTextureRegionMap.put(texture, textureRegion);
+                       TextureRegion textureRegion = null;
+                      if (textureFileName.startsWith("COLOR_")) {
+                          float[] colarr = ColorUtils.ConvertStringToColor(textureFileName);
+                          Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+                          pix.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
+                          pix.fill();
+                          Texture textureFilled = new Texture(pix);
+                          textureRegion = new TextureRegion(textureFilled);
                       } else {
-                          texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-                          textureRegion = mTextureRegionMap.get(texture);
+                          texture = mTextureMap.get(textureFileName);
+                          if (texture == null) {
+                              texture = new Texture(textureFileName);
+                              texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
+                              texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+                              mTextureMap.put(textureFileName, texture);
+                              textureRegion = new TextureRegion(texture);
+                              mTextureRegionMap.put(texture, textureRegion);
+                          } else {
+                              texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+                              textureRegion = mTextureRegionMap.get(texture);
+                          }
                       }
-
                       // only handle polygons at this point -- no chain, edge, or circle fixtures.
                       if (fixture.getType() == Shape.Type.Polygon)
                       {
