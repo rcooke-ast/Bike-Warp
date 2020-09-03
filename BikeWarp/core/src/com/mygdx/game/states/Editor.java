@@ -222,6 +222,7 @@ public class Editor extends GameState {
 	private SplitPane splitPaneParent;
 	private SplitPane splitPaneChild;
 	private ScrollPane scrollPaneTBar;
+	private Window windowTBar;
 
 	// Use an integer to identify which mode is currently active
 	/* mode:
@@ -364,7 +365,7 @@ public class Editor extends GameState {
 		ScrollPane scrollPaneParent = new ScrollPane(listParent, skin);
 		scrollPaneParent.setFlickScroll(false);
 		scrollPaneParent.setSmoothScrolling(true);
-		scrollPaneParent.setScrollBarPositions(true, true);
+		scrollPaneParent.setScrollBarPositions(false, true);
 		scrollPaneParent.setHeight(scrollPaneParent.getPrefHeight());
 		//splitPaneParent = new SplitPane(scrollPaneP, scrollPaneP, true, skin, "default-horizontal");
 		//splitPaneParent.setHeight(100.0f);
@@ -375,71 +376,72 @@ public class Editor extends GameState {
 		ScrollPane scrollPaneChild = new ScrollPane(listChild, skin);
 		scrollPaneChild.setFlickScroll(false);
 		scrollPaneChild.setSmoothScrolling(true);
-		scrollPaneChild.setScrollBarPositions(true, true);
+		scrollPaneChild.setScrollBarPositions(false, true);
 		scrollPaneChild.setHeight(scrollPaneChild.getPrefHeight());
 		//splitPaneChild = new SplitPane(scrollPaneC, scrollPaneC, true, skin, "default-horizontal");
 		//splitPaneParent.setHeight(100.0f);
 
-		// TODO :: Need to put "Toolbar" in the middle of the toolbar
 		// TODO :: Need to print messages correctly (e.g. click Copy-Paste - the text looks wonky)
-		// TODO :: Fix the vertical scoll bars so they are easy to access.
-		// TODO :: When static platform is selected, the full menu is not displayed.
-		Window window = new Window("Toolbar", skin);
-		window.align(Align.top | Align.center);
-		window.getTitleLabel().setAlignment(Align.center);
-		window.setPosition(BikeGame.viewport.x, BikeGame.viewport.y, Align.left);
+		windowTBar = new Window("Toolbar", skin);
+		windowTBar.align(Align.top | Align.center);
+		windowTBar.getTitleLabel().setAlignment(Align.center);
+		windowTBar.setPosition(BikeGame.viewport.x, BikeGame.viewport.y, Align.left);
 		//window.setPosition(0, 0);
-		window.defaults().spaceBottom(3);
-		window.row().fill().expandX().colspan(2);
+		windowTBar.defaults().spaceBottom(3);
+		windowTBar.row().fill().expandX().colspan(2);
 		//window.add(buttonLoad);
-		window.add(buttonExit);
-		window.row().fill().expandX().colspan(2);
-		window.add(selectLoadLevel);
-		window.row().fill().colspan(1);
-		window.add(buttonSave,textInputSave);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonExecute);
-		window.row().fill().expandX().colspan(1);
-		window.add(buttonRedo, buttonUndo);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonLevelProp);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonPan);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonTraceImage);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonCopyPaste);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonGroupSelect);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonAddStatic);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonAddKinetic);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonAddFalling);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonAddTrigger);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonAddObject);
-		window.row().fill().expandX().colspan(2);
-		window.add(buttonDecorate);
-		window.row().fill().align(Align.left).colspan(2);
-		window.add(scrollPaneParent).minHeight(140).maxHeight(220).maxWidth(0.9f*window.getPrefWidth());
-		window.row().fill().align(Align.left).colspan(2);
-		window.add(scrollPaneChild).minHeight(70).maxHeight(220).maxWidth(0.9f*window.getPrefWidth());
-		window.row().fill().expandX().colspan(2);
-		window.pack();
-		scrollPaneTBar = new ScrollPane(window, skin);
-		scrollPaneTBar.setFlickScroll(false);
-		scrollPaneTBar.setSmoothScrolling(true);
-		scrollPaneTBar.setScrollBarPositions(false, true);
-		//scrollPaneTBar.setScrollingDisabled(true, false);
-		scrollPaneTBar.setHeight(SCRHEIGHT);
-		scrollPaneTBar.setWidth((window.getPrefWidth()+2));
-		toolbarWidth = (window.getPrefWidth()+2)/BikeGame.SCALE;
-		stage.addActor(scrollPaneTBar);
+		windowTBar.add(buttonExit);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(selectLoadLevel);
+		windowTBar.row().fill().colspan(1);
+		windowTBar.add(buttonSave,textInputSave);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonExecute);
+		windowTBar.row().fill().expandX().colspan(1);
+		windowTBar.add(buttonRedo, buttonUndo);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonLevelProp);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonPan);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonTraceImage);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonCopyPaste);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonGroupSelect);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonAddStatic);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonAddKinetic);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonAddFalling);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonAddTrigger);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonAddObject);
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.add(buttonDecorate);
+		float height = windowTBar.getHeight();
+		windowTBar.row().fill().align(Align.left).colspan(2);
+		windowTBar.add(scrollPaneParent).minHeight(140).maxHeight((SCRHEIGHT-height)/2).maxWidth(windowTBar.getPrefWidth());
+		windowTBar.row().fill().align(Align.left).colspan(2);
+		windowTBar.add(scrollPaneChild).minHeight(140).maxHeight((SCRHEIGHT-height)/2).maxWidth(windowTBar.getPrefWidth());
+		windowTBar.row().fill().expandX().colspan(2);
+		windowTBar.pack();
+		windowTBar.setHeight(SCRHEIGHT);
+//		scrollPaneTBar = new ScrollPane(windowTBar, skin);
+//		scrollPaneTBar.setFlickScroll(false);
+//		scrollPaneTBar.setSmoothScrolling(true);
+//		scrollPaneTBar.setScrollBarPositions(false, false);
+//		//scrollPaneTBar.setScrollingDisabled(true, false);
+//		scrollPaneTBar.setHeight(SCRHEIGHT);
+//		scrollPaneTBar.setWidth((windowTBar.getPrefWidth()+2));
+//		toolbarWidth = (windowTBar.getPrefWidth()+2)/BikeGame.SCALE;
+		//stage.addActor(scrollPaneTBar);
+		stage.addActor(windowTBar);
 		// Hover over the toolbar
-		scrollPaneTBar.addListener(new ChangeListener() {
+//		scrollPaneTBar.addListener(new ChangeListener() {
+		windowTBar.addListener(new ChangeListener() {
 			@SuppressWarnings("unchecked")
 			public void changed (ChangeEvent event, Actor actor) {
 				if (!hideToolbar) {
@@ -1435,7 +1437,8 @@ public class Editor extends GameState {
 			buttonAddFalling.setDisabled(true);
 			buttonAddObject.setDisabled(true);
 			buttonDecorate.setDisabled(true);
-			scrollPaneTBar.setVisible(false);
+			//scrollPaneTBar.setVisible(false);
+			windowTBar.setVisible(false);
 		} else {
 			buttonExit.setDisabled(false);
 			selectLoadLevel.setDisabled(false);
@@ -1450,7 +1453,8 @@ public class Editor extends GameState {
 			buttonAddFalling.setDisabled(false);
 			buttonAddObject.setDisabled(false);
 			buttonDecorate.setDisabled(false);
-			scrollPaneTBar.setVisible(true);
+			windowTBar.setVisible(true);
+			//scrollPaneTBar.setVisible(true);
 		}
 	}
 
