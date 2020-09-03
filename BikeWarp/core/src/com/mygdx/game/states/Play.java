@@ -84,7 +84,7 @@ import com.gushikustudios.rube.loader.serializers.utils.RubeVertexArray;
  */
 public class Play extends GameState {
 
-	private boolean debug = true; // Change to false to not render object outlines
+	private boolean debug = false; // Change to false to not render object outlines
     private World mWorld;
     private RubeScene mScene;
     private Box2DDebugRenderer b2dr;
