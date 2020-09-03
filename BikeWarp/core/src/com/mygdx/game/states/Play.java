@@ -84,7 +84,7 @@ import com.gushikustudios.rube.loader.serializers.utils.RubeVertexArray;
  */
 public class Play extends GameState {
 
-	private boolean debug = false; // Change to false to not render object outlines
+	private boolean debug = true; // Change to false to not render object outlines
     private World mWorld;
     private RubeScene mScene;
     private Box2DDebugRenderer b2dr;
@@ -212,7 +212,7 @@ public class Play extends GameState {
     	   {
     	      {
     	         "data/levelname.json",
-    	         "data/bikeright_withbody.json"
+    	         "data/bikeright_withfullbody.json"
     	         // Here are some alternative vertices for the rider body
 //                 "x" : [  0.100,  0.242, 0.108, -0.077, -0.167 ],
 //                 "y" : [ -0.416, -0.354, 0.088,  0.304,  0.141 ]
@@ -842,7 +842,7 @@ public class Play extends GameState {
 		updateCameraPostion();
 		
 		// Check if escape was pressed - if so, end the replay
-		if (1000.0f*replayTime + dt > ReplayVars.replayTimer) {
+		if (1000.0f*replayTime > ReplayVars.replayTimer) {
 			forcequit = true;
 		}
 	}
@@ -1532,7 +1532,7 @@ public class Play extends GameState {
 
     public void render() {
         // clear screen
-        Gdx.gl.glClearColor(1, 1, 1, 1);  // Black
+        Gdx.gl.glClearColor(0, 0, 0, 1);  // Black
         //Gdx.gl.glClearColor(0.7f, 0.7f, 1.0f, 1); // Lilac
         Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
         Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
