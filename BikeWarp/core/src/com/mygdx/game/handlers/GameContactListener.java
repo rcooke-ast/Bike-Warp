@@ -229,7 +229,7 @@ public class GameContactListener implements ContactListener {
     public void clearTransportBody() { transportBody.clear(); }
     public void clearBikeBodyCollide() { bikeBodyCollide.clear(); }
     public boolean isPlayerDead() { return playerDead; }
-    public boolean isBikeOnGround() { return ((bikeGroundL>0)&(bikeGroundR>0)); }
+    public boolean isBikeOnGround() { return ((bikeGroundL>0)||(bikeGroundR>0)); }
     public boolean isFinished() { return finishTouch; }
     public void notFinished() { finishTouch=false; }
     public void setKey(int i, boolean val) { 
