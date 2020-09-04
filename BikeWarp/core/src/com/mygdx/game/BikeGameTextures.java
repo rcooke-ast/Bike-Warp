@@ -175,6 +175,8 @@ public class BikeGameTextures {
         GetTexture("RS_stop",2);
         GetTexture("metal_pole_1x16",2);
         GetTexture("binbag",2);
+        for (int i=0; i<8; i++) GetTexture("rock_"+String.format("%02d", i), 2);
+        for (int i=0; i<8; i++) GetTexture("tree_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
         GetTexture("error",2);
         // Add some additional textures

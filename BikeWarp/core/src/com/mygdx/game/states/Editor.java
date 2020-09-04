@@ -89,7 +89,7 @@ public class Editor extends GameState {
 	private String[] decorateList = {"Grass", "Bin Bag",
 			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
-			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Rain", "Tyre Stack", "Waterfall"};
+			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
 //			"Sign (Stop)", "Collisionless BG", "Collisionless FG", "Collisionless Textures", "Collisionless Color", "Rain", "Tyre Stack", "Waterfall"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
@@ -4752,9 +4752,11 @@ public class Editor extends GameState {
     			decorSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
-		} else if (modeParent.equals("Tyre Stack")) {
+		} else if ((modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack"))) {
 			int objNum;
-			if (modeParent.equals("Tyre Stack")) objNum=DecorVars.TyreStack;
+			if (modeParent.equals("Rock")) objNum=DecorVars.Rock;
+			else if (modeParent.equals("Tree")) objNum=DecorVars.Tree;
+			else if (modeParent.equals("Tyre Stack")) objNum=DecorVars.TyreStack;
 			else return;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -5459,7 +5461,7 @@ public class Editor extends GameState {
 					Message("Select an option then drag on a collisionless platform to change the color", 0);
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
-				} else if (modeParent.equals("Tyre Stack")) {
+				} else if ((modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
 				} else listChild.setItems(itemsADMR);
 				break;
@@ -7729,6 +7731,10 @@ public class Editor extends GameState {
 			newPoly[2] = DecorVars.decorCircleRoadSign[2];
 			newPoly[3] = DecorVars.decorCircleRoadSign[3];
 		} else if (otype==DecorVars.BinBag) {
+			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype==DecorVars.Rock) {
+			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype==DecorVars.Tree) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype==DecorVars.TyreStack) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);

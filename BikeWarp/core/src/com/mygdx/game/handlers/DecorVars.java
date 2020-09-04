@@ -27,7 +27,9 @@ public class DecorVars {
     public static final int CollisionlessFG = 33;
     public static final int Rain = 34;
     public static final int BinBag = 35;
-    public static final int TyreStack = 36;
+	public static final int TyreStack = 36;
+	public static final int Tree = 37;
+	public static final int Rock = 38;
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
@@ -75,7 +77,7 @@ public class DecorVars {
     }
 
     public static boolean IsRect(int dTyp) {
-    	if ((dTyp == BinBag) | (dTyp == TyreStack)) {
+    	if ((dTyp == BinBag) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock)) {
     		return true;
     	} else return false;
     }
@@ -194,6 +196,8 @@ public class DecorVars {
 	public static String GetImageRect(int decorID, int idx) {
 		if (decorID == BinBag) return "images/binbag.png";
 		else if (decorID == TyreStack) return "images/tyrestack_" + String.format("%02d", idx) + ".png";
+		else if (decorID == Tree) return "images/tree_" + String.format("%02d", idx) + ".png";
+		else if (decorID == Rock) return "images/rock_" + String.format("%02d", idx) + ".png";
 		// Make some default to stop errors
 		return "images/error.png";
 	}
@@ -213,58 +217,127 @@ public class DecorVars {
 		    xsize = 30.0f;
 		    scale = 1.21679f;
 		    idx = 0;
+		} else if (decorID == Rock) {
+			xsize = 100.0f;
+			if ((idx < 0) | (idx >= 8)) idx = 0;
+			switch (idx) {
+				case 0 :
+					scale = 0.6044386422976501f;
+					break;
+				case 1 :
+					scale = 0.47058823529411764f;
+					break;
+				case 2 :
+					scale = 0.49919871794871795f;
+					break;
+				case 3 :
+					xsize *= 2.0f;
+					scale = 1.2442348008385744f;
+					break;
+				case 4 :
+					xsize *= 1.5f;
+					scale = 0.7419354838709677f;
+					break;
+				case 5 :
+					xsize *= 3.0f;
+					scale = 0.3079390537289495f;
+					break;
+				case 6 :
+					xsize *= 2.0f;
+					scale = 0.529886914378029f;
+					break;
+				case 7 :
+					xsize *= 3.0f;
+					scale = 0.28784313725490196f;
+					break;
+				default :
+					break;
+			}
+		} else if (decorID == Tree) {
+			xsize = 300.0f;
+			if ((idx < 0) | (idx >= 8)) idx = 0;
+			switch (idx) {
+			case 0 :
+				scale = 1.364605543710f;
+				break;
+			case 1 :
+				scale = 1.1059907834101383f;
+				break;
+			case 2 :
+				scale = 1.0f;
+				break;
+			case 3 :
+				scale = 0.75f;
+				break;
+			case 4 :
+				xsize *= 0.6f;
+				scale = 0.75f;
+				break;
+			case 5 :
+				scale = 1.0878186968838528f;
+				break;
+			case 6 :
+				scale = 0.8666666666666667f;
+				break;
+			case 7 :
+				xsize *= 1.2f;
+				scale = 1.0f;
+				break;
+			default :
+				break;
+			}
 		} else if (decorID == TyreStack) {
 			xsize = 50.0f;
 			if ((idx < 0) | (idx >= 12)) idx = 0;
 			switch (idx) {
-			case 0 :
-				scale = 0.52450980f;
-				break;
-			case 1 :
-				scale = 0.52450980f;
-				break;
-			case 2 :
-				xsize *= 1.5f;
-				scale = 1.139705f;
-				break;
-			case 3 :
-				xsize *= 1.5f;
-				scale = 2.6094527f;
-				break;
-			case 4 :
-				xsize *= 1.2f;
-				scale = 1.4199029f;
-				break;
-			case 5 :
-				xsize *= 0.6f;
-				scale = 1.0f;
-				break;
-			case 6 :
-				xsize *= 0.6f;
-				scale = 1.0f;
-				break;
-			case 7 :
-				xsize *= 0.72f;
-				scale = 1.0f;
-				break;
-			case 8 :
-				xsize *= 0.72f;
-				scale = 1.0f;
-				break;
-			case 9 :
-				xsize *= 0.2316f;
-				scale = 2.725f;
-				break;
-			case 10 :
-				xsize *= 0.6f;
-				scale = 0.455696f;
-				break;
-			case 11 :
+				case 0 :
+					scale = 0.52450980f;
+					break;
+				case 1 :
+					scale = 0.52450980f;
+					break;
+				case 2 :
+					xsize *= 1.5f;
+					scale = 1.139705f;
+					break;
+				case 3 :
+					xsize *= 1.5f;
+					scale = 2.6094527f;
+					break;
+				case 4 :
+					xsize *= 1.2f;
+					scale = 1.4199029f;
+					break;
+				case 5 :
+					xsize *= 0.6f;
+					scale = 1.0f;
+					break;
+				case 6 :
+					xsize *= 0.6f;
+					scale = 1.0f;
+					break;
+				case 7 :
+					xsize *= 0.72f;
+					scale = 1.0f;
+					break;
+				case 8 :
+					xsize *= 0.72f;
+					scale = 1.0f;
+					break;
+				case 9 :
+					xsize *= 0.2316f;
+					scale = 2.725f;
+					break;
+				case 10 :
+					xsize *= 0.6f;
+					scale = 0.455696f;
+					break;
+				case 11 :
 //				scale = 1.422680f;
-				scale = 0.71f;
-				break;
-			default :
-				break;
+					scale = 0.71f;
+					break;
+				default :
+					break;
 			}
 		}
 		// Generate the coordinates
