@@ -2562,7 +2562,11 @@ public class Play extends GameState {
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, Color.WHITE);
-                            mPolySpatials.add(spatial);
+                            if (isBG) {
+                               mCollisionlessBG.add(spatial);
+                            } else if (isFG) {
+                               mCollisionlessFG.add(spatial);
+                            } else mPolySpatials.add(spatial);
                          }
                          else
                          {

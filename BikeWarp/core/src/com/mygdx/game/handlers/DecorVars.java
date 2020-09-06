@@ -23,8 +23,6 @@ public class DecorVars {
     public static final int Grass = 29;
     public static final int LargeStone = 30;
     public static final int Waterfall = 31;
-    public static final int CollisionlessBG = 32;
-    public static final int CollisionlessFG = 33;
     public static final int Rain = 34;
     public static final int BinBag = 35;
 	public static final int TyreStack = 36;

@@ -1090,8 +1090,10 @@ public class EditorIO {
         }
 
         // Add the Foreground and Background Collisionless objects
-        int[] collVars = {DecorVars.CollisionlessBG, DecorVars.CollisionlessFG};
+        int[] collVars = {8, 10};
         String textMask;
+		boolean bgFound = false;
+		boolean fgFound = false;
         for (int cc=0; cc < collVars.length; cc++) {
 	        json.object();
 	        json.key("angle").value(0);
@@ -1108,61 +1110,102 @@ public class EditorIO {
 	        json.key("fixture");
 	        json.array();
 	        int ccntr = 0; 
-	        for (int i = 0; i<allDecors.size(); i++) {
+	        for (int i = 0; i<allPolygons.size(); i++) {
 	        	// Decompose each polygon into a series of convex polygons
-	            if (allDecorTypes.get(i) == collVars[cc]) {
+	            if ((allPolygonTypes.get(i) == collVars[cc]) || (allPolygonTypes.get(i) == collVars[cc]+1)) {
+					if (cc == 0) bgFound = true;
+					else fgFound = true;
 	            	// Grab the name of the texture
-	            	textMask = GetFGTexture(DecorVars.GetPlatformTextureFromIndex(allDecorPolys.get(i)), textString);
-	            	// Decompose
-	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
-	    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
-	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
-	    			for (int k = 0; k<convexPolygons.size(); k++){
-	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" CFGBG"; // A problem with the length^2 of a polygon
-	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" D"; // One of the areas was too small
-	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
-	                	json.object();
-			            // Specify other properties of this fixture
-			        	json.key("density").value(1);
-			            json.key("friction").value(0);
-			            json.key("restitution").value(0);
-			            json.key("name").value("Collisionless"+cc+"_"+ccntr);
-			            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-			            json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
-			            // Set the (background) ground texture
-			            json.key("customProperties");
-			            json.array();
-			            json.object();
-			            json.key("name").value("TextureMask");
-			            json.key("string").value(textMask);
-			            json.endObject();
-			            json.object();
-			            json.key("name").value("Type");
-			            if (cc==0) json.key("string").value("CollisionlessBG");
-			            else json.key("string").value("CollisionlessFG");
-			            json.endObject();
-			            json.endArray();
-		    			json.key("polygon");
-		                json.object(); // Begin polygon object
-		                json.key("vertices");
-		                json.object(); // Begin vertices object
-		                json.key("x");
-		                json.array();
-		                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
-		                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
-		                }
-		                json.endArray();
-		                json.key("y");
-		                json.array();
-		                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
-		                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
-		                }
-		                json.endArray();
-		                json.endObject(); // End the vertices object
-		                json.endObject(); // End polygon object
-		                json.endObject(); // End this fixture
-		                ccntr += 1;
-	    			}
+	            	textMask = GetTexture(allPolygonTextures.get(i), textString);
+					if (allPolygonTypes.get(i)%2 == 0) {
+						concaveVertices = PolygonOperations.MakeVertices(allPolygons.get(i));
+						try {
+							convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+						} catch (IndexOutOfBoundsException e) {
+							return "BD "+i+" P";
+						}
+						convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+						for (int k = 0; k<convexPolygons.size(); k++){
+							if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" P"; // A problem with the length^2 of a polygon
+							if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" P"; // One of the areas was too small
+							//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" P"; // polygon is not convex
+							json.object();
+							// Specify other properties of this fixture
+							json.key("density").value(1);
+							json.key("friction").value(friction);
+							json.key("restitution").value(restitution);
+							json.key("name").value("Collisionless"+cc+"_"+ccntr);
+							json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+							json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+							// Set the (background) ground texture
+							json.key("customProperties");
+							json.array();
+							json.object();
+							json.key("name").value("TextureMask");
+							json.key("string").value(textMask);
+							json.endObject();
+							json.object();
+							json.key("name").value("Type");
+							if (cc==0) json.key("string").value("CollisionlessBG");
+							else json.key("string").value("CollisionlessFG");
+							json.endObject();
+							json.endArray();
+							json.key("polygon");
+							json.object(); // Begin polygon object
+							json.key("vertices");
+							json.object(); // Begin vertices object
+							json.key("x");
+							json.array();
+							for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+								json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
+							}
+							json.endArray();
+							json.key("y");
+							json.array();
+							for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+								json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
+							}
+							json.endArray();
+							json.endObject(); // End the vertices object
+							json.endObject(); // End polygon object
+							json.endObject(); // End this fixture
+						}
+					} else if (allPolygonTypes.get(i)%2 == 1) {
+						json.object();
+						// Specify other properties of this fixture
+						json.key("density").value(1);
+						json.key("friction").value(friction);
+						json.key("restitution").value(restitution);
+						json.key("name").value("Collisionless"+cc+"_"+ccntr);
+						json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+						json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+						// Set the (background) ground texture
+						json.key("customProperties");
+						json.array();
+						json.object();
+						json.key("name").value("TextureMask");
+						json.key("string").value(textMask);
+						json.endObject();
+						json.object();
+						json.key("name").value("Type");
+						if (cc==0) json.key("string").value("CollisionlessBG");
+						else json.key("string").value("CollisionlessFG");
+						json.endObject();
+						json.endArray();
+						json.key("circle");
+						// Begin circle object
+						json.object();
+						// Specify the center of the circle
+						json.key("center");
+						json.object();
+						json.key("x").value(B2DVars.EPPM*allPolygons.get(i)[0]);
+						json.key("y").value(B2DVars.EPPM*allPolygons.get(i)[1]);
+						json.endObject();
+						// Specify the radius of the circle
+						json.key("radius").value(B2DVars.EPPM*allPolygons.get(i)[2]);
+						json.endObject(); // End circle object
+						json.endObject(); // End this fixture
+					}
 	            }
 	        }
 	        // Clear the polygons
@@ -1180,8 +1223,10 @@ public class EditorIO {
 			json.endObject();
 			json.key("type").value(0);
 	        json.endObject(); // End of Collisionless Bodies
-	        if (ccntr != 0) bodyIdx += 1; // Add one for the collisionless FG bodies, and add one for the collisionless BG bodies (if either exist)
         }
+		// Add one for the collisionless FG bodies, and add one for the collisionless BG bodies (if either exist)
+		if (bgFound) bodyIdx += 1;
+		if (fgFound) bodyIdx += 1;
 
         // End of describing all bodies
         json.endArray(); // End of body array
