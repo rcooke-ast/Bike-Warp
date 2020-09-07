@@ -73,10 +73,10 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
-	private String[] decorateList = {"Grass", "Bin Bag",
-			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
-			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)",
-			"Sign (Stop)", "Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
+	private String[] decorateList = {"Grass", "Bin Bag", "Sign",
+//			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
+//			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
+			"Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -117,6 +117,7 @@ public class Editor extends GameState {
 	private ArrayList<float[]> allDecors = new ArrayList<float[]>();
 	private ArrayList<Integer> allDecorTypes = new ArrayList<Integer>();
 	private ArrayList<Integer> allDecorPolys = new ArrayList<Integer>();
+	private ArrayList<Object> allDecorImages = new ArrayList<Object>();
 
 	// Decor the groups list
 	private ArrayList<float[]> updateGroup;
@@ -483,7 +484,8 @@ public class Editor extends GameState {
 									allDecors = (ArrayList<float[]>) loadedArray.get(8);
 									allDecorTypes = (ArrayList<Integer>) loadedArray.get(9);
 									allDecorPolys = (ArrayList<Integer>) loadedArray.get(10);
-									String[] setLVs = (String[]) loadedArray.get(11);
+									allDecorImages = (ArrayList<Object>) loadedArray.get(11);
+									String[] setLVs = (String[]) loadedArray.get(12);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 									// Temporary
 //									System.out.println("ERROR - DELETE THIS!!!");
@@ -907,7 +909,7 @@ public class Editor extends GameState {
 				if (!CheckVertInt(false)) {
 					// No intersections were found, so let's do some more checks...
 					try {
-						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
+						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys,allDecorImages);
 						try (FileWriter file = new FileWriter("tst.json")) {
 							JSONObject json = new JSONObject(jsonLevelString); // Convert text to object
 							file.write(json.toString(4));
@@ -1095,7 +1097,8 @@ public class Editor extends GameState {
     	allPolygonTextures = new ArrayList<String>();
     	allDecors = new ArrayList<float[]>();
     	allDecorTypes = new ArrayList<Integer>();
-    	allDecorPolys = new ArrayList<Integer>();
+		allDecorPolys = new ArrayList<Integer>();
+		allDecorImages = new ArrayList<Object>();
 		updateGroup = null;
 		groupArrays = new ArrayList<Integer>(); // index of allPolygons, allObjects, allDecors
 		groupPOD = new ArrayList<Integer>(); // Polygon (0), Object (1), or Decor (2)
@@ -2544,6 +2547,7 @@ public class Editor extends GameState {
 		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(8)).clone();
 		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(9)).clone();
 		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(10)).clone();
+		allDecorImages = (ArrayList<Object>) ((ArrayList<Object>) undoArray.get(undoIndex).get(11)).clone();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -2576,6 +2580,7 @@ public class Editor extends GameState {
 		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(8)).clone();
 		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(9)).clone();
 		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(10)).clone();
+		allDecorImages = (ArrayList<Object>) ((ArrayList<Object>) undoArray.get(undoIndex).get(11)).clone();
 	}
 
 	private void UpdateUndo() {
@@ -2600,6 +2605,7 @@ public class Editor extends GameState {
 		retarr.add(allDecors.clone());
 		retarr.add(allDecorTypes.clone());
 		retarr.add(allDecorPolys.clone());
+		retarr.add(allDecorImages.clone());
 		// Check if we've reached our limit
 		if (undoIndex == undoMax) undoIndex = 0;
 		// Set the new value
@@ -2632,7 +2638,7 @@ public class Editor extends GameState {
 			// No intersections were found, so the level can be saved without errors
 			try {
 				if (autosave) {
-					String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, "autosave.lvl");
+					String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages,"autosave.lvl");
 					// If a change has been made, update the undo arrays
 					UpdateUndo();
 					if (undoCurrent == undoMax) undoCurrent = 0;
@@ -2642,7 +2648,7 @@ public class Editor extends GameState {
 						Message("File not saved -- You must enter a filename", 2);
 					} else {
 						saveFName = temptext;
-						String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, saveFName+".lvl");
+						String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages, saveFName+".lvl");
 						if (!isSaved.equals("")) {
 							Message(isSaved, 2);
 						} else {
@@ -2650,7 +2656,7 @@ public class Editor extends GameState {
 							changesMade = false;
 						}
 						// Autosave as well
-						isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, "autosave.lvl");
+						isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages, "autosave.lvl");
 					}
 				}
 			} catch (FileNotFoundException e) {
@@ -4348,8 +4354,8 @@ public class Editor extends GameState {
 	public void ControlMode6() {
 		if (listChild.getSelected() == null) return;
 		modeChild = listChild.getSelected().toString();
-		if (modeParent.startsWith("Sign")) {
-			int objNum = DecorVars.GetObjectNumber(modeParent);
+		if (modeParent.equals("Sign")) {
+			int objNum = DecorVars.RoadSign_Stop;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
@@ -4357,11 +4363,11 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-				SelectDecor("up", objNum, false, true);
+				SelectDecorSign("up", objNum, false, true);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
-					SelectDecor("down", objNum, false, true);
+					SelectDecorSign("down", objNum, false, true);
 					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
@@ -4374,7 +4380,7 @@ public class Editor extends GameState {
 				decorSelect = -1;
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (decorSelect == -1) {
-    				SelectDecor("down", objNum, true, true);
+    				SelectDecorSign("down", objNum, true, true);
     				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
     				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
@@ -4398,7 +4404,16 @@ public class Editor extends GameState {
     			UpdateDecor(decorSelect, "rotateobject");
     			decorSelect = -1;
             	GameInput.MBRELEASE=false;
-    		}
+    		} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
+				// Select the decoration
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				SelectDecorSign("down", objNum, false, true);
+				// Increment variation by 1
+				if (decorSelect != -1) {
+					IncrementDecorSign();
+				}
+			}
 		} else if (modeParent.equals("Grass")) {
 			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
@@ -5227,7 +5242,7 @@ public class Editor extends GameState {
 				break;
 			case 6 :
 				if (modeParent.startsWith("Sign")) {
-					listChild.setItems(itemsADMR);
+					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
 				} else if (modeParent.equals("Grass")) {
 					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Grass", "Delete All Grass");
 				} else if (modeParent.equals("Rain")) {
@@ -7449,6 +7464,7 @@ public class Editor extends GameState {
 		}
 		allDecors.add(newPoly.clone());
 		allDecorTypes.add(otype);
+		allDecorImages.add(null);
 		SaveLevel(true);
 	}
 
@@ -7457,6 +7473,7 @@ public class Editor extends GameState {
 		allDecors.add(newPoly);
 		allDecorTypes.add(allDecorTypes.get(idx));
 		allDecorPolys.add(allDecorPolys.get(idx));
+		allDecorImages.add(allDecorImages.get(idx));
 		SaveLevel(true);
 	}
 
@@ -7497,6 +7514,7 @@ public class Editor extends GameState {
 		allDecors.remove(idx);
 		allDecorTypes.remove(idx);
 		allDecorPolys.remove(idx);
+		allDecorImages.remove(idx);
 		decorSelect = -1;
 		if (autosave) SaveLevel(true);
 	}
@@ -7850,6 +7868,44 @@ public class Editor extends GameState {
 		}
 	}
 
+	public void SelectDecorSign(String downup, int otype, boolean rotate, boolean circle) {
+		SelectDecor(downup, DecorVars.RoadSign_10, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_20, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_30, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_40, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_50, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_60, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_80, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_100, rotate, circle);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_Bumps, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_Dot, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_Dash, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_DoNotEnter, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_Exclamation, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_Motorbike, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_NoMotorbike, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_RampAhead, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_ReduceSpeed, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_Stop, rotate, true);
+		if (decorSelect != -1) return;
+	}
 	public void SelectDecor(String downup, int otype, boolean rotate, boolean circle) {
 		// otype = -1 means don't check the object type
 		ResetSelect();
@@ -7884,6 +7940,47 @@ public class Editor extends GameState {
 		for (int i = 0; i<newPoly.length/2; i++){
 			newPoly[2*i] += shiftX;
 			newPoly[2*i+1] += shiftY;
+		}
+	}
+
+	public void IncrementDecorSign() {
+		int dectype = allDecorTypes.get(decorSelect);
+		if (dectype == DecorVars.RoadSign_Stop) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_DoNotEnter);
+		} else if (dectype == DecorVars.RoadSign_DoNotEnter) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Bumps);
+		} else if (dectype == DecorVars.RoadSign_Bumps) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Exclamation);
+		} else if (dectype == DecorVars.RoadSign_Exclamation) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Motorbike);
+		} else if (dectype == DecorVars.RoadSign_Motorbike) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_NoMotorbike);
+		} else if (dectype == DecorVars.RoadSign_NoMotorbike) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_RampAhead);
+		} else if (dectype == DecorVars.RoadSign_RampAhead) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_ReduceSpeed);
+		} else if (dectype == DecorVars.RoadSign_ReduceSpeed) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_10);
+		} else if (dectype == DecorVars.RoadSign_10) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_20);
+		} else if (dectype == DecorVars.RoadSign_20) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_30);
+		} else if (dectype == DecorVars.RoadSign_30) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_40);
+		} else if (dectype == DecorVars.RoadSign_40) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_50);
+		} else if (dectype == DecorVars.RoadSign_50) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_60);
+		} else if (dectype == DecorVars.RoadSign_60) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_80);
+		} else if (dectype == DecorVars.RoadSign_80) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_100);
+		} else if (dectype == DecorVars.RoadSign_100) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Dash);
+		} else if (dectype == DecorVars.RoadSign_Dash) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Dot);
+		} else if (dectype == DecorVars.RoadSign_Dot) {
+			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Stop);
 		}
 	}
 

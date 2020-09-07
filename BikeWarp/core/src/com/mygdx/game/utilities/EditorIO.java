@@ -58,16 +58,17 @@ public class EditorIO {
 	private static int finishObjNumber = 3;
 	
 	public static String saveLevel(ArrayList<float[]> allPolygons,
-			ArrayList<Integer> allPolygonTypes,
-			ArrayList<float[]> allPolygonPaths,
-			ArrayList<String> allPolygonTextures,
-			ArrayList<float[]> allObjects,
-			ArrayList<float[]> allObjectArrows,
-			ArrayList<float[]> allObjectCoords,
-			ArrayList<Integer> allObjectTypes,
-			ArrayList<float[]> allDecors,
-			ArrayList<Integer> allDecorTypes,
-			ArrayList<Integer> allDecorPolys,
+								   ArrayList<Integer> allPolygonTypes,
+								   ArrayList<float[]> allPolygonPaths,
+								   ArrayList<String> allPolygonTextures,
+								   ArrayList<float[]> allObjects,
+								   ArrayList<float[]> allObjectArrows,
+								   ArrayList<float[]> allObjectCoords,
+								   ArrayList<Integer> allObjectTypes,
+								   ArrayList<float[]> allDecors,
+								   ArrayList<Integer> allDecorTypes,
+								   ArrayList<Integer> allDecorPolys,
+								   ArrayList<Object> allDecorImages,
 			String aOutputFileName) throws FileNotFoundException, JSONException {
 		try{
 			ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream (levelDir+aOutputFileName));
@@ -82,6 +83,7 @@ public class EditorIO {
 			outputStream.writeObject(allDecors);
 			outputStream.writeObject(allDecorTypes);
 			outputStream.writeObject(allDecorPolys);
+			outputStream.writeObject(allDecorImages);
 			outputStream.writeObject(LevelVars.getProps());
 			outputStream.close();
 		}
@@ -122,9 +124,10 @@ public class EditorIO {
 		ArrayList<float[]> allDecors = null;
 		ArrayList<Integer> allDecorTypes = null;
 		ArrayList<Integer> allDecorPolys = null;
+		ArrayList<Object> allDecorImages = new ArrayList<Object>();
 		String[] levelVarProps = null;
 		ArrayList<Object> retarr = new ArrayList<Object>();
-		try{
+		try {
 			// TODO :: If you want to reset level file format - comment out the relevant array, then update (see below)
 			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream (levelDir+aInputFileName));
 			allPolygons = (ArrayList<float[]>)inputStream.readObject();
@@ -138,6 +141,7 @@ public class EditorIO {
 			allDecors = (ArrayList<float[]>)inputStream.readObject();
 			allDecorTypes = (ArrayList<Integer>)inputStream.readObject();
 			allDecorPolys = (ArrayList<Integer>)inputStream.readObject();
+			allDecorImages = (ArrayList<Object>)inputStream.readObject();
 			levelVarProps = (String[])inputStream.readObject();
 			inputStream.close();
 			// Temporary fix to Coords
@@ -210,7 +214,6 @@ public class EditorIO {
 //			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
 //			saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, aInputFileName);
 
-			// TODO :: If you want to reset level file format - update the relevant array
 			// Temporary fix for platform textures
 //			allPolygonTextures = new ArrayList<String>();
 //			for (int i=0; i<allPolygons.size(); i++) {
@@ -218,6 +221,36 @@ public class EditorIO {
 //			}
 //			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
 //			saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, aInputFileName);
+
+			// TODO :: If you want to reset level file format - update the relevant array
+			// Temporary fix for putting collisionless platforms into static textures, and adding DecorImages as a possibile ArrayList
+//			System.out.println("Resetting file: "+levelDir+aInputFileName);
+//			int cntr_rm = 0;
+//			for (int i=0; i<allDecors.size(); i++) {
+//				if ((allDecorTypes.get(i) == 32) || (allDecorTypes.get(i) == 33)) {
+//					// Move decoration to polygons arraylist
+//					allPolygons.add(allDecors.get(i).clone());
+//					allPolygonTextures.add(DecorVars.GetPlatformTextureFromIndex(allDecorPolys.get(i)));
+//					allPolygonPaths.add(null);
+//					if (allDecorTypes.get(i) == 32) {
+//						allPolygonTypes.add(8);
+//					} else if (allDecorTypes.get(i) == 33) {
+//						allPolygonTypes.add(10);
+//					}
+//					// Now remove the decoration
+//					allDecors.remove(i-cntr_rm);
+//					allDecorTypes.remove(i-cntr_rm);
+//					allDecorPolys.remove(i-cntr_rm);
+//					cntr_rm += 1;
+//				}
+//			}
+//			for (int i=0; i<allDecors.size(); i++) allDecorImages.add(null);
+//			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
+//			try {
+//				saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages, aInputFileName);
+//			} catch (Exception e) {
+//				System.out.println(e);
+//			}
 
 			// Carry on as normal
 			retarr.add(allPolygons);
@@ -231,12 +264,14 @@ public class EditorIO {
 			retarr.add(allDecors);
 			retarr.add(allDecorTypes);
 			retarr.add(allDecorPolys);
+			retarr.add(allDecorImages);
 			retarr.add(levelVarProps);
-		}
-		catch (Exception e){
+		} catch (IOException e) {
 			System.out.println(e);
 			System.out.println("Problem reading the file " + aInputFileName);
-			for (int i=0; i<10; i++) retarr.add(null);
+			for (int i=0; i<13; i++) retarr.add(null);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 		return retarr;
 	}
@@ -254,6 +289,7 @@ public class EditorIO {
 		ArrayList<float[]> allDecors = null;
 		ArrayList<Integer> allDecorTypes = null;
 		ArrayList<Integer> allDecorPolys = null;
+		ArrayList<Object> allDecorImages = null;
 		String[] levelVarProps = null;
 		String jsonLevelString = "";
 		try {
@@ -269,11 +305,12 @@ public class EditorIO {
 			allDecors = (ArrayList<float[]>)inputStream.readObject();
 			allDecorTypes = (ArrayList<Integer>)inputStream.readObject();
 			allDecorPolys = (ArrayList<Integer>)inputStream.readObject();
+			allDecorImages = (ArrayList<Object>)inputStream.readObject();
 			levelVarProps = (String[])inputStream.readObject();
 			inputStream.close();
 			// Carry on as normal
 			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
-			jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys);
+			jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys,allDecorImages);
 		} catch (Exception e) {
 			System.out.println("Problem reading the file " + aInputFileName);
 			e.printStackTrace();
@@ -306,7 +343,11 @@ public class EditorIO {
 					allLevels[numFiles] =  FileUtils.getBaseName(fileEntry.getName());
 					// Reset all levels
 					// TODO :: If you want to reset level file format - save them upon loading
-					//loadLevel(FileUtils.getBaseName(fileEntry.getName())+".lvl");
+//					try {
+//						loadLevel(FileUtils.getBaseName(fileEntry.getName())+".lvl");
+//					} catch (Exception e) {
+//						System.out.println(e);
+//					}
 					numFiles +=1;
 				}
 			}
@@ -421,16 +462,17 @@ public class EditorIO {
 	}
 
 	public static String JSONserialize(ArrayList<float[]> allPolygons,
-			ArrayList<Integer> allPolygonTypes,
-			ArrayList<float[]> allPolygonPaths,
-			ArrayList<String> allPolygonTextures,
-			ArrayList<float[]> allObjects,
-			ArrayList<float[]> allObjectArrows,
-			ArrayList<float[]> allObjectCoords,
-			ArrayList<Integer> allObjectTypes,
-			ArrayList<float[]> allDecors,
-			ArrayList<Integer> allDecorTypes,
-			ArrayList<Integer> allDecorPolys) throws JSONException, IndexOutOfBoundsException {
+									   ArrayList<Integer> allPolygonTypes,
+									   ArrayList<float[]> allPolygonPaths,
+									   ArrayList<String> allPolygonTextures,
+									   ArrayList<float[]> allObjects,
+									   ArrayList<float[]> allObjectArrows,
+									   ArrayList<float[]> allObjectCoords,
+									   ArrayList<Integer> allObjectTypes,
+									   ArrayList<float[]> allDecors,
+									   ArrayList<Integer> allDecorTypes,
+									   ArrayList<Integer> allDecorPolys,
+									   ArrayList<Object> allDecorImages) throws JSONException, IndexOutOfBoundsException {
         String retval;
 		float friction = 0.9f;
 		float restitution = 0.2f;
