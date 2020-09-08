@@ -423,7 +423,7 @@ public class Editor extends GameState {
 //		//scrollPaneTBar.setScrollingDisabled(true, false);
 //		scrollPaneTBar.setHeight(SCRHEIGHT);
 //		scrollPaneTBar.setWidth((windowTBar.getPrefWidth()+2));
-//		toolbarWidth = (windowTBar.getPrefWidth()+2)/BikeGame.SCALE;
+		toolbarWidth = (windowTBar.getPrefWidth()+2)/BikeGame.SCALE;
 		//stage.addActor(scrollPaneTBar);
 		stage.addActor(windowTBar);
 		// Hover over the toolbar

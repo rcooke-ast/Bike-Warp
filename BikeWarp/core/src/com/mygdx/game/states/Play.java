@@ -1328,16 +1328,22 @@ public class Play extends GameState {
     			// Transform the Head
     			cCoord = PolygonOperations.RotateCoordinate(bikeBodyH.getPosition().x-offsetXY.x, bikeBodyH.getPosition().y-offsetXY.y, switchAngle, 0.0f, 0.0f);
     			Vector2 shiftH = new Vector2(cCoord[0],cCoord[1]).add(offsetXY).sub(bikeBodyH.getPosition());
+    			// Transform the body
+                cCoord = PolygonOperations.RotateCoordinate(bikeBodyR.getPosition().x-offsetXY.x, bikeBodyR.getPosition().y-offsetXY.y, switchAngle, 0.0f, 0.0f);
+                Vector2 shiftR = new Vector2(cCoord[0],cCoord[1]).add(offsetXY).sub(bikeBodyR.getPosition());
     			// Transform the bike
     			bikeBodyLW.setTransform(bikeBodyLW.getPosition().add(transportXY).add(transXY).add(shiftLW), bikeBodyLW.getAngle()+transportAngle);
     			bikeBodyRW.setTransform(bikeBodyRW.getPosition().add(transportXY).add(transXY).add(shiftRW), bikeBodyRW.getAngle()+transportAngle);
+                bikeBodyR.setTransform(bikeBodyR.getPosition().add(transportXY).add(transXY).add(shiftR), bikeBodyR.getAngle()+transportAngle);
     			bikeBodyH.setTransform(bikeBodyH.getPosition().add(transportXY).add(transXY).add(shiftH), bikeBodyH.getAngle()+transportAngle);
     			bikeBodyC.setTransform(bikeBodyC.getPosition().add(transportXY).add(transXY), bikeBodyC.getAngle()+transportAngle);
     			// Transform the velocity for each component of the bike
     			cCoord = PolygonOperations.RotateCoordinate(bikeBodyC.getLinearVelocity().x, bikeBodyC.getLinearVelocity().y, switchAngle, 0.0f, 0.0f);
     			bikeBodyC.setLinearVelocity(cCoord[0],cCoord[1]);
-    			cCoord = PolygonOperations.RotateCoordinate(bikeBodyH.getLinearVelocity().x, bikeBodyH.getLinearVelocity().y, switchAngle, 0.0f, 0.0f);
-    			bikeBodyH.setLinearVelocity(cCoord[0],cCoord[1]);
+                cCoord = PolygonOperations.RotateCoordinate(bikeBodyH.getLinearVelocity().x, bikeBodyH.getLinearVelocity().y, switchAngle, 0.0f, 0.0f);
+                bikeBodyH.setLinearVelocity(cCoord[0],cCoord[1]);
+                cCoord = PolygonOperations.RotateCoordinate(bikeBodyR.getLinearVelocity().x, bikeBodyR.getLinearVelocity().y, switchAngle, 0.0f, 0.0f);
+                bikeBodyR.setLinearVelocity(cCoord[0],cCoord[1]);
     			cCoord = PolygonOperations.RotateCoordinate(bikeBodyLW.getLinearVelocity().x, bikeBodyLW.getLinearVelocity().y, switchAngle, 0.0f, 0.0f);
     			bikeBodyLW.setLinearVelocity(cCoord[0],cCoord[1]);
     			cCoord = PolygonOperations.RotateCoordinate(bikeBodyRW.getLinearVelocity().x, bikeBodyRW.getLinearVelocity().y, switchAngle, 0.0f, 0.0f);
@@ -2244,7 +2250,9 @@ public class Play extends GameState {
     	    mBatch.begin();
     	    mBatch.setColor(1, 1, 1, 0.6f);
     	    mBatch.draw(blackScreen, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-    	    infoText.draw(mBatch, "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n"+LevelsListGame.gameLevelTips[levelID+1], hudCam.position.x-infoWidth/2.0f, hudCam.position.y, infoWidth, Align.center, true);
+    	    String infoString = "Press Enter to begin level\nPress R to restart level\nPress ESC or Q to return to menu\n\n";
+            if (mode==2) infoString += LevelsListGame.gameLevelTips[levelID+1];
+            infoText.draw(mBatch, infoString, hudCam.position.x-infoWidth/2.0f, hudCam.position.y, infoWidth, Align.center, true);
     	    mBatch.end();
         }
        
