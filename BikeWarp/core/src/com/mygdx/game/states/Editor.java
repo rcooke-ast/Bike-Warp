@@ -1559,21 +1559,21 @@ public class Editor extends GameState {
 				if (allPolygonTextures.get(i).startsWith("COLOR_")) {
 					colarr = ColorUtils.ConvertStringToColor(allPolygonTextures.get(i));
 					if (allPolygonTypes.get(i)%2 == 0) {
-						Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-						pix.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
-						pix.fill();
-						Texture textureFilled = new Texture(pix);
-						TextureRegion textReg = new TextureRegion(textureFilled);
-						EarClippingTriangulator triangulator = new EarClippingTriangulator();
-						short [] triangleIndices = triangulator.computeTriangles(allPolygons.get(i)).toArray();
-						PolygonRegion polyReg = new PolygonRegion(textReg, allPolygons.get(i), triangleIndices);
-						PolygonSprite polySpr = new PolygonSprite(polyReg);
-						polyBatch.begin();
-						polySpr.draw(polyBatch);
-						polyBatch.end();
-						// Dispose of unwanted variables
-						textureFilled.dispose();
-						pix.dispose();
+//						Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+//						pix.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
+//						pix.fill();
+//						Texture textureFilled = new Texture(pix);
+//						TextureRegion textReg = new TextureRegion(textureFilled);
+//						EarClippingTriangulator triangulator = new EarClippingTriangulator();
+//						short [] triangleIndices = triangulator.computeTriangles(allPolygons.get(i)).toArray();
+//						PolygonRegion polyReg = new PolygonRegion(textReg, allPolygons.get(i), triangleIndices);
+//						PolygonSprite polySpr = new PolygonSprite(polyReg);
+//						polyBatch.begin();
+//						polySpr.draw(polyBatch);
+//						polyBatch.end();
+//						// Dispose of unwanted variables
+//						textureFilled.dispose();
+//						pix.dispose();
 					} else {
 						shapeRenderer.begin(ShapeType.Filled);
 						shapeRenderer.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
