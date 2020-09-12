@@ -72,7 +72,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Door (blue)", "Door (green)", "Door (red)", "Emerald", "Gate Switch", "Gravity", "Key (blue)", "Key (green)", "Key (red)", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
 	private String[] decorateList = {"Grass", "Bin Bag", "Sign",
 //			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 //			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
@@ -3754,24 +3754,28 @@ public class Editor extends GameState {
 				SaveLevel(true);
 				objectSelect = -1;
 			}
-		} else if ((modeParent.equals("Door (blue)")) | (modeParent.equals("Door (green)")) | (modeParent.equals("Door (red)")) | (modeParent.equals("Key (blue)")) | (modeParent.equals("Key (green)")) | (modeParent.equals("Key (red)"))){
-			if (modeParent.equals("Door (blue)")) ctype = ObjectVars.DoorBlue;
-			else if (modeParent.equals("Door (green)")) ctype = ObjectVars.DoorGreen;
-			else if (modeParent.equals("Door (red)")) ctype = ObjectVars.DoorRed;
-			else if (modeParent.equals("Key (blue)")) ctype = ObjectVars.KeyBlue;
-			else if (modeParent.equals("Key (green)")) ctype = ObjectVars.KeyGreen;
-			else if (modeParent.equals("Key (red)")) ctype = ObjectVars.KeyRed;
-			else System.out.println("Door/Key color not specified");
-    		if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
+		} else if (modeParent.equals("Doors/Keys")) {
+//			if (modeParent.equals("Door (blue)")) ctype = ObjectVars.DoorBlue;
+//			else if (modeParent.equals("Door (green)")) ctype = ObjectVars.DoorGreen;
+//			else if (modeParent.equals("Door (red)")) ctype = ObjectVars.DoorRed;
+//			else if (modeParent.equals("Key (blue)")) ctype = ObjectVars.KeyBlue;
+//			else if (modeParent.equals("Key (green)")) ctype = ObjectVars.KeyGreen;
+//			else if (modeParent.equals("Key (red)")) ctype = ObjectVars.KeyRed;
+//			else System.out.println("Door/Key color not specified");
+    		if ((modeChild.equals("Add Door")) & (GameInput.MBJUSTPRESSED)){
     			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
     			tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-    			AddObject(ctype, tempx, tempy, -999.9f);
-    		} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-    			SelectObject("up", ctype, false, false);
-    			engageDelete = true;
+    			AddObject(ObjectVars.DoorBlue, tempx, tempy, -999.9f);
+    		} else if ((modeChild.equals("Add Key")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom * (GameInput.MBUPX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+				tempy = cam.position.y - cam.zoom * (GameInput.MBUPY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+				AddObject(ObjectVars.KeyBlue, tempx, tempy, -999.9f);
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+    			SelectDoorKey("up", false, false);
+    			if (objectSelect != -1) engageDelete = true;
     		} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", ctype, false, false);
+					SelectDoorKey("down", false, false);
     				startX = GameInput.MBDOWNX;
     				startY = GameInput.MBDOWNY;
     			} else {
@@ -3784,7 +3788,7 @@ public class Editor extends GameState {
     			objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", ctype, false, false);
+					SelectDoorKey("down", false, false);
     				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
     				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
@@ -3808,7 +3812,14 @@ public class Editor extends GameState {
     			UpdateObject(objectSelect, "rotateobject", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
-    		}
+    		} else if ((modeChild.equals("Set Colour")) & (GameInput.MBJUSTPRESSED)) {
+				SelectDoorKey("up", false, false);
+				if (objectSelect != - 1) {
+					// Change the colour of the door/key
+					IncrementObject(allObjectTypes.get(objectSelect));
+					objectSelect = -1;
+				}
+			}
 		} else if (modeParent.equals("Gate Switch")) {
     		if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
     			tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -5172,15 +5183,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Diamond")) {
 					listChild.setItems("Put");
 					pObjectIndex = GetListIndex("Emerald",objectList);
-				} else if (modeParent.equals("Door (blue)")) {
-					listChild.setItems(itemsADMR);
-					pObjectIndex = GetListIndex("Door (blue)",objectList);
-				} else if (modeParent.equals("Door (green)")) {
-					listChild.setItems(itemsADMR);
-					pObjectIndex = GetListIndex("Door (green)",objectList);
-				} else if (modeParent.equals("Door (red)")) {
-					listChild.setItems(itemsADMR);
-					pObjectIndex = GetListIndex("Door (red)",objectList);
+				} else if (modeParent.equals("Doors/Keys")) {
+					listChild.setItems("Add Door", "Add Key", "Delete", "Move", "Rotate", "Set Colour");
+					pObjectIndex = GetListIndex("Doors/Keys",objectList);
 				} else if (modeParent.equals("Gate Switch")) {
 					listChild.setItems("Add", "Delete", "Move Gate/Switch", "Rotate Gate/Switch", "Scale Gate", "Gate Open/Close", "Flip Switch");
 					pObjectIndex = GetListIndex("Gate Switch",objectList);
@@ -5190,15 +5195,6 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Emerald")) {
 					listChild.setItems(itemsADMR);
 					pObjectIndex = GetListIndex("Emerald",objectList);
-				} else if (modeParent.equals("Key (blue)")) {
-					listChild.setItems(itemsADMR);
-					pObjectIndex = GetListIndex("Key (blue)",objectList);
-				} else if (modeParent.equals("Key (green)")) {
-					listChild.setItems(itemsADMR);
-					pObjectIndex = GetListIndex("Key (green)",objectList);
-				} else if (modeParent.equals("Key (red)")) {
-					listChild.setItems(itemsADMR);
-					pObjectIndex = GetListIndex("Key (red)",objectList);
 				} else if (modeParent.equals("Log")) {
 					listChild.setItems(itemsADM);
 					pObjectIndex = GetListIndex("Log",objectList);
@@ -7056,7 +7052,22 @@ public class Editor extends GameState {
 			if (objectSelect != -1) return;
 		}
 	}
-	
+
+	public void SelectDoorKey(String downup, boolean rotate, boolean circle) {
+		SelectObject(downup, ObjectVars.DoorBlue, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.DoorGreen, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.DoorRed, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.KeyBlue, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.KeyGreen, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, ObjectVars.KeyRed, rotate, circle);
+		if (objectSelect != -1) return;
+	}
+
 	public void SelectGravity(String downup, int otype, boolean rotate, boolean circle) {
 		SelectObject(downup, ObjectVars.Gravity, rotate, circle);
 		if (objectSelect != -1) return;
@@ -7294,7 +7305,15 @@ public class Editor extends GameState {
 	}
 
 	public void IncrementObject(int objNum) {
-		if (ObjectVars.IsGravity(objNum)) {
+		if (ObjectVars.IsDoor(objNum)) {
+			if (objNum == ObjectVars.DoorBlue) allObjectTypes.set(objectSelect, ObjectVars.DoorGreen);
+			else if (objNum == ObjectVars.DoorGreen) allObjectTypes.set(objectSelect, ObjectVars.DoorRed);
+			else if (objNum == ObjectVars.DoorRed) allObjectTypes.set(objectSelect, ObjectVars.DoorBlue);
+		} else if (ObjectVars.IsKey(objNum)) {
+			if (objNum == ObjectVars.KeyBlue) allObjectTypes.set(objectSelect, ObjectVars.KeyGreen);
+			else if (objNum == ObjectVars.KeyGreen) allObjectTypes.set(objectSelect, ObjectVars.KeyRed);
+			else if (objNum == ObjectVars.KeyRed) allObjectTypes.set(objectSelect, ObjectVars.KeyBlue);
+		} else if (ObjectVars.IsGravity(objNum)) {
 			if (objNum == ObjectVars.Gravity) allObjectTypes.set(objectSelect, ObjectVars.GravityEarth);
 			else if (objNum == ObjectVars.GravityEarth) allObjectTypes.set(objectSelect, ObjectVars.GravityMars);
 			else if (objNum == ObjectVars.GravityMars) allObjectTypes.set(objectSelect, ObjectVars.GravityMoon);

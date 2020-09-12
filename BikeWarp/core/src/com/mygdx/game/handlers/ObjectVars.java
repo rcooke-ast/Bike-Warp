@@ -42,6 +42,7 @@ public class ObjectVars {
     public static final int PlanetSaturn = 36;
     public static final int PlanetUranus = 37;
     public static final int PlanetNeptune = 38;
+    public static final int DoorKey = 39;
 
     // Define the vertices
     public static final float[] objectArrow = {-1.0f,0.0f,-1.0f,-30.0f,-6.0f,-30.0f,0.0f,-40.0f,6.0f,-30.0f,1.0f,-30.0f,1.0f,0.0f};
@@ -72,6 +73,18 @@ public class ObjectVars {
     // Define the global properties for some of the objects
     public static final float ChainLinkSize = 1.0f; // Size of a single link in a chain (in metres)
     //public static final float ChainLinkSize = 1.3f; // Size of a single link in a chain (in metres)
+
+    public static boolean IsDoor(int dTyp) {
+        if ((dTyp == DoorBlue) | (dTyp == DoorGreen) | (dTyp == DoorRed)) {
+            return true;
+        } else return false;
+    }
+
+    public static boolean IsKey(int dTyp) {
+        if ((dTyp == KeyBlue) | (dTyp == KeyGreen) | (dTyp == KeyRed)) {
+            return true;
+        } else return false;
+    }
 
     public static boolean IsGravity(int dTyp) {
     	if ((dTyp == Gravity) | (dTyp == GravityEarth) | (dTyp == GravityMars) | (dTyp == GravityMoon) | (dTyp == GravityZero)) {
