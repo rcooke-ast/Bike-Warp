@@ -105,6 +105,7 @@ public class Editor extends GameState {
 	private ArrayList<float[]> allPolygons = new ArrayList<float[]>();
 	private ArrayList<Integer> allPolygonTypes = new ArrayList<Integer>();
 	private ArrayList<float[]> allPolygonPaths = new ArrayList<float[]>();
+	private ArrayList<PolygonSprite> allPolygonSprites = new ArrayList<PolygonSprite>();
 	private ArrayList<String> allPolygonTextures = new ArrayList<String>();
 
 	// Define the object list
@@ -145,6 +146,8 @@ public class Editor extends GameState {
 	private float SCRWIDTH, SCRHEIGHT;
 	private float startX, startY, endX, endY;
 	private float nullvarA, nullvarB, nullvarC, nullvarD;
+	private Pixmap pixMapPoly;
+	private Texture textureFilled;
 
 	private float[] trcImgProp;
 	private String jsonLevelString;
@@ -487,6 +490,14 @@ public class Editor extends GameState {
 									allDecorImages = (ArrayList<Object>) loadedArray.get(11);
 									String[] setLVs = (String[]) loadedArray.get(12);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+									// Initialise the PolygonSprites
+									allPolygonSprites = new ArrayList<PolygonSprite>();
+									for (int i=0; i<allPolygons.size(); i++) {
+										allPolygonSprites.add(null);
+										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i)%2==0)) {
+											MakePolygonSprite(i);
+										}
+									}
 									// Temporary
 //									System.out.println("ERROR - DELETE THIS!!!");
 //									for (int i=0; i<allPolygons.size(); i++) {
@@ -498,7 +509,6 @@ public class Editor extends GameState {
 //										}
 //									}
 									// Restore the original settings of this level
-									System.out.println("LEVEL WAS RESTORED 01!");
 									RestoreLevelDefaults();
 									warnMessage[warnNumber] = "Level '"+selectLoadLevel.getSelected()+"' loaded successfully";
 									warnElapse[warnNumber] = 0.0f;
@@ -1095,6 +1105,7 @@ public class Editor extends GameState {
     	allPolygonTypes = new ArrayList<Integer>();
     	allPolygonPaths = new ArrayList<float[]>();
     	allPolygonTextures = new ArrayList<String>();
+		allPolygonSprites = new ArrayList<PolygonSprite>();
     	allDecors = new ArrayList<float[]>();
     	allDecorTypes = new ArrayList<Integer>();
 		allDecorPolys = new ArrayList<Integer>();
@@ -1496,16 +1507,17 @@ public class Editor extends GameState {
 
         // Draw the decorations
 		renderDecors();
-
-        // Draw the current polygon
-		renderCurrentPoly();
-
-        // Draw all of the things that are being updated
-        renderUpdates();
 		shapeRenderer.end();
 
 		// Draw the polygons (not including the current polygon)
 		renderPolygons();
+
+		shapeRenderer.begin(ShapeType.Line);
+		// Draw all of the things that are being updated
+		renderUpdates();
+		// Draw the current polygon
+		renderCurrentPoly();
+		shapeRenderer.end();
 
 		// Draw a selected vertex or segment if necessary
 		shapeRenderer.begin(ShapeType.Line);
@@ -1554,31 +1566,22 @@ public class Editor extends GameState {
     private void renderPolygons() {
 		float[] extraPoly;
 		float[] colarr;
+		PolygonSprite polySpr;
 		if (allPolygons.size() != 0) {
 			for (int i = 0; i<allPolygons.size(); i++) {
 				if (allPolygonTextures.get(i).startsWith("COLOR_")) {
 					colarr = ColorUtils.ConvertStringToColor(allPolygonTextures.get(i));
-					if (allPolygonTypes.get(i)%2 == 0) {
-//						Pixmap pix = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-//						pix.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
-//						pix.fill();
-//						Texture textureFilled = new Texture(pix);
-//						TextureRegion textReg = new TextureRegion(textureFilled);
-//						EarClippingTriangulator triangulator = new EarClippingTriangulator();
-//						short [] triangleIndices = triangulator.computeTriangles(allPolygons.get(i)).toArray();
-//						PolygonRegion polyReg = new PolygonRegion(textReg, allPolygons.get(i), triangleIndices);
-//						PolygonSprite polySpr = new PolygonSprite(polyReg);
-//						polyBatch.begin();
-//						polySpr.draw(polyBatch);
-//						polyBatch.end();
-//						// Dispose of unwanted variables
-//						textureFilled.dispose();
-//						pix.dispose();
-					} else {
+					if (allPolygonTypes.get(i)%2 == 1) {
 						shapeRenderer.begin(ShapeType.Filled);
 						shapeRenderer.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
 						shapeRenderer.circle(allPolygons.get(i)[0], allPolygons.get(i)[1], allPolygons.get(i)[2]);
 						shapeRenderer.end();
+					} else if (allPolygonSprites.get(i) != null) {
+						polyBatch.begin();
+						polySpr = allPolygonSprites.get(i);
+						polySpr.setColor(colarr[0], colarr[1], colarr[2], colarr[3]);
+						polySpr.draw(polyBatch);
+						polyBatch.end();
 					}
 				}
 				shapeRenderer.begin(ShapeType.Line);
@@ -2405,7 +2408,10 @@ public class Editor extends GameState {
     	if (skin != null) skin.dispose();
     	if (warnFont != null) warnFont.dispose();
     	if (signFont != null) signFont.dispose();
-    }
+		if (textureFilled != null) textureFilled.dispose();
+		if (pixMapPoly != null) pixMapPoly.dispose();
+
+	}
 
 	public void resize (int width, int height) {
 		stage.getViewport().update(width, height, true);
@@ -2540,14 +2546,15 @@ public class Editor extends GameState {
 		allPolygonTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(1)).clone();
 		allPolygonPaths = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(2)).clone();
 		allPolygonTextures = (ArrayList<String>) ((ArrayList<String>) undoArray.get(undoIndex).get(3)).clone();
-		allObjects = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(4)).clone();
-		allObjectArrows = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(5)).clone();
-		allObjectCoords = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(6)).clone();
-		allObjectTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(7)).clone();
-		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(8)).clone();
-		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(9)).clone();
-		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(10)).clone();
-		allDecorImages = (ArrayList<Object>) ((ArrayList<Object>) undoArray.get(undoIndex).get(11)).clone();
+		allPolygonSprites = (ArrayList<PolygonSprite>) ((ArrayList<PolygonSprite>) undoArray.get(undoIndex).get(4)).clone();
+		allObjects = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(5)).clone();
+		allObjectArrows = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(6)).clone();
+		allObjectCoords = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(7)).clone();
+		allObjectTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(8)).clone();
+		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(9)).clone();
+		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(10)).clone();
+		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(11)).clone();
+		allDecorImages = (ArrayList<Object>) ((ArrayList<Object>) undoArray.get(undoIndex).get(12)).clone();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -2573,14 +2580,15 @@ public class Editor extends GameState {
 		allPolygonTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(1)).clone();
 		allPolygonPaths = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(2)).clone();
 		allPolygonTextures = (ArrayList<String>) ((ArrayList<String>) undoArray.get(undoIndex).get(3)).clone();
-		allObjects = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(4)).clone();
-		allObjectArrows = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(5)).clone();
-		allObjectCoords = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(6)).clone();
-		allObjectTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(7)).clone();
-		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(8)).clone();
-		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(9)).clone();
-		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(10)).clone();
-		allDecorImages = (ArrayList<Object>) ((ArrayList<Object>) undoArray.get(undoIndex).get(11)).clone();
+		allPolygonSprites = (ArrayList<PolygonSprite>) ((ArrayList<PolygonSprite>) undoArray.get(undoIndex).get(4)).clone();
+		allObjects = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(5)).clone();
+		allObjectArrows = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(6)).clone();
+		allObjectCoords = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(7)).clone();
+		allObjectTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(8)).clone();
+		allDecors = (ArrayList<float[]>) ((ArrayList<float[]>) undoArray.get(undoIndex).get(9)).clone();
+		allDecorTypes = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(10)).clone();
+		allDecorPolys = (ArrayList<Integer>) ((ArrayList<Integer>) undoArray.get(undoIndex).get(11)).clone();
+		allDecorImages = (ArrayList<Object>) ((ArrayList<Object>) undoArray.get(undoIndex).get(12)).clone();
 	}
 
 	private void UpdateUndo() {
@@ -2598,6 +2606,7 @@ public class Editor extends GameState {
 		retarr.add(allPolygonTypes.clone());
 		retarr.add(allPolygonPaths.clone());
 		retarr.add(allPolygonTextures.clone());
+		retarr.add(allPolygonSprites.clone());
 		retarr.add(allObjects.clone());
 		retarr.add(allObjectArrows.clone());
 		retarr.add(allObjectCoords.clone());
@@ -2769,7 +2778,7 @@ public class Editor extends GameState {
 		if (modeParent.equals("Polygon")) {
 			if (modeChild.equals("Add")) {
 				if (GameInput.MBJUSTPRESSED) {
-					if (drawingPoly == true) {
+					if (drawingPoly) {
 						DrawPolygon(-1);
 					} else {
 						polyDraw = new ArrayList<float[]>();
@@ -2780,7 +2789,7 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectPolygon("up");
 				engageDelete = true;
-			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG == true)) {
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG)) {
 				if (polySelect == -1) {
 					SelectPolygon("down");
 					// Deal with the case when the user selects a trigger but not the trigger platform
@@ -5350,6 +5359,23 @@ public class Editor extends GameState {
 	public void UpdatePlatformColor() {
 		String colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f",platformColor[0],platformColor[1],platformColor[2],platformColor[3]);
 		allPolygonTextures.set(polySelect, colorString);
+		MakePolygonSprite(polySelect);
+	}
+
+	public void MakePolygonSprite(int pint) {
+		if ((allPolygonTextures.get(pint).startsWith("COLOR_")) && (allPolygonTypes.get(pint)%2==0)) {
+			pixMapPoly = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+			pixMapPoly.setColor(1, 1, 1, 1);
+			pixMapPoly.fill();
+			textureFilled = new Texture(pixMapPoly);
+			TextureRegion texturePolyRegion = new TextureRegion(textureFilled);
+			// Dispose of unwanted variables
+			EarClippingTriangulator triangulator = new EarClippingTriangulator();
+			short [] triangleIndices = triangulator.computeTriangles(allPolygons.get(pint)).toArray();
+			PolygonRegion polyReg = new PolygonRegion(texturePolyRegion, allPolygons.get(pint), triangleIndices);
+			PolygonSprite polySpr = new PolygonSprite(polyReg);
+			allPolygonSprites.set(pint, polySpr);
+		}
 	}
 
 	public void AddPolygon(float[] newPoly, int ptype, int psize) {
@@ -5364,6 +5390,7 @@ public class Editor extends GameState {
 			allPolygons.add(newPoly);
 			allPolygonTypes.add(ptype);
 			allPolygonTextures.add("");
+			allPolygonSprites.add(null);
     	}
 		float xcenp = 0.0f, ycenp = 0.0f;
 		if (mode==4) {
@@ -5527,6 +5554,7 @@ public class Editor extends GameState {
 		allPolygons.add(newPoly);
 		allPolygonTypes.add(allPolygonTypes.get(idx));
 		allPolygonTextures.add(allPolygonTextures.get(idx));
+		if (allPolygonTypes.get(idx)%2==0) allPolygonSprites.add(allPolygonSprites.get(idx));
 		if (allPolygonPaths.get(idx)==null) {
 			allPolygonPaths.add(null);
 		} else {
@@ -5574,6 +5602,7 @@ public class Editor extends GameState {
 		allPolygonTypes.remove(idx);
 		allPolygonPaths.remove(idx);
 		allPolygonTextures.remove(idx);
+		allPolygonSprites.remove(idx);
 		// Check if any grass decorations need to be deleted or shifted
 		int cnt=0;
 		int sz=allDecorTypes.size();
@@ -5649,15 +5678,30 @@ public class Editor extends GameState {
 				else if (mode == 7) AddPolygon(newPoly, 4, polyDraw.size());
 				else if (mode == 9) AddPolygon(newPoly, 6, polyDraw.size());
 		    	drawingPoly = false;
-			} else { 
-			    newCoord[0] = tempx;
-				newCoord[1] = tempy;
-			    polyDraw.add(newCoord.clone()); // Add a new coordinate value
+			} else {
+				int idx = polyDraw.size()-1;
+				float len2 = (tempx-polyDraw.get(idx)[0])*(tempx-polyDraw.get(idx)[0]) + (tempy-polyDraw.get(idx)[1])*(tempy-polyDraw.get(idx)[1]);
+				if (B2DVars.EPPM*B2DVars.EPPM*len2 > 0.0025f) {
+					newCoord[0] = tempx;
+					newCoord[1] = tempy;
+					polyDraw.add(newCoord.clone()); // Add a new coordinate value
+				}
 			}
 		} else {
-			newCoord[0] = tempx;
-			newCoord[1] = tempy;
-		    polyDraw.add(newCoord.clone()); // Add a new coordinate value
+			// Check the coordinate is far enough away
+			if (polyDraw.size() != 0) {
+				int idx = polyDraw.size()-1;
+				float len2 = (tempx-polyDraw.get(idx)[0])*(tempx-polyDraw.get(idx)[0]) + (tempy-polyDraw.get(idx)[1])*(tempy-polyDraw.get(idx)[1]);
+				if (B2DVars.EPPM*B2DVars.EPPM*len2 > 0.0025f) {
+					newCoord[0] = tempx;
+					newCoord[1] = tempy;
+					polyDraw.add(newCoord.clone()); // Add a new coordinate value
+				}
+			} else {
+				newCoord[0] = tempx;
+				newCoord[1] = tempy;
+				polyDraw.add(newCoord.clone()); // Add a new coordinate value
+			}
 		}
 	}
 
@@ -6578,9 +6622,10 @@ public class Editor extends GameState {
 	public void UpdatePolygon(int idx, boolean autosave) {
 		changesMade = true;
 		newPoly = allPolygons.set(idx, updatePoly.clone());
-		if ((allPolygonTypes.get(polySelect)==4) || (allPolygonTypes.get(polySelect)==5)) {
+		if (allPolygonTypes.get(idx)%2==0) MakePolygonSprite(idx);
+		if ((allPolygonTypes.get(idx)==4) || (allPolygonTypes.get(idx)==5)) {
 			// Update the location of the sign for a falling platform
-			updatePath = allPolygonPaths.get(polySelect).clone();
+			updatePath = allPolygonPaths.get(idx).clone();
 			int imax = 0;
 			float maxv = -10000.0f;
 			for (int i=0; i<updatePoly.length/2; i++) {
@@ -6593,9 +6638,9 @@ public class Editor extends GameState {
 			updatePath[3] = updatePoly[2*imax+1];
 			allPolygonPaths.set(idx, updatePath.clone());
 			updatePath=null;
-		} else if ((allPolygonTypes.get(polySelect)==6) || (allPolygonTypes.get(polySelect)==7)) {
+		} else if ((allPolygonTypes.get(idx)==6) || (allPolygonTypes.get(idx)==7)) {
 			// Update the path properties for a trigger platform
-			updatePath = allPolygonPaths.get(polySelect).clone();
+			updatePath = allPolygonPaths.get(idx).clone();
 			int imax = 0;
 			float maxv = -10000.0f;
 			for (int i=0; i<updatePoly.length/2; i++) {
@@ -6611,10 +6656,6 @@ public class Editor extends GameState {
 		}
 		updatePoly = null;
 		if (autosave) SaveLevel(true);
-	}
-
-	public void UpdateTriggerPolygon(int idx) {
-
 	}
 
     /////////////////////////////////
