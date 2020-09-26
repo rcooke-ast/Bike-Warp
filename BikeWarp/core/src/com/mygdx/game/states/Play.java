@@ -1466,7 +1466,7 @@ public class Play extends GameState {
     	float fadeDist = 20.0f/PolySpatial.PIXELS_PER_METER;
     	Vector2 riderPos = bikeBodyH.getPosition().scl(1.0f/PolySpatial.PIXELS_PER_METER);
     	int idxa, idxb, flag=0;
-    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f, volume=0.1f;
+    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f, volume=0.0f;
     	// First check if the rider is inside a rain
     	for (int j=0; j < rainVerts.size; j++) {
     		if (PolygonOperations.PointInPolygon(rainVerts.get(j), riderPos.x, riderPos.y)) {

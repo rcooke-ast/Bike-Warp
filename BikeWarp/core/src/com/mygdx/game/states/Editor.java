@@ -2109,8 +2109,8 @@ public class Editor extends GameState {
 					extraPoly = DecorVars.GetCoordRect(allDecorTypes.get(i), (int) allDecors.get(i)[8]);
 					xcen = 0.5f*(allDecors.get(i)[0]+allDecors.get(i)[4]);
 					ycen = 0.5f*(allDecors.get(i)[1]+allDecors.get(i)[5]);
-					xlen = extraPoly[4] - extraPoly[0];
-					ylen = extraPoly[5] - extraPoly[1];
+					xlen = (float) Math.sqrt((allDecors.get(i)[2]-allDecors.get(i)[0])*(allDecors.get(i)[2]-allDecors.get(i)[0]) + (allDecors.get(i)[3]-allDecors.get(i)[1])*(allDecors.get(i)[3]-allDecors.get(i)[1]));
+					ylen = (float) Math.sqrt((allDecors.get(i)[4]-allDecors.get(i)[2])*(allDecors.get(i)[4]-allDecors.get(i)[2]) + (allDecors.get(i)[5]-allDecors.get(i)[3])*(allDecors.get(i)[5]-allDecors.get(i)[3]));
 					rotAngle = PolygonOperations.GetAngle(allDecors.get(i)[0], allDecors.get(i)[1], allDecors.get(i)[2], allDecors.get(i)[3]);
 					decorImage = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textName), 2));
 					mBatch.draw(decorImage, xcen-xlen/2, ycen-ylen/2, xlen/2, ylen/2, xlen, ylen, 1, 1, (float) Math.toDegrees(rotAngle));
@@ -2410,7 +2410,6 @@ public class Editor extends GameState {
     	if (signFont != null) signFont.dispose();
 		if (textureFilled != null) textureFilled.dispose();
 		if (pixMapPoly != null) pixMapPoly.dispose();
-
 	}
 
 	public void resize (int width, int height) {
@@ -4590,8 +4589,24 @@ public class Editor extends GameState {
 					startY = GameInput.MBDOWNY;
 				} else {
 					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
-		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-	            	MoveDecor(decorSelect, "polygon", endX, endY);
+					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+					MoveDecor(decorSelect, "polygon", endX, endY);
+				}
+			} else if ((modeChild.equals("Scale")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "scale");
+				decorSelect = -1;
+			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", objNum, false, false);
+					startX = GameInput.MBDOWNX;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
+					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+					nullvarA = 0.5f*(allDecors.get(decorSelect)[0] + allDecors.get(decorSelect)[4]);
+					nullvarB = 0.5f*(allDecors.get(decorSelect)[1] + allDecors.get(decorSelect)[5]);
+					nullvarC = (float) (Math.sqrt((endX - nullvarA) * (endX - nullvarA) + (endY - nullvarB) * (endY - nullvarB)) / Math.sqrt((startX - nullvarA) * (startX - nullvarA) + (startY - nullvarB) * (startY - nullvarB)));
+					ScaleDecor(decorSelect, nullvarC);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
 				UpdateDecor(decorSelect, "move");
@@ -5257,7 +5272,7 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
 				} else if ((modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {
-					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
+					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
 				} else listChild.setItems(itemsADMR);
 				break;
 			case 7 :
@@ -7836,6 +7851,23 @@ public class Editor extends GameState {
 		}
 	}
 
+	public void ScaleDecor(int idx, float scale) {
+		float xcen, ycen;
+		if (scale < 0.0f) scale *= -1.0f;
+		updatePoly = allDecors.get(idx).clone();
+		if (DecorVars.IsRect(allDecorTypes.get(idx))) {
+			xcen = 0.5f*(allDecors.get(idx)[0] + allDecors.get(idx)[4]);
+			ycen = 0.5f*(allDecors.get(idx)[1] + allDecors.get(idx)[5]);
+			for (int i = 0; i<allDecors.get(idx).length-1; i++){
+				if (i%2==0) {
+					updatePoly[i] = xcen + (allDecors.get(idx)[i]-xcen)*scale;
+				} else {
+					updatePoly[i] = ycen + (allDecors.get(idx)[i]-ycen)*scale;
+				}
+			}
+		}
+	}
+
 	public void MoveDecor(int idx, String mode, float shiftX, float shiftY) {
 		if ((mode.equals("circle")) || (allDecors.get(idx).length==3) || (DecorVars.IsRoadSign(allDecorTypes.get(idx)))) {
 			updatePoly = allDecors.get(idx).clone();
@@ -8065,6 +8097,8 @@ public class Editor extends GameState {
 			updatePoly = allDecors.set(idx, newPoly.clone());
 		} else if (mode.equals("rotateobject")) {
 			//if (updatePoly != null) newPoly = allDecors.set(idx, updatePoly.clone());
+			newPoly = allDecors.set(idx, updatePoly.clone());
+		} else if (mode.equals("scale")) {
 			newPoly = allDecors.set(idx, updatePoly.clone());
 		}
 		// Nullify the update Polygon
