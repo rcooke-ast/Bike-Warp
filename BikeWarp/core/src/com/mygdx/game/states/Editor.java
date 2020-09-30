@@ -344,6 +344,18 @@ public class Editor extends GameState {
 		buttonDecorate = new TextButton("Decorate", skin);
 		buttonLevelProp.setChecked(true);
 
+//		float a = 10.0f;
+//		float b = -75.0f;
+//		float c = 10.0f;
+//		updatePoly = new float[1000];
+//		for (int i=0; i<250; i++) {
+//			updatePoly[2*i] = (a + b*i/c) * (float) Math.cos(i/c);
+//			updatePoly[2*i+1] = (a + b*i/c) * (float) Math.sin(i/c);
+//			updatePoly[1000 - 2*i - 2] = (2.0f*a + b*i/c) * (float) Math.cos(i/c);
+//			updatePoly[1000 - 2*i - 1] = (2.0f*a + b*i/c) * (float) Math.sin(i/c);
+//		}
+//		AddPolygon(updatePoly.clone(), 0, 0);
+
 		selectLoadLevel.setItems(EditorIO.LoadLevelNames(loadList));
 		selectLoadLevel.setSelectedIndex(0);
 		selectLoadLevel.setMaxListCount(0);
@@ -492,12 +504,23 @@ public class Editor extends GameState {
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 									// Initialise the PolygonSprites
 									allPolygonSprites = new ArrayList<PolygonSprite>();
+									float[] colarr;
 									for (int i=0; i<allPolygons.size(); i++) {
 										allPolygonSprites.add(null);
 										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i)%2==0)) {
+//											colarr = ColorUtils.ConvertStringToColor(allPolygonTextures.get(i));
+//											if ((colarr[0]==1.0f) & (colarr[1]==1.0f) & (colarr[2]==1.0f)) {
+//												platformColor[0]=0.2f;
+//												platformColor[1]=0.2f;
+//												platformColor[2]=0.2f;
+//												platformColor[3]=colarr[3];
+//												polySelect=i;
+//												UpdatePlatformColor();
+//											}
 											MakePolygonSprite(i);
 										}
 									}
+									polySelect=-1;
 									// Temporary
 //									System.out.println("ERROR - DELETE THIS!!!");
 //									for (int i=0; i<allPolygons.size(); i++) {
@@ -5570,6 +5593,7 @@ public class Editor extends GameState {
 		allPolygonTypes.add(allPolygonTypes.get(idx));
 		allPolygonTextures.add(allPolygonTextures.get(idx));
 		if (allPolygonTypes.get(idx)%2==0) allPolygonSprites.add(allPolygonSprites.get(idx));
+		else allPolygonSprites.add(null);
 		if (allPolygonPaths.get(idx)==null) {
 			allPolygonPaths.add(null);
 		} else {
