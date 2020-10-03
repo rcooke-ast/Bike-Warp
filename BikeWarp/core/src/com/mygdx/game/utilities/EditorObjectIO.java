@@ -1482,10 +1482,10 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		float gravity = 0.0f;
 		if (objType == ObjectVars.TransportInvisible) {
 			// Use the default gravity
-	        if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Earth") gravity = B2DVars.GRAVITY_EARTH;
-	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Mars") gravity = B2DVars.GRAVITY_MARS;
-	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Moon") gravity = B2DVars.GRAVITY_MOON;
-	        else if (LevelVars.get(LevelVars.PROP_GRAVITY) == "Zero") gravity = B2DVars.GRAVITY_ZERO;
+	        if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Earth")) gravity = B2DVars.GRAVITY_EARTH;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Mars")) gravity = B2DVars.GRAVITY_MARS;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Moon")) gravity = B2DVars.GRAVITY_MOON;
+	        else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Zero")) gravity = B2DVars.GRAVITY_ZERO;
 	        else gravity = B2DVars.GRAVITY_EARTH;
 		} else if (objType != ObjectVars.Transport) {
 			// Some other form of invisible transport
@@ -1594,6 +1594,16 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         json.key("name").value("transportAngle");
         json.key("float").value(rotAngleA-rotAngleB);
         json.endObject();
+		if (gravityVec != null) {
+			json.object();
+			json.key("name").value("gravityVector");
+			json.key("vec2");
+			json.object();
+			json.key("x").value(xgrav);
+			json.key("y").value(ygrav);
+			json.endObject();
+			json.endObject();
+		}
         json.endArray();
         json.key("fixedRotation").value(false);
         // Add the fixtures

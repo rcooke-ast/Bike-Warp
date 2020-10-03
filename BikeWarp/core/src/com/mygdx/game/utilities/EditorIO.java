@@ -808,7 +808,7 @@ public class EditorIO {
         	} else if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
         		Vector2 gravityVec = new Vector2(allObjectArrows.get(i)[2]-allObjectArrows.get(i)[0],allObjectArrows.get(i)[3]-allObjectArrows.get(i)[1]);
                 gravityVec.nor();
-        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), allObjectTypes.get(i), cntTransportInvisible, gravityVec);
+        		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), allObjectTypes.get(i), cntTransportInvisible, gravityVec.cpy());
         		cntTransportInvisible += 1;
         		bodyIdx += addBodies;
         	}

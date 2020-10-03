@@ -83,14 +83,6 @@ public class GameContactListener implements ContactListener {
         		((bitB == B2DVars.BIT_WHEEL) & (bitA == B2DVars.BIT_JEWEL)) ) {
         	bodiesToRemove.add(fa.getBody());
         }
-        // Head/Wheel Collision -> Key
-        if ( ((bitA == B2DVars.BIT_HEAD) & (bitB == B2DVars.BIT_KEY)) |
-        		((bitA == B2DVars.BIT_WHEEL) & (bitB == B2DVars.BIT_KEY)) ) {
-        	bodiesToRemove.add(fb.getBody());
-        } else if ( ((bitB == B2DVars.BIT_HEAD) & (bitA == B2DVars.BIT_KEY)) |
-        		((bitB == B2DVars.BIT_WHEEL) & (bitA == B2DVars.BIT_KEY)) ) {
-        	bodiesToRemove.add(fa.getBody());
-        }
         // Head/Wheel Collision -> Gravity
         if ( ((bitA == B2DVars.BIT_HEAD) & (bitB == B2DVars.BIT_GRAVITY)) |
         		((bitA == B2DVars.BIT_WHEEL) & (bitB == B2DVars.BIT_GRAVITY)) ) {
@@ -118,6 +110,14 @@ public class GameContactListener implements ContactListener {
         } else if ( ((bitB == B2DVars.BIT_HEAD) & (bitA == B2DVars.BIT_TRANSPORT)) |
         		((bitB == B2DVars.BIT_WHEEL) & (bitA == B2DVars.BIT_TRANSPORT)) ) {
         	transportBody.add(fa.getBody());
+        }
+        // Head/Wheel Collision -> Key
+        if ( ((bitA == B2DVars.BIT_HEAD) & (bitB == B2DVars.BIT_KEY)) |
+                ((bitA == B2DVars.BIT_WHEEL) & (bitB == B2DVars.BIT_KEY)) ) {
+            bodiesToRemove.add(fb.getBody());
+        } else if ( ((bitB == B2DVars.BIT_HEAD) & (bitA == B2DVars.BIT_KEY)) |
+                ((bitB == B2DVars.BIT_WHEEL) & (bitA == B2DVars.BIT_KEY)) ) {
+            bodiesToRemove.add(fa.getBody());
         }
         // Now deal with anything having User Data
         if (fa.getUserData()==null || fb.getUserData()==null) return;

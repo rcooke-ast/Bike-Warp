@@ -143,7 +143,7 @@ public class RubeScene
 
    public Object getCustom(Object item, String propertyName, Object defaultVal)
    {
-      Map<String, Object> props= getCustomPropertiesForItem(item, false);
+      Map<String, Object> props = getCustomPropertiesForItem(item, false);
       if (null == props)
          return defaultVal;
       if (props.containsKey(propertyName))

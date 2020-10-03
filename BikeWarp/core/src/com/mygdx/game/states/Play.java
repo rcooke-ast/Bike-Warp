@@ -968,13 +968,24 @@ public class Play extends GameState {
 
 	private void updateCameraPostion() {
 		Vector3 pos = new Vector3(bikeBodyC.getWorldCenter(), 0);
-		Vector2 posShft, gravVect;
+		Vector2 posShft, gravVect, gravVectN;
 		float angleGrav;
+		float lenGravNew = gravityNew.len();
+        float lenGravPrev = gravityPrev.len();
 		if (gravityScale == -1.0f) posShft = gravityNew.cpy().nor().scl(-B2DVars.SCRWIDTH/8.0f);
 		else {
 			//posShft = (mWorld.getGravity().nor().scl((float)Math.sin(gravityScale*Math.PI/2)).add(gravityPrev.scl(1.0f-(float)Math.sin(gravityScale*Math.PI/2)))).nor().scl(-B2DVars.SCRWIDTH/8.0f);
 			angleGrav = (float) (Math.acos(gravityPrev.cpy().nor().dot(gravityNew.cpy().nor())));
-			gravVect = gravityPrev.cpy().nor().scl(-B2DVars.SCRWIDTH/8.0f);//.scl(gravityNext.len() * (float) (Math.cos(angleGrav*0.5f)/Math.cos(angleGrav*(0.5f - gravityScale))));
+			if (lenGravPrev != 0) {
+                gravVect = gravityPrev.cpy().nor().scl(-B2DVars.SCRWIDTH / 8.0f);//.scl(gravityNext.len() * (float) (Math.cos(angleGrav*0.5f)/Math.cos(angleGrav*(0.5f - gravityScale))));
+                if (lenGravNew == 0) gravVect.scl(1.0f-gravityScale);
+            } else if (lenGravNew != 0) {
+                angleGrav = 0.0f;
+                gravVect = gravityNew.cpy().nor().scl(-B2DVars.SCRWIDTH / 8.0f);//.scl(gravityNext.len() * (float) (Math.cos(angleGrav*0.5f)/Math.cos(angleGrav*(0.5f - gravityScale))));
+                gravVect.scl(gravityScale);
+            } else {
+                gravVect = gravityPrev.cpy().nor().scl(-B2DVars.SCRWIDTH / 8.0f);
+            }
 			angleGrav *= (float)Math.sin(gravityScale*Math.PI/2);
 			if (dircGrav < 0.0f) angleGrav *= -1.0f; // Rotate clockwise
 			posShft = new Vector2((float)(gravVect.x*Math.cos(angleGrav) - gravVect.y*Math.sin(angleGrav)), (float)(gravVect.x*Math.sin(angleGrav) + gravVect.y*Math.cos(angleGrav)));
@@ -993,15 +1004,25 @@ public class Play extends GameState {
 		b2dCam.position.set(pos);
 		b2dCam.update();		
 	}
-	
+
+	private boolean checkCollect(Body tst, Array<Body> allBodies) {
+        // This routine checks if a body has already been collected
+        for (int ii=0; ii< allBodies.size; ii++) {
+            if (allBodies.get(ii)==tst) return true;
+        }
+        return false;
+    }
+
     private void updateCollect() {
     	// check for collected keys or jewels
     	Array<Body> bodies = cl.getBodies();
+        Array<Body> colBodies = new Array<Body>();
     	for(int i = 0; i < bodies.size; i++) {
     		String collectID = (String)mScene.getCustom(bodies.get(i), "collect", null);
-    		if (collectID != null) {
+    		if ((collectID != null) && (!checkCollect(bodies.get(i), colBodies))){
     			boolean noKeys = false;
     			if (collectID.equals("DoorRed")) {
+                    colBodies.add(bodies.get(i));
     				if (collectKeyRed > 0) {
     					collectKeyRed -= 1;
     					Body bbcollide = cl.getBikeBodyCollide().pop();
@@ -1017,6 +1038,7 @@ public class Play extends GameState {
         				}
     				} else noKeys = true;
     			} else if (collectID.equals("DoorGreen")) {
+                    colBodies.add(bodies.get(i));
     				if (collectKeyGreen > 0) {
     					collectKeyGreen -= 1;
     					Body bbcollide = cl.getBikeBodyCollide().pop();
@@ -1032,6 +1054,7 @@ public class Play extends GameState {
         				}
     				} else noKeys = true;
     			} else if (collectID.equals("DoorBlue")) {
+                    colBodies.add(bodies.get(i));
     				if (collectKeyBlue > 0) {
     					collectKeyBlue -= 1;
     					Body bbcollide = cl.getBikeBodyCollide().pop();
@@ -1047,6 +1070,7 @@ public class Play extends GameState {
         				}
     				} else noKeys = true;
     			} else if (collectID.equals("Gravity")) {
+                    colBodies.add(bodies.get(i));
     				float angleGrav;
     				if (gravityScale >= 0.0f) {
     					angleGrav = (float) (Math.acos(gravityPrev.cpy().nor().dot(mWorld.getGravity().cpy().nor())));
@@ -1067,24 +1091,28 @@ public class Play extends GameState {
     					soundTimeGravity = 1.0f; //  This is half the duration of a Gravity sound
     				}
     			} else if (collectID.equals("KeyRed")) {
+                    colBodies.add(bodies.get(i));
     				collectKeyRed += 1;
     				if (soundTimeKey <= 0.0f) {
     					BikeGameSounds.PlaySound(soundKey, 1.0f);
     					soundTimeKey = 1.0f; //  This is half the duration of a Key sound
     				}
     			} else if (collectID.equals("KeyGreen")) {
+                    colBodies.add(bodies.get(i));
     				collectKeyGreen += 1;
     				if (soundTimeKey <= 0.0f) {
     					BikeGameSounds.PlaySound(soundKey, 1.0f);
     					soundTimeKey = 1.0f; //  This is half the duration of a Key sound
     				}
     			} else if (collectID.equals("KeyBlue")) {
+                    colBodies.add(bodies.get(i));
     				collectKeyBlue += 1;
     				if (soundTimeKey <= 0.0f) {
     					BikeGameSounds.PlaySound(soundKey, 1.0f);
     					soundTimeKey = 1.0f; //  This is half the duration of a Key sound
     				}
     			} else if (collectID.equals("Nitrous")) {
+                    colBodies.add(bodies.get(i));
     				if ((collectNitrous == 0) & (nitrousLevel == 0.0f)) nitrousLevel = 1.0f;
     				collectNitrous += 1;
     				if (soundTimeNitrous <= 0.0f) {
@@ -1092,12 +1120,14 @@ public class Play extends GameState {
     					soundTimeNitrous = 1.0f; //  This is half the duration of a Nitrous sound
     				}
     			} else if (collectID.equals("Jewel")) {
+                    colBodies.add(bodies.get(i));
     				if (collectJewel != 0) collectJewel -= 1;
     				if (soundTimeGem <= 0.0f) {
     					BikeGameSounds.PlaySound(soundGem, 1.0f);
     					soundTimeGem = 1.0f; //  This is half the duration of a gem sound
     				}
     			} else if (collectID.equals("Diamond")) {
+                    colBodies.add(bodies.get(i));
     				collectJewel = 0;
     				collectDiamond = true; // The player has collected the diamond
     				BikeGameSounds.PlaySound(soundDiamond, 1.0f);
@@ -1311,6 +1341,7 @@ public class Play extends GameState {
     	if (bodies.size != 0) {
     		Vector2 transportXY = (Vector2)mScene.getCustom(bodies.get(0), "transportXY", null);
     		float transportAngle = (Float)mScene.getCustom(bodies.get(0), "transportAngle", 0.0f);
+            Vector2 gravNext = (Vector2)mScene.getCustom(bodies.get(0), "gravityVector", mWorld.getGravity().cpy());
     		if (transportXY != null) {
     			// Derive the offset from the chassis to the centre of the transporter and account for rotation (use the chassis as reference)
     			Vector2 offsetXY = new Vector2(bikeBodyC.getPosition().x-bodies.get(0).getPosition().x, bikeBodyC.getPosition().y-bodies.get(0).getPosition().y);
@@ -1361,12 +1392,10 @@ public class Play extends GameState {
 					gravityPrev = new Vector2((float)(gravVect.x*Math.cos(angleGrav) - gravVect.y*Math.sin(angleGrav)), (float)(gravVect.x*Math.sin(angleGrav) + gravVect.y*Math.cos(angleGrav)));
 					//gravityPrev = mWorld.getGravity().cpy().nor();
 				} else gravityPrev = mWorld.getGravity().cpy().nor();
-				Vector2 gravNext = (Vector2)mScene.getCustom(bodies.get(0), "gravityVector", mWorld.getGravity());
 				dircGrav = gravityPrev.x*gravNext.y - gravityPrev.y*gravNext.x;
 				gravityScale = 0.0f;
 				gravityOld = mWorld.getGravity().cpy();
 				gravityNew = gravNext.cpy();
-
     		}
     	}
     	bodies.clear();
