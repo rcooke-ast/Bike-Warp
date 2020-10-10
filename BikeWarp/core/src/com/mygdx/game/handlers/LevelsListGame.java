@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 41; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 46; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -19,135 +19,198 @@ public class LevelsListGame {
     // Set the levels
     public static void initialise() {
     	InitialiseTips();
+    	int lnum;
     	// Return to Main Menu
-    	gameLevelNames[0] = "Return to Main Menu";
-    	gameLevelFiles[0] = null;
-    	gameLevelDescr[0] = "Return to the Main Menu (or press Esc).";
-    	// Level 1
-    	gameLevelNames[1] = "1. Start Your Engine";
-    	gameLevelFiles[1] = "data/gamelevels/01_StartYourEngine.lvl";
-    	gameLevelTips[1] = "Tip: Collect the emerald jewel and head to the exit warp";
-    	// Level 2
-    	gameLevelNames[2] = "2. Same Same But Different";
-    	gameLevelFiles[2] = "data/gamelevels/02_SameSameButDifferent.lvl";
-    	gameLevelTips[2] = "Tip: Use the 'b' key to bunny hop";
-    	// Level 3
-    	gameLevelNames[3] = "3. Hang Tight!";
-    	gameLevelFiles[3] = "data/gamelevels/03_HangTight.lvl";
-    	// Level 4
-    	gameLevelNames[4] = "4. Excavation";
-    	gameLevelFiles[4] = "data/gamelevels/04_Excavation.lvl";
-    	// Level 5
-    	gameLevelNames[5] = "5. Black Mamba";
-    	gameLevelFiles[5] = "data/gamelevels/05_BlackMamba.lvl";
-    	// Level 6
-    	gameLevelNames[6] = "6. Demolish";
-    	gameLevelFiles[6] = "data/gamelevels/06_Demolish.lvl";
-    	// Level 7
-    	gameLevelNames[7] = "7. Bumpy Battle";
-    	gameLevelFiles[7] = "data/gamelevels/07_BumpyBattle.lvl";
-    	// Level 8
-    	gameLevelNames[8] = "8. Cascade";
-    	gameLevelFiles[8] = "data/gamelevels/08_Cascade.lvl";
-		// Level 9
-		gameLevelNames[9] = "9. Kilimanjaro";
-		gameLevelFiles[9] = "data/gamelevels/09_Kilimanjaro.lvl";
-		// Level 9 3/4
-    	gameLevelNames[10] = "9 & 3/4. Levitate";
-    	gameLevelFiles[10] = "data/gamelevels/09-75_Levitate.lvl";
-    	// Level 10
-    	gameLevelNames[11] = "10. Upside Downhill";
-    	gameLevelFiles[11] = "data/gamelevels/10_UpsideDownhill.lvl";
-    	// Level 11
-    	gameLevelNames[12] = "11. Logging";
-    	gameLevelFiles[12] = "data/gamelevels/11_Logging.lvl";
-    	// Level 12
-    	gameLevelNames[13] = "12. Tantalising";
-    	gameLevelFiles[13] = "data/gamelevels/12_Tantalising.lvl";
-    	// Level 13
-    	gameLevelNames[14] = "13. Over The Falls";
-    	gameLevelFiles[14] = "data/gamelevels/13_OverTheFalls.lvl";
-    	// Level 14
-    	gameLevelNames[15] = "14. Trials";
-    	gameLevelFiles[15] = "data/gamelevels/14_Trials.lvl";
-    	// Level 15
-    	gameLevelNames[16] = "15. Tony The African Hawk";
-    	gameLevelFiles[16] = "data/gamelevels/15_TonyTheAfricanHawk.lvl";
-    	// Level 16
-    	gameLevelNames[17] = "16. Big Tree Monument";
-    	gameLevelFiles[17] = "data/gamelevels/16_BigTreeMonument.lvl";
-    	// Level 17
-    	gameLevelNames[18] = "17. Lava Pits";
-    	gameLevelFiles[18] = "data/gamelevels/17_LavaPits.lvl";
-    	// Level 18
-    	gameLevelNames[19] = "18. Black Mountain (Day)";
-    	gameLevelFiles[19] = "data/gamelevels/18_BlackMountainDay.lvl";
-    	// Level 19
-    	gameLevelNames[20] = "19. Black Mountain (Night)";
-    	gameLevelFiles[20] = "data/gamelevels/19_BlackMountainNight.lvl";
-		// Level 20
-		gameLevelNames[21] = "20. Mwanda Peaks";
-		gameLevelFiles[21] = "data/gamelevels/20_MwandaPeaks.lvl";
-    	// Level 21
-    	gameLevelNames[22] = "21. Lunatic";
-    	gameLevelFiles[22] = "data/gamelevels/21_Lunatic.lvl";
-    	// Level 22
-    	gameLevelNames[23] = "22. Multiverse";
-    	gameLevelFiles[23] = "data/gamelevels/22_Multiverse.lvl";
-    	// Level 23
-    	gameLevelNames[24] = "23. Escape Room";
-    	gameLevelFiles[24] = "data/gamelevels/23_EscapeRoom.lvl";
-    	// Level 24
-    	gameLevelNames[25] = "24. Barracks";
-    	gameLevelFiles[25] = "data/gamelevels/24_Barracks.lvl";
-    	// Level 25
-    	gameLevelNames[26] = "25. Hiraeth";
-    	gameLevelFiles[26] = "data/gamelevels/25_Hiraeth.lvl";
-    	// Level 26
-    	gameLevelNames[27] = "26. Asteroid";
-    	gameLevelFiles[27] = "data/gamelevels/26_Asteroid.lvl";
-    	// Level 27
-    	gameLevelNames[28] = "27. Dinosaur";
-    	gameLevelFiles[28] = "data/gamelevels/27_Dinosaur.lvl";
-    	// Level 28
-    	gameLevelNames[29] = "28. Gold Digger";
-    	gameLevelFiles[29] = "data/gamelevels/28_GoldDigger.lvl";
-    	// Level 29
-    	gameLevelNames[30] = "29. Free Will";
-    	gameLevelFiles[30] = "data/gamelevels/29_FreeWill.lvl";
-    	// Level 30
-    	gameLevelNames[31] = "30. Short Supply";
-    	gameLevelFiles[31] = "data/gamelevels/30_ShortSupply.lvl";
-    	// Level 31
-    	gameLevelNames[32] = "31. Ascraeus Mons";
-    	gameLevelFiles[32] = "data/gamelevels/31_AscraeusMons.lvl";
-    	// Level 32
-    	gameLevelNames[33] = "32. Rigor Mortis";
-    	gameLevelFiles[33] = "data/gamelevels/32_RigorMortis.lvl";
-    	// Level 33
-    	gameLevelNames[34] = "33. Lava Tube";
-    	gameLevelFiles[34] = "data/gamelevels/33_LavaTube.lvl";
-    	// Level 34
-    	gameLevelNames[35] = "34. Olympus Mons";
-    	gameLevelFiles[35] = "data/gamelevels/34_OlympusMons.lvl";
-    	// Level 35
-    	gameLevelNames[36] = "35. The Message";
-    	gameLevelFiles[36] = "data/gamelevels/35_TheMessage.lvl";
-    	// Level 36
-    	gameLevelNames[37] = "36. Adrift";
-    	gameLevelFiles[37] = "data/gamelevels/36_Adrift.lvl";
-    	// Level 37
-    	gameLevelNames[38] = "37. Emerald Harvest";
-    	gameLevelFiles[38] = "data/gamelevels/37_EmeraldHarvest.lvl";
-    	// Level 38
-    	gameLevelNames[39] = "38. Alone";
-    	gameLevelFiles[39] = "data/gamelevels/38_Alone.lvl";
-    	// Level 39
-    	gameLevelNames[40] = "39. Solar System";
-    	gameLevelFiles[40] = "data/gamelevels/39_SolarSystem.lvl";
-    	// Level 40
-    	gameLevelNames[41] = "40. Dreaming of Home";
-    	gameLevelFiles[41] = "data/gamelevels/40_DreamingofHome.lvl";
+		lnum = 0;
+    	gameLevelNames[lnum] = "Return to Main Menu";
+    	gameLevelFiles[lnum] = null;
+    	gameLevelDescr[lnum] = "Return to the Main Menu (or press Esc).";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Start Your Engine";
+		gameLevelFiles[lnum] = "data/gamelevels/StartYourEngine.lvl";
+		gameLevelTips[lnum] = "Tip: Collect the emerald jewel and head to the exit warp";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Mandela";
+		gameLevelFiles[lnum] = "data/gamelevels/Mandela.lvl";
+		gameLevelTips[lnum] = "Tip: Use the 'b' key to bunny hop";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Same Same But Different";
+    	gameLevelFiles[lnum] = "data/gamelevels/SameSameButDifferent.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Hang Tight!";
+		gameLevelFiles[lnum] = "data/gamelevels/HangTight.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Watering Hole";
+		gameLevelFiles[lnum] = "data/gamelevels/WateringHoleDay.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Excavation";
+    	gameLevelFiles[lnum] = "data/gamelevels/Excavation.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Black Mamba";
+    	gameLevelFiles[lnum] = "data/gamelevels/BlackMamba.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Demolish";
+    	gameLevelFiles[lnum] = "data/gamelevels/Demolish.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Bumpy Battle";
+    	gameLevelFiles[lnum] = "data/gamelevels/BumpyBattle.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Watering Hole at Night";
+		gameLevelFiles[lnum] = "data/gamelevels/WateringHoleNight.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Cascade";
+    	gameLevelFiles[lnum] = "data/gamelevels/Cascade.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Mount Kilimanjaro";
+		gameLevelFiles[lnum] = "data/gamelevels/Kilimanjaro.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Tree Hopper";
+		gameLevelFiles[lnum] = "data/gamelevels/TreeHopper.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Levitate";
+    	gameLevelFiles[lnum] = "data/gamelevels/Levitate.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Upside Downhill";
+    	gameLevelFiles[lnum] = "data/gamelevels/UpsideDownhill.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Logging";
+    	gameLevelFiles[lnum] = "data/gamelevels/Logging.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Tantalising";
+    	gameLevelFiles[lnum] = "data/gamelevels/Tantalising.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Over The Falls";
+    	gameLevelFiles[lnum] = "data/gamelevels/OverTheFalls.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Trials";
+    	gameLevelFiles[lnum] = "data/gamelevels/Trials.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Tony The African Hawk";
+    	gameLevelFiles[lnum] = "data/gamelevels/TonyTheAfricanHawk.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Big Tree Monument";
+    	gameLevelFiles[lnum] = "data/gamelevels/BigTreeMonument.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Lava Pits";
+    	gameLevelFiles[lnum] = "data/gamelevels/LavaPits.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Black Mountain";
+    	gameLevelFiles[lnum] = "data/gamelevels/BlackMountainDay.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Black Mountain at Night";
+    	gameLevelFiles[lnum] = "data/gamelevels/BlackMountainNight.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Gold Digger";
+		gameLevelFiles[lnum] = "data/gamelevels/GoldDiggerEarth.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Mwanda Peaks";
+		gameLevelFiles[lnum] = "data/gamelevels/MwandaPeaks.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Lunatic";
+    	gameLevelFiles[lnum] = "data/gamelevels/Lunatic.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Multiverse";
+    	gameLevelFiles[lnum] = "data/gamelevels/Multiverse.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Escape Room";
+    	gameLevelFiles[lnum] = "data/gamelevels/EscapeRoom.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Barracks";
+    	gameLevelFiles[lnum] = "data/gamelevels/Barracks.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Hiraeth";
+    	gameLevelFiles[lnum] = "data/gamelevels/Hiraeth.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Asteroid";
+    	gameLevelFiles[lnum] = "data/gamelevels/Asteroid.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Dinosaur";
+    	gameLevelFiles[lnum] = "data/gamelevels/Dinosaur.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Lunar Digger";
+    	gameLevelFiles[lnum] = "data/gamelevels/GoldDiggerMoon.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Free Will";
+    	gameLevelFiles[lnum] = "data/gamelevels/FreeWill.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Short Supply";
+    	gameLevelFiles[lnum] = "data/gamelevels/ShortSupply.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Ascraeus Mons";
+    	gameLevelFiles[lnum] = "data/gamelevels/AscraeusMons.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Rigor Mortis";
+    	gameLevelFiles[lnum] = "data/gamelevels/RigorMortis.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Lava Tube";
+    	gameLevelFiles[lnum] = "data/gamelevels/LavaTube.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Olympus Mons";
+    	gameLevelFiles[lnum] = "data/gamelevels/OlympusMons.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". The Message";
+    	gameLevelFiles[lnum] = "data/gamelevels/TheMessage.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Adrift";
+    	gameLevelFiles[lnum] = "data/gamelevels/Adrift.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Emerald Harvest";
+    	gameLevelFiles[lnum] = "data/gamelevels/EmeraldHarvest.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Alone";
+    	gameLevelFiles[lnum] = "data/gamelevels/Alone.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Solar System";
+    	gameLevelFiles[lnum] = "data/gamelevels/SolarSystem.lvl";
+
+		lnum += 1;
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Dreaming of Home";
+    	gameLevelFiles[lnum] = "data/gamelevels/DreamingofHome.lvl";
 
     	// Finally, initialise the records strings
     	updateRecords();

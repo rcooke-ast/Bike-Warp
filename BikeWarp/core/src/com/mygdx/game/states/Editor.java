@@ -525,22 +525,19 @@ public class Editor extends GameState {
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 									// Initialise the PolygonSprites
 									allPolygonSprites = new ArrayList<PolygonSprite>();
-									float[] colarr;
 									for (int i=0; i<allPolygons.size(); i++) {
 										allPolygonSprites.add(null);
 										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i)%2==0)) {
-											// TEMPORARY - DELETE THIS!
-//											colarr = ColorUtils.ConvertStringToColor(allPolygonTextures.get(i));
-//											if ((colarr[0]==1.0f) & (colarr[1]==1.0f) & (colarr[2]==1.0f)) {
-//												platformColor[0]=0.2f;
-//												platformColor[1]=0.2f;
-//												platformColor[2]=0.2f;
-//												platformColor[3]=colarr[3];
-//												polySelect=i;
-//												UpdatePlatformColor();
-//											}
 											MakePolygonSprite(i);
 										}
+										// TEMPORARY - DELETE THIS!
+//										mode = 4;
+//										if ((allPolygonTypes.get(i)==2) && (allPolygons.get(i).length!=8)) {
+//											cursposx = allPolygonPaths.get(i)[4];
+//											cursposy = allPolygonPaths.get(i)[5];
+//											ScalePolygon(i, 0.5f);
+//											UpdatePolygon(i, false);
+//										}
 									}
 									polySelect=-1;
 									// Temporary
@@ -1440,8 +1437,8 @@ public class Editor extends GameState {
 				segmHover = -1;
 			}
 		}
-		if (setCursor == true) {
-			if (GameInput.MBJUSTPRESSED == true) {
+		if (setCursor) {
+			if (GameInput.MBJUSTPRESSED) {
 				cursposx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				//cursposx = cam.position.x + cam.zoom*(GameInput.MBUPX/(BikeGame.SCALE) - 0.5f*SCRWIDTH);
 				cursposy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
