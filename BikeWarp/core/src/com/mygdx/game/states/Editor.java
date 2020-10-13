@@ -378,7 +378,7 @@ public class Editor extends GameState {
 		selectLoadLevel.setItems(EditorIO.LoadLevelNames(loadList));
 		selectLoadLevel.setSelectedIndex(0);
 		selectLoadLevel.setMaxListCount(0);
-		textInputSave.setMaxLength(11);
+		textInputSave.setMaxLength(50);
 
 		listParent = new List(skin);
 		listParent.setItems(nullList);
@@ -8447,6 +8447,7 @@ public class Editor extends GameState {
 		float shiftY = 0.5f*(allDecors.get(decorSelect)[1]+allDecors.get(decorSelect)[5]);
 		updatePoly = DecorVars.GetNextRectMultiple(objNum, (int) allDecors.get(decorSelect)[8], shiftX, shiftY);
 		allDecors.set(decorSelect, updatePoly.clone());
+		updatePoly = null;
 	}
 	
 	public void UpdateDecor(int idx, String mode) {

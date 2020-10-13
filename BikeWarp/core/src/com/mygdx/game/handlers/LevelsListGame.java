@@ -32,8 +32,8 @@ public class LevelsListGame {
 		gameLevelTips[lnum] = "Tip: Collect the emerald jewel and head to the exit warp";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Mandela";
-		gameLevelFiles[lnum] = "data/gamelevels/Mandela.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Victoria Falls";
+		gameLevelFiles[lnum] = "data/gamelevels/VictoriaFalls.lvl";
 		gameLevelTips[lnum] = "Tip: Use the 'b' key to bunny hop";
 
 		lnum += 1;
