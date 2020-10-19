@@ -145,6 +145,8 @@ public class Play extends GameState {
     private float waterfallPos;
     private Body rainBody;
     private float rainPos;
+    private Body asteroidsBody;
+    private float asteroidsPos;
     private float bikeDirc = 1.0f;
 	private float dircGrav;
     private float bikeScale = 1.0f;
@@ -195,7 +197,7 @@ public class Play extends GameState {
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
     private Music soundWaterfall, soundRain;
-    private boolean containsWaterfall, containsRain;
+    private boolean containsAsteroids, containsWaterfall, containsRain;
     private Array<float[]> waterfallVerts, rainVerts;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
@@ -366,6 +368,7 @@ public class Play extends GameState {
         soundSwitch = BikeGameSounds.GetSoundIndex("switch");
         soundTransport = BikeGameSounds.GetSoundIndex("transport");
         soundFinish = BikeGameSounds.GetSoundIndex("finish");
+        containsAsteroids = false;
         containsWaterfall = false;
         containsRain = false;
 
@@ -636,7 +639,7 @@ public class Play extends GameState {
 	     	   			gsm.SetPlaying(false);
 	     	   			break;
 	     	   		} else cl.notFinished();
-	     	   } else if ((cl.isPlayerDead()) | (forcequit) | (forceRestart)) {
+	     	   } else if ((cl.isPlayerDead() && !isReplay) | (forcequit) | (forceRestart)) {
 	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
 	       		    StopSounds();
     	   			if (!isReplay) {
@@ -675,7 +678,8 @@ public class Play extends GameState {
         	   updateTriggerBodies(dt);
         	   updateKinematicBodies(dt);
         	   updateSwitches();
-        	   if (containsWaterfall) updateWaterfall(dt);
+               if (containsAsteroids) updateAsteroids(dt);
+               if (containsWaterfall) updateWaterfall(dt);
         	   if (containsRain) updateRain(dt);
         	   if (canTransport < 0.0f) updateTransport();
         	   else canTransport += dt;
@@ -1563,6 +1567,16 @@ public class Play extends GameState {
     	}
     	// Set the sound volume of the rain
     	soundRain.setVolume(volume);
+    }
+
+    private void updateAsteroids(float dt) {
+        // Shift the waterfall
+        float shift = dt*1.0f;
+        asteroidsPos -= shift;
+        if (asteroidsPos <= -1000.0f*PolySpatial.PIXELS_PER_METER) {
+            asteroidsPos += 2000.0f*PolySpatial.PIXELS_PER_METER;
+        }
+        rainBody.setTransform(0.0f, asteroidsPos, 0.0f);
     }
 
     public void render() {
@@ -2571,7 +2585,12 @@ public class Play extends GameState {
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, body, Color.WHITE);
-                            mPolySpatials.add(spatial);
+                             if (isBG) {
+                                 mCollisionlessBG.add(spatial);
+                             } else if (isFG) {
+                                 mCollisionlessFG.add(spatial);
+                             } else mPolySpatials.add(spatial);
+                            //mPolySpatials.add(spatial);
                          }
                       }
                       else if (fixture.getType() == Shape.Type.Circle)

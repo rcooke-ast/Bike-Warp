@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -79,7 +80,7 @@ public class Editor extends GameState {
 			"Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
-	private String[] skyTextureList = {"Blue Sky", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
+	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
 	private String[] fgTextureList = {"None", "Plants", "Trees"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
@@ -548,6 +549,18 @@ public class Editor extends GameState {
 //											tmp[0] *= 2;
 //											tmp[1] *= 2;
 //											allPolygonPaths.set(i, tmp.clone());
+//										}
+//									}
+									// Temporary for Waterfalls/Rain
+//									for (int i=0; i<allDecors.size(); i++) {
+//										if (((allDecorTypes.get(i) == DecorVars.Waterfall) | (allDecorTypes.get(i) == DecorVars.Rain)) && (allDecors.get(i).length==8)) {
+//											float[] tmp = new float[9];
+//											for (int jj=0; jj<4; jj++) {
+//												tmp[2*jj] = allDecors.get(i)[2*jj];
+//												tmp[2*jj+1] = allDecors.get(i)[2*jj+1];
+//											}
+//											tmp[8] = 1;
+//											allDecors.set(i, tmp.clone());
 //										}
 //									}
 									// Restore the original settings of this level
@@ -1172,6 +1185,8 @@ public class Editor extends GameState {
 		updateGroup = null;
 		copyPoly = false;
 		engageDelete = false;
+		addGrass = false;
+		clearGrass = false;
 	}
 
 	private void ResetAltObjects() {
@@ -2207,13 +2222,15 @@ public class Editor extends GameState {
 			shapeRenderer.polygon(decor);
 		} else if (dTyp == DecorVars.Rain) {
 			shapeRenderer.setColor(0, 0, 0.6f, opacity);
-			shapeRenderer.polygon(decor);
+			rCoord = Arrays.copyOfRange(decor, 0, 8);
+			shapeRenderer.polygon(rCoord);
 		} else if (dTyp == DecorVars.Waterfall) {
 			shapeRenderer.setColor(0, 0, 0.8f, opacity);
-			shapeRenderer.polygon(decor);
+			rCoord = Arrays.copyOfRange(decor, 0, 8);
+			shapeRenderer.polygon(rCoord);
 		} else if (dTyp == DecorVars.LargeStone) {
 			shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
-			shapeRenderer.circle(decor[0], decor[1],decor[2]);
+			shapeRenderer.circle(decor[0], decor[1], decor[2]);
 		}
 	}
 
@@ -4605,7 +4622,7 @@ public class Editor extends GameState {
 				FindNearestSegment(true);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				SelectDecor("up", DecorVars.Grass, false, false);
-				engageDelete = true;
+				if (decorSelect != -1) engageDelete = true;
     		} else if (modeChild.equals("Move Vertex")) {
     			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
     			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
@@ -4650,10 +4667,10 @@ public class Editor extends GameState {
 				} else {
 					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 		    		endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-	            	MoveDecor(decorSelect, "polygon", endX, endY);
+	            	MoveDecor(decorSelect, "WForRain", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
-				UpdateDecor(decorSelect, "move");
+				UpdateDecor(decorSelect, "WForRain");
 				decorSelect = -1;
     		} else if (modeChild.equals("Move Segment")) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -4669,12 +4686,26 @@ public class Editor extends GameState {
 	        			if (segmNext < segmSelect) MoveSegment(decorSelect, segmNext, segmSelect, startX, startY);
 	        			else MoveSegment(decorSelect, segmSelect, segmNext, startX, startY);
 	    			}
-	    		} else if ((GameInput.MBJUSTPRESSED==true) & (decorSelect != -1) & (vertSelect != -1)) {
-	         			UpdateDecor(decorSelect, "move");
+	    		} else if ((GameInput.MBJUSTPRESSED) & (decorSelect != -1) & (vertSelect != -1)) {
+	         			UpdateDecor(decorSelect, "WForRain");
 	         			decorSelect = -1;
 	         			vertSelect = -1;
 	    		} else FindNearestSegmentDecor(true);
-        	}
+        	} else if ((modeChild.equals("Toggle FG/BG")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				if (modeParent.equals("Rain")) SelectDecor("up", DecorVars.Rain, false, false);
+				else if (modeParent.equals("Waterfall")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				if (decorSelect != -1) {
+					newPoly = allDecors.get(decorSelect).clone();
+					newPoly[8] = 1-allDecors.get(decorSelect)[8];
+					allDecors.set(decorSelect, newPoly.clone());
+					if (allDecors.get(decorSelect)[8]<0.5f) Message("Decoration moved to background", 0);
+					else Message("Decoration moved to foreground", 0);
+					decorSelect = -1;
+					newPoly = null;
+				}
+			}
 		} else if (modeParent.equals("Bin Bag")) {
 			int objNum;
 			if (modeParent.equals("Bin Bag")) objNum=DecorVars.BinBag;
@@ -5535,9 +5566,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Grass")) {
 					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Grass", "Delete All Grass");
 				} else if (modeParent.equals("Rain")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Segment");
+					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG");
 				} else if (modeParent.equals("Waterfall")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Segment");
+					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG");
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
 				} else if ((modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {
@@ -5805,7 +5836,11 @@ public class Editor extends GameState {
 	    		updatePoly[2*vertj+1] = startY;
 	    	}
     	} else if (mode == 6) {
-	    	updatePoly = allDecors.get(idx).clone();
+    		if ((allDecorTypes.get(idx)==DecorVars.Waterfall) | (allDecorTypes.get(idx)==DecorVars.Rain)) {
+				updatePoly = Arrays.copyOfRange(allDecors.get(idx).clone(), 0, 8);
+			} else {
+				updatePoly = allDecors.get(idx).clone();
+			}
     		// Move the segment
 	    	if (Math.abs(allDecors.get(idx)[2*verti]-allDecors.get(idx)[2*vertj]) < (Math.abs(allDecors.get(idx)[2*verti+1]-allDecors.get(idx)[2*vertj+1]))) {
 	    		// More similar x values, so move in the x direction
@@ -7901,7 +7936,7 @@ public class Editor extends GameState {
     	DeleteAllGrass();
     	// Now add all grass back in
 		for (int i = 0; i<allPolygons.size(); i++) {
-			if (allPolygonTypes.get(i)%2 == 0) {
+			if ((allPolygonTypes.get(i)%2 == 0) && (allPolygonTypes.get(i) != 8) && (allPolygonTypes.get(i) != 10)){
 				polyHover = i;
 				for (int j = 0; j < allPolygons.get(i).length/2; j++) {
 					segmHover = j;
@@ -7914,7 +7949,7 @@ public class Editor extends GameState {
     }
 
     public void DeleteAllGrass() {
-    	boolean noGrass = true;
+    	boolean noGrass;
     	while (true) {
     		noGrass = true;
 			for (int i = 0; i<allDecors.size(); i++) {
@@ -7998,16 +8033,18 @@ public class Editor extends GameState {
 		angle *= MathUtils.PI/180.0;
 		if (otype==DecorVars.Waterfall) {
 			newPoly = new float[DecorVars.decorWaterfall.length];
-			for (int i=0; i<DecorVars.decorWaterfall.length/2; i++) {
+			for (int i=0; i<(DecorVars.decorWaterfall.length-1)/2; i++) {
 				newPoly[2*i] = DecorVars.decorWaterfall[2*i] + xcen;
 				newPoly[2*i+1] = DecorVars.decorWaterfall[2*i+1] + ycen;
 			}
+			newPoly[DecorVars.decorWaterfall.length-1] = DecorVars.decorWaterfall[DecorVars.decorWaterfall.length-1];
 		} else if (otype==DecorVars.Rain) {
 			newPoly = new float[DecorVars.decorRain.length];
-			for (int i=0; i<DecorVars.decorRain.length/2; i++) {
+			for (int i=0; i<(DecorVars.decorRain.length-1)/2; i++) {
 				newPoly[2*i] = DecorVars.decorRain[2*i] + xcen;
 				newPoly[2*i+1] = DecorVars.decorRain[2*i+1] + ycen;
 			}
+			newPoly[DecorVars.decorRain.length-1] = DecorVars.decorRain[DecorVars.decorRain.length-1];
 		} else if (DecorVars.IsRoadSign(otype)) {
 			newPoly = new float[DecorVars.decorCircleRoadSign.length];
 			newPoly[0] = DecorVars.decorCircleRoadSign[0] + xcen;
@@ -8125,7 +8162,7 @@ public class Editor extends GameState {
 			if ((allDecorTypes.get(j) == DecorVars.Waterfall) | (allDecorTypes.get(j) == DecorVars.Rain)) {
 				if ((modeParent.equals("Rain")) & (allDecorTypes.get(j)!=DecorVars.Rain)) continue;
 				if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
-				arraySegm = allDecors.get(j).clone();
+				arraySegm = Arrays.copyOfRange(allDecors.get(j).clone(), 0, 8);
 				for (int i=0; i<arraySegm.length/2; i++) {
 					idxa = i;
 					if (i == arraySegm.length/2 - 1) idxb = 0;
@@ -8219,6 +8256,12 @@ public class Editor extends GameState {
 			updatePoly[1] += shiftY;
 		} else if (mode.equals("polygon")) {
 			updatePoly = allDecors.get(idx).clone();
+			for (int i = 0; i<allDecors.get(idx).length/2; i++) {
+				updatePoly[2*i] += shiftX;
+				updatePoly[2*i+1] += shiftY;
+			}
+		} else if (mode.equals("WForRain")) {
+			updatePoly = Arrays.copyOfRange(allDecors.get(idx).clone(), 0, 8);
 			for (int i = 0; i<allDecors.get(idx).length/2; i++) {
 				updatePoly[2*i] += shiftX;
 				updatePoly[2*i+1] += shiftY;
@@ -8378,7 +8421,11 @@ public class Editor extends GameState {
 		for (int i = 0; i<allDecors.size(); i++) {
 			if ((allDecorTypes.get(i) == otype) | (otype == -1)) {
 				if (!circle) {
-					inside = PolygonOperations.PointInPolygon(allDecors.get(i),tempx,tempy);					
+					if ((otype==DecorVars.Waterfall) | (otype==DecorVars.Rain)) {
+						inside = PolygonOperations.PointInPolygon(Arrays.copyOfRange(allDecors.get(i).clone(),0,8),tempx,tempy);
+					} else {
+						inside = PolygonOperations.PointInPolygon(allDecors.get(i),tempx,tempy);
+					}
 				} else {
 					if (Math.sqrt((tempx-allDecors.get(i)[0])*(tempx-allDecors.get(i)[0]) + (tempy-allDecors.get(i)[1])*(tempy-allDecors.get(i)[1])) < allDecors.get(i)[2]) {
 						inside = true;
@@ -8466,6 +8513,13 @@ public class Editor extends GameState {
 			newPoly = allDecors.set(idx, updatePoly.clone());
 		} else if (mode.equals("scale")) {
 			newPoly = allDecors.set(idx, updatePoly.clone());
+		} else if (mode.equals("WForRain")) {
+			newPoly = allDecors.get(idx).clone();
+			for (int ii=0; ii<4; ii++) {
+				newPoly[2*ii] = updatePoly[2*ii];
+				newPoly[2*ii+1] = updatePoly[2*ii+1];
+			}
+			updatePoly = allDecors.set(idx, newPoly.clone());
 		}
 		// Nullify the update Polygon
 		updatePoly = null;

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -868,6 +869,7 @@ public class EditorIO {
         json.key("name").value("skyTexture");
         String textSky = LevelVars.get(LevelVars.PROP_SKY_TEXTURE); 
         if (textSky.equals("Blue Sky")) json.key("string").value("data/images/sky_bluesky.png");
+		else if (textSky.equals("Dusk")) json.key("string").value("data/images/sky_dusk.png");
         else if (textSky.equals("Evening")) json.key("string").value("data/images/sky_evening.png");
         else if (textSky.equals("Islands")) json.key("string").value("data/images/sky_islands.png");
         else if (textSky.equals("Mars")) json.key("string").value("data/images/sky_mars.png");
@@ -928,7 +930,7 @@ public class EditorIO {
         for (int i = 0; i<allDecors.size(); i++) {
         	// Decompose each polygon into a series of convex polygons
             if (allDecorTypes.get(i) == DecorVars.Waterfall) {
-    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
+    			concaveVertices = PolygonOperations.MakeVertices(Arrays.copyOfRange(allDecors.get(i), 0, 8));
     			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
     			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
     			for (int k = 0; k<convexPolygons.size(); k++){
@@ -950,6 +952,11 @@ public class EditorIO {
 		            json.key("name").value("TextureMask");
 		            json.key("string").value(textWaterfall);
 		            json.endObject();
+					json.object();
+					json.key("name").value("Type");
+					if (allDecors.get(i)[8]<0.5f) json.key("string").value("CollisionlessBG");
+					else json.key("string").value("CollisionlessFG");
+					json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
 	                json.object(); // Begin polygon object
@@ -1010,7 +1017,7 @@ public class EditorIO {
         for (int i = 0; i<allDecors.size(); i++) {
         	// Decompose each polygon into a series of convex polygons
             if (allDecorTypes.get(i) == DecorVars.Rain) {
-    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
+    			concaveVertices = PolygonOperations.MakeVertices(Arrays.copyOfRange(allDecors.get(i), 0, 8));
     			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
     			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
     			for (int k = 0; k<convexPolygons.size(); k++){
@@ -1032,6 +1039,11 @@ public class EditorIO {
 		            json.key("name").value("TextureMask");
 		            json.key("string").value(textRain);
 		            json.endObject();
+					json.object();
+					json.key("name").value("Type");
+					if (allDecors.get(i)[8]==0) json.key("string").value("CollisionlessBG");
+					else json.key("string").value("CollisionlessFG");
+					json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
 	                json.object(); // Begin polygon object

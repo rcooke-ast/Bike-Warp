@@ -31,8 +31,8 @@ public class DecorVars {
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
-    public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
-    public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
+    public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f};
+    public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f};
     
     // Define the textures that can be applied to platforms
     public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Grass", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
