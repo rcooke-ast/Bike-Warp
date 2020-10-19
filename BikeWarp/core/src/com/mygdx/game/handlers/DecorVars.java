@@ -1,6 +1,13 @@
 package com.mygdx.game.handlers;
 
 public class DecorVars {
+	// Define the sounds that can be applied to certain decorations
+	public static final String[] platformSounds = {"None", "Rain", "Waterfall", "Wind"};
+	public static final int soundNone = 0;
+	public static final int soundRain = 1;
+	public static final int soundWaterfall = 2;
+	public static final int soundWind = 3;
+
 	// Define the Indices
     public static final int RoadSign_Stop = 0;
     public static final int RoadSign_DoNotEnter = 1;
@@ -31,8 +38,8 @@ public class DecorVars {
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
-    public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f};
-    public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f};
+    public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundWaterfall};
+    public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain};
     
     // Define the textures that can be applied to platforms
     public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Grass", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
@@ -63,7 +70,7 @@ public class DecorVars {
 	public static final int textureWoodPlancksV = 24;
 	//public static final int texture = ;
 
-    public static boolean IsRoadSign(int dTyp) {
+	public static boolean IsRoadSign(int dTyp) {
     	if  ((dTyp == RoadSign_Stop) | (dTyp == RoadSign_DoNotEnter) | (dTyp == RoadSign_RampAhead) |
     			(dTyp == RoadSign_Bumps) | (dTyp == RoadSign_Motorbike) | (dTyp == RoadSign_NoMotorbike) |
     			(dTyp == RoadSign_ReduceSpeed) | (dTyp == RoadSign_Exclamation) | (dTyp == RoadSign_10) |
@@ -80,11 +87,36 @@ public class DecorVars {
     	} else return false;
     }
 
-    public static String[] GetPlatformTextures() {
-    	return platformTextures.clone();
-    }
-    
-    public static String GetPlatformTextureFromIndex(int idx) {
+	public static String[] GetPlatformTextures() {
+		return platformTextures.clone();
+	}
+
+	public static String[] GetDecorSounds() {
+		return platformSounds.clone();
+	}
+
+	public static String GetSoundFromIndex(int idx) {
+		switch (idx) {
+			case -1: return "None";
+			case soundNone: return "None";
+			case soundRain: return "Rain";
+			case soundWaterfall: return "Waterfall";
+			case soundWind: return "Wind";
+			default: return "None";
+		}
+	}
+
+	public static int GetSoundIndexFromString(String soundName) {
+		switch (soundName) {
+			case "None": return soundNone;
+			case "Rain": return soundRain;
+			case "Waterfall": return soundWaterfall;
+			case "Wind": return soundWind;
+			default: return soundNone;
+		}
+	}
+
+	public static String GetPlatformTextureFromIndex(int idx) {
     	switch (idx) {
 			case -1: return "Default";
 			case textureDefault: return "Default";

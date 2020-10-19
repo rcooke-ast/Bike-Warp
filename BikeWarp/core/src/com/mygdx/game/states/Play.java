@@ -32,7 +32,6 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Joint;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -46,7 +45,6 @@ import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
-import com.mygdx.game.handlers.DecorVars;
 
 import static com.mygdx.game.handlers.B2DVars.PPM;
 
@@ -59,7 +57,6 @@ import com.mygdx.game.handlers.LevelsListCustom;
 import com.mygdx.game.handlers.LevelsListGame;
 import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.handlers.ReplayVars;
-import com.mygdx.game.utilities.BayazitDecomposer;
 import com.mygdx.game.utilities.ColorUtils;
 import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
@@ -145,8 +142,8 @@ public class Play extends GameState {
     private float waterfallPos;
     private Body rainBody;
     private float rainPos;
-    private Body asteroidsBody;
-    private float asteroidsPos;
+    private Body animatedBGBody;
+    private float animatedBGPos, animatedBGSpeed;
     private float bikeDirc = 1.0f;
 	private float dircGrav;
     private float bikeScale = 1.0f;
@@ -196,9 +193,9 @@ public class Play extends GameState {
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
-    private Music soundWaterfall, soundRain;
-    private boolean containsAsteroids, containsWaterfall, containsRain;
-    private Array<float[]> waterfallVerts, rainVerts;
+    private Music soundWaterfall, soundRain, soundWind;
+    private boolean containsAnimatedBG, containsWaterfall, containsRain, containsWind;
+    private Array<float[]> waterfallVerts, rainVerts, animBGVerts;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
@@ -368,7 +365,7 @@ public class Play extends GameState {
         soundSwitch = BikeGameSounds.GetSoundIndex("switch");
         soundTransport = BikeGameSounds.GetSoundIndex("transport");
         soundFinish = BikeGameSounds.GetSoundIndex("finish");
-        containsAsteroids = false;
+        containsAnimatedBG = false;
         containsWaterfall = false;
         containsRain = false;
 
@@ -443,6 +440,9 @@ public class Play extends GameState {
         waterfallVerts = new Array<float[]>();
         rainPos = 0.0f;
         rainVerts = new Array<float[]>();
+        animatedBGPos = 0.0f;
+        animatedBGSpeed = 0.0f;
+        animBGVerts = new Array<float[]>();
 
     	playerJump = 100.0f;
     	lrIsDown = false;
@@ -574,12 +574,18 @@ public class Play extends GameState {
 		            soundWaterfall.setLooping(true);
 		            soundWaterfall.play();
 	            }
-	            // Check if there is rain
-	            if (containsRain) {
-		            soundRain = BikeGameSounds.LoadRain();
-		            soundRain.setLooping(true);
-		            soundRain.play();
-	            }
+                // Check if there is rain
+                if (containsRain) {
+                    soundRain = BikeGameSounds.LoadRain();
+                    soundRain.setLooping(true);
+                    soundRain.play();
+                }
+                // Check if there is rain
+                if (containsWind) {
+                    soundWind = BikeGameSounds.LoadWind();
+                    soundWind.setLooping(true);
+                    soundWind.play();
+                }
                 mNextState = GAME_STATE.RUNNING;
 	            // Start the timer
 	            timerStart = (int) (TimeUtils.millis());
@@ -678,7 +684,7 @@ public class Play extends GameState {
         	   updateTriggerBodies(dt);
         	   updateKinematicBodies(dt);
         	   updateSwitches();
-               if (containsAsteroids) updateAsteroids(dt);
+               if (containsAnimatedBG) updateAnimatedBG(dt);
                if (containsWaterfall) updateWaterfall(dt);
         	   if (containsRain) updateRain(dt);
         	   if (canTransport < 0.0f) updateTransport();
@@ -1569,14 +1575,14 @@ public class Play extends GameState {
     	soundRain.setVolume(volume);
     }
 
-    private void updateAsteroids(float dt) {
+    private void updateAnimatedBG(float dt) {
         // Shift the waterfall
-        float shift = dt*1.0f;
-        asteroidsPos -= shift;
-        if (asteroidsPos <= -1000.0f*PolySpatial.PIXELS_PER_METER) {
-            asteroidsPos += 2000.0f*PolySpatial.PIXELS_PER_METER;
+        float shift = dt*animatedBGSpeed;
+        animatedBGPos -= shift;
+        if (animatedBGPos <= -1000.0f*PolySpatial.PIXELS_PER_METER) {
+            animatedBGPos += 2000.0f*PolySpatial.PIXELS_PER_METER;
         }
-        rainBody.setTransform(0.0f, asteroidsPos, 0.0f);
+        animatedBGBody.setTransform(0.0f, animatedBGPos, 0.0f);
     }
 
     public void render() {

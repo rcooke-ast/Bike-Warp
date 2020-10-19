@@ -4705,6 +4705,21 @@ public class Editor extends GameState {
 					decorSelect = -1;
 					newPoly = null;
 				}
+			} else if ((modeChild.equals("Change Sound")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				if (modeParent.equals("Rain")) SelectDecor("up", DecorVars.Rain, false, false);
+				else if (modeParent.equals("Waterfall")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				if (decorSelect != -1) {
+					newPoly = allDecors.get(decorSelect).clone();
+					newPoly[9] = 1+allDecors.get(decorSelect)[9];
+					if (newPoly[9] >= DecorVars.platformSounds.length) newPoly[0] = 0;
+					allDecors.set(decorSelect, newPoly.clone());
+					String soundStr = DecorVars.GetSoundFromIndex((int) allDecors.get(decorSelect)[9]);
+					Message("Decoration sound changed to "+soundStr, 0);
+					decorSelect = -1;
+					newPoly = null;
+				}
 			}
 		} else if (modeParent.equals("Bin Bag")) {
 			int objNum;
@@ -5566,9 +5581,9 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Grass")) {
 					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Grass", "Delete All Grass");
 				} else if (modeParent.equals("Rain")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG");
+					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Sound");
 				} else if (modeParent.equals("Waterfall")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG");
+					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Sound");
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
 				} else if ((modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {

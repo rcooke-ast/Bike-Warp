@@ -36,6 +36,10 @@ public class BikeGameSounds {
         return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/rainstorm.wav"));
     }
 
+    public static Music LoadWind() {
+        return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/wind.wav"));
+    }
+
     private static void GetSound (String file) {
         sound = Gdx.audio.newSound(Gdx.files.internal("data/sounds/"+file+".mp3"));
         sounds.add(sound);

@@ -957,6 +957,10 @@ public class EditorIO {
 					if (allDecors.get(i)[8]<0.5f) json.key("string").value("CollisionlessBG");
 					else json.key("string").value("CollisionlessFG");
 					json.endObject();
+					json.object();
+					json.key("name").value("Sound");
+					json.key("string").value(DecorVars.GetSoundFromIndex((int) allDecors.get(i)[9]));
+					json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
 	                json.object(); // Begin polygon object
@@ -1043,6 +1047,10 @@ public class EditorIO {
 					json.key("name").value("Type");
 					if (allDecors.get(i)[8]==0) json.key("string").value("CollisionlessBG");
 					else json.key("string").value("CollisionlessFG");
+					json.endObject();
+					json.object();
+					json.key("name").value("Sound");
+					json.key("string").value(DecorVars.GetSoundFromIndex((int) allDecors.get(i)[9]));
 					json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
