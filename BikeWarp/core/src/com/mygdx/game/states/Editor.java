@@ -2399,6 +2399,7 @@ public class Editor extends GameState {
 	}
 
 	private void renderVertexSegments() {
+		float[] verts;
 		if ((mode==4)&(modeParent.equals("Set Path"))) {
 			if ((segmSelect != -1) & (vertSelect != -1) & (polySelect != -1) & (allPolygons.size()!=0)) {
 				shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -2442,9 +2443,14 @@ public class Editor extends GameState {
 		} else if (mode==6) {
 			if ((segmSelect != -1) & (vertSelect != -1) & (decorSelect != -1)) {
 				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				if ((allDecorTypes.get(decorSelect)==DecorVars.Waterfall) | (allDecorTypes.get(decorSelect)==DecorVars.Rain)) {
+					verts = Arrays.copyOfRange(allDecors.get(decorSelect), 0, 8);
+				} else {
+					verts = allDecors.get(decorSelect).clone();
+				}
 				int segmNext = segmSelect + 1;
-				if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
-				shapeRenderer.line(allDecors.get(decorSelect)[2*segmNext],allDecors.get(decorSelect)[2*segmNext+1],allDecors.get(decorSelect)[2*segmSelect],allDecors.get(decorSelect)[2*segmSelect+1]);
+				if (segmNext==verts.length/2) segmNext = 0;
+				shapeRenderer.line(verts[2*segmNext],verts[2*segmNext+1],verts[2*segmSelect],verts[2*segmSelect+1]);
 				//shapeRenderer.line(allPolygons.get(polySelect)[2*vertSelect],allPolygons.get(polySelect)[2*vertSelect+1],allPolygons.get(polySelect)[2*segmSelect],allPolygons.get(polySelect)[2*segmSelect+1]);
 			} else if ((vertSelect != -1) & (decorSelect != -1)) {
 				shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -2452,11 +2458,16 @@ public class Editor extends GameState {
 			} else if ((segmHover != -1) & (vertHover != -1) & (decorHover != -1)) {
 				// Draw the hover segment
 				shapeRenderer.setColor(1, 1, 0.1f, 1);
+				if ((allDecorTypes.get(decorHover)==DecorVars.Waterfall) | (allDecorTypes.get(decorHover)==DecorVars.Rain)) {
+					verts = Arrays.copyOfRange(allDecors.get(decorHover), 0, 8);
+				} else {
+					verts = allDecors.get(decorHover).clone();
+				}
 				int segmNext = segmHover + 1;
-				if (segmNext==allDecors.get(decorHover).length/2) segmNext = 0;
-				shapeRenderer.line(allDecors.get(decorHover)[2*segmNext],allDecors.get(decorHover)[2*segmNext+1],allDecors.get(decorHover)[2*segmHover],allDecors.get(decorHover)[2*segmHover+1]);
+				if (segmNext==verts.length/2) segmNext = 0;
+				shapeRenderer.line(verts[2*segmNext],verts[2*segmNext+1],verts[2*segmHover],verts[2*segmHover+1]);
 				//shapeRenderer.line(allPolygons.get(polyHover)[2*vertHover],allPolygons.get(polyHover)[2*vertHover+1],allPolygons.get(polyHover)[2*segmHover],allPolygons.get(polyHover)[2*segmHover+1]);
-				shapeRenderer.circle(0.5f*(allDecors.get(decorHover)[2*segmNext]+allDecors.get(decorHover)[2*segmHover]), 0.5f*(allDecors.get(decorHover)[2*segmNext+1]+allDecors.get(decorHover)[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
+				shapeRenderer.circle(0.5f*(verts[2*segmNext]+verts[2*segmHover]), 0.5f*(verts[2*segmNext+1]+verts[2*segmHover+1]), cam.zoom*SCRWIDTH*polyEndThreshold);
 			} else if ((vertHover != -1) & (decorHover != -1)) {
 				// Draw the hover vertex
 				shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -4682,7 +4693,7 @@ public class Editor extends GameState {
 	        			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 	        			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 	        			int segmNext = segmSelect + 1;
-	        			if (segmNext==allDecors.get(decorSelect).length/2) segmNext = 0;
+	        			if (segmNext==4) segmNext = 0;
 	        			if (segmNext < segmSelect) MoveSegment(decorSelect, segmNext, segmSelect, startX, startY);
 	        			else MoveSegment(decorSelect, segmSelect, segmNext, startX, startY);
 	    			}
@@ -4705,7 +4716,7 @@ public class Editor extends GameState {
 					decorSelect = -1;
 					newPoly = null;
 				}
-			} else if ((modeChild.equals("Change Sound")) & (GameInput.MBJUSTPRESSED)) {
+			} else if ((modeChild.equals("Toggle Sound")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Rain")) SelectDecor("up", DecorVars.Rain, false, false);
@@ -4713,7 +4724,7 @@ public class Editor extends GameState {
 				if (decorSelect != -1) {
 					newPoly = allDecors.get(decorSelect).clone();
 					newPoly[9] = 1+allDecors.get(decorSelect)[9];
-					if (newPoly[9] >= DecorVars.platformSounds.length) newPoly[0] = 0;
+					if (newPoly[9] >= DecorVars.platformSounds.length) newPoly[9] = 0;
 					allDecors.set(decorSelect, newPoly.clone());
 					String soundStr = DecorVars.GetSoundFromIndex((int) allDecors.get(decorSelect)[9]);
 					Message("Decoration sound changed to "+soundStr, 0);
@@ -5838,6 +5849,7 @@ public class Editor extends GameState {
     public void MoveSegment(int idx, int verti, int vertj, float startX, float startY) {
     	// Currently, this is only designed to move the segment in X or Y.
     	changesMade = true;
+    	float verts[];
     	if (mode==5) {
 	    	updatePoly = allObjects.get(idx).clone();
     		// Move the segment
@@ -5856,8 +5868,9 @@ public class Editor extends GameState {
 			} else {
 				updatePoly = allDecors.get(idx).clone();
 			}
+			verts = updatePoly.clone();
     		// Move the segment
-	    	if (Math.abs(allDecors.get(idx)[2*verti]-allDecors.get(idx)[2*vertj]) < (Math.abs(allDecors.get(idx)[2*verti+1]-allDecors.get(idx)[2*vertj+1]))) {
+	    	if (Math.abs(verts[2*verti]-verts[2*vertj]) < (Math.abs(verts[2*verti+1]-verts[2*vertj+1]))) {
 	    		// More similar x values, so move in the x direction
 	    		updatePoly[2*verti] = startX;
 	    		updatePoly[2*vertj] = startX;

@@ -44,19 +44,10 @@ import com.badlogic.gdx.physics.box2d.joints.WheelJointDef;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
-import com.mygdx.game.handlers.B2DVars;
+import com.mygdx.game.handlers.*;
 
 import static com.mygdx.game.handlers.B2DVars.PPM;
 
-import com.mygdx.game.handlers.GameContactListener;
-import com.mygdx.game.handlers.GameInput;
-import com.mygdx.game.handlers.GameInputProcessor;
-import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.GameVars;
-import com.mygdx.game.handlers.LevelsListCustom;
-import com.mygdx.game.handlers.LevelsListGame;
-import com.mygdx.game.handlers.ObjectVars;
-import com.mygdx.game.handlers.ReplayVars;
 import com.mygdx.game.utilities.ColorUtils;
 import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
@@ -97,6 +88,7 @@ public class Play extends GameState {
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
     private Array<PolySpatial> mPolySpatials;
+    private Array<PolySpatial> mAnimatedBG;
     private Array<PolySpatial> mCollisionlessFG;
     private Array<PolySpatial> mCollisionlessBG;
     private Array<PolySpatial> waterfallBackground;
@@ -194,8 +186,10 @@ public class Play extends GameState {
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
     private Music soundWaterfall, soundRain, soundWind;
+    private float[] musicVolumes = new float[DecorVars.platformSounds.length-1];
     private boolean containsAnimatedBG, containsWaterfall, containsRain, containsWind;
     private Array<float[]> waterfallVerts, rainVerts, animBGVerts;
+    private Array<Integer> waterfallSounds, rainSounds;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
@@ -368,6 +362,7 @@ public class Play extends GameState {
         containsAnimatedBG = false;
         containsWaterfall = false;
         containsRain = false;
+        resetMusicVolumes();
 
         // Load the items to be displayed on the HUD
         keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red",0));
@@ -438,8 +433,10 @@ public class Play extends GameState {
         fallingJointsTime = new Array<Float>();
         waterfallPos = 0.0f;
         waterfallVerts = new Array<float[]>();
+        waterfallSounds = new Array<Integer>();
         rainPos = 0.0f;
         rainVerts = new Array<float[]>();
+        rainSounds = new Array<Integer>();
         animatedBGPos = 0.0f;
         animatedBGSpeed = 0.0f;
         animBGVerts = new Array<float[]>();
@@ -568,24 +565,22 @@ public class Play extends GameState {
 	            soundIDBikeMove = soundBikeIdle.play(0.0f);
 	            soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
 	            soundBikeMove.setLooping(soundIDBikeMove, true);
-	            // Check if there is a watefall
-	            if (containsWaterfall) {
-		            soundWaterfall = BikeGameSounds.LoadWaterfall();
-		            soundWaterfall.setLooping(true);
-		            soundWaterfall.play();
-	            }
-                // Check if there is rain
-                if (containsRain) {
-                    soundRain = BikeGameSounds.LoadRain();
-                    soundRain.setLooping(true);
-                    soundRain.play();
-                }
-                // Check if there is rain
-                if (containsWind) {
-                    soundWind = BikeGameSounds.LoadWind();
-                    soundWind.setLooping(true);
-                    soundWind.play();
-                }
+	            // Load the waterfall music
+                soundWaterfall = BikeGameSounds.LoadWaterfall();
+                soundWaterfall.setLooping(true);
+                soundWaterfall.setVolume(0.0f);
+                soundWaterfall.play();
+                // Load the rain music
+                soundRain = BikeGameSounds.LoadRain();
+                soundRain.setLooping(true);
+                soundRain.setVolume(0.0f);
+                soundRain.play();
+                // Load the wind music
+                soundWind = BikeGameSounds.LoadWind();
+                soundWind.setLooping(true);
+                soundWind.setVolume(0.0f);
+                soundWind.play();
+                // Change the state
                 mNextState = GAME_STATE.RUNNING;
 	            // Start the timer
 	            timerStart = (int) (TimeUtils.millis());
@@ -685,8 +680,10 @@ public class Play extends GameState {
         	   updateKinematicBodies(dt);
         	   updateSwitches();
                if (containsAnimatedBG) updateAnimatedBG(dt);
+               resetMusicVolumes();
                if (containsWaterfall) updateWaterfall(dt);
         	   if (containsRain) updateRain(dt);
+        	   updateMusicVolumes();
         	   if (canTransport < 0.0f) updateTransport();
         	   else canTransport += dt;
         	   if (canTransport >= transportTime) {
@@ -729,7 +726,8 @@ public class Play extends GameState {
     private void StopSounds() {
 		if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
 		if (soundWaterfall != null) soundWaterfall.setLooping(false);
-		if (soundRain != null) soundRain.setLooping(false);
+        if (soundRain != null) soundRain.setLooping(false);
+        if (soundWind != null) soundWind.setLooping(false);
     }
     
     private void updateSounds(float dt) {
@@ -1423,74 +1421,80 @@ public class Play extends GameState {
     	float fadeDist = 20.0f/PolySpatial.PIXELS_PER_METER;
     	Vector2 riderPos = bikeBodyH.getPosition().scl(1.0f/PolySpatial.PIXELS_PER_METER);
     	int idxa, idxb, flag=0;
-    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f, volume=0.1f;
+    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f;
     	// First check if the rider is inside a waterfall
-    	for (int j=0; j < waterfallVerts.size; j++) {
-    		if (PolygonOperations.PointInPolygon(waterfallVerts.get(j), riderPos.x, riderPos.y)) {
-    			volume = 1.0f; // Maximum volume
-    			break;
-    		} else {
-    			for (int i=0; i < waterfallVerts.get(j).length/2; i++) {
-    				idxa = i;
-    				if (i == waterfallVerts.get(j).length/2 - 1) idxb = 0;
-    				else idxb = i+1;
-    				// Calculate the gradient
-    				xa = waterfallVerts.get(j)[2*idxa];
-    				ya = waterfallVerts.get(j)[2*idxa+1];
-    				xb = waterfallVerts.get(j)[2*idxb];
-    				yb = waterfallVerts.get(j)[2*idxb+1];
-    				if (xa==xb) {
-    					if (ya>yb) {
-    						if (riderPos.y>ya) yint = riderPos.y-ya;
-    						else if (riderPos.y<yb) yint = yb-riderPos.y;
-    						else yint = 0.0f;
-    					} else {
-    						if (riderPos.y>yb) yint = riderPos.y-yb;
-    						else if (riderPos.y<ya) yint = ya-riderPos.y;
-    						else yint = 0.0f;
-    					}
-    					dist = (float) Math.sqrt((riderPos.x-xa)*(riderPos.x-xa) + yint*yint);
-    				} else if (ya==yb) {
-    					if (xa>xb) {
-    						if (riderPos.x>xa) yint = riderPos.x-xa;
-    						else if (riderPos.x<xb) yint = xb-riderPos.x;
-    						else yint = 0.0f;
-    					} else {
-    						if (riderPos.x>xb) yint = riderPos.x-xb;
-    						else if (riderPos.x<xa) yint = xa-riderPos.x;
-    						else yint = 0.0f;
-    					}
-    					dist = (float) Math.sqrt((riderPos.y-ya)*(riderPos.y-ya) + yint*yint);
-    				} else {
-    					grad = (yb-ya)/(xb-xa);
-    					intc = ya - grad*xa;
-    					gradb = -(xb-xa)/(yb-ya);
-    					intcb = riderPos.y - gradb*riderPos.x;
-    					// Calculate the intersection, and make sure the intersection is within bounds
-    					xint = (intcb-intc)/(grad-gradb);
-    					if (xa < xb) {
-    						if (xint<xa) xint = xa;
-    						else if (xint>xb) xint = xb;
-    					} else {
-    						if (xint<xb) xint = xb;
-    						else if (xint>xa) xint = xa;						
-    					}
-    					// Calculate the distance between the intersection and the cursor
-    					yint = grad*xint + intc;
-    					dist = (float) Math.sqrt((riderPos.x-xint)*(riderPos.x-xint) + (riderPos.y-yint)*(riderPos.y-yint));
-    				}
-    				if ((dist < mindist) | (flag==0)) {
-    					mindist = dist;
-    					flag = 1;
-    				}
-    			}
-				// Set the volume (dist)
-				dist = (fadeDist-mindist)/fadeDist;
-				if (dist > volume) volume = dist;
-    		}
-    	}
-    	// Set the sound volume of the waterfall
-    	soundWaterfall.setVolume(volume);
+        float[] volumes = new float[musicVolumes.length];
+        for (int ss=1; ss < DecorVars.platformSounds.length; ss++) {
+            for (int j=0; j < waterfallVerts.size; j++) {
+                if (waterfallSounds.get(j) != DecorVars.GetSoundIndexFromString(DecorVars.platformSounds[ss])) {
+                    continue;
+                }
+                if (PolygonOperations.PointInPolygon(waterfallVerts.get(j), riderPos.x, riderPos.y)) {
+                    volumes[ss-1] = 1.0f; // Maximum volume
+                    break;
+                } else {
+                    for (int i=0; i < waterfallVerts.get(j).length/2; i++) {
+                        idxa = i;
+                        if (i == waterfallVerts.get(j).length/2 - 1) idxb = 0;
+                        else idxb = i+1;
+                        // Calculate the gradient
+                        xa = waterfallVerts.get(j)[2*idxa];
+                        ya = waterfallVerts.get(j)[2*idxa+1];
+                        xb = waterfallVerts.get(j)[2*idxb];
+                        yb = waterfallVerts.get(j)[2*idxb+1];
+                        if (xa==xb) {
+                            if (ya>yb) {
+                                if (riderPos.y>ya) yint = riderPos.y-ya;
+                                else if (riderPos.y<yb) yint = yb-riderPos.y;
+                                else yint = 0.0f;
+                            } else {
+                                if (riderPos.y>yb) yint = riderPos.y-yb;
+                                else if (riderPos.y<ya) yint = ya-riderPos.y;
+                                else yint = 0.0f;
+                            }
+                            dist = (float) Math.sqrt((riderPos.x-xa)*(riderPos.x-xa) + yint*yint);
+                        } else if (ya==yb) {
+                            if (xa>xb) {
+                                if (riderPos.x>xa) yint = riderPos.x-xa;
+                                else if (riderPos.x<xb) yint = xb-riderPos.x;
+                                else yint = 0.0f;
+                            } else {
+                                if (riderPos.x>xb) yint = riderPos.x-xb;
+                                else if (riderPos.x<xa) yint = xa-riderPos.x;
+                                else yint = 0.0f;
+                            }
+                            dist = (float) Math.sqrt((riderPos.y-ya)*(riderPos.y-ya) + yint*yint);
+                        } else {
+                            grad = (yb-ya)/(xb-xa);
+                            intc = ya - grad*xa;
+                            gradb = -(xb-xa)/(yb-ya);
+                            intcb = riderPos.y - gradb*riderPos.x;
+                            // Calculate the intersection, and make sure the intersection is within bounds
+                            xint = (intcb-intc)/(grad-gradb);
+                            if (xa < xb) {
+                                if (xint<xa) xint = xa;
+                                else if (xint>xb) xint = xb;
+                            } else {
+                                if (xint<xb) xint = xb;
+                                else if (xint>xa) xint = xa;
+                            }
+                            // Calculate the distance between the intersection and the cursor
+                            yint = grad*xint + intc;
+                            dist = (float) Math.sqrt((riderPos.x-xint)*(riderPos.x-xint) + (riderPos.y-yint)*(riderPos.y-yint));
+                        }
+                        if ((dist < mindist) | (flag==0)) {
+                            mindist = dist;
+                            flag = 1;
+                        }
+                    }
+                    // Set the volume (dist)
+                    dist = (fadeDist-mindist)/fadeDist;
+                    if (dist > volumes[ss-1]) volumes[ss-1] = dist;
+                }
+            }
+            // Set the sound volume of the waterfall
+            if (volumes[ss-1] > musicVolumes[ss-1]) musicVolumes[ss-1] = volumes[ss-1];
+        }
     }
 
     private void updateRain(float dt) {
@@ -1505,74 +1509,96 @@ public class Play extends GameState {
     	float fadeDist = 20.0f/PolySpatial.PIXELS_PER_METER;
     	Vector2 riderPos = bikeBodyH.getPosition().scl(1.0f/PolySpatial.PIXELS_PER_METER);
     	int idxa, idxb, flag=0;
-    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f, volume=0.0f;
+    	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f;
     	// First check if the rider is inside a rain
-    	for (int j=0; j < rainVerts.size; j++) {
-    		if (PolygonOperations.PointInPolygon(rainVerts.get(j), riderPos.x, riderPos.y)) {
-    			volume = 1.0f; // Maximum volume
-    			break;
-    		} else {
-    			for (int i=0; i < rainVerts.get(j).length/2; i++) {
-    				idxa = i;
-    				if (i == rainVerts.get(j).length/2 - 1) idxb = 0;
-    				else idxb = i+1;
-    				// Calculate the gradient
-    				xa = rainVerts.get(j)[2*idxa];
-    				ya = rainVerts.get(j)[2*idxa+1];
-    				xb = rainVerts.get(j)[2*idxb];
-    				yb = rainVerts.get(j)[2*idxb+1];
-    				if (xa==xb) {
-    					if (ya>yb) {
-    						if (riderPos.y>ya) yint = riderPos.y-ya;
-    						else if (riderPos.y<yb) yint = yb-riderPos.y;
-    						else yint = 0.0f;
-    					} else {
-    						if (riderPos.y>yb) yint = riderPos.y-yb;
-    						else if (riderPos.y<ya) yint = ya-riderPos.y;
-    						else yint = 0.0f;
-    					}
-    					dist = (float) Math.sqrt((riderPos.x-xa)*(riderPos.x-xa) + yint*yint);
-    				} else if (ya==yb) {
-    					if (xa>xb) {
-    						if (riderPos.x>xa) yint = riderPos.x-xa;
-    						else if (riderPos.x<xb) yint = xb-riderPos.x;
-    						else yint = 0.0f;
-    					} else {
-    						if (riderPos.x>xb) yint = riderPos.x-xb;
-    						else if (riderPos.x<xa) yint = xa-riderPos.x;
-    						else yint = 0.0f;
-    					}
-    					dist = (float) Math.sqrt((riderPos.y-ya)*(riderPos.y-ya) + yint*yint);
-    				} else {
-    					grad = (yb-ya)/(xb-xa);
-    					intc = ya - grad*xa;
-    					gradb = -(xb-xa)/(yb-ya);
-    					intcb = riderPos.y - gradb*riderPos.x;
-    					// Calculate the intersection, and make sure the intersection is within bounds
-    					xint = (intcb-intc)/(grad-gradb);
-    					if (xa < xb) {
-    						if (xint<xa) xint = xa;
-    						else if (xint>xb) xint = xb;
-    					} else {
-    						if (xint<xb) xint = xb;
-    						else if (xint>xa) xint = xa;						
-    					}
-    					// Calculate the distance between the intersection and the cursor
-    					yint = grad*xint + intc;
-    					dist = (float) Math.sqrt((riderPos.x-xint)*(riderPos.x-xint) + (riderPos.y-yint)*(riderPos.y-yint));
-    				}
-    				if ((dist < mindist) | (flag==0)) {
-    					mindist = dist;
-    					flag = 1;
-    				}
-    			}
-				// Set the volume (dist)
-				dist = (fadeDist-mindist)/fadeDist;
-				if (dist > volume) volume = dist;
-    		}
-    	}
-    	// Set the sound volume of the rain
-    	soundRain.setVolume(volume);
+        float[] volumes = new float[musicVolumes.length];
+        for (int ss=1; ss < DecorVars.platformSounds.length; ss++) {
+            for (int j = 0; j < rainVerts.size; j++) {
+                if (rainSounds.get(j) != DecorVars.GetSoundIndexFromString(DecorVars.platformSounds[ss])) {
+                    continue;
+                }
+                if (PolygonOperations.PointInPolygon(rainVerts.get(j), riderPos.x, riderPos.y)) {
+                    volumes[ss-1] = 1.0f; // Maximum volume
+                    break;
+                } else {
+                    for (int i = 0; i < rainVerts.get(j).length / 2; i++) {
+                        idxa = i;
+                        if (i == rainVerts.get(j).length / 2 - 1) idxb = 0;
+                        else idxb = i + 1;
+                        // Calculate the gradient
+                        xa = rainVerts.get(j)[2 * idxa];
+                        ya = rainVerts.get(j)[2 * idxa + 1];
+                        xb = rainVerts.get(j)[2 * idxb];
+                        yb = rainVerts.get(j)[2 * idxb + 1];
+                        if (xa == xb) {
+                            if (ya > yb) {
+                                if (riderPos.y > ya) yint = riderPos.y - ya;
+                                else if (riderPos.y < yb) yint = yb - riderPos.y;
+                                else yint = 0.0f;
+                            } else {
+                                if (riderPos.y > yb) yint = riderPos.y - yb;
+                                else if (riderPos.y < ya) yint = ya - riderPos.y;
+                                else yint = 0.0f;
+                            }
+                            dist = (float) Math.sqrt((riderPos.x - xa) * (riderPos.x - xa) + yint * yint);
+                        } else if (ya == yb) {
+                            if (xa > xb) {
+                                if (riderPos.x > xa) yint = riderPos.x - xa;
+                                else if (riderPos.x < xb) yint = xb - riderPos.x;
+                                else yint = 0.0f;
+                            } else {
+                                if (riderPos.x > xb) yint = riderPos.x - xb;
+                                else if (riderPos.x < xa) yint = xa - riderPos.x;
+                                else yint = 0.0f;
+                            }
+                            dist = (float) Math.sqrt((riderPos.y - ya) * (riderPos.y - ya) + yint * yint);
+                        } else {
+                            grad = (yb - ya) / (xb - xa);
+                            intc = ya - grad * xa;
+                            gradb = -(xb - xa) / (yb - ya);
+                            intcb = riderPos.y - gradb * riderPos.x;
+                            // Calculate the intersection, and make sure the intersection is within bounds
+                            xint = (intcb - intc) / (grad - gradb);
+                            if (xa < xb) {
+                                if (xint < xa) xint = xa;
+                                else if (xint > xb) xint = xb;
+                            } else {
+                                if (xint < xb) xint = xb;
+                                else if (xint > xa) xint = xa;
+                            }
+                            // Calculate the distance between the intersection and the cursor
+                            yint = grad * xint + intc;
+                            dist = (float) Math.sqrt((riderPos.x - xint) * (riderPos.x - xint) + (riderPos.y - yint) * (riderPos.y - yint));
+                        }
+                        if ((dist < mindist) | (flag == 0)) {
+                            mindist = dist;
+                            flag = 1;
+                        }
+                    }
+                    // Set the volume (dist)
+                    dist = (fadeDist - mindist) / fadeDist;
+                    if (dist > volumes[ss-1]) volumes[ss-1] = dist;
+                }
+            }
+            // Set the sound volume of the waterfall
+            if (volumes[ss-1] > musicVolumes[ss-1]) musicVolumes[ss-1] = volumes[ss-1];
+        }
+    }
+
+    private void resetMusicVolumes() {
+        for (int ss=0; ss<musicVolumes.length; ss++) {
+            musicVolumes[ss] = 0.0f;
+        }
+    }
+
+    private void updateMusicVolumes() {
+        for (int ss=0; ss<musicVolumes.length; ss++) {
+            switch (ss+1) {
+                case DecorVars.soundRain: soundRain.setVolume(musicVolumes[ss]);
+                case DecorVars.soundWaterfall: soundWaterfall.setVolume(musicVolumes[ss]);
+                case DecorVars.soundWind: soundWind.setVolume(musicVolumes[ss]);
+            }
+        }
     }
 
     private void updateAnimatedBG(float dt) {
@@ -2071,7 +2097,8 @@ public class Play extends GameState {
     	if (soundBikeIdle != null) soundBikeIdle.dispose();
     	if (soundBikeMove != null) soundBikeMove.dispose();
     	if (soundWaterfall != null) soundWaterfall.dispose();
-    	if (soundRain != null) soundRain.dispose();
+        if (soundRain != null) soundRain.dispose();
+        if (soundWind != null) soundWind.dispose();
     	mScene = null;
     }
 
@@ -2081,23 +2108,32 @@ public class Play extends GameState {
     	mBatch.begin();
     	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
     	if (paintBackdrop) {
-    		//mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-    		float bgwidth = (SCRHEIGHT*background.getWidth()/background.getHeight())/(0.5f+backgroundLimit);
-    		float scaling = 1.0f;
-    		if (bgwidth < SCRWIDTH) scaling = SCRWIDTH/bgwidth;
-    		bgwidth *= scaling;
+            //mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+            float bgwidth = (SCRHEIGHT * background.getWidth() / background.getHeight()) / (0.5f + backgroundLimit);
+            float scaling = 1.0f;
+            if (bgwidth < SCRWIDTH) scaling = SCRWIDTH / bgwidth;
+            bgwidth *= scaling;
             if (bikeDirc == 1.0f) {
-                mBatch.draw(background, hudCam.position.x -SCRWIDTH / 2 - (bgwidth - SCRWIDTH) * (bikeBodyRW.getPosition().x - bounds.x) / (bounds.y - bounds.x), hudCam.position.y - scaling*SCRHEIGHT * backgroundLimit, 0, 0, bgwidth, scaling*SCRHEIGHT * (0.5f + backgroundLimit), 1.0f, 1.0f, 0.0f);
+                mBatch.draw(background, hudCam.position.x - SCRWIDTH / 2 - (bgwidth - SCRWIDTH) * (bikeBodyRW.getPosition().x - bounds.x) / (bounds.y - bounds.x), hudCam.position.y - scaling * SCRHEIGHT * backgroundLimit, 0, 0, bgwidth, scaling * SCRHEIGHT * (0.5f + backgroundLimit), 1.0f, 1.0f, 0.0f);
             } else {
-                mBatch.draw(background, hudCam.position.x -SCRWIDTH / 2 - (bgwidth - SCRWIDTH) * (bikeBodyLW.getPosition().x - bounds.x) / (bounds.y - bounds.x), hudCam.position.y - scaling*SCRHEIGHT * backgroundLimit, 0, 0, bgwidth, scaling*SCRHEIGHT * (0.5f + backgroundLimit), 1.0f, 1.0f, 0.0f);
+                mBatch.draw(background, hudCam.position.x - SCRWIDTH / 2 - (bgwidth - SCRWIDTH) * (bikeBodyLW.getPosition().x - bounds.x) / (bounds.y - bounds.x), hudCam.position.y - scaling * SCRHEIGHT * backgroundLimit, 0, 0, bgwidth, scaling * SCRHEIGHT * (0.5f + backgroundLimit), 1.0f, 1.0f, 0.0f);
             }
-//    		mBatch.draw(background, hudCam.position.x-SCRWIDTH*(1+bikeBodyC.getPosition().x/(bounds.y-bounds.x))/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH*2, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-            if (paintForeground) {
-                bgwidth = (scaling*SCRHEIGHT*foreground.getWidth()/foreground.getHeight())/3.0f;
-                mBatch.draw(foreground, hudCam.position.x - SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-scaling*SCRHEIGHT/2, 0, 0, bgwidth, scaling*SCRHEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
+        }
+
+        // Render the animated background
+        if ((mAnimatedBG != null) && (mAnimatedBG.size > 0)) {
+            mPolyBatch.setProjectionMatrix(b2dCam.combined);
+            mPolyBatch.begin();
+            for (int i = 0; i < mAnimatedBG.size; i++) {
+                mAnimatedBG.get(i).render(mPolyBatch, 0);
             }
-    		//mBatch.draw(foreground, hudCam.position.x-SCRWIDTH*(1+2*(2.4219f-1.0f)*bikeBodyC.getPosition().x/1000.0f)/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH*2.4219f, SCRWIDTH/5, 1.0f, 1.0f, 0.0f);
-    	}
+            mPolyBatch.end();
+        }
+
+        if (paintForeground) {
+            bgwidth = (scaling*SCRHEIGHT*foreground.getWidth()/foreground.getHeight())/3.0f;
+            mBatch.draw(foreground, hudCam.position.x - SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-scaling*SCRHEIGHT/2, 0, 0, bgwidth, scaling*SCRHEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
+        }
     	mBatch.end();
 
     	// Render the collisionless background
@@ -2480,6 +2516,7 @@ public class Play extends GameState {
           mPolySpatials = new Array<PolySpatial>();
           waterfallBackground = new Array<PolySpatial>();
           rainBackground = new Array<PolySpatial>();
+          mAnimatedBG = new Array<PolySpatial>();
           mCollisionlessFG = new Array<PolySpatial>();
           mCollisionlessBG = new Array<PolySpatial>();
           Vector2 bodyPos = new Vector2();
@@ -2508,7 +2545,9 @@ public class Play extends GameState {
                 	  isRN = false;
                 	  isFG = false;
                 	  isBG = false;
-                	  String testType = (String)scene.getCustom(fixture, "Type", null);
+                      isAnimBG = false;
+                      String testType = (String)scene.getCustom(fixture, "Type", null);
+                      int soundID = (int)scene.getCustom(fixture, "Sound", DecorVars.soundNone);
                 	  // Grab texture
                       String textureFileName;
                       if (textureName.startsWith("COLOR_")) textureFileName = textureName;
@@ -2524,6 +2563,10 @@ public class Play extends GameState {
                       if (testType != null) {
                     	  if (testType.equalsIgnoreCase("CollisionlessBG")) isBG = true;
                     	  else if (testType.equalsIgnoreCase("CollisionlessFG")) isFG = true;
+                          else if (testType.equalsIgnoreCase("AnimatedBG")) {
+                              isAnimBG = true;
+                              containsAnimatedBG = true;
+                          }
                       }
                       // Setup the texture region
                        TextureRegion textureRegion = null;
@@ -2560,7 +2603,6 @@ public class Play extends GameState {
                          {
                             for (int k = 0; k < vertexCount; k++)
                             {
-
                                shape.getVertex(k, mTmp);
                                mTmp.rotate(bodyAngle);
                                mTmp.add(bodyPos); // convert local coordinates to world coordinates to that textures are
@@ -2571,7 +2613,9 @@ public class Play extends GameState {
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, Color.WHITE);
-                            if (isBG) {
+                             if (isAnimBG) {
+                                mAnimatedBG.add(spatial);
+                             } else if (isBG) {
                             	mCollisionlessBG.add(spatial);
                             } else if (isFG) {
                             	mCollisionlessFG.add(spatial);
@@ -2586,16 +2630,24 @@ public class Play extends GameState {
                                vertices[k * 2] = mTmp.x/PolySpatial.PIXELS_PER_METER;
                                vertices[k * 2 + 1] = mTmp.y/PolySpatial.PIXELS_PER_METER;
                             }
-                            if (isWF) waterfallVerts.add(vertices.clone());
-                            if (isRN) rainVerts.add(vertices.clone());
+                            if (isWF) {
+                                waterfallVerts.add(vertices.clone());
+                                waterfallSounds.add(soundID);
+                            }
+                            if (isRN) {
+                                rainVerts.add(vertices.clone());
+                                rainSounds.add(soundID);
+                            }
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, body, Color.WHITE);
-                             if (isBG) {
-                                 mCollisionlessBG.add(spatial);
-                             } else if (isFG) {
-                                 mCollisionlessFG.add(spatial);
-                             } else mPolySpatials.add(spatial);
+                            if (isAnimBG) {
+                               mAnimatedBG.add(spatial);
+                            } else if (isBG) {
+                               mCollisionlessBG.add(spatial);
+                            } else if (isFG) {
+                               mCollisionlessFG.add(spatial);
+                            } else mPolySpatials.add(spatial);
                             //mPolySpatials.add(spatial);
                          }
                       }
@@ -2624,7 +2676,9 @@ public class Play extends GameState {
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, Color.WHITE);
-                            if (isBG) {
+                            if (isAnimBG) {
+                               mAnimatedBG.add(spatial);
+                            } else if (isBG) {
                                mCollisionlessBG.add(spatial);
                             } else if (isFG) {
                                mCollisionlessFG.add(spatial);

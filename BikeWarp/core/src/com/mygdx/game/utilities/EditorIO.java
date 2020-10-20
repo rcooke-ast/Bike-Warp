@@ -959,7 +959,7 @@ public class EditorIO {
 					json.endObject();
 					json.object();
 					json.key("name").value("Sound");
-					json.key("string").value(DecorVars.GetSoundFromIndex((int) allDecors.get(i)[9]));
+					json.key("int").value((int) allDecors.get(i)[9]);
 					json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
@@ -1050,7 +1050,7 @@ public class EditorIO {
 					json.endObject();
 					json.object();
 					json.key("name").value("Sound");
-					json.key("string").value(DecorVars.GetSoundFromIndex((int) allDecors.get(i)[9]));
+					json.key("int").value((int) allDecors.get(i)[9]);
 					json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
