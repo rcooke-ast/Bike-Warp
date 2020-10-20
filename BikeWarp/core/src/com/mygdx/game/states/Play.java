@@ -2107,10 +2107,10 @@ public class Play extends GameState {
 		mBatch.setProjectionMatrix(hudCam.combined);
     	mBatch.begin();
     	mBatch.draw(sky, hudCam.position.x-SCRWIDTH/2, hudCam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+        float bgwidth, scaling = 1.0f;
     	if (paintBackdrop) {
             //mBatch.draw(background, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-            float bgwidth = (SCRHEIGHT * background.getWidth() / background.getHeight()) / (0.5f + backgroundLimit);
-            float scaling = 1.0f;
+            bgwidth = (SCRHEIGHT * background.getWidth() / background.getHeight()) / (0.5f + backgroundLimit);
             if (bgwidth < SCRWIDTH) scaling = SCRWIDTH / bgwidth;
             bgwidth *= scaling;
             if (bikeDirc == 1.0f) {
@@ -2507,7 +2507,7 @@ public class Play extends GameState {
     private void createPolySpatialsFromRubeFixtures(RubeScene scene)
     {
        Array<Body> bodies = scene.getBodies();
-       boolean isWF=false, isFG=false, isBG=false, isRN=false;
+       boolean isWF=false, isFG=false, isBG=false, isAnimBG=false, isRN=false;
        
        EarClippingTriangulator ect = new EarClippingTriangulator();
 
