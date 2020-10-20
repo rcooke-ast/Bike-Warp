@@ -253,6 +253,32 @@ public class EditorIO {
 //				System.out.println(e);
 //			}
 
+			// Temporary fix for Waterfall/Rain and animated backgrounds
+//			System.out.println("Resetting file: "+levelDir+aInputFileName);
+//			int cntr_rm = 0;
+//			float[] updatearr = new float[DecorVars.decorWaterfall.length];
+//			for (int i=0; i<allDecors.size(); i++) {
+//				if ((allDecorTypes.get(i) == DecorVars.Waterfall) || (allDecorTypes.get(i) == DecorVars.Rain)) {
+//					// Move decoration to polygons arraylist
+//					for (int jj=0; jj<8; jj++) {
+//						updatearr[jj] = allDecors.get(i)[jj];
+//					}
+//					updatearr[8] = 1.0f;
+//					if (allDecorTypes.get(i) == DecorVars.Waterfall) {
+//						updatearr[9] = DecorVars.soundWaterfall;
+//					} else {
+//						updatearr[9] = DecorVars.soundRain;
+//					}
+//					allDecors.set(i, updatearr.clone());
+//				}
+//			}
+//			for (int ii=0; ii<levelVarProps.length; ii++) LevelVars.set(ii, levelVarProps[ii]);
+//			try {
+//				saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages, aInputFileName);
+//			} catch (Exception e) {
+//				System.out.println(e);
+//			}
+
 			// Carry on as normal
 			retarr.add(allPolygons);
 			retarr.add(allPolygonTypes);
@@ -451,6 +477,12 @@ public class EditorIO {
 		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
 		else if (textName.equals("Wood Plancks (H)")) return "images/ground_woodplanksH.png";
 		else return defval;
+	}
+
+	public static String GetAnimatedBGTexture(String textName) {
+		if (textName.equals("None")) return "None";
+		else if (textName.equals("Asteroids")) return "images/asteroids.png";
+		else return "None";
 	}
 
 	public static String GetBGTexture(String textName) {
@@ -911,7 +943,81 @@ public class EditorIO {
         json.endObject();
         // Do something else...
 
-        // Add waterfall
+		// Add Animated BG
+		String textAnimBG = GetAnimatedBGTexture(LevelVars.get(LevelVars.PROP_ANIMATED_BG));
+		if (!"None".equalsIgnoreCase(textAnimBG)) {
+			float[] animBGarray = {-100.0f, -100.0f, 1100.0f, -100.0f, 1100.0f, 1100.0f, -100.0f, 1100.0f};
+			json.object();
+			json.key("angle").value(0);
+			json.key("angularVelocity").value(0);
+			json.key("awake").value(true);
+			// Add the animated BG fixtures
+			json.key("fixture");
+			json.array();
+			// Decompose each polygon into a series of convex polygons
+			concaveVertices = PolygonOperations.MakeVertices(animBGarray);
+			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+			for (int k = 0; k<convexPolygons.size(); k++){
+				json.object();
+				// Specify other properties of this fixture
+				json.key("density").value(1);
+				json.key("friction").value(0);
+				json.key("restitution").value(0);
+				json.key("name").value("AnimatedBG");
+				json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+				json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+				// Set the (background) ground texture
+				json.key("customProperties");
+				json.array();
+				json.object();
+				json.key("name").value("TextureMask");
+				json.key("string").value(textAnimBG);
+				json.endObject();
+				json.object();
+				json.key("name").value("Type");
+				json.key("string").value("AnimatedBG");
+				json.endObject();
+				json.endArray();
+				json.key("polygon");
+				json.object(); // Begin polygon object
+				json.key("vertices");
+				json.object(); // Begin vertices object
+				json.key("x");
+				json.array();
+				for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+					json.value(convexPolygons.get(k)[2*j]);
+				}
+				json.endArray();
+				json.key("y");
+				json.array();
+				for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+					json.value(convexPolygons.get(k)[2*j+1]);
+				}
+				json.endArray();
+				json.endObject(); // End the vertices object
+				json.endObject(); // End polygon object
+				json.endObject(); // End this fixture
+			}
+			// Clear the polygons
+			if (concaveVertices != null) concaveVertices.clear();
+			if (convexVectorPolygons != null) convexVectorPolygons.clear();
+			if (convexPolygons != null) convexPolygons.clear();
+			json.endArray(); // End of the fixtures for the waterfall
+			// Add some final properties for the waterfall body
+			json.key("linearVelocity").value(0);
+			json.key("name").value("AnimatedBG");
+			json.key("position");
+			json.object();
+			json.key("x").value(0);
+			json.key("y").value(0);
+			json.endObject();
+			json.key("type").value(1);
+			json.endObject(); // End of Animated BG Body
+			bodyIdx += 1; // Add one for the animated BG body
+		}
+
+		// Add waterfall
         json.object();
         json.key("angle").value(0);
         json.key("angularVelocity").value(0);

@@ -78,11 +78,12 @@ public class Editor extends GameState {
 //			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 //			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
 			"Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
-    private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture"};
+    private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture", "Animated Background"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
 	private String[] fgTextureList = {"None", "Plants", "Trees"};
+	private String[] animTextureList = {"None", "Asteroids"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
 	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust opacity",
 			"Set white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
@@ -2957,6 +2958,8 @@ public class Editor extends GameState {
     		LevelVars.set(LevelVars.PROP_BG_BOUNDSX2, String.valueOf(boundsBG[1]));
 		} else if (modeParent.equals("Foreground Texture")) {
 			LevelVars.set(LevelVars.PROP_FG_TEXTURE, modeChild);
+		} else if (modeParent.equals("Animated Background")) {
+			LevelVars.set(LevelVars.PROP_ANIMATED_BG, modeChild);
 		}
 	}
 
@@ -5468,7 +5471,11 @@ public class Editor extends GameState {
 					listChild.setItems(fgTextureList);
 					pLevelIndex = GetListIndex("Foreground Texture", levelPropList);
 					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_FG_TEXTURE),fgTextureList));
-				} else listChild.setItems(nullList);				
+				} else if (modeParent.equals("Animated Background")) {
+					listChild.setItems(animTextureList);
+					pLevelIndex = GetListIndex("Animated Background", levelPropList);
+					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_ANIMATED_BG),animTextureList));
+				} else listChild.setItems(nullList);
 				break;
 			case 3 :
 				if (modeParent.equals("Polygon")) {

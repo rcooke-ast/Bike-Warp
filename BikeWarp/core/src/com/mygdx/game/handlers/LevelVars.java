@@ -14,7 +14,7 @@ public class LevelVars {
 
 	public static String[] props;
     
-    public static final int NUM_PROPS = 9;
+    public static final int NUM_PROPS = 10;
     public static final int PROP_NUMJEWELS = 0;
     public static final int PROP_GROUND_TEXTURE = 1;
     public static final int PROP_SKY_TEXTURE = 2;
@@ -24,6 +24,7 @@ public class LevelVars {
     public static final int PROP_BG_BOUNDSX2 = 6;
     public static final int PROP_BG_TEXTURE = 7;
     public static final int PROP_FG_TEXTURE = 8;
+    public static final int PROP_ANIMATED_BG = 9;
     
     static {
         props = new String[NUM_PROPS];
@@ -44,6 +45,7 @@ public class LevelVars {
         props[PROP_BG_BOUNDSX2] = "100000";
         props[PROP_BG_TEXTURE] = "Waterfall";
         props[PROP_FG_TEXTURE] = "Plants";
+        props[PROP_ANIMATED_BG] = "None";
     }
     
 }

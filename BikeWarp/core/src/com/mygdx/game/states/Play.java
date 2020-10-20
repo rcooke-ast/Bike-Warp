@@ -438,7 +438,7 @@ public class Play extends GameState {
         rainVerts = new Array<float[]>();
         rainSounds = new Array<Integer>();
         animatedBGPos = 0.0f;
-        animatedBGSpeed = 0.0f;
+        animatedBGSpeed = 1.0f;
         animBGVerts = new Array<float[]>();
 
     	playerJump = 100.0f;
@@ -1953,9 +1953,15 @@ public class Play extends GameState {
         switchGateBody = mWorld.createBody(bdef);
         switchGateBody.setUserData(new Array<Integer>());
 
-        // Get the waterfall+rain body
+        // Get the waterfall+rain+animatedBG body
         waterfallBody = mScene.getNamed(Body.class, "Waterfall").first();
         rainBody = mScene.getNamed(Body.class, "Rain").first();
+        try {
+            animatedBGBody = mScene.getNamed(Body.class, "AnimatedBG").first();
+        } catch (NullPointerException exception) {
+            // No animated BG
+            containsAnimatedBG = false;
+        }
 
 //       // Get all references to trigger platforms and create the fixture
 //       // Create a trigger body, which will contain all of the trigger fixtures
@@ -2119,6 +2125,7 @@ public class Play extends GameState {
                 mBatch.draw(background, hudCam.position.x - SCRWIDTH / 2 - (bgwidth - SCRWIDTH) * (bikeBodyLW.getPosition().x - bounds.x) / (bounds.y - bounds.x), hudCam.position.y - scaling * SCRHEIGHT * backgroundLimit, 0, 0, bgwidth, scaling * SCRHEIGHT * (0.5f + backgroundLimit), 1.0f, 1.0f, 0.0f);
             }
         }
+        mBatch.end();
 
         // Render the animated background
         if ((mAnimatedBG != null) && (mAnimatedBG.size > 0)) {
@@ -2130,6 +2137,7 @@ public class Play extends GameState {
             mPolyBatch.end();
         }
 
+        mBatch.begin();
         if (paintForeground) {
             bgwidth = (scaling*SCRHEIGHT*foreground.getWidth()/foreground.getHeight())/3.0f;
             mBatch.draw(foreground, hudCam.position.x - SCRWIDTH/2 - (bgwidth-SCRWIDTH)*(bikeBodyRW.getPosition().x-bounds.x)/(bounds.y-bounds.x), hudCam.position.y-scaling*SCRHEIGHT/2, 0, 0, bgwidth, scaling*SCRHEIGHT/3.0f, 1.0f, 1.0f, 0.0f);
@@ -2637,6 +2645,9 @@ public class Play extends GameState {
                             if (isRN) {
                                 rainVerts.add(vertices.clone());
                                 rainSounds.add(soundID);
+                            }
+                            if (isAnimBG) {
+                                animBGVerts.add(vertices.clone());
                             }
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);

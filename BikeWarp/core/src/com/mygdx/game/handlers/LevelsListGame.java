@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 46; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 50; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -38,11 +38,11 @@ public class LevelsListGame {
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Same Same But Different";
-    	gameLevelFiles[lnum] = "data/gamelevels/SameSameButDifferent.lvl";
+		gameLevelFiles[lnum] = "data/gamelevels/SameSameButDifferent.lvl";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Hang Tight!";
-		gameLevelFiles[lnum] = "data/gamelevels/HangTight.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". The Woodcutter";
+		gameLevelFiles[lnum] = "data/gamelevels/TheWoodcutter.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Watering Hole";
@@ -57,8 +57,12 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/BlackMamba.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Demolish";
-    	gameLevelFiles[lnum] = "data/gamelevels/Demolish.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Demolish";
+		gameLevelFiles[lnum] = "data/gamelevels/Demolish.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Race The Train!";
+		gameLevelFiles[lnum] = "data/gamelevels/RaceTheTrain.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Bumpy Battle";
@@ -70,7 +74,11 @@ public class LevelsListGame {
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Cascade";
-    	gameLevelFiles[lnum] = "data/gamelevels/Cascade.lvl";
+		gameLevelFiles[lnum] = "data/gamelevels/Cascade.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Mahlasela Pass";
+		gameLevelFiles[lnum] = "data/gamelevels/MahlaselaPass.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Mount Kilimanjaro";
@@ -101,8 +109,12 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/OverTheFalls.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Trials";
-    	gameLevelFiles[lnum] = "data/gamelevels/Trials.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Trials";
+		gameLevelFiles[lnum] = "data/gamelevels/Trials.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Abandoned";
+		gameLevelFiles[lnum] = "data/gamelevels/Abandoned.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Tony The African Hawk";
@@ -201,6 +213,10 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/EmeraldHarvest.lvl";
 
 		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Asteroid Field";
+		gameLevelFiles[lnum] = "data/gamelevels/AsteroidField.lvl";
+
+		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Alone";
     	gameLevelFiles[lnum] = "data/gamelevels/Alone.lvl";
 
@@ -243,7 +259,7 @@ public class LevelsListGame {
     
     public static String getLevelFile(int i) { 
     	if (gameLevelFiles[i].equalsIgnoreCase("TBD")) {
-    		return "data/gamelevels/01_StartYourEngine.lvl";
+    		return "data/gamelevels/StartYourEngine.lvl";
     	} else return gameLevelFiles[i];
     }
 
