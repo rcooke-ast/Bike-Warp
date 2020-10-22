@@ -432,6 +432,7 @@ public class EditorIO {
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
 		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
+		else if (textName.equals("Reptile")) return "images/ground_reptile.png";
 		else if (textName.equals("Roof tile (green)")) return "images/roof_green.png";
 		else if (textName.equals("Roof tile (red)")) return "images/roof_red.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";
@@ -466,6 +467,7 @@ public class EditorIO {
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
 		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
+		else if (textName.equals("Reptile")) return "images/ground_reptile.png";
 		else if (textName.equals("Roof tile (green)")) return "images/roof_green.png";
 		else if (textName.equals("Roof tile (red)")) return "images/roof_red.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";

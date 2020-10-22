@@ -8297,7 +8297,7 @@ public class Editor extends GameState {
 			}
 		} else if (mode.equals("WForRain")) {
 			updatePoly = Arrays.copyOfRange(allDecors.get(idx).clone(), 0, 8);
-			for (int i = 0; i<allDecors.get(idx).length/2; i++) {
+			for (int i = 0; i<updatePoly.length/2; i++) {
 				updatePoly[2*i] += shiftX;
 				updatePoly[2*i+1] += shiftY;
 			}
