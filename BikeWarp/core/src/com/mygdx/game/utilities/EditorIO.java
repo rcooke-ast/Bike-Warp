@@ -484,6 +484,7 @@ public class EditorIO {
 	public static String GetAnimatedBGTexture(String textName) {
 		if (textName.equals("None")) return "None";
 		else if (textName.equals("Asteroids")) return "images/asteroids.png";
+		else if (textName.equals("Snow")) return "images/rain.png";
 		else return "None";
 	}
 

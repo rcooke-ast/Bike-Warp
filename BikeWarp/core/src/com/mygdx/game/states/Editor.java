@@ -83,7 +83,7 @@ public class Editor extends GameState {
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
 	private String[] fgTextureList = {"None", "Plants", "Trees"};
-	private String[] animTextureList = {"None", "Asteroids"};
+	private String[] animTextureList = {"None", "Asteroids", "Snow"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
 	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust opacity",
 			"Set white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
