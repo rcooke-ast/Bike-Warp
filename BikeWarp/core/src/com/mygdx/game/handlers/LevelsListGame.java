@@ -53,8 +53,8 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/Excavation.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Black Mamba";
-    	gameLevelFiles[lnum] = "data/gamelevels/BlackMamba.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Le Petit Serpent";
+    	gameLevelFiles[lnum] = "data/gamelevels/LePetitSerpent.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Demolish";
@@ -65,8 +65,8 @@ public class LevelsListGame {
 		gameLevelFiles[lnum] = "data/gamelevels/RaceTheTrain.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Bumpy Battle";
-    	gameLevelFiles[lnum] = "data/gamelevels/BumpyBattle.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Misty Mountain";
+    	gameLevelFiles[lnum] = "data/gamelevels/MistyMountain.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Watering Hole at Night";
@@ -101,16 +101,16 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/Logging.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Tantalising";
-    	gameLevelFiles[lnum] = "data/gamelevels/Tantalising.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Wormhole";
+    	gameLevelFiles[lnum] = "data/gamelevels/Wormhole.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Over The Falls";
     	gameLevelFiles[lnum] = "data/gamelevels/OverTheFalls.lvl";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Trials";
-		gameLevelFiles[lnum] = "data/gamelevels/Trials.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Shadow Trials";
+		gameLevelFiles[lnum] = "data/gamelevels/ShadowTrials.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Abandoned";

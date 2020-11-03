@@ -1789,6 +1789,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		ArrayList<float[]> convexPolygons;
 		ArrayList<ArrayList<Vector2>> convexVectorPolygons;
 		ArrayList<Vector2> concaveVertices;
+		String textSurface;
 		// Begin the Falling Body definition
         json.object();
         json.key("angle").value(0);
@@ -1865,7 +1866,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			// Check if any grass needs to be added to this polygon
 	        for (int i = 0; i<allDecors.size(); i++) {
 	        	// Decompose each polygon into a series of convex polygons
-	            if ((allDecorTypes.get(i) == DecorVars.Grass) & (allDecorPolys.get(i)==pNumb)) {
+	            if (((allDecorTypes.get(i) == DecorVars.Grass) | (allDecorTypes.get(i) >= 100)) & (allDecorPolys.get(i)==pNumb)) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
 	    			try {
 	    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
@@ -1873,7 +1874,8 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	    				return "BD "+i+" D";
 	    			}
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
-	    			for (int k = 0; k<convexPolygons.size(); k++){
+					textSurface = EditorIO.GetTexture(DecorVars.GetPlatformTextureFromIndex(allDecorTypes.get(i)), textGrass);
+					for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
 	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" D"; // One of the areas was too small
 	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" G"; // polygon is not convex
@@ -1890,7 +1892,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			            json.array();
 			            json.object();
 			            json.key("name").value("TextureMask");
-			            json.key("string").value(textGrass);
+			            json.key("string").value(textSurface);
 			            json.endObject();
 			            json.endArray();
 		    			json.key("polygon");
@@ -1962,6 +1964,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		ArrayList<float[]> convexPolygons;
 		ArrayList<ArrayList<Vector2>> convexVectorPolygons;
 		ArrayList<Vector2> concaveVertices;
+		String textSurface;
 		// Begin the Falling Body definition
         json.object();
         json.key("angle").value(0);
@@ -2032,14 +2035,15 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			// Check if any grass needs to be added to this polygon
 	        for (int i = 0; i<allDecors.size(); i++) {
 	        	// Decompose each polygon into a series of convex polygons
-	            if ((allDecorTypes.get(i) == DecorVars.Grass) & (allDecorPolys.get(i)==pNumb)) {
+	            if (((allDecorTypes.get(i) == DecorVars.Grass) | (allDecorTypes.get(i) >= 100)) & (allDecorPolys.get(i)==pNumb)) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
 	    			try {
 	    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
 	    			} catch (IndexOutOfBoundsException e) {
 	    				return "BD "+i+" D";
 	    			}
-	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+					textSurface = EditorIO.GetTexture(DecorVars.GetPlatformTextureFromIndex(allDecorTypes.get(i)), textGrass);
+					convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
 	    			for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
 	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" D"; // One of the areas was too small
@@ -2057,7 +2061,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			            json.array();
 			            json.object();
 			            json.key("name").value("TextureMask");
-			            json.key("string").value(textGrass);
+			            json.key("string").value(textSurface);
 			            json.endObject();
 			            json.endArray();
 		    			json.key("polygon");
@@ -2173,6 +2177,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		ArrayList<float[]> convexPolygons;
 		ArrayList<ArrayList<Vector2>> convexVectorPolygons;
 		ArrayList<Vector2> concaveVertices;
+		String textSurface;
 		// Begin the Kinematic Body definition
         json.object();
         json.key("angle").value(0);
@@ -2301,7 +2306,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			// Check if any grass needs to be added to this polygon
 	        for (int i = 0; i<allDecors.size(); i++) {
 	        	// Decompose each polygon into a series of convex polygons
-	            if ((allDecorTypes.get(i) == DecorVars.Grass) & (allDecorPolys.get(i)==pNumb)) {
+	            if (((allDecorTypes.get(i) == DecorVars.Grass) | (allDecorTypes.get(i) >= 100)) & (allDecorPolys.get(i)==pNumb)) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
 	    			try {
 	    				convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
@@ -2309,7 +2314,8 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	    				return "BD "+i+" D";
 	    			}
 	    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
-	    			for (int k = 0; k<convexPolygons.size(); k++){
+					textSurface = EditorIO.GetTexture(DecorVars.GetPlatformTextureFromIndex(allDecorTypes.get(i)), textGrass);
+					for (int k = 0; k<convexPolygons.size(); k++){
 	    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+pNumb+" G"; // A problem with the length^2 of a polygon
 	        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+pNumb+" D"; // One of the areas was too small
 	    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+pNumb+" G"; // polygon is not convex
@@ -2326,7 +2332,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 			            json.array();
 			            json.object();
 			            json.key("name").value("TextureMask");
-			            json.key("string").value(textGrass);
+			            json.key("string").value(textSurface);
 			            json.endObject();
 			            json.endArray();
 		    			json.key("polygon");

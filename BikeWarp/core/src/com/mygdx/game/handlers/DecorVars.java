@@ -35,14 +35,15 @@ public class DecorVars {
 	public static final int TyreStack = 36;
 	public static final int Tree = 37;
 	public static final int Rock = 38;
+	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
     public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundWaterfall};
     public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain};
-    
-    // Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Grass", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
+
+	// Define the textures that can be applied to platforms
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -68,6 +69,13 @@ public class DecorVars {
 	public static final int textureWood = 22;
 	public static final int textureWoodPlancksH = 23;
 	public static final int textureWoodPlancksV = 24;
+	public static final int textureBarkMoss = 25;
+	public static final int textureDirt = 26;
+	public static final int textureGrassDaisy = 27;
+	public static final int textureGrassShort = 28;
+	public static final int textureGrassMeadow = 29;
+	public static final int textureReptile = 30;
+	public static final int textureFog = 31;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -118,64 +126,86 @@ public class DecorVars {
 
 	public static String GetPlatformTextureFromIndex(int idx) {
     	switch (idx) {
-			case -1: return "Default";
-			case textureDefault: return "Default";
-			case textureAsphalt: return "Asphalt";
-			case textureBark: return "Bark";
-			case textureBricks: return "Bricks";
-			case textureBubbles: return "Bubbles";
-			case textureCrackedMud: return "Cracked Mud";
-			case textureGrass: return "Grass";
-			case textureGravel: return "Gravel";
-			case textureIce: return "Ice";
-			case textureLava: return "Lava";
-			case textureLeaves: return "Leaves";
-			case textureMars: return "Mars";
-			case textureMetalBlack: return "Metal (Black)";
-			case textureMetalPlate: return "Metal (Plate)";
-			case textureMoon: return "Moon";
-			case textureRoofTileGreen: return "Roof tile (green)";
-			case textureRoofTileRed: return "Roof tile (red)";
-			case textureSand: return "Sand";
-			case textureShade: return "Shade";
-			case textureSnow: return "Snow";
-			case textureSteel: return "Steel";
-			case textureWater: return "Water";
-			case textureWood: return "Wood";
-			case textureWoodPlancksH: return "Wood Plancks (H)";
-			case textureWoodPlancksV: return "Wood Plancks (V)";
-			default: return "Default";
+			case -1: return "Grass";
+			case (textureDefault+100): return "Default";
+			case (textureAsphalt+100): return "Asphalt";
+			case (textureBark+100): return "Bark";
+			case (textureBricks+100): return "Bricks";
+			case (textureBubbles+100): return "Bubbles";
+			case (textureCrackedMud+100): return "Cracked Mud";
+			case (textureFog+100): return "Fog";
+			case (textureGrass+100): return "Grass";
+			case (textureGravel+100): return "Gravel";
+			case (textureIce+100): return "Ice";
+			case textureLava+100: return "Lava";
+			case textureLeaves+100: return "Leaves";
+			case textureMars+100: return "Mars";
+			case textureMetalBlack+100: return "Metal (Black)";
+			case textureMetalPlate+100: return "Metal (Plate)";
+			case textureMoon+100: return "Moon";
+			case textureRoofTileGreen+100: return "Roof tile (green)";
+			case textureRoofTileRed+100: return "Roof tile (red)";
+			case textureSand+100: return "Sand";
+			case textureShade+100: return "Shade";
+			case textureSnow+100: return "Snow";
+			case textureSteel+100: return "Steel";
+			case textureWater+100: return "Water";
+			case textureWood+100: return "Wood";
+			case textureWoodPlancksH+100: return "Wood Plancks (H)";
+			case textureWoodPlancksV+100: return "Wood Plancks (V)";
+			case textureBarkMoss+100: return "Bark (Moss)";
+			case textureDirt+100: return "Dirt";
+			case textureGrassDaisy+100: return "Grass (Daisy)";
+			case textureGrassShort+100: return "Grass (Short)";
+			case textureGrassMeadow+100: return "Grass (Meadow)";
+			case textureReptile+100: return "Reptile";
+			default: return "Grass";
 		}
     }
 
-	public static int GetPlatformIndexFromString(String textureName) {
+	public static int GetPlatformIndexFromString(String textureName, int offset) {
+		int offs = 0;
+		if (offset != 0) offs += 100;
 		switch (textureName) {
-			case "Default": return textureDefault;
-			case "Asphalt": return textureAsphalt;
-			case "Bark": return textureBark;
-			case "Bricks": return textureBricks;
-			case "Bubbles": return textureBubbles;
-			case "Cracked Mud": return textureCrackedMud;
-			case "Grass": return textureGrass;
-			case "Gravel": return textureGravel;
-			case "Ice": return textureIce;
-			case "Lava": return textureLava;
-			case "Leaves": return textureLeaves;
-			case "Mars": return textureMars;
-			case "Metal (Black)": return textureMetalBlack;
-			case "Metal (Plate)": return textureMetalPlate;
-			case "Moon": return textureMoon;
-			case "Roof tile (green)": return textureRoofTileGreen;
-			case "Roof tile (red)": return textureRoofTileRed;
-			case "Sand": return textureSand;
-			case "Shade": return textureShade;
-			case "Snow": return textureSnow;
-			case "Steel": return textureSteel;
-			case "Water": return textureWater;
-			case "Wood": return textureWood;
-			case "Wood Plancks (H)": return textureWoodPlancksH;
-			case "Wood Plancks (V)": return textureWoodPlancksV;
-			default: return 0;
+			case "Default": {
+				if (offset == 0) return textureDefault;
+				else return Grass;
+			}
+			case "Asphalt": return textureAsphalt+offs;
+			case "Bark": return textureBark+offs;
+			case "Bricks": return textureBricks+offs;
+			case "Bubbles": return textureBubbles+offs;
+			case "Cracked Mud": return textureCrackedMud+offs;
+			case "Fog": return textureFog+offs;
+			case "Grass": return textureGrass+offs;
+			case "Gravel": return textureGravel+offs;
+			case "Ice": return textureIce+offs;
+			case "Lava": return textureLava+offs;
+			case "Leaves": return textureLeaves+offs;
+			case "Mars": return textureMars+offs;
+			case "Metal (Black)": return textureMetalBlack+offs;
+			case "Metal (Plate)": return textureMetalPlate+offs;
+			case "Moon": return textureMoon+offs;
+			case "Roof tile (green)": return textureRoofTileGreen+offs;
+			case "Roof tile (red)": return textureRoofTileRed+offs;
+			case "Sand": return textureSand+offs;
+			case "Shade": return textureShade+offs;
+			case "Snow": return textureSnow+offs;
+			case "Steel": return textureSteel+offs;
+			case "Water": return textureWater+offs;
+			case "Wood": return textureWood+offs;
+			case "Wood Plancks (H)": return textureWoodPlancksH+offs;
+			case "Wood Plancks (V)": return textureWoodPlancksV+offs;
+			case "Bark (Moss)": return textureBarkMoss+offs;
+			case "Dirt": return textureDirt+offs;
+			case "Grass (Daisy)": return textureGrassDaisy+offs;
+			case "Grass (Short)": return textureGrassShort+offs;
+			case "Grass (Meadow)": return textureGrassMeadow+offs;
+			case "Reptile": return textureReptile+offs;
+			default: {
+				if (offset == 0) return 0;
+				else return Grass;
+			}
 		}
 	}
 

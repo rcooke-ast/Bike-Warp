@@ -74,7 +74,7 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
-	private String[] decorateList = {"Grass", "Bin Bag", "Sign",
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Sign",
 //			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 //			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
 			"Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
@@ -82,7 +82,7 @@ public class Editor extends GameState {
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
-	private String[] fgTextureList = {"None", "Plants", "Trees"};
+	private String[] fgTextureList = {"None", "Bushes", "Plants", "Trees"};
 	private String[] animTextureList = {"None", "Asteroids", "Snow"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
 	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust opacity",
@@ -93,6 +93,7 @@ public class Editor extends GameState {
 	private String[] loadList = {"Load Level", "New Level"};
 	private String saveFName;
 	private boolean enteringFilename, changesMade;
+	private int surfaceTexture = DecorVars.Grass;
 
 	private int totalNumMsgs = 20;
 	private BitmapFont warnFont, signFont;
@@ -1025,9 +1026,9 @@ public class Editor extends GameState {
 						}
 						if (jsonLevelString.equalsIgnoreCase("GRASS_ERROR")) {
 							Message("Level is not playable!", 2);
-							Message("There is a problem with the grass placement", 2);
-							Message("Try clearing the grass and execute the level again", 0);
-							Message("Remember to add grass only when the level is finished", 0);
+							Message("There is a problem with the surface placement", 2);
+							Message("Try clearing the surface and execute the level again", 0);
+							Message("Remember to add surfaces only when the level is finished", 0);
 						} else if (jsonLevelString.startsWith("CU")) {
 							Message("Unable to play level!", 2);
 							try {
@@ -1046,7 +1047,7 @@ public class Editor extends GameState {
 									}
 									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
 								} else if (jsonLevelString.split(" ")[2].equals("D")) {
-									Message("Two vertices in the grass are too close together", 1);
+									Message("Two vertices in the surface are too close together", 1);
 									for (int i=0; i<allDecors.get(gotoPoly).length/2; i++) {
 										xcen += allDecors.get(gotoPoly)[2*i];
 										ycen += allDecors.get(gotoPoly)[2*i+1];
@@ -1414,9 +1415,11 @@ public class Editor extends GameState {
 				if (clearGrass) {
 					DeleteAllGrass();
 					clearGrass = false;
+					engageDelete = false;
 				} else if (addGrass) {
 					AddAllGrass();
 					addGrass = false;
+					engageDelete = false;
 				} else if (polySelect != -1) {
 					if (vertSelect != -1) {
 						if (allPolygons.get(polySelect).length <= 6) DeletePolygon(polySelect, true);
@@ -2218,7 +2221,7 @@ public class Editor extends GameState {
 			// Render the pole
 			rCoord = PolygonOperations.RotateCoordinate(decor[0], decor[1]-5.0f*decor[2], MathUtils.radiansToDegrees*decor[3], decor[0], decor[1]);
 			shapeRenderer.line(decor[0], decor[1], rCoord[0], rCoord[1]);
-		} else if (dTyp == DecorVars.Grass) {
+		} else if ((dTyp == DecorVars.Grass) | (dTyp >= 100)) {
 			shapeRenderer.setColor(0, 1, 0, opacity);
 			shapeRenderer.polygon(decor);
 		} else if (dTyp == DecorVars.Rain) {
@@ -4627,15 +4630,16 @@ public class Editor extends GameState {
 					IncrementDecorSign();
 				}
 			}
-		} else if (modeParent.equals("Grass")) {
+		} else if (modeParent.equals("Surface")) {
 			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
-				AddDecor(DecorVars.Grass, tempx, tempy, -999.9f);
+				AddDecor(surfaceTexture, tempx, tempy, -999.9f);
+				Message("Added a surface texture: "+DecorVars.GetPlatformTextureFromIndex(surfaceTexture), 0);
 			} else if (modeChild.equals("Add")) {
 				FindNearestSegment(true);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				SelectDecor("up", DecorVars.Grass, false, false);
+				SelectDecorSurface("up");
 				if (decorSelect != -1) engageDelete = true;
     		} else if (modeChild.equals("Move Vertex")) {
     			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -4655,11 +4659,23 @@ public class Editor extends GameState {
         			decorSelect = -1;
         			vertSelect = -1;
         		} else FindNearestVertex(true);
-        	} else if (modeChild.equals("Delete All Grass")) {
+        	} else if (modeChild.equals("Delete All Surfaces")) {
         		clearGrass = true;
-        	} else if (modeChild.equals("Add All Grass")) {
+        		addGrass = false;
+        	} else if (modeChild.equals("Add All Surfaces")) {
         		addGrass = true;
+        		clearGrass = false;
         	}
+		} else if (modeParent.equals("Set Surface Texture")) {
+			surfaceTexture = DecorVars.GetPlatformIndexFromString(modeChild, 1);
+			if (GameInput.MBJUSTPRESSED) {
+				int typ = SelectDecorSurface("up");
+				if (decorSelect != -1) {
+					allDecorTypes.set(decorSelect, surfaceTexture);
+					Message("Surface changed to"+modeChild, 0);
+					decorSelect = -1;
+				}
+			}
 		} else if ((modeParent.equals("Rain")) | (modeParent.equals("Waterfall"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -5118,9 +5134,9 @@ public class Editor extends GameState {
 				if (action==1) {
 					boolean hasGrass = CheckGroupGrass();
 					if (hasGrass) {
-						Message("A selected polygon has grass on it. You should only", 1);
-						Message("apply grass when the level is finished. Please delete", 1);
-						Message("all grass: Decorate > Grass > Delete All Grass", 1);
+						Message("A selected polygon has a surface on it. You should only", 1);
+						Message("apply surfaces when the level is finished. Please delete", 1);
+						Message("all surfaces: Decorate > Surface > Delete All Surfaces", 1);
 						ResetGroups();
 					} else {
 						engageDelete = true;
@@ -5596,8 +5612,11 @@ public class Editor extends GameState {
 			case 6 :
 				if (modeParent.startsWith("Sign")) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
-				} else if (modeParent.equals("Grass")) {
-					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Grass", "Delete All Grass");
+				} else if (modeParent.equals("Surface")) {
+					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Surfaces", "Delete All Surfaces");
+				} else if (modeParent.equals("Set Surface Texture")) {
+					Message("Select texture, then click on surface to apply it", 0);
+					listChild.setItems(platformTextures);
 				} else if (modeParent.equals("Rain")) {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Sound");
 				} else if (modeParent.equals("Waterfall")) {
@@ -6360,8 +6379,8 @@ public class Editor extends GameState {
 		if (mode == 6) {
 			// Then decorating
 			for (int i = 0; i < allDecors.size(); i++) {
-				if ((allDecorTypes.get(i)==DecorVars.Grass) | (allDecorTypes.get(i)==DecorVars.Rain) | (allDecorTypes.get(i)==DecorVars.Waterfall)) {
-					if ((modeParent.equals("Grass")) & (allDecorTypes.get(i)!=DecorVars.Grass)) continue;
+				if ((allDecorTypes.get(i)==DecorVars.Grass) | (allDecorTypes.get(i)>=100) | (allDecorTypes.get(i)==DecorVars.Rain) | (allDecorTypes.get(i)==DecorVars.Waterfall)) {
+					if ((modeParent.equals("Surface")) & ((allDecorTypes.get(i)!=DecorVars.Grass) & (allDecorTypes.get(i)<100))) continue;
 					if ((modeParent.equals("Rain")) & (allDecorTypes.get(i)!=DecorVars.Rain)) continue;
 					if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(i)!=DecorVars.Waterfall)) continue;
 					for (int j = 0; j < allDecors.get(i).length/2; j++) {
@@ -7936,7 +7955,7 @@ public class Editor extends GameState {
 
 	public void AddDecor(int otype, float xcen, float ycen, float angle) {
 		changesMade = true;
-		if ((otype==DecorVars.Grass) & (polyHover != -1) & (segmHover != -1)) {
+		if (((otype==DecorVars.Grass) | (otype>=100)) & (polyHover != -1) & (segmHover != -1)) {
 			MakeGrass();
 			allDecorPolys.add(polyHover);
 		} else {
@@ -7975,12 +7994,13 @@ public class Editor extends GameState {
 				polyHover = i;
 				for (int j = 0; j < allPolygons.get(i).length/2; j++) {
 					segmHover = j;
-					AddDecor(DecorVars.Grass, 0.0f, 0.0f, 0.0f);
+					AddDecor(surfaceTexture, 0.0f, 0.0f, 0.0f);
 				}
 			}
 		}
 		polyHover = -1;
 		segmHover = -1;
+		addGrass = false;
     }
 
     public void DeleteAllGrass() {
@@ -7988,7 +8008,7 @@ public class Editor extends GameState {
     	while (true) {
     		noGrass = true;
 			for (int i = 0; i<allDecors.size(); i++) {
-				if (allDecorTypes.get(i) == DecorVars.Grass) {
+				if ((allDecorTypes.get(i) == DecorVars.Grass) | (allDecorTypes.get(i) >= 100)) {
 					DeleteDecor(i, true);
 					noGrass=false;
 					break;
@@ -7996,6 +8016,7 @@ public class Editor extends GameState {
 			}
 			if (noGrass) break;
     	}
+    	clearGrass = false;
     }
 	
 	public void DeleteDecor(int idx, boolean autosave) {
@@ -8144,8 +8165,8 @@ public class Editor extends GameState {
 			}
 		} else {
 			newPoly = allPolygons.get(polyHover).clone();
-			Message("Overlapping vertices in polygon! Delete one vertex before adding grass", 2);
-			Message("Grass applied to the entire polygon", 1);
+			Message("Overlapping vertices in polygon! Delete one vertex before adding surface", 2);
+			Message("Surface applied to the entire polygon", 1);
 			return;
 		}
 		// Do the second four vertices
@@ -8176,8 +8197,8 @@ public class Editor extends GameState {
 			}
 		} else {
 			newPoly = allPolygons.get(polyHover).clone();
-			Message("Overlapping vertices in polygon! Delete one vertex before adding grass", 2);
-			Message("Grass applied to the entire polygon", 1);
+			Message("Overlapping vertices in polygon! Delete one vertex before adding surface", 2);
+			Message("Surface applied to the entire polygon", 1);
 		}
 	}
 
@@ -8401,6 +8422,16 @@ public class Editor extends GameState {
 				}
 			}
 		}
+	}
+
+	public int SelectDecorSurface(String downup) {
+		SelectDecor(downup, DecorVars.Grass, false, false);
+		if (decorSelect != -1) return DecorVars.Grass;
+		for (int ii=0; ii<platformTextures.length; ii++) {
+			SelectDecor(downup, 100+ii, false, false);
+			if (decorSelect != -1) return 100+ii;
+		}
+		return DecorVars.Grass;
 	}
 
 	public void SelectDecorSign(String downup, int otype, boolean rotate, boolean circle) {

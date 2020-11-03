@@ -421,7 +421,9 @@ public class EditorIO {
 		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
 		else if (textName.equals("Dirt")) return "images/ground_dirt.png";
+		else if (textName.equals("Fog")) return "images/ground_fog.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
+		else if (textName.equals("Grass (Daisy)")) return "images/ground_daisy.png";
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
 		else if (textName.equals("Grass (Meadow)")) return "images/grass_meadow.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
@@ -456,7 +458,9 @@ public class EditorIO {
 		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
 		else if (textName.equals("Dirt")) return "images/ground_dirt.png";
+		else if (textName.equals("Fog")) return "images/ground_fog.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
+		else if (textName.equals("Grass (Daisy)")) return "images/ground_daisy.png";
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
 		else if (textName.equals("Grass (Meadow)")) return "images/grass_meadow.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
@@ -484,7 +488,7 @@ public class EditorIO {
 	public static String GetAnimatedBGTexture(String textName) {
 		if (textName.equals("None")) return "None";
 		else if (textName.equals("Asteroids")) return "images/asteroids.png";
-		else if (textName.equals("Snow")) return "images/rain.png";
+		else if (textName.equals("Snow")) return "images/snow.png";
 		else return "None";
 	}
 
@@ -499,7 +503,8 @@ public class EditorIO {
 
 	public static String GetFGTexture(String textName) {
 		String defval = "foreground_plants";
-		if (textName.equals("Plants")) return "foreground_plants";
+		if (textName.equals("Bushes")) return "foreground_bushes";
+		else if (textName.equals("Plants")) return "foreground_plants";
 		else if (textName.equals("Trees")) return "foreground_trees";
 		else if (textName.equals("None")) return "none";
 		else return defval;
@@ -552,6 +557,7 @@ public class EditorIO {
         // Determine the grass texture;
         //String textGrass = "images/grass_seamless.png";
         String textGrass = "images/grass_full.png";
+        String textSurface = "";
         String textRain = "images/rain.png";
         String textWaterfall = "images/waterfall.png";
         // Get the foreground/background textures
@@ -673,12 +679,13 @@ public class EditorIO {
         // Add grass to the static polygons if needed
         for (int i = 0; i<allDecors.size(); i++) {
         	// Decompose each polygon into a series of convex polygons
-            if (allDecorTypes.get(i) == DecorVars.Grass) {
+            if ((allDecorTypes.get(i) == DecorVars.Grass) | (allDecorTypes.get(i) >= 100)) {
             	try {
             		int tst = allPolygonTypes.get(allDecorPolys.get(i));
             	} catch (IndexOutOfBoundsException e) {
             		return "GRASS_ERROR";
             	}
+            	textSurface = GetTexture(DecorVars.GetPlatformTextureFromIndex(allDecorTypes.get(i)), textGrass);
             	if (allPolygonTypes.get(allDecorPolys.get(i))==0) {
 	    			concaveVertices = PolygonOperations.MakeVertices(allDecors.get(i));
 	    			try {
@@ -704,7 +711,7 @@ public class EditorIO {
 			            json.array();
 			            json.object();
 			            json.key("name").value("TextureMask");
-			            json.key("string").value(textGrass);
+			            json.key("string").value(textSurface);
 			            json.endObject();
 			            json.endArray();
 		    			json.key("polygon");
