@@ -7038,6 +7038,7 @@ public class Editor extends GameState {
 	}
 
 	public void UpdatePolygon(int idx, boolean autosave) {
+		if (updatePoly == null) return;
 		changesMade = true;
 		newPoly = allPolygons.set(idx, updatePoly.clone());
 		if (allPolygonTypes.get(idx)%2==0) MakePolygonSprite(idx);
