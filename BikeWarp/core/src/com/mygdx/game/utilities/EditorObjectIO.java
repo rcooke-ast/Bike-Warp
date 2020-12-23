@@ -2193,34 +2193,44 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         json.endObject();
         // CP: Set the path
         float pathlength = -1.0f;
-        if (path.length >= 10) {
+        if (path.length >= 12) {
         	json.object();
         	json.key("name").value("path");
 	        json.key("vertices");
 	        json.object(); // Begin vertices object
 	        json.key("x");
 	        json.array();
-	        for (int j = 0; j<(path.length-6)/2; j++) json.value(B2DVars.EPPM*path[6+2*j]);
+	        for (int j = 0; j<(path.length-8)/2; j++) json.value(B2DVars.EPPM*path[8+2*j]);
 	        json.endArray();
 	        json.key("y");
 	        json.array();
-	        for (int j = 0; j<(path.length-6)/2; j++) json.value(B2DVars.EPPM*path[6+2*j+1]);
+	        for (int j = 0; j<(path.length-8)/2; j++) json.value(B2DVars.EPPM*path[8+2*j+1]);
 	        json.endArray();
 	        json.endObject(); // End the vertices object
 	        json.endObject();
             pathlength = 0.0f;
-	        for (int j = 0; j<((path.length-6)/2)-1; j++) pathlength += (float)Math.sqrt((path[6+2*j]-path[6+2*(j+1)])*(path[6+2*j]-path[6+2*(j+1)]) + (path[6+2*j+1]-path[6+2*(j+1)+1])*(path[6+2*j+1]-path[6+2*(j+1)+1]));
+	        for (int j = 0; j<((path.length-8)/2)-1; j++) pathlength += (float)Math.sqrt((path[8+2*j]-path[8+2*(j+1)])*(path[8+2*j]-path[8+2*(j+1)]) + (path[8+2*j+1]-path[8+2*(j+1)+1])*(path[8+2*j+1]-path[8+2*(j+1)+1]));
         }
         // CP: Set Velocity
         json.object();
         json.key("name").value("speed");
         json.key("float").value(B2DVars.EPPM*path[1]);
         json.endObject();
-        // CP: Set Direction
-        json.object();
-        json.key("name").value("direction");
-        json.key("int").value((int)path[3]);
-        json.endObject();
+		// CP: Set Direction
+		json.object();
+		json.key("name").value("direction");
+		json.key("int").value((int)path[3]);
+		json.endObject();
+		// CP: Set Start Time
+		json.object();
+		json.key("name").value("starttime");
+		json.key("float").value(path[6]);
+		json.endObject();
+		// CP: Set Stop Time
+		json.object();
+		json.key("name").value("stoptime");
+		json.key("float").value(path[7]);
+		json.endObject();
         // CP: Set path length
         if (pathlength >= 0.0) {
         	json.object();
@@ -2228,13 +2238,13 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         	json.key("float").value(B2DVars.EPPM*pathlength);
         	json.endObject();
         }
-        if (path.length >= 10) {
+        if (path.length >= 12) {
         	float bestval = -1.0f;
         	int bestidx = 0;
-        	for (int j = 0; j<(path.length-6)/2; j++) {
-        		if (j == 0) bestval = (float)Math.sqrt((path[6+2*j]-path[4])*(path[6+2*j]-path[4]) + (path[6+2*j+1]-path[5])*(path[6+2*j+1]-path[5]));
-        		else if ((float)Math.sqrt((path[6+2*j]-path[4])*(path[6+2*j]-path[4]) + (path[6+2*j+1]-path[5])*(path[6+2*j+1]-path[5])) < bestval) {
-        			bestval = (float)Math.sqrt((path[6+2*j]-path[4])*(path[6+2*j]-path[4]) + (path[6+2*j+1]-path[5])*(path[6+2*j+1]-path[5]));
+        	for (int j = 0; j<(path.length-8)/2; j++) {
+        		if (j == 0) bestval = (float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5]));
+        		else if ((float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5])) < bestval) {
+        			bestval = (float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5]));
         			bestidx = j;
         		}
         	}

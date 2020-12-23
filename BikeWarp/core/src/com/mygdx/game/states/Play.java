@@ -88,6 +88,7 @@ public class Play extends GameState {
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
     private Array<PolySpatial> mPolySpatials;
+    private Array<Float> mCollBGAlpha, mCollFGAlpha;
     private Array<PolySpatial> mAnimatedBG;
     private Array<PolySpatial> mCollisionlessFG;
     private Array<PolySpatial> mCollisionlessBG;
@@ -101,9 +102,11 @@ public class Play extends GameState {
     private Array<Fixture> triggerFixtList;
     private Array<Body> kinematicBodies;
     private Array<Vector2[]> kinematicPath;
+    private Array<float[]> kinematicStartStop;
     private int[] kinematicDirection;
     private int[] kinematicIndex;
     private float[] kinematicSpeed;
+    private float[] kinematicRotateSpeed;
     private float[] kinematicLength;
     private float[] kinematicLengthLeft;
     private Array<Integer> remBodiesIdx;
@@ -189,7 +192,7 @@ public class Play extends GameState {
     private float[] musicVolumes = new float[DecorVars.platformSounds.length-1];
     private boolean containsAnimatedBG, containsWaterfall, containsRain, containsWind;
     private Array<float[]> waterfallVerts, rainVerts, animBGVerts;
-    private Array<Integer> waterfallSounds, rainSounds;
+    private Array<Integer> waterfallSounds, rainSounds, rainVertsIdx;
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
@@ -428,6 +431,7 @@ public class Play extends GameState {
         switchGate = new Array<float[]>();
         kinematicBodies = new Array<Body>();
         kinematicPath = new Array<Vector2[]>();
+        kinematicStartStop = new Array<float[]>();
         fallingJoints = new Array<Body>();
         fallingJointsFallTime = new Array<Float>();
         fallingJointsTime = new Array<Float>();
@@ -436,6 +440,7 @@ public class Play extends GameState {
         waterfallSounds = new Array<Integer>();
         rainPos = 0.0f;
         rainVerts = new Array<float[]>();
+        rainVertsIdx = new Array<Integer>();
         rainSounds = new Array<Integer>();
         animatedBGPos = 0.0f;
         animatedBGSpeed = 1.0f;
@@ -673,32 +678,32 @@ public class Play extends GameState {
 	       		   if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	       	   }
 	       	   // Update the other elements in the scene
-        	   updateSounds(dt);
-        	   updateCollect();
-        	   updateFallingBodies(dt);
-        	   updateTriggerBodies(dt);
-        	   updateKinematicBodies(dt);
-        	   updateSwitches();
+               updateSounds(dt);
+               updateCollect();
+               updateFallingBodies(dt);
+               updateTriggerBodies(dt);
+               updateKinematicBodies(dt);
+               updateSwitches();
                if (containsAnimatedBG) updateAnimatedBG(dt);
                resetMusicVolumes();
                if (containsWaterfall) updateWaterfall(dt);
-        	   if (containsRain) updateRain(dt);
-        	   updateMusicVolumes();
-        	   if (canTransport < 0.0f) updateTransport();
-        	   else canTransport += dt;
-        	   if (canTransport >= transportTime) {
-        		   cl.clearTransportBody();
-        		   canTransport = -1.0f;
-        	   }
-        	   cl.clearBikeBodyCollide();
-        	   if (applyTorque >= 0.0f) applyTorque += dt;
-        	   if (applyTorque >= spinTime) {
-        		   playerTorque = 0.0f;
-        		   applyTorque = -1.0f;
-        	   }
-        	   if (applyJump >= 0.0f) applyJump += dt;
-        	   if (applyJump >= jumpTime) applyJump = -1.0f;
-        	   break;
+               if (containsRain) updateRain(dt);
+               updateMusicVolumes();
+               if (canTransport < 0.0f) updateTransport();
+               else canTransport += dt;
+               if (canTransport >= transportTime) {
+                   cl.clearTransportBody();
+                   canTransport = -1.0f;
+               }
+               cl.clearBikeBodyCollide();
+               if (applyTorque >= 0.0f) applyTorque += dt;
+               if (applyTorque >= spinTime) {
+                   playerTorque = 0.0f;
+                   applyTorque = -1.0f;
+               }
+               if (applyJump >= 0.0f) applyJump += dt;
+               if (applyJump >= jumpTime) applyJump = -1.0f;
+               break;
         }
     }
 
@@ -888,6 +893,7 @@ public class Play extends GameState {
 	}
 	
 	private void UpdateBikeSound() {
+        if ((soundBikeIdle == null) || (soundBikeMove == null)) return;
 		if (bikeDirc == 1.0f) {
 			if (bikeBodyLW.getAngularVelocity() > -100.0f) {
 				bikePitch = 1.0f - 1.0f*bikeBodyLW.getAngularVelocity()/100.0f;
@@ -1220,63 +1226,70 @@ public class Play extends GameState {
     	float moveBy, gotoScale, speed, tval;
     	Vector2 currentPosition, linVel;
     	for (int i=0; i<kinematicBodies.size; i++) {
-    		currentPosition = kinematicBodies.get(i).getPosition().cpy();
-    		// Calculate the new location
-    		moveBy = 0.0f;
-			if (kinematicLengthLeft[i] > kinematicLength[i]) kinematicLengthLeft[i] = kinematicLength[i];
-    		if (kinematicLength[i] < 4.0f*kinematicSpeed[i]) {
-    			if (kinematicLengthLeft[i] > kinematicLength[i]/2) {
-    				// Easing out
-	    			tval = (1-2*((kinematicLength[i]-kinematicLengthLeft[i])/kinematicLength[i]));
-	    			if (tval >= 1.0f) tval = 0.999f;
-	    			speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f-tval*tval);
-	        		moveBy = speed*dt;
-    			} else {
-    				// Easing in
-	    			tval = (1-2*(kinematicLengthLeft[i]/kinematicLength[i]));
-	    			if (tval >= 1.0f) tval = 0.999f;
-	    			speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f - tval*tval);
-	        		moveBy = speed*dt;
-    			}
-    		} else {
-	    		if (kinematicLengthLeft[i] < 2.0f*kinematicSpeed[i]) {
-	    			tval = (1.0f-0.5f*(kinematicLengthLeft[i]/kinematicSpeed[i]));
-	    			if (tval >= 1.0f) tval = 0.999f;
-	    			speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f - tval*tval);
-	        		moveBy = speed*dt;
-	    		} else if ((kinematicLength[i]-kinematicLengthLeft[i]) < 2.0f*kinematicSpeed[i]) {
-	    			tval = (1.0f-0.5f*((kinematicLength[i]-kinematicLengthLeft[i])/kinematicSpeed[i]));
-	    			if (tval >= 1.0f) tval = 0.999f;
-	    			speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f-tval*tval);
-	        		moveBy = speed*dt;
-	    		} else moveBy = kinematicSpeed[i]*dt;
-    		}
-    		if (moveBy < 0.001f) moveBy = 0.001f;
-			// gotoScale is the distance between the current location and the next vertex on the path
-			gotoScale = (kinematicPath.get(i)[kinematicIndex[i]+kinematicDirection[i]].cpy().sub(currentPosition.cpy())).len();
-			while (moveBy > gotoScale) {
-				if (gotoScale == 0.0) break;
-				moveBy -= gotoScale;
-				kinematicLengthLeft[i] = kinematicLengthLeft[i] - gotoScale;
-				kinematicIndex[i] = kinematicIndex[i] + kinematicDirection[i];
-				currentPosition = kinematicPath.get(i)[kinematicIndex[i]].cpy();
-				if ((kinematicIndex[i]==0) | (kinematicIndex[i]==kinematicPath.get(i).length-1)) {
-					kinematicDirection[i] *= -1;
-					kinematicLengthLeft[i] = kinematicLength[i];
-				}
-				gotoScale = (kinematicPath.get(i)[kinematicIndex[i]+kinematicDirection[i]].cpy().sub(currentPosition.cpy())).len();
-			}
-			currentPosition = ((kinematicPath.get(i)[kinematicIndex[i]+kinematicDirection[i]].cpy().sub(currentPosition.cpy())).nor().scl(moveBy)).add(currentPosition.cpy());
-			kinematicLengthLeft[i] = kinematicLengthLeft[i] - moveBy;
-			// Calculate the linear velocity (dx/dt)
-			linVel = (currentPosition.cpy().sub(kinematicBodies.get(i).getPosition().cpy())).scl(1.0f/dt);
-			currentPosition = currentPosition.cpy().sub(kinematicBodies.get(i).getLinearVelocity().cpy().scl(dt));
-    		// Move the body to the next location
-    		kinematicBodies.get(i).setTransform(currentPosition.cpy(), kinematicBodies.get(i).getAngle());
-    		kinematicBodies.get(i).setLinearVelocity(linVel.cpy());
-
+    	    // Time must be greater than the start time and (less than the stop time -OR- no stop time has been set)
+    	    if ((timerCurrent/1000.0f > kinematicStartStop.get(i)[0]) & ((timerCurrent/1000.0f <= kinematicStartStop.get(i)[1]) | (kinematicStartStop.get(i)[1]<=0.0f))) {
+                currentPosition = kinematicBodies.get(i).getPosition().cpy();
+                // Calculate the new location
+                moveBy = 0.0f;
+                if (kinematicLengthLeft[i] > kinematicLength[i]) kinematicLengthLeft[i] = kinematicLength[i];
+                if (kinematicLength[i] < 4.0f*kinematicSpeed[i]) {
+                    if (kinematicLengthLeft[i] > kinematicLength[i]/2) {
+                        // Easing out
+                        tval = (1-2*((kinematicLength[i]-kinematicLengthLeft[i])/kinematicLength[i]));
+                        if (tval >= 1.0f) tval = 0.999f;
+                        speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f-tval*tval);
+                        moveBy = speed*dt;
+                    } else {
+                        // Easing in
+                        tval = (1-2*(kinematicLengthLeft[i]/kinematicLength[i]));
+                        if (tval >= 1.0f) tval = 0.999f;
+                        speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f - tval*tval);
+                        moveBy = speed*dt;
+                    }
+                } else {
+                    if (kinematicLengthLeft[i] < 2.0f*kinematicSpeed[i]) {
+                        tval = (1.0f-0.5f*(kinematicLengthLeft[i]/kinematicSpeed[i]));
+                        if (tval >= 1.0f) tval = 0.999f;
+                        speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f - tval*tval);
+                        moveBy = speed*dt;
+                    } else if ((kinematicLength[i]-kinematicLengthLeft[i]) < 2.0f*kinematicSpeed[i]) {
+                        tval = (1.0f-0.5f*((kinematicLength[i]-kinematicLengthLeft[i])/kinematicSpeed[i]));
+                        if (tval >= 1.0f) tval = 0.999f;
+                        speed = kinematicSpeed[i]*(float) Math.sqrt(1.0f-tval*tval);
+                        moveBy = speed*dt;
+                    } else moveBy = kinematicSpeed[i]*dt;
+                }
+                if (moveBy < 0.001f) moveBy = 0.001f;
+                // gotoScale is the distance between the current location and the next vertex on the path
+                gotoScale = (kinematicPath.get(i)[kinematicIndex[i]+kinematicDirection[i]].cpy().sub(currentPosition.cpy())).len();
+                while (moveBy > gotoScale) {
+                    if (gotoScale == 0.0) break;
+                    moveBy -= gotoScale;
+                    kinematicLengthLeft[i] = kinematicLengthLeft[i] - gotoScale;
+                    kinematicIndex[i] = kinematicIndex[i] + kinematicDirection[i];
+                    currentPosition = kinematicPath.get(i)[kinematicIndex[i]].cpy();
+                    if ((kinematicIndex[i]==0) | (kinematicIndex[i]==kinematicPath.get(i).length-1)) {
+                        kinematicDirection[i] *= -1;
+                        kinematicLengthLeft[i] = kinematicLength[i];
+                    }
+                    gotoScale = (kinematicPath.get(i)[kinematicIndex[i]+kinematicDirection[i]].cpy().sub(currentPosition.cpy())).len();
+                }
+                currentPosition = ((kinematicPath.get(i)[kinematicIndex[i]+kinematicDirection[i]].cpy().sub(currentPosition.cpy())).nor().scl(moveBy)).add(currentPosition.cpy());
+                kinematicLengthLeft[i] = kinematicLengthLeft[i] - moveBy;
+                // Calculate the linear velocity (dx/dt)
+                linVel = (currentPosition.cpy().sub(kinematicBodies.get(i).getPosition().cpy())).scl(1.0f/dt);
+                currentPosition = currentPosition.cpy().sub(kinematicBodies.get(i).getLinearVelocity().cpy().scl(dt));
+                // Move the body to the next location
+                kinematicBodies.get(i).setTransform(currentPosition.cpy(), kinematicBodies.get(i).getAngle());
+                kinematicBodies.get(i).setLinearVelocity(linVel.cpy());
+                kinematicBodies.get(i).setAngularVelocity(kinematicRotateSpeed[i]);
+            } else {
+                // Don't move the body
+                kinematicBodies.get(i).setTransform(kinematicBodies.get(i).getPosition(), kinematicBodies.get(i).getAngle());
+                kinematicBodies.get(i).setLinearVelocity(new Vector2(0.0f,0.0f));
+                kinematicBodies.get(i).setAngularVelocity(0.0f);
+            }
     	}
-    	return;
     }
 
     @SuppressWarnings("unchecked")
@@ -1510,7 +1523,7 @@ public class Play extends GameState {
     	Vector2 riderPos = bikeBodyH.getPosition().scl(1.0f/PolySpatial.PIXELS_PER_METER);
     	int idxa, idxb, flag=0;
     	float xa, ya, xb, yb, dist, grad, gradb, intc, intcb, xint, yint, mindist = 0.0f;
-    	// First check if the rider is inside a rain
+    	// First check if the rider is inside a rain box
         float[] volumes = new float[musicVolumes.length];
         for (int ss=1; ss < DecorVars.platformSounds.length; ss++) {
             for (int j = 0; j < rainVerts.size; j++) {
@@ -1519,6 +1532,7 @@ public class Play extends GameState {
                 }
                 if (PolygonOperations.PointInPolygon(rainVerts.get(j), riderPos.x, riderPos.y)) {
                     volumes[ss-1] = 1.0f; // Maximum volume
+                    //mCollFGAlpha.set(rainVertsIdx.get(j), 1.0f);
                     break;
                 } else {
                     for (int i = 0; i < rainVerts.get(j).length / 2; i++) {
@@ -1578,6 +1592,7 @@ public class Play extends GameState {
                     // Set the volume (dist)
                     dist = (fadeDist - mindist) / fadeDist;
                     if (dist > volumes[ss-1]) volumes[ss-1] = dist;
+                    //mPolySpatialAlpha.set(rainVertsIdx.get(j), dist);
                 }
             }
             // Set the sound volume of the waterfall
@@ -2009,6 +2024,7 @@ public class Play extends GameState {
         Array<Body> bodies = new Array<Body>();
         mWorld.getBodies(bodies);
         RubeVertexArray vertices;
+        float startTime, stopTime;
         for (int i=0; i<bodies.size; i++) {
     	    if (bodies.get(i).getType().equals(BodyType.KinematicBody)) {
     		    // Only consider bodies where the path is set
@@ -2020,17 +2036,22 @@ public class Play extends GameState {
     	    }
         }
         if (kinematicBodies.size != 0) {
-    	    kinematicDirection = new int[kinematicBodies.size];
+            kinematicDirection = new int[kinematicBodies.size];
     	    kinematicIndex = new int[kinematicBodies.size];
     	    kinematicLength = new float[kinematicBodies.size];
     	    kinematicLengthLeft = new float[kinematicBodies.size];
-    	    kinematicSpeed = new float[kinematicBodies.size];
+            kinematicSpeed = new float[kinematicBodies.size];
+            kinematicRotateSpeed = new float[kinematicBodies.size];
     	    float leftover;
     	    for (int i=0; i<kinematicBodies.size; i++) {
     		    kinematicDirection[i] = (Integer) mScene.getCustom(kinematicBodies.get(i), "direction", 1);
     		    kinematicIndex[i]  = (Integer) mScene.getCustom(kinematicBodies.get(i), "index", 0);
     		    kinematicLength[i] = (Float) mScene.getCustom(kinematicBodies.get(i), "pathlength", -1.0f);
     		    kinematicSpeed[i]  = (Float) mScene.getCustom(kinematicBodies.get(i), "speed", -1.0f);
+                kinematicRotateSpeed[i] = (Float) kinematicBodies.get(i).getAngularVelocity();
+                startTime = (Float) mScene.getCustom(kinematicBodies.get(i), "starttime", 0.0f);
+                stopTime = (Float) mScene.getCustom(kinematicBodies.get(i), "stoptime", 0.0f);
+                kinematicStartStop.add(new float[] {startTime, stopTime});
     		    //if (kinematicSpeed[i] > kinematicLength[i]/4.0f) kinematicSpeed[i] = kinematicLength[i]/4.0f;
     		    leftover = 0.0f;
     		    if (kinematicDirection[i] == 1) {
@@ -2095,8 +2116,9 @@ public class Play extends GameState {
     	if (transportImages != null) transportImages.clear();
     	if (remBodies != null) remBodies.clear();
     	if (remBodiesIdx != null) remBodiesIdx.clear();
-    	if (kinematicBodies != null) kinematicBodies.clear();
+        if (kinematicBodies != null) kinematicBodies.clear();
     	if (kinematicPath != null) kinematicPath.clear();
+        if (kinematicStartStop != null) kinematicStartStop.clear();
     	if (fallingJoints != null) fallingJoints.clear();
     	if (fallingJointsTime != null) fallingJointsTime.clear();
     	if (mScene != null) mScene.clear();
@@ -2149,9 +2171,11 @@ public class Play extends GameState {
         	mPolyBatch.setProjectionMatrix(b2dCam.combined);
             mPolyBatch.begin();
             for (int i = 0; i < mCollisionlessBG.size; i++) {
+                mPolyBatch.setColor(1, 1,1, mCollBGAlpha.get(i));
             	mCollisionlessBG.get(i).render(mPolyBatch, 0);
             }
             mPolyBatch.end();
+            mPolyBatch.setColor(1, 1,1, 1);
     	}
 
         // Render all of the spatials
@@ -2330,9 +2354,11 @@ public class Play extends GameState {
 		   mPolyBatch.setProjectionMatrix(b2dCam.combined);
 	       mPolyBatch.begin();
 	       for (int i = 0; i < mCollisionlessFG.size; i++) {
+               mPolyBatch.setColor(1, 1,1, mCollFGAlpha.get(i));
 	    	   mCollisionlessFG.get(i).render(mPolyBatch, 0);
 	       }
 	       mPolyBatch.end();
+           mPolyBatch.setColor(1, 1,1, 1);
 	   	}
 
         // Render some items onto the HUD
@@ -2516,6 +2542,7 @@ public class Play extends GameState {
     {
        Array<Body> bodies = scene.getBodies();
        boolean isWF=false, isFG=false, isBG=false, isAnimBG=false, isRN=false;
+       int rainBGIdx = 0, rainFGIdx = 0;
        
        EarClippingTriangulator ect = new EarClippingTriangulator();
 
@@ -2527,6 +2554,8 @@ public class Play extends GameState {
           mAnimatedBG = new Array<PolySpatial>();
           mCollisionlessFG = new Array<PolySpatial>();
           mCollisionlessBG = new Array<PolySpatial>();
+          mCollBGAlpha = new Array<Float>();
+          mCollFGAlpha = new Array<Float>();
           Vector2 bodyPos = new Vector2();
           // for each body in the scene...
           for (int i = 0; i < bodies.size; i++)
@@ -2621,13 +2650,19 @@ public class Play extends GameState {
                             short [] triangleIndices = ect.computeTriangles(vertices).toArray();
                             PolygonRegion region = new PolygonRegion(textureRegion, vertices, triangleIndices);
                             PolySpatial spatial = new PolySpatial(region, Color.WHITE);
-                             if (isAnimBG) {
-                                mAnimatedBG.add(spatial);
-                             } else if (isBG) {
-                            	mCollisionlessBG.add(spatial);
+                            if (isAnimBG) {
+                               mAnimatedBG.add(spatial);
+                            } else if (isBG) {
+                               mCollisionlessBG.add(spatial);
+                               mCollBGAlpha.add(1.0f);
+                               rainBGIdx += 1;
                             } else if (isFG) {
-                            	mCollisionlessFG.add(spatial);
-                            } else mPolySpatials.add(spatial);
+                               mCollisionlessFG.add(spatial);
+                               mCollFGAlpha.add(1.0f);
+                               rainFGIdx += 1;
+                            } else {
+                               mPolySpatials.add(spatial);
+                            }
                          }
                          else
                          {
@@ -2643,7 +2678,17 @@ public class Play extends GameState {
                                 waterfallSounds.add(soundID);
                             }
                             if (isRN) {
-                                rainVerts.add(vertices.clone());
+                                // Make the rain vertices shorter in both x directions by half the screen width
+                                float[] tmpRainVerts = vertices.clone();
+                                float xcen = 0.5f*(tmpRainVerts[0] + tmpRainVerts[4]);
+                                // Go through all x vertices and update them
+                                for (int rr=0; rr<4; rr++) {
+                                    if (tmpRainVerts[2*rr] < xcen) tmpRainVerts[2*rr] += B2DVars.SCRWIDTH/2;
+                                    else tmpRainVerts[2*rr] -= B2DVars.SCRWIDTH/2;
+                                }
+                                // Now add the vertices
+                                rainVerts.add(tmpRainVerts.clone());
+                                //rainVertsIdx.add(rainIdx);
                                 rainSounds.add(soundID);
                             }
                             if (isAnimBG) {
@@ -2656,9 +2701,15 @@ public class Play extends GameState {
                                mAnimatedBG.add(spatial);
                             } else if (isBG) {
                                mCollisionlessBG.add(spatial);
+                               mCollBGAlpha.add(1.0f);
+                               rainBGIdx += 1;
                             } else if (isFG) {
                                mCollisionlessFG.add(spatial);
-                            } else mPolySpatials.add(spatial);
+                               mCollBGAlpha.add(1.0f);
+                               rainFGIdx += 1;
+                            } else {
+                               mPolySpatials.add(spatial);
+                            }
                             //mPolySpatials.add(spatial);
                          }
                       }
@@ -2691,9 +2742,15 @@ public class Play extends GameState {
                                mAnimatedBG.add(spatial);
                             } else if (isBG) {
                                mCollisionlessBG.add(spatial);
+                               mCollBGAlpha.add(1.0f);
+                               rainBGIdx += 1;
                             } else if (isFG) {
                                mCollisionlessFG.add(spatial);
-                            } else mPolySpatials.add(spatial);
+                               mCollFGAlpha.add(1.0f);
+                               rainFGIdx += 1;
+                            } else {
+                                mPolySpatials.add(spatial);
+                            }
                          }
                          else
                          {

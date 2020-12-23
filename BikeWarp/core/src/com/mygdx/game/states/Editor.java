@@ -565,6 +565,17 @@ public class Editor extends GameState {
 //											allDecors.set(i, tmp.clone());
 //										}
 //									}
+
+									// Temporary for Training
+//									for (int i=0; i<allPolygons.size(); i++) {
+//										if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
+//											float[] tmp = allPolygonPaths.get(i).clone();
+//											tmp[6] = 0.0f;
+//											tmp[7] = 55.5f;
+//											allPolygonPaths.set(i, tmp.clone());
+//										}
+//									}
+
 									// Restore the original settings of this level
 									RestoreLevelDefaults();
 									warnMessage[warnNumber] = "Level '"+selectLoadLevel.getSelected()+"' loaded successfully";
@@ -1739,7 +1750,7 @@ public class Editor extends GameState {
 			// Draw the starting point of the kinematic polygon
 			if (polyType == 2) {
 				shapeRenderer.polygon(poly);
-				if (sz > 6) {
+				if (sz > 8) {
 					extraPoly = poly.clone();
 					if ((ghostPoly != null)&(polySelect==i)) {
 						for (int j=0; j < extraPoly.length/2; j++) {
@@ -1757,7 +1768,7 @@ public class Editor extends GameState {
 				}
 			} else if (polyType == 3) {
 				shapeRenderer.circle(poly[0], poly[1], poly[2]);
-				if (sz > 6) {
+				if (sz > 8) {
 					extraPoly = poly.clone();
 					if ((ghostPoly != null)&(polySelect==i)) {
 						extraPoly[0] += (ghostPoly[0]-polyPath[4]);
@@ -1771,48 +1782,46 @@ public class Editor extends GameState {
 				}
 			}
 			// Draw the centre of the body
-			// omega,velocity,omegaDir,velocityDir,xcen,ycen
+			// omega,velocity,omegaDir,velocityDir,xcen,ycen,startTime,stopTime
 			shapeRenderer.setColor(1, 0, 0, opacity);
 			shapeRenderer.circle(polyPath[4], polyPath[5], 5);
 			shapeRenderer.line(polyPath[4]-5, polyPath[5], polyPath[4]+5, polyPath[5]);
 			shapeRenderer.line(polyPath[4], polyPath[5]-5, polyPath[4], polyPath[5]+5);
 			// Draw the path (and the path being currently updated)
-			if (sz > 6) {
-				for (int j=0; j < (sz-6)/2 - 1; j++) shapeRenderer.line(polyPath[6+2*j], polyPath[6+2*j+1], polyPath[6+2*j+2], polyPath[6+2*j+3]);
+			if (sz > 8) {
+				for (int j=0; j < (sz-8)/2 - 1; j++) shapeRenderer.line(polyPath[8+2*j], polyPath[8+2*j+1], polyPath[8+2*j+2], polyPath[8+2*j+3]);
 				if ((updatePathVertex != null) & (polySelect==i)) {
 					shapeRenderer.setColor(1, 1, 0.1f, opacity);
-					nullvarC = (float) Math.sqrt((updatePathVertex[0]-polyPath[6])*(updatePathVertex[0]-polyPath[6]) + (updatePathVertex[1]-polyPath[7])*(updatePathVertex[1]-polyPath[7]));
+					nullvarC = (float) Math.sqrt((updatePathVertex[0]-polyPath[8])*(updatePathVertex[0]-polyPath[8]) + (updatePathVertex[1]-polyPath[9])*(updatePathVertex[1]-polyPath[9]));
 					nullvarD = (float) Math.sqrt((updatePathVertex[0]-polyPath[sz-2])*(updatePathVertex[0]-polyPath[sz-2]) + (updatePathVertex[1]-polyPath[sz-1])*(updatePathVertex[1]-polyPath[sz-1]));
-					if (nullvarC < nullvarD) shapeRenderer.line(polyPath[6], polyPath[7], updatePathVertex[0], updatePathVertex[1]);
+					if (nullvarC < nullvarD) shapeRenderer.line(polyPath[8], polyPath[9], updatePathVertex[0], updatePathVertex[1]);
 					else shapeRenderer.line(polyPath[sz-2], polyPath[sz-1], updatePathVertex[0], updatePathVertex[1]);
 					shapeRenderer.setColor(1, 0, 0, opacity);
 				}
 			}
 			if ((updatePathVertex != null) & (polySelect==i)) {
 				shapeRenderer.setColor(1, 1, 0.1f, opacity);
-				if ((updatePathVertex.length == 2) & (sz==6)) {
+				if ((updatePathVertex.length == 2) & (sz==8)) {
 					// Extending path for the first time
 					shapeRenderer.line(polyPath[4], polyPath[5], updatePathVertex[0], updatePathVertex[1]);
-				} else if (updatePathVertex.length == 4) {
-
 				}
 				shapeRenderer.setColor(1, 0, 0, opacity);
 			}
 			// Draw the initial velocity vector
 			shapeRenderer.setColor(1, 0.75f, 0.75f, opacity);
 			float[] arrowArray = ObjectVars.objectArrow1D.clone();
-			if (sz >= 10) {
+			if (sz >= 12) {
 				float tempval = 0.0f, bestval = -1.0f;
 				int spine = 0;
 				// Identify the spine vertex (from which the velocity vector will be drawn)
-				for (int j = 0; j < (sz-6)/2; j++){
+				for (int j = 0; j < (sz-8)/2; j++){
 					if (bestval == -1.0f) {
-						bestval = (float) Math.sqrt((polyPath[4]-polyPath[6+2*j])*(polyPath[4]-polyPath[6+2*j]) + (polyPath[5]-polyPath[6+2*j+1])*(polyPath[5]-polyPath[6+2*j+1]));
+						bestval = (float) Math.sqrt((polyPath[4]-polyPath[8+2*j])*(polyPath[4]-polyPath[8+2*j]) + (polyPath[5]-polyPath[8+2*j+1])*(polyPath[5]-polyPath[8+2*j+1]));
 						spine = j;
 					} else {
-						tempval = (float) Math.sqrt((polyPath[4]-polyPath[6+2*j])*(polyPath[4]-polyPath[6+2*j]) + (polyPath[5]-polyPath[6+2*j+1])*(polyPath[5]-polyPath[6+2*j+1]));
+						tempval = (float) Math.sqrt((polyPath[4]-polyPath[8+2*j])*(polyPath[4]-polyPath[8+2*j]) + (polyPath[5]-polyPath[8+2*j+1])*(polyPath[5]-polyPath[8+2*j+1]));
 						if (tempval < bestval) {
-							bestval = (float) Math.sqrt((polyPath[4]-polyPath[6+2*j])*(polyPath[4]-polyPath[6+2*j]) + (polyPath[5]-polyPath[6+2*j+1])*(polyPath[5]-polyPath[6+2*j+1]));
+							bestval = (float) Math.sqrt((polyPath[4]-polyPath[8+2*j])*(polyPath[4]-polyPath[8+2*j]) + (polyPath[5]-polyPath[8+2*j+1])*(polyPath[5]-polyPath[8+2*j+1]));
 							spine = j;
 						}
 					}
@@ -1821,8 +1830,8 @@ public class Editor extends GameState {
 				arrowArray[2] += polyPath[1];
 				arrowArray[4] += polyPath[1];
 				if (polyPath[3]==1) {
-					if (6+2*(spine+1)==sz) tempval = PolygonOperations.GetAngle(polyPath[6+2*spine-2], polyPath[6+2*spine-1], polyPath[6+2*spine], polyPath[6+2*spine+1]);
-					else tempval = PolygonOperations.GetAngle(polyPath[6+2*spine], polyPath[6+2*spine+1], polyPath[6+2*spine+2], polyPath[6+2*spine+3]);
+					if (8+2*(spine+1)==sz) tempval = PolygonOperations.GetAngle(polyPath[8+2*spine-2], polyPath[8+2*spine-1], polyPath[8+2*spine], polyPath[8+2*spine+1]);
+					else tempval = PolygonOperations.GetAngle(polyPath[8+2*spine], polyPath[8+2*spine+1], polyPath[8+2*spine+2], polyPath[8+2*spine+3]);
 					PolygonOperations.RotateXYArray(arrowArray, tempval, 0.0f, 0.0f);
 					for (int j = 0; j<3;j++) {
 						arrowArray[2*j] += polyPath[4];
@@ -1832,8 +1841,8 @@ public class Editor extends GameState {
 					shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[0], arrowArray[1]);
 					shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[4], arrowArray[5]);
 				} else {
-					if (spine==0) tempval = PolygonOperations.GetAngle(polyPath[6+2*spine+2], polyPath[6+2*spine+3], polyPath[6+2*spine], polyPath[6+2*spine+1]);
-					else tempval = PolygonOperations.GetAngle(polyPath[6+2*spine], polyPath[6+2*spine+1], polyPath[6+2*spine-2], polyPath[6+2*spine-1]);
+					if (spine==0) tempval = PolygonOperations.GetAngle(polyPath[8+2*spine+2], polyPath[8+2*spine+3], polyPath[8+2*spine], polyPath[8+2*spine+1]);
+					else tempval = PolygonOperations.GetAngle(polyPath[8+2*spine], polyPath[8+2*spine+1], polyPath[8+2*spine-2], polyPath[8+2*spine-1]);
 					PolygonOperations.RotateXYArray(arrowArray, tempval, 0.0f, 0.0f);
 					for (int j = 0; j<3;j++) {
 						arrowArray[2*j] += polyPath[4];
@@ -2543,6 +2552,14 @@ public class Editor extends GameState {
 						signFont.draw(sb, "Background", allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
 					else if (allPolygonTypes.get(i) <= 11)
 						signFont.draw(sb, "Foreground", allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
+				} else if (allPolygonTypes.get(i) <= 3) {
+					// Kinematic/Moving platforms
+					glyphLayout.setText(signFont, "Stop Start Time = 1.234567890 seconds");
+					signWidth = glyphLayout.height;  // This is actually height, not width
+					// Draw the start/stop time
+					signFont.draw(sb, String.format("Stop Time = %f seconds",allPolygonPaths.get(i)[7]), allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
+					textadd += 1.2f * signWidth;
+					signFont.draw(sb, String.format("Start Time = %f seconds",allPolygonPaths.get(i)[6]), allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
 				}
 			}
 		}
@@ -3381,10 +3398,12 @@ public class Editor extends GameState {
     			float delx = updatePoly[0]-allPolygons.get(polySelect)[0];
     			float dely = updatePoly[1]-allPolygons.get(polySelect)[1];
     			updatePath = allPolygonPaths.get(polySelect).clone();
-    			for (int j=4; j<updatePath.length; j++) {
+    			for (int j=8; j<updatePath.length; j++) {
     				if (j%2==0) updatePath[j] += delx;
     				else updatePath[j] += dely;
     			}
+				updatePath[4] += delx;
+				updatePath[5] += dely;
     			allPolygonPaths.set(polySelect, updatePath.clone());
     			updatePath = null;
     			UpdatePolygon(polySelect, true);
@@ -3540,25 +3559,25 @@ public class Editor extends GameState {
 				// Is this the first point being added?
 				int sz = allPolygonPaths.get(polySelect).length;
 				float[] newPath;
-				if (sz == 6) {
-					newPath = new float[10];
-					for (int i=0; i<6; i++) newPath[i] = allPolygonPaths.get(polySelect)[i];
-					newPath[6] = allPolygonPaths.get(polySelect)[4];
-					newPath[7] = allPolygonPaths.get(polySelect)[5];
-					newPath[8] = updatePathVertex[0];
-					newPath[9] = updatePathVertex[1];
+				if (sz == 8) {
+					newPath = new float[12];
+					for (int i=0; i<8; i++) newPath[i] = allPolygonPaths.get(polySelect)[i];
+					newPath[8] = allPolygonPaths.get(polySelect)[4];
+					newPath[9] = allPolygonPaths.get(polySelect)[5];
+					newPath[10] = updatePathVertex[0];
+					newPath[11] = updatePathVertex[1];
 				} else {
 					newPath = new float[sz+2];
-					for (int i=0; i<6; i++) newPath[i] = allPolygonPaths.get(polySelect)[i];
+					for (int i=0; i<8; i++) newPath[i] = allPolygonPaths.get(polySelect)[i];
 					// Find which edge is closest to the point to be added
-					nullvarA = (float) Math.sqrt((updatePathVertex[0]-allPolygonPaths.get(polySelect)[6])*(updatePathVertex[0]-allPolygonPaths.get(polySelect)[6]) + (updatePathVertex[1]-allPolygonPaths.get(polySelect)[7])*(updatePathVertex[1]-allPolygonPaths.get(polySelect)[7]));
+					nullvarA = (float) Math.sqrt((updatePathVertex[0]-allPolygonPaths.get(polySelect)[8])*(updatePathVertex[0]-allPolygonPaths.get(polySelect)[8]) + (updatePathVertex[1]-allPolygonPaths.get(polySelect)[9])*(updatePathVertex[1]-allPolygonPaths.get(polySelect)[9]));
 					nullvarB = (float) Math.sqrt((updatePathVertex[0]-allPolygonPaths.get(polySelect)[sz-2])*(updatePathVertex[0]-allPolygonPaths.get(polySelect)[sz-2]) + (updatePathVertex[1]-allPolygonPaths.get(polySelect)[sz-1])*(updatePathVertex[1]-allPolygonPaths.get(polySelect)[sz-1]));
 					if (nullvarA < nullvarB) {
-						newPath[6] = updatePathVertex[0];
-						newPath[7] = updatePathVertex[1];
-						for (int i=8; i<sz+2; i++) newPath[i] = allPolygonPaths.get(polySelect)[i-2];
+						newPath[8] = updatePathVertex[0];
+						newPath[9] = updatePathVertex[1];
+						for (int i=10; i<sz+2; i++) newPath[i] = allPolygonPaths.get(polySelect)[i-2];
 					} else {
-						for (int i=6; i<sz; i++) newPath[i] = allPolygonPaths.get(polySelect)[i];						
+						for (int i=8; i<sz; i++) newPath[i] = allPolygonPaths.get(polySelect)[i];
 						newPath[sz] = updatePathVertex[0];
 						newPath[sz+1] = updatePathVertex[1];
 					}
@@ -3670,12 +3689,28 @@ public class Editor extends GameState {
     			float angle = PolygonOperations.GetAngle(newArr[4], newArr[5], endX, endY);
     			newArr[0] = MathUtils.radiansToDegrees*angle;
     			allPolygonPaths.set(polySelect, newArr.clone());
-    		} else if ((modeChild.equals("Set Speed")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
-    			float[] newArr = allPolygonPaths.get(polySelect).clone();
-    			endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
-    			endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-    			newArr[1] = (float) Math.sqrt((newArr[4]-endX)*(newArr[4]-endX) + (newArr[5]-endY)*(newArr[5]-endY));
-    			allPolygonPaths.set(polySelect, newArr.clone());
+			} else if ((modeChild.equals("Set Speed")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
+				float[] newArr = allPolygonPaths.get(polySelect).clone();
+				endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				newArr[1] = (float) Math.sqrt((newArr[4]-endX)*(newArr[4]-endX) + (newArr[5]-endY)*(newArr[5]-endY));
+				allPolygonPaths.set(polySelect, newArr.clone());
+			} else if ((modeChild.equals("Set Start Time")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
+				float[] newArr = allPolygonPaths.get(polySelect).clone();
+				endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				float val = (float) (newArr[6] - (newArr[5] - endY)/1000.0f);
+				if (val < 0.0f) val = 0.0f;
+				newArr[6] = val;
+				allPolygonPaths.set(polySelect, newArr.clone());
+			} else if ((modeChild.equals("Set Stop Time")) & (GameInput.MBDRAG==true) & (polySelect != -1)) {
+				float[] newArr = allPolygonPaths.get(polySelect).clone();
+				endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				float val = (float) (newArr[7] - (newArr[5] - endY)/1000.0f);
+				if (val < 0.0f) val = 0.0f;
+				newArr[7] = val;
+				allPolygonPaths.set(polySelect, newArr.clone());
     		}
     	} else if (modeParent.equals("Set Texture")) {
 	    	if (GameInput.MBJUSTPRESSED) {
@@ -5528,7 +5563,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add");
 					pKinematicIndex = GetListIndex("Circle",itemsPRCP);
 				} else if (modeParent.equals("Set Path")) {
-					listChild.setItems("Select Polygon", "Extend Path", "Move Path", "Rotate Path", "Scale Path", "Flip Path x", "Flip Path y", "Insert Vertex", "Move Vertex", "Delete Vertex", "Flip Direction", "Flip Rotation", "Set Rotation", "Set Speed", "Move Ghost");
+					listChild.setItems("Select Polygon", "Extend Path", "Move Path", "Rotate Path", "Scale Path", "Flip Path x", "Flip Path y", "Insert Vertex", "Move Vertex", "Delete Vertex", "Flip Direction", "Flip Rotation", "Set Rotation", "Set Speed", "Set Start Time", "Set Stop Time", "Move Ghost");
 					pKinematicIndex = GetListIndex("Set Path",itemsPRCP);
 				} else if (modeParent.equals("Set Texture")) {
 					listChild.setItems(platformTextures);
@@ -5775,7 +5810,7 @@ public class Editor extends GameState {
 				xcenp /= newPoly.length/2;
 				ycenp /= newPoly.length/2;
 			}
-			float[] newArr = {0.0f,100.0f,1.0f,1.0f,xcenp,ycenp};
+			float[] newArr = {0.0f,100.0f,1.0f,1.0f,xcenp,ycenp,0.0f,0.0f};
 			allPolygonPaths.add(newArr.clone());
 		} else if (mode==7) {
 			// Falling platform
@@ -5912,15 +5947,15 @@ public class Editor extends GameState {
     	changesMade = true;
     	updatePath = new float[allPolygonPaths.get(idx).length + 2];
     	int cntr = 0;
-    	for (int i = 0; i<6; i++) updatePath[i] = allPolygonPaths.get(idx)[i];
-       	for (int i = 0; i<(allPolygonPaths.get(idx).length-6)/2; i++) {
+    	for (int i = 0; i<8; i++) updatePath[i] = allPolygonPaths.get(idx)[i];
+       	for (int i = 0; i<(allPolygonPaths.get(idx).length-8)/2; i++) {
        		if (i == vertj) {
-       			updatePath[6+2*cntr] = startX;
-       			updatePath[6+2*cntr+1] = startY;
+       			updatePath[8+2*cntr] = startX;
+       			updatePath[8+2*cntr+1] = startY;
        			cntr += 1;
        		}
-       		updatePath[6+2*cntr] = allPolygonPaths.get(idx)[6+2*i];
-       		updatePath[6+2*cntr+1] = allPolygonPaths.get(idx)[6+2*i+1];
+       		updatePath[8+2*cntr] = allPolygonPaths.get(idx)[8+2*i];
+       		updatePath[8+2*cntr+1] = allPolygonPaths.get(idx)[8+2*i+1];
        		cntr += 1;
     	}
     }
@@ -5977,9 +6012,9 @@ public class Editor extends GameState {
 					ycenp /= newPoly.length/2;
 				}
 				float[] newArr = polyPath.get(idx).clone();
-		       	for (int i = 0; i<(polyPath.get(idx).length-6)/2; i++) {
-		       		newArr[6+2*i] += (xcenp-polyPath.get(idx)[4]);
-		       		newArr[6+2*i+1] += (ycenp-polyPath.get(idx)[5]);
+		       	for (int i = 0; i<(polyPath.get(idx).length-8)/2; i++) {
+		       		newArr[8+2*i] += (xcenp-polyPath.get(idx)[4]);
+		       		newArr[8+2*i+1] += (ycenp-polyPath.get(idx)[5]);
 		    	}
 				newArr[4] = xcenp;
 				newArr[5] = ycenp;
@@ -6279,19 +6314,19 @@ public class Editor extends GameState {
 		polymin = 0;
 		flag = 0;
 		float[] arraySegm = allPolygonPaths.get(idx).clone();
-		if (arraySegm.length==6) return;
+		if (arraySegm.length==8) return;
 		xtst = arraySegm[arraySegm.length-2];
 		ytst = arraySegm[arraySegm.length-1];
 		xcls = arraySegm[arraySegm.length-2];
 		ycls = arraySegm[arraySegm.length-1];
-		for (int i=0; i<(arraySegm.length-6)/2-1; i++) {
+		for (int i=0; i<(arraySegm.length-8)/2-1; i++) {
 			idxa = i;
 			idxb = i+1;
 			// Calculate the gradient
-			xa = arraySegm[6+2*idxa];
-			ya = arraySegm[6+2*idxa+1];
-			xb = arraySegm[6+2*idxb];
-			yb = arraySegm[6+2*idxb+1];
+			xa = arraySegm[8+2*idxa];
+			ya = arraySegm[8+2*idxa+1];
+			xb = arraySegm[8+2*idxb];
+			yb = arraySegm[8+2*idxb+1];
 			if (xa==xb) {
 				xtst = xa;
 				ytst = tempy;
@@ -6459,30 +6494,30 @@ public class Editor extends GameState {
 		float tempval = 0.0f, bestval = -1.0f;
 		int spine = 0;
 		// Identify the spine vertex (which cannot be deleted or moved individually)
-		for (int i = 0; i < (allPolygonPaths.get(idx).length-6)/2; i++){
+		for (int i = 0; i < (allPolygonPaths.get(idx).length-8)/2; i++){
 			if (bestval == -1.0f) {
-				bestval = (float) Math.sqrt((allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[6+2*i])*(allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[6+2*i]) + (allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[6+2*i+1])*(allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[6+2*i+1]));
+				bestval = (float) Math.sqrt((allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[8+2*i])*(allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[8+2*i]) + (allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[8+2*i+1])*(allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[8+2*i+1]));
 				spine = i;
 			} else {
-				tempval = (float) Math.sqrt((allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[6+2*i])*(allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[6+2*i]) + (allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[6+2*i+1])*(allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[6+2*i+1]));
+				tempval = (float) Math.sqrt((allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[8+2*i])*(allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[8+2*i]) + (allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[8+2*i+1])*(allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[8+2*i+1]));
 				if (tempval < bestval) {
-					bestval = (float) Math.sqrt((allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[6+2*i])*(allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[6+2*i]) + (allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[6+2*i+1])*(allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[6+2*i+1]));
+					bestval = (float) Math.sqrt((allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[8+2*i])*(allPolygonPaths.get(idx)[4]-allPolygonPaths.get(idx)[8+2*i]) + (allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[8+2*i+1])*(allPolygonPaths.get(idx)[5]-allPolygonPaths.get(idx)[8+2*i+1]));
 					spine = i;
 				}
 			}
 		}
 		// Now find the closest vertex (excluding the spine vertex)
 		bestval = -1.0f;
-		for (int i = 0; i < (allPolygonPaths.get(idx).length-6)/2; i++){
+		for (int i = 0; i < (allPolygonPaths.get(idx).length-8)/2; i++){
 			if (i != spine) {
 				if (bestval == -1.0f) {
-					bestval = (float) Math.sqrt((tempx-allPolygonPaths.get(idx)[6+2*i])*(tempx-allPolygonPaths.get(idx)[6+2*i]) + (tempy-allPolygonPaths.get(idx)[6+2*i+1])*(tempy-allPolygonPaths.get(idx)[6+2*i+1]));
+					bestval = (float) Math.sqrt((tempx-allPolygonPaths.get(idx)[8+2*i])*(tempx-allPolygonPaths.get(idx)[8+2*i]) + (tempy-allPolygonPaths.get(idx)[8+2*i+1])*(tempy-allPolygonPaths.get(idx)[8+2*i+1]));
 					if (hover) vertHover = i;
 					else vertSelect = i;
 				} else {
-					tempval = (float) Math.sqrt((tempx-allPolygonPaths.get(idx)[6+2*i])*(tempx-allPolygonPaths.get(idx)[6+2*i]) + (tempy-allPolygonPaths.get(idx)[6+2*i+1])*(tempy-allPolygonPaths.get(idx)[6+2*i+1]));
+					tempval = (float) Math.sqrt((tempx-allPolygonPaths.get(idx)[8+2*i])*(tempx-allPolygonPaths.get(idx)[8+2*i]) + (tempy-allPolygonPaths.get(idx)[8+2*i+1])*(tempy-allPolygonPaths.get(idx)[8+2*i+1]));
 					if (tempval < bestval) {
-						bestval = (float) Math.sqrt((tempx-allPolygonPaths.get(idx)[6+2*i])*(tempx-allPolygonPaths.get(idx)[6+2*i]) + (tempy-allPolygonPaths.get(idx)[6+2*i+1])*(tempy-allPolygonPaths.get(idx)[6+2*i+1]));
+						bestval = (float) Math.sqrt((tempx-allPolygonPaths.get(idx)[8+2*i])*(tempx-allPolygonPaths.get(idx)[8+2*i]) + (tempy-allPolygonPaths.get(idx)[8+2*i+1])*(tempy-allPolygonPaths.get(idx)[8+2*i+1]));
 						if (hover) vertHover = i;
 						else vertSelect = i;
 					}
@@ -6494,12 +6529,12 @@ public class Editor extends GameState {
     public void FlipPath(int idx, String flip) {
     	updatePath = allPolygonPaths.get(idx).clone();
 		if (flip.equals("x")) {
-			for (int i = 0; i < (allPolygonPaths.get(idx).length-6)/2; i++) {
-    			updatePath[6+2*i] = 2*updatePath[4] - updatePath[6+2*i];
+			for (int i = 0; i < (allPolygonPaths.get(idx).length-8)/2; i++) {
+    			updatePath[8+2*i] = 2*updatePath[4] - updatePath[8+2*i];
     		}
 		} else if (flip.equals("y")) {
-    		for (int i = 0; i < (allPolygonPaths.get(idx).length-6)/2; i++){
-    			updatePath[6+2*i+1] = 2*updatePath[5] - updatePath[6+2*i+1];
+    		for (int i = 0; i < (allPolygonPaths.get(idx).length-8)/2; i++){
+    			updatePath[8+2*i+1] = 2*updatePath[5] - updatePath[8+2*i+1];
     		}
 		}
 	}
@@ -6691,10 +6726,12 @@ public class Editor extends GameState {
 				}
 			}
 		} else {
-	    	for (int i = 4; i<allPolygonPaths.get(idx).length; i++) {
+	    	for (int i = 8; i<allPolygonPaths.get(idx).length; i++) {
 	    		if (i%2==0) updatePath[i] += shiftX;
 	    		else updatePath[i] += shiftY;
 	    	}
+			updatePath[4] += shiftX;
+			updatePath[5] += shiftY;
     	}
 	}
 
@@ -6766,8 +6803,8 @@ public class Editor extends GameState {
 
     public void MoveVertexPath(int idx, int vert, float shiftX, float shiftY) {
     	updatePath = allPolygonPaths.get(idx).clone();
-   		updatePath[6+2*vert] += shiftX;
-   		updatePath[6+2*vert+1] += shiftY;
+   		updatePath[8+2*vert] += shiftX;
+   		updatePath[8+2*vert+1] += shiftY;
 	}
 
     public void RotatePolygon(int idx, float angle) {
@@ -6808,7 +6845,7 @@ public class Editor extends GameState {
     	if (mode == 9) {
     		updatePath[5] = angle;
     	} else {
-	    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++){
+	    	for (int i = 8; i<allPolygonPaths.get(idx).length; i++){
 	    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*(float) Math.cos(angle) - (allPolygonPaths.get(idx)[i+1]-allPolygonPaths.get(idx)[5])*(float) Math.sin(angle);
 	    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i-1]-allPolygonPaths.get(idx)[4])*(float) Math.sin(angle) + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*(float) Math.cos(angle);
 	    	}
@@ -6872,7 +6909,7 @@ public class Editor extends GameState {
     	if (mode == 9) {
     		updatePath[4] *= scale;
     	} else {
-	    	for (int i = 6; i<allPolygonPaths.get(idx).length; i++) {
+	    	for (int i = 8; i<allPolygonPaths.get(idx).length; i++) {
 	    		if (i%2==0) updatePath[i] = allPolygonPaths.get(idx)[4] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[4])*scale;
 	    		else updatePath[i] = allPolygonPaths.get(idx)[5] + (allPolygonPaths.get(idx)[i]-allPolygonPaths.get(idx)[5])*scale;
 	    	}

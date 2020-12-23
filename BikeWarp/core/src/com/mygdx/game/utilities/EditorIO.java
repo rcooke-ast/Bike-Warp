@@ -279,6 +279,31 @@ public class EditorIO {
 //				System.out.println(e);
 //			}
 
+			// Temporary fix for adding start/stop times to moving platforms
+//			System.out.println("Resetting file: "+levelDir+aInputFileName);
+//			for (int i=0; i<allPolygons.size(); i++) {
+//				if ((allPolygonTypes.get(i) == 2) || (allPolygonTypes.get(i) == 3)) {
+//					float[] updatearr = new float[allPolygonPaths.get(i).length+2];
+//					// Add in a start/stop time
+//					for (int jj=0; jj<6; jj++) {
+//						updatearr[jj] = allPolygonPaths.get(i)[jj];
+//					}
+//					updatearr[6] = 0.0f;
+//					updatearr[7] = 0.0f;
+//					for (int jj=6; jj<allPolygonPaths.get(i).length; jj++) {
+//						updatearr[jj+2] = allPolygonPaths.get(i)[jj];
+//					}
+//					allPolygonPaths.set(i, updatearr.clone());
+//				}
+//			}
+
+//			for (int ii=0; ii<levelVarProps.length; ii++) LevelVars.set(ii, levelVarProps[ii]);
+//			try {
+//				saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages, aInputFileName);
+//			} catch (Exception e) {
+//				System.out.println(e);
+//			}
+
 			// Carry on as normal
 			retarr.add(allPolygons);
 			retarr.add(allPolygonTypes);
@@ -422,6 +447,7 @@ public class EditorIO {
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
 		else if (textName.equals("Dirt")) return "images/ground_dirt.png";
 		else if (textName.equals("Fog")) return "images/ground_fog.png";
+		else if (textName.equals("Fog Stain")) return "images/ground_fog_stain.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Grass (Daisy)")) return "images/ground_daisy.png";
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
@@ -459,6 +485,7 @@ public class EditorIO {
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
 		else if (textName.equals("Dirt")) return "images/ground_dirt.png";
 		else if (textName.equals("Fog")) return "images/ground_fog.png";
+		else if (textName.equals("Fog Stain")) return "images/ground_fog_stain.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Grass (Daisy)")) return "images/ground_daisy.png";
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
@@ -1137,65 +1164,64 @@ public class EditorIO {
         for (int i = 0; i<allDecors.size(); i++) {
         	// Decompose each polygon into a series of convex polygons
             if (allDecorTypes.get(i) == DecorVars.Rain) {
-    			concaveVertices = PolygonOperations.MakeVertices(Arrays.copyOfRange(allDecors.get(i), 0, 8));
-    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
-    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
-    			for (int k = 0; k<convexPolygons.size(); k++){
-    				if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+i+" W"; // A problem with the length^2 of a polygon
-        			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+i+" D"; // One of the areas was too small
-    				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
-                	json.object();
-		            // Specify other properties of this fixture
-		        	json.key("density").value(1);
-		            json.key("friction").value(0);
-		            json.key("restitution").value(0);
-		            json.key("name").value("Rain"+rncntr);
-		            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-		            json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
-		            // Set the (background) ground texture
-		            json.key("customProperties");
-		            json.array();
-		            json.object();
-		            json.key("name").value("TextureMask");
-		            json.key("string").value(textRain);
-		            json.endObject();
-					json.object();
-					json.key("name").value("Type");
-					if (allDecors.get(i)[8]==0) json.key("string").value("CollisionlessBG");
-					else json.key("string").value("CollisionlessFG");
-					json.endObject();
-					json.object();
-					json.key("name").value("Sound");
-					json.key("int").value((int) allDecors.get(i)[9]);
-					json.endObject();
-		            json.endArray();
-	    			json.key("polygon");
-	                json.object(); // Begin polygon object
-	                json.key("vertices");
-	                json.object(); // Begin vertices object
-	                json.key("x");
-	                json.array();
-	                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
-	                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]);
-	                }
-	                json.endArray();
-	                json.key("y");
-	                json.array();
-	                for (int j = 0; j<convexPolygons.get(k).length/2; j++){
-	                	json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]);
-	                }
-	                json.endArray();
-	                json.endObject(); // End the vertices object
-	                json.endObject(); // End polygon object
-	                json.endObject(); // End this fixture
-	                rncntr += 1;
-    			}
+//    			concaveVertices = PolygonOperations.MakeVertices(Arrays.copyOfRange(allDecors.get(i), 0, 8));
+//    			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+//    			convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+//    			for (int k = 0; k<convexPolygons.size(); k++){
+				if (PolygonOperations.CheckUnique(allDecors.get(i).clone())) return "CU "+i+" W"; // A problem with the length^2 of a polygon
+				if (PolygonOperations.CheckAreas(allDecors.get(i).clone())) return "CA "+i+" D"; // One of the areas was too small
+				//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" G"; // polygon is not convex
+				json.object();
+				// Specify other properties of this fixture
+				json.key("density").value(1);
+				json.key("friction").value(0);
+				json.key("restitution").value(0);
+				json.key("name").value("Rain"+rncntr);
+				json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+				json.key("filter-maskBits").value(B2DVars.BIT_NOTHING);
+				// Set the (background) ground texture
+				json.key("customProperties");
+				json.array();
+				json.object();
+				json.key("name").value("TextureMask");
+				json.key("string").value(textRain);
+				json.endObject();
+				json.object();
+				json.key("name").value("Type");
+				if (allDecors.get(i)[8]==0) json.key("string").value("CollisionlessBG");
+				else json.key("string").value("CollisionlessFG");
+				json.endObject();
+				json.object();
+				json.key("name").value("Sound");
+				json.key("int").value((int) allDecors.get(i)[9]);
+				json.endObject();
+				json.endArray();
+				json.key("polygon");
+				json.object(); // Begin polygon object
+				json.key("vertices");
+				json.object(); // Begin vertices object
+				json.key("x");
+				json.array();
+				for (int j = 0; j<4; j++){
+					json.value(B2DVars.EPPM*allDecors.get(i)[2*j]);
+				}
+				json.endArray();
+				json.key("y");
+				json.array();
+				for (int j = 0; j<4; j++){
+					json.value(B2DVars.EPPM*allDecors.get(i)[2*j+1]);
+				}
+				json.endArray();
+				json.endObject(); // End the vertices object
+				json.endObject(); // End polygon object
+				json.endObject(); // End this fixture
+				rncntr += 1;
             }
         }
         // Clear the polygons
-        if (concaveVertices != null) concaveVertices.clear();
-        if (convexVectorPolygons != null) convexVectorPolygons.clear();
-        if (convexPolygons != null) convexPolygons.clear();
+//        if (concaveVertices != null) concaveVertices.clear();
+//        if (convexVectorPolygons != null) convexVectorPolygons.clear();
+//        if (convexPolygons != null) convexPolygons.clear();
         json.endArray(); // End of the fixtures for the rain
         // Add some final properties for the rain body
 		json.key("linearVelocity").value(0);

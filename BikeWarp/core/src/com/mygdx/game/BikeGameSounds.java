@@ -9,6 +9,7 @@ import com.badlogic.gdx.audio.Sound;
 
 public class BikeGameSounds {
     private static Sound sound;
+    public static Music rainSound, waterfallSound, windSound;
     private static ArrayList<Sound> sounds;
     private static ArrayList<String> soundNames;
 
@@ -18,6 +19,8 @@ public class BikeGameSounds {
         soundNames = new ArrayList<String>();
         // Load all sounds
         GetGameSounds();
+        // Load all music
+        GetGameMusic();
     }
 
     public static Sound LoadBikeIdle() {
@@ -36,6 +39,13 @@ public class BikeGameSounds {
 
     public static Music LoadWind() {
         return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/wind.wav"));
+    }
+
+    private static void GetGameMusic() {
+        // If you add new ones, don't forget to dispose them!
+        rainSound = LoadRain();
+        waterfallSound = LoadWaterfall();
+        windSound = LoadWind();
     }
 
     private static void GetSound (String file) {
@@ -81,6 +91,10 @@ public class BikeGameSounds {
         }
         sounds.clear();
         soundNames.clear();
+        // Dispose the music
+        rainSound.dispose();
+        waterfallSound.dispose();
+        windSound.dispose();
     }
 
 }

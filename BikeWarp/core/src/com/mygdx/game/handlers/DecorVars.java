@@ -43,7 +43,7 @@ public class DecorVars {
     public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain};
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -76,6 +76,7 @@ public class DecorVars {
 	public static final int textureGrassMeadow = 29;
 	public static final int textureReptile = 30;
 	public static final int textureFog = 31;
+	public static final int textureFogStain = 32;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -134,6 +135,7 @@ public class DecorVars {
 			case (textureBubbles+100): return "Bubbles";
 			case (textureCrackedMud+100): return "Cracked Mud";
 			case (textureFog+100): return "Fog";
+			case (textureFogStain+100): return "Fog Stain";
 			case (textureGrass+100): return "Grass";
 			case (textureGravel+100): return "Gravel";
 			case (textureIce+100): return "Ice";
@@ -177,6 +179,7 @@ public class DecorVars {
 			case "Bubbles": return textureBubbles+offs;
 			case "Cracked Mud": return textureCrackedMud+offs;
 			case "Fog": return textureFog+offs;
+			case "Fog Stain": return textureFogStain+offs;
 			case "Grass": return textureGrass+offs;
 			case "Gravel": return textureGravel+offs;
 			case "Ice": return textureIce+offs;
