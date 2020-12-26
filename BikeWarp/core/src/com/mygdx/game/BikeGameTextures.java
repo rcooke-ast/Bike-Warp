@@ -181,6 +181,18 @@ public class BikeGameTextures {
         for (int i=0; i<8; i++) GetTexture("rock_"+String.format("%02d", i), 2);
         for (int i=0; i<8; i++) GetTexture("tree_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
+        // Planets
+        GetTexture("planet_sun",2);
+        GetTexture("planet_mercury",2);
+        GetTexture("planet_venus",2);
+        GetTexture("planet_earth",2);
+        GetTexture("planet_mars",2);
+        GetTexture("planet_jupiter",2);
+        GetTexture("planet_saturn",2);
+        GetTexture("planet_uranus",2);
+        GetTexture("planet_neptune",2);
+        GetTexture("planet_moon",2);
+        // Load an error image just in case something fails
         GetTexture("error",2);
         // Add some additional textures
         // Add grass

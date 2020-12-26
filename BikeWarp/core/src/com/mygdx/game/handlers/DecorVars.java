@@ -35,6 +35,7 @@ public class DecorVars {
 	public static final int TyreStack = 36;
 	public static final int Tree = 37;
 	public static final int Rock = 38;
+	public static final int Planet = 39;
 	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
@@ -91,7 +92,7 @@ public class DecorVars {
     }
 
     public static boolean IsRect(int dTyp) {
-    	if ((dTyp == BinBag) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock)) {
+    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock)) {
     		return true;
     	} else return false;
     }
@@ -261,8 +262,48 @@ public class DecorVars {
 		else if (decorID == TyreStack) return "images/tyrestack_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Tree) return "images/tree_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Rock) return "images/rock_" + String.format("%02d", idx) + ".png";
+		else if (decorID == Planet) return "images/planet_" + GetPlanetFromNumber(idx) + ".png";
 		// Make some default to stop errors
 		return "images/error.png";
+	}
+
+	private static String GetPlanetFromNumber(int idx) {
+		String planetName = "sun";
+		switch (idx) {
+			case 0:
+				planetName = "sun";
+				break;
+			case 1:
+				planetName = "mercury";
+				break;
+			case 2:
+				planetName = "venus";
+				break;
+			case 3:
+				planetName = "earth";
+				break;
+			case 4:
+				planetName = "mars";
+				break;
+			case 5:
+				planetName = "jupiter";
+				break;
+			case 6:
+				planetName = "saturn";
+				break;
+			case 7:
+				planetName = "uranus";
+				break;
+			case 8:
+				planetName = "neptune";
+				break;
+			case 9:
+				planetName = "moon";
+				break;
+			default:
+				break;
+		}
+		return planetName;
 	}
 
 	public static float[] GetCoordRect(int decorID, int idx) {
@@ -400,6 +441,45 @@ public class DecorVars {
 					scale = 0.71f;
 					break;
 				default :
+					break;
+			}
+		} else if (decorID == Planet) {
+			xsize = 628.41345f;
+			scale = 1.0f;
+			if ((idx < 0) | (idx >= 10)) idx = 0;
+			switch (idx) {
+				case 0:
+					xsize = 628.41345f; // Sun
+					break;
+				case 1:
+					xsize = 19.0f; // Mercury
+					break;
+				case 2:
+					xsize = 41.350018f; // Venus
+					break;
+				case 3:
+					xsize = 40.488487f; // Earth
+					break;
+				case 4:
+					xsize = 26.898338f; // Mars
+					break;
+				case 5:
+					xsize = 320.4396f; //Jupiter
+					break;
+				case 6:
+					xsize = 629.70020f; //Saturn
+					scale = 0.4258493f;
+					break;
+				case 7:
+					xsize = 115.536896f; // Uranus
+					break;
+				case 8:
+					xsize = 115.536896f; // Neptune
+					break;
+				case 9:
+					xsize = 40.488487f*0.2725f; // Moon
+					break;
+				default:
 					break;
 			}
 		}

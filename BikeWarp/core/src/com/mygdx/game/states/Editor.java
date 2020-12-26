@@ -74,7 +74,7 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
-	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Sign",
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Planet", "Sign",
 //			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 //			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
 			"Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
@@ -571,7 +571,7 @@ public class Editor extends GameState {
 //										if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
 //											float[] tmp = allPolygonPaths.get(i).clone();
 //											tmp[6] = 0.0f;
-//											tmp[7] = 55.5f;
+//											tmp[7] = 57.0f;
 //											allPolygonPaths.set(i, tmp.clone());
 //										}
 //									}
@@ -4841,9 +4841,10 @@ public class Editor extends GameState {
     			decorSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
-		} else if ((modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack"))) {
+		} else if ((modeParent.equals("Planet")) | (modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack"))) {
 			int objNum;
-			if (modeParent.equals("Rock")) objNum=DecorVars.Rock;
+			if (modeParent.equals("Planet")) objNum=DecorVars.Planet;
+			else if (modeParent.equals("Rock")) objNum=DecorVars.Rock;
 			else if (modeParent.equals("Tree")) objNum=DecorVars.Tree;
 			else if (modeParent.equals("Tyre Stack")) objNum=DecorVars.TyreStack;
 			else return;
@@ -5658,7 +5659,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Sound");
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
-				} else if ((modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {
+				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
 				} else listChild.setItems(itemsADMR);
 				break;
@@ -8146,6 +8147,8 @@ public class Editor extends GameState {
 			newPoly[2] = DecorVars.decorCircleRoadSign[2];
 			newPoly[3] = DecorVars.decorCircleRoadSign[3];
 		} else if (otype==DecorVars.BinBag) {
+			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype==DecorVars.Planet) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype==DecorVars.Rock) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
