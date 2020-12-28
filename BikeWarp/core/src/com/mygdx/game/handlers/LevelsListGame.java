@@ -149,12 +149,12 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/Lunatic.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Multiverse";
-    	gameLevelFiles[lnum] = "data/gamelevels/Multiverse.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Multiverse (Part 1)";
+    	gameLevelFiles[lnum] = "data/gamelevels/MultiversePart1.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Escape Room";
-    	gameLevelFiles[lnum] = "data/gamelevels/EscapeRoom.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Multiverse (Part 2)";
+    	gameLevelFiles[lnum] = "data/gamelevels/MultiversePart2.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Barracks";

@@ -260,14 +260,15 @@ public class EditorIO {
 //			for (int i=0; i<allDecors.size(); i++) {
 //				if ((allDecorTypes.get(i) == DecorVars.Waterfall) || (allDecorTypes.get(i) == DecorVars.Rain)) {
 //					// Move decoration to polygons arraylist
-//					for (int jj=0; jj<8; jj++) {
+//					for (int jj=0; jj<10; jj++) {
 //						updatearr[jj] = allDecors.get(i)[jj];
 //					}
-//					updatearr[8] = 1.0f;
 //					if (allDecorTypes.get(i) == DecorVars.Waterfall) {
-//						updatearr[9] = DecorVars.soundWaterfall;
+//						updatearr[10] = DecorVars.imageWaterfall;
 //					} else {
-//						updatearr[9] = DecorVars.soundRain;
+//						// Change it to a hard edge
+//						allDecorTypes.set(i, DecorVars.Waterfall);
+//						updatearr[10] = DecorVars.imageRain;
 //					}
 //					allDecors.set(i, updatearr.clone());
 //				}
@@ -1171,7 +1172,7 @@ public class EditorIO {
         // Add the rain fixtures
         json.key("fixture");
         json.array();
-        int rncntr = 0; 
+        int rncntr = 0;
         for (int i = 0; i<allDecors.size(); i++) {
         	// Decompose each polygon into a series of convex polygons
             if (allDecorTypes.get(i) == DecorVars.Rain) {

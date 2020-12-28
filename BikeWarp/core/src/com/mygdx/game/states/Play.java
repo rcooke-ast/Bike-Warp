@@ -1531,6 +1531,7 @@ public class Play extends GameState {
     	// First check if the rider is inside a rain box
         float[] volumes = new float[musicVolumes.length];
         for (int ss=1; ss < DecorVars.platformSounds.length; ss++) {
+            volumes[ss-1] = 0.0f;
             for (int j = 0; j < rainVerts.size; j++) {
                 if (rainSounds.get(j) != DecorVars.GetSoundIndexFromString(DecorVars.platformSounds[ss])) {
                     continue;
@@ -1550,15 +1551,17 @@ public class Play extends GameState {
                     ycen = 0.5f*(rainVerts.get(j)[1] + rainVerts.get(j)[5]);
                     // Check x first
                     if (riderPos.x < xcen) {
-                        if (rainVerts.get(j)[0] < ycen) dist = (float) (rainVerts.get(j)[0] - riderPos.x);
+                        if (rainVerts.get(j)[0] < xcen) dist = (float) (rainVerts.get(j)[0] - riderPos.x);
                         else dist = (float) (rainVerts.get(j)[4] - riderPos.x);
                     } else {
-                        if (rainVerts.get(j)[0] > ycen) dist = (float) (riderPos.x-rainVerts.get(j)[0]);
+                        if (rainVerts.get(j)[0] > xcen) dist = (float) (riderPos.x-rainVerts.get(j)[0]);
                         else dist = (float) (riderPos.x - rainVerts.get(j)[4]);
                     }
-                    if ((dist < mindist) || (flag == 0)) {
-                        mindist = dist;
-                        flag = 1;
+                    if (dist > 0.0f) {
+                        if ((dist < mindist) || (flag == 0)) {
+                            mindist = dist;
+                            flag = 1;
+                        }
                     }
                     // Check y now
                     if (riderPos.y < ycen) {
@@ -1568,11 +1571,12 @@ public class Play extends GameState {
                         if (rainVerts.get(j)[1] > ycen) dist = (float) (riderPos.y - rainVerts.get(j)[1]);
                         else dist = (float) (riderPos.y - rainVerts.get(j)[5]);
                     }
-                    if ((dist < mindist) || (flag == 0)) {
-                        mindist = dist;
-                        flag = 1;
+                    if (dist > 0.0f) {
+                        if ((dist < mindist) || (flag == 0)) {
+                            mindist = dist;
+                            flag = 1;
+                        }
                     }
-
 //                    for (int i = 0; i < rainVerts.get(j).length / 2; i++) {
 //                        idxa = i;
 //                        if (i == rainVerts.get(j).length / 2 - 1) idxb = 0;
@@ -1627,7 +1631,7 @@ public class Play extends GameState {
 //                            flag = 1;
 //                        }
 //                    }
-                    // Set the volume (dist)
+                    // Set the volume (dist), but only if this is the right sound to update
                     dist = (fadeDist - mindist) / fadeDist;
                     if (dist > volumes[ss-1]) volumes[ss-1] = dist;
                     // Set the alpha value
@@ -2224,7 +2228,6 @@ public class Play extends GameState {
             	mCollisionlessBG.get(i).render(mPolyBatch, 0);
             }
             mPolyBatch.end();
-            mPolyBatch.setColor(1, 1,1, 1);
     	}
 
         // Render all of the spatials
@@ -2407,7 +2410,6 @@ public class Play extends GameState {
 	    	   mCollisionlessFG.get(i).render(mPolyBatch, 0);
 	       }
            mPolyBatch.end();
-           mPolyBatch.setColor(1, 1,1, 1);
 	   	}
 
         // Render some items onto the HUD

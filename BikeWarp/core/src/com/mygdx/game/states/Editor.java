@@ -2314,7 +2314,7 @@ public class Editor extends GameState {
 				if (mode==6) {
 					shapeRenderer.polygon(updatePoly);
 				} else {
-					if (allPolygonTypes.get(polySelect)%2 == 0) shapeRenderer.polygon(updatePoly);
+					if ((allPolygonTypes.get(polySelect)%2 == 0) & (updatePoly.length >= 6)) shapeRenderer.polygon(updatePoly);
 					else if (allPolygonTypes.get(polySelect)%2 == 1) shapeRenderer.circle(updatePoly[0], updatePoly[1], updatePoly[2]);
 				}
 			} else if (objectSelect != -1) {
@@ -4711,7 +4711,7 @@ public class Editor extends GameState {
 					decorSelect = -1;
 				}
 			}
-		} else if ((modeParent.equals("Climate (Soft Edge)")) | (modeParent.equals("Climate (Hard Edge)"))) {
+		} else if ((modeParent.equals("Climate (Soft Edge)")) || (modeParent.equals("Climate (Hard Edge)"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
@@ -4765,8 +4765,8 @@ public class Editor extends GameState {
 					newPoly = allDecors.get(decorSelect).clone();
 					newPoly[8] = 1-allDecors.get(decorSelect)[8];
 					allDecors.set(decorSelect, newPoly.clone());
-					if (allDecors.get(decorSelect)[8]<0.5f) Message("Decoration moved to background", 0);
-					else Message("Decoration moved to foreground", 0);
+					if (allDecors.get(decorSelect)[8]<0.5f) Message("Climate moved to background", 0);
+					else Message("Climate moved to foreground", 0);
 					decorSelect = -1;
 					newPoly = null;
 				}
@@ -4796,7 +4796,7 @@ public class Editor extends GameState {
 					if (newPoly[9] >= DecorVars.platformSounds.length) newPoly[9] = 0;
 					allDecors.set(decorSelect, newPoly.clone());
 					String soundStr = DecorVars.GetSoundFromIndex((int) allDecors.get(decorSelect)[9]);
-					Message("Decoration sound changed to "+soundStr, 0);
+					Message("Climate sound changed to "+soundStr, 0);
 					decorSelect = -1;
 					newPoly = null;
 				}
@@ -8143,18 +8143,18 @@ public class Editor extends GameState {
 		angle *= MathUtils.PI/180.0;
 		if (otype==DecorVars.Waterfall) {
 			newPoly = new float[DecorVars.decorWaterfall.length];
-			for (int i=0; i<(DecorVars.decorWaterfall.length-1)/2; i++) {
+			for (int i=0; i<4; i++) {
 				newPoly[2*i] = DecorVars.decorWaterfall[2*i] + xcen;
 				newPoly[2*i+1] = DecorVars.decorWaterfall[2*i+1] + ycen;
 			}
-			newPoly[DecorVars.decorWaterfall.length-1] = DecorVars.decorWaterfall[DecorVars.decorWaterfall.length-1];
+			for (int i=8; i<11; i++) newPoly[i] = DecorVars.decorWaterfall[i];
 		} else if (otype==DecorVars.Rain) {
 			newPoly = new float[DecorVars.decorRain.length];
-			for (int i=0; i<(DecorVars.decorRain.length-1)/2; i++) {
+			for (int i=0; i<4; i++) {
 				newPoly[2*i] = DecorVars.decorRain[2*i] + xcen;
 				newPoly[2*i+1] = DecorVars.decorRain[2*i+1] + ycen;
 			}
-			newPoly[DecorVars.decorRain.length-1] = DecorVars.decorRain[DecorVars.decorRain.length-1];
+			for (int i=8; i<11; i++) newPoly[i] = DecorVars.decorRain[i];
 		} else if (DecorVars.IsRoadSign(otype)) {
 			newPoly = new float[DecorVars.decorCircleRoadSign.length];
 			newPoly[0] = DecorVars.decorCircleRoadSign[0] + xcen;
@@ -8333,11 +8333,11 @@ public class Editor extends GameState {
 				}
 			}
 		}
-		if (hover) {
+		if ((hover) & (flag != 0)) {
 			decorHover = polymin;
 			vertHover = idxmin;
 			segmHover = idxmin;
-		} else {
+		} else if (flag != 0) {
 			decorSelect = polymin;
 			vertSelect = idxmin;
 			segmSelect = idxmin;
