@@ -30,6 +30,10 @@ public class PolySpatial {
 		mSprite.setOrigin(0, 0);
 	}
 
+	public void SetAlpha(float alpha) {
+		mSprite.setColor(1,1,1, alpha);
+	}
+
 	public void render(PolygonSpriteBatch batch, float delta) {
 		if (mBody != null)
 		{

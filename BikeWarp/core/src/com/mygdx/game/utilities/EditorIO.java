@@ -519,6 +519,15 @@ public class EditorIO {
 		else return "None";
 	}
 
+	public static String GetClimateFromIndex(int idx) {
+		switch (idx) {
+			case DecorVars.imageRain: return "images/rain.png";
+			case DecorVars.imageSnow: return "images/snow.png";
+			case DecorVars.imageWaterfall: return "images/waterfall.png";
+			default: return "images/waterfall.png";
+		}
+	}
+
 	public static String GetBGTexture(String textName) {
 		String defval = "background_waterfall";
 		if (textName.equals("Mountains")) return "background_mountains";
@@ -585,8 +594,6 @@ public class EditorIO {
         //String textGrass = "images/grass_seamless.png";
         String textGrass = "images/grass_full.png";
         String textSurface = "";
-        String textRain = "images/rain.png";
-        String textWaterfall = "images/waterfall.png";
         // Get the foreground/background textures
         String textFG = GetFGTexture(LevelVars.get(LevelVars.PROP_FG_TEXTURE));
         String textBG = GetBGTexture(LevelVars.get(LevelVars.PROP_BG_TEXTURE));
@@ -1040,8 +1047,8 @@ public class EditorIO {
 			if (concaveVertices != null) concaveVertices.clear();
 			if (convexVectorPolygons != null) convexVectorPolygons.clear();
 			if (convexPolygons != null) convexPolygons.clear();
-			json.endArray(); // End of the fixtures for the waterfall
-			// Add some final properties for the waterfall body
+			json.endArray(); // End of the fixtures for the animated background
+			// Add some final properties for the animated background body
 			json.key("linearVelocity").value(0);
 			json.key("name").value("AnimatedBG");
 			json.key("position");
@@ -1054,7 +1061,7 @@ public class EditorIO {
 			bodyIdx += 1; // Add one for the animated BG body
 		}
 
-		// Add waterfall
+		// Add waterfall / Climate (Hard Edge)
         json.object();
         json.key("angle").value(0);
         json.key("angularVelocity").value(0);
@@ -1093,7 +1100,7 @@ public class EditorIO {
 		            json.array();
 		            json.object();
 		            json.key("name").value("TextureMask");
-		            json.key("string").value(textWaterfall);
+		            json.key("string").value(GetClimateFromIndex((int) allDecors.get(i)[10]));
 		            json.endObject();
 					json.object();
 					json.key("name").value("Type");
@@ -1103,6 +1110,10 @@ public class EditorIO {
 					json.object();
 					json.key("name").value("Sound");
 					json.key("int").value((int) allDecors.get(i)[9]);
+					json.endObject();
+					json.object();
+					json.key("name").value("Climate");
+					json.key("int").value(0); // Hard edge
 					json.endObject();
 		            json.endArray();
 	    			json.key("polygon");
@@ -1157,7 +1168,7 @@ public class EditorIO {
 //        json.key("string").value("SURFACE");
 //        json.endObject();
 //        json.endArray();
-        // Add the waterfall fixtures
+        // Add the rain fixtures
         json.key("fixture");
         json.array();
         int rncntr = 0; 
@@ -1184,7 +1195,7 @@ public class EditorIO {
 				json.array();
 				json.object();
 				json.key("name").value("TextureMask");
-				json.key("string").value(textRain);
+				json.key("string").value(GetClimateFromIndex((int) allDecors.get(i)[10]));
 				json.endObject();
 				json.object();
 				json.key("name").value("Type");
@@ -1194,6 +1205,10 @@ public class EditorIO {
 				json.object();
 				json.key("name").value("Sound");
 				json.key("int").value((int) allDecors.get(i)[9]);
+				json.endObject();
+				json.object();
+				json.key("name").value("Climate");
+				json.key("int").value(1); // Soft edge
 				json.endObject();
 				json.endArray();
 				json.key("polygon");

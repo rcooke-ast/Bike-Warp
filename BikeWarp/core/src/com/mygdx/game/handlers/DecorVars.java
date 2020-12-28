@@ -3,10 +3,15 @@ package com.mygdx.game.handlers;
 public class DecorVars {
 	// Define the sounds that can be applied to certain decorations
 	public static final String[] platformSounds = {"None", "Rain", "Waterfall", "Wind"};
+	public static final String[] platformImages = {"Rain", "Snow", "Waterfall"};
 	public static final int soundNone = 0;
 	public static final int soundRain = 1;
 	public static final int soundWaterfall = 2;
 	public static final int soundWind = 3;
+
+	public static final int imageRain = 0;
+	public static final int imageSnow = 1;
+	public static final int imageWaterfall = 2;
 
 	// Define the Indices
     public static final int RoadSign_Stop = 0;
@@ -40,8 +45,8 @@ public class DecorVars {
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
-    public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundWaterfall};
-    public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain};
+    public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundWaterfall,imageWaterfall};
+    public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain,imageRain};
 
 	// Define the textures that can be applied to platforms
     public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
@@ -105,6 +110,10 @@ public class DecorVars {
 		return platformSounds.clone();
 	}
 
+	public static String[] GetDecorImages() {
+		return platformImages.clone();
+	}
+
 	public static String GetSoundFromIndex(int idx) {
 		switch (idx) {
 			case -1: return "None";
@@ -123,6 +132,25 @@ public class DecorVars {
 			case "Waterfall": return soundWaterfall;
 			case "Wind": return soundWind;
 			default: return soundNone;
+		}
+	}
+
+	public static String GetImageFromIndex(int idx) {
+		switch (idx) {
+			case -1: return "None";
+			case imageRain: return "Rain";
+			case imageSnow: return "Snow";
+			case imageWaterfall: return "Waterfall";
+			default: return "Waterfall";
+		}
+	}
+
+	public static int GetImageIndexFromString(String soundName) {
+		switch (soundName) {
+			case "Rain": return imageRain;
+			case "Snow": return imageSnow;
+			case "Waterfall": return imageWaterfall;
+			default: return soundRain;
 		}
 	}
 

@@ -74,10 +74,10 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
-	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Planet", "Sign",
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Planet", "Sign",
 //			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 //			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
-			"Rain", "Rock", "Tree", "Tyre Stack", "Waterfall"};
+			"Rock", "Tree", "Tyre Stack"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture", "Animated Background"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -4707,26 +4707,26 @@ public class Editor extends GameState {
 				int typ = SelectDecorSurface("up");
 				if (decorSelect != -1) {
 					allDecorTypes.set(decorSelect, surfaceTexture);
-					Message("Surface changed to"+modeChild, 0);
+					Message("Surface changed to "+modeChild, 0);
 					decorSelect = -1;
 				}
 			}
-		} else if ((modeParent.equals("Rain")) | (modeParent.equals("Waterfall"))) {
+		} else if ((modeParent.equals("Climate (Soft Edge)")) | (modeParent.equals("Climate (Hard Edge)"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-				if (modeParent.equals("Rain")) AddDecor(DecorVars.Rain, tempx, tempy, -999.9f);
-				else if (modeParent.equals("Waterfall")) AddDecor(DecorVars.Waterfall, tempx, tempy, -999.9f);
+				if (modeParent.equals("Climate (Soft Edge)")) AddDecor(DecorVars.Rain, tempx, tempy, -999.9f);
+				else if (modeParent.equals("Climate (Hard Edge)")) AddDecor(DecorVars.Waterfall, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-				if (modeParent.equals("Rain")) SelectDecor("up", DecorVars.Rain, false, false);
-				else if (modeParent.equals("Waterfall")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("up", DecorVars.Rain, false, false);
+				else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("up", DecorVars.Waterfall, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
-					if (modeParent.equals("Rain")) SelectDecor("down", DecorVars.Rain, false, false);
-					else if (modeParent.equals("Waterfall")) SelectDecor("down", DecorVars.Waterfall, false, false);
+					if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("down", DecorVars.Rain, false, false);
+					else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("down", DecorVars.Waterfall, false, false);
 					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
@@ -4759,8 +4759,8 @@ public class Editor extends GameState {
         	} else if ((modeChild.equals("Toggle FG/BG")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-				if (modeParent.equals("Rain")) SelectDecor("up", DecorVars.Rain, false, false);
-				else if (modeParent.equals("Waterfall")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("up", DecorVars.Rain, false, false);
+				else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("up", DecorVars.Waterfall, false, false);
 				if (decorSelect != -1) {
 					newPoly = allDecors.get(decorSelect).clone();
 					newPoly[8] = 1-allDecors.get(decorSelect)[8];
@@ -4770,11 +4770,26 @@ public class Editor extends GameState {
 					decorSelect = -1;
 					newPoly = null;
 				}
+			} else if ((modeChild.equals("Toggle Image")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("up", DecorVars.Rain, false, false);
+				else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				if (decorSelect != -1) {
+					newPoly = allDecors.get(decorSelect).clone();
+					newPoly[10] = 1+allDecors.get(decorSelect)[10];
+					if (newPoly[10] >= DecorVars.platformImages.length) newPoly[10] = 0;
+					allDecors.set(decorSelect, newPoly.clone());
+					String imageStr = DecorVars.GetImageFromIndex((int) allDecors.get(decorSelect)[10]);
+					Message("Climate image changed to " + imageStr, 0);
+					decorSelect = -1;
+					newPoly = null;
+				}
 			} else if ((modeChild.equals("Toggle Sound")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-				if (modeParent.equals("Rain")) SelectDecor("up", DecorVars.Rain, false, false);
-				else if (modeParent.equals("Waterfall")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("up", DecorVars.Rain, false, false);
+				else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("up", DecorVars.Waterfall, false, false);
 				if (decorSelect != -1) {
 					newPoly = allDecors.get(decorSelect).clone();
 					newPoly[9] = 1+allDecors.get(decorSelect)[9];
@@ -5653,10 +5668,10 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Set Surface Texture")) {
 					Message("Select texture, then click on surface to apply it", 0);
 					listChild.setItems(platformTextures);
-				} else if (modeParent.equals("Rain")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Sound");
-				} else if (modeParent.equals("Waterfall")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Sound");
+				} else if (modeParent.equals("Climate (Hard Edge)")) {
+					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Image", "Toggle Sound");
+				} else if (modeParent.equals("Climate (Soft Edge)")) {
+					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Image", "Toggle Sound");
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
 				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {
@@ -6417,8 +6432,8 @@ public class Editor extends GameState {
 			for (int i = 0; i < allDecors.size(); i++) {
 				if ((allDecorTypes.get(i)==DecorVars.Grass) | (allDecorTypes.get(i)>=100) | (allDecorTypes.get(i)==DecorVars.Rain) | (allDecorTypes.get(i)==DecorVars.Waterfall)) {
 					if ((modeParent.equals("Surface")) & ((allDecorTypes.get(i)!=DecorVars.Grass) & (allDecorTypes.get(i)<100))) continue;
-					if ((modeParent.equals("Rain")) & (allDecorTypes.get(i)!=DecorVars.Rain)) continue;
-					if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(i)!=DecorVars.Waterfall)) continue;
+					if ((modeParent.equals("Climate (Soft Edge)")) & (allDecorTypes.get(i)!=DecorVars.Rain)) continue;
+					if ((modeParent.equals("Climate (Hard Edge)")) & (allDecorTypes.get(i)!=DecorVars.Waterfall)) continue;
 					for (int j = 0; j < allDecors.get(i).length/2; j++) {
 						if (bestval == -1.0f) {
 							bestval = (float) Math.sqrt((tempx-allDecors.get(i)[2*j])*(tempx-allDecors.get(i)[2*j]) + (tempy-allDecors.get(i)[2*j+1])*(tempy-allDecors.get(i)[2*j+1]));
@@ -7193,8 +7208,8 @@ public class Editor extends GameState {
 				if (j!=objectSelect) continue;
 			}
 			if (allObjectTypes.get(j) == ObjectVars.SpikeZone) {
-//				if ((modeParent.equals("Rain")) & (allDecorTypes.get(j)!=DecorVars.Rain)) continue;
-//				if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
+//				if ((modeParent.equals("Climate (Soft Edge)")) & (allDecorTypes.get(j)!=DecorVars.Rain)) continue;
+//				if ((modeParent.equals("Climate (Hard Edge)")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
 //				if ((modeParent.equals("Collisionless BG")) & (allDecorTypes.get(j)!=DecorVars.CollisionlessBG)) continue;
 //				if ((modeParent.equals("Collisionless FG")) & (allDecorTypes.get(j)!=DecorVars.CollisionlessFG)) continue;
 				arraySegm = allObjects.get(j).clone();
@@ -8257,8 +8272,8 @@ public class Editor extends GameState {
 				if (j!=decorSelect) continue;
 			}
 			if ((allDecorTypes.get(j) == DecorVars.Waterfall) | (allDecorTypes.get(j) == DecorVars.Rain)) {
-				if ((modeParent.equals("Rain")) & (allDecorTypes.get(j)!=DecorVars.Rain)) continue;
-				if ((modeParent.equals("Waterfall")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
+				if ((modeParent.equals("Climate (Soft Edge)")) & (allDecorTypes.get(j)!=DecorVars.Rain)) continue;
+				if ((modeParent.equals("Climate (Hard Edge)")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
 				arraySegm = Arrays.copyOfRange(allDecors.get(j).clone(), 0, 8);
 				for (int i=0; i<arraySegm.length/2; i++) {
 					idxa = i;
