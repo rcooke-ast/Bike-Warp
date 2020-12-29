@@ -1817,6 +1817,12 @@ public class Play extends GameState {
         startAngle = (Float) mScene.getCustom(gameInfo, "startAngle", 0.0f);
         collectJewel = (Integer) mScene.getCustom(gameInfo, "numJewel", 0);
         bounds = (Vector2) mScene.getCustom(gameInfo, "bounds", new Vector2(0.0f, 1000.0f));
+        // Set the timer colour
+        int timerRed = (Integer) mScene.getCustom(gameInfo, "timerColorRed", 0);
+        int timerGreen = (Integer) mScene.getCustom(gameInfo, "timerColorGreen", 0);
+        int timerBlue = (Integer) mScene.getCustom(gameInfo, "timerColorBlue", 0);
+        timer.setColor(timerRed/255.0f, timerGreen/255.0f, timerBlue/255.0f, 1);
+        // Load some sky properties
         String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
         sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName),2));
         blackScreen = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("data/images/sky_moon.png"),2));
@@ -1836,10 +1842,6 @@ public class Play extends GameState {
         if ((bgTextName == null) || (bgTextName.equalsIgnoreCase("none"))) {
             paintBackdrop = false;
         } else background = new Sprite(BikeGameTextures.LoadTexture(bgTextName,2));
-        // Change the timer colour if certain backgrounds are being used
-        if ((paintBackdrop == false) || (skyTextureName.equals("data/images/sky_mars.png")) || (skyTextureName.equals("data/images/sky_moon.png")) || (bgTextName.equalsIgnoreCase("background_space"))) {
-    	    timer.setColor(0.5f, 0.5f, 0.5f, 1);
-        }
 
         // Get the two bike wheel motors
         leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();

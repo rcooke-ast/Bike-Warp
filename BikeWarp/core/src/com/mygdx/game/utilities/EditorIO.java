@@ -970,11 +970,26 @@ public class EditorIO {
 	        json.key("string").value(textBG);
 	        json.endObject();
         }
-        // Set the foreground image
-        json.object();
-        json.key("name").value("fgTexture");
-        json.key("string").value(textFG);
-        json.endObject();
+		// Set the foreground image
+		json.object();
+		json.key("name").value("fgTexture");
+		json.key("string").value(textFG);
+		json.endObject();
+		// Set the timer color (red)
+		json.object();
+		json.key("name").value("timerColorRed");
+		json.key("int").value(Integer.parseInt(LevelVars.get(LevelVars.PROP_TIMER_RED)));
+		json.endObject();
+		// Set the timer color (green)
+		json.object();
+		json.key("name").value("timerColorGreen");
+		json.key("int").value(Integer.parseInt(LevelVars.get(LevelVars.PROP_TIMER_GREEN)));
+		json.endObject();
+		// Set the timer color (blue)
+		json.object();
+		json.key("name").value("timerColorBlue");
+		json.key("int").value(Integer.parseInt(LevelVars.get(LevelVars.PROP_TIMER_BLUE)));
+		json.endObject();
         //
         json.endArray();
         json.key("linearVelocity").value(0);

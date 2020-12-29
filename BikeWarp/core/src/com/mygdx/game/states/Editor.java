@@ -78,17 +78,21 @@ public class Editor extends GameState {
 //			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
 //			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
 			"Rock", "Tree", "Tyre Stack"};
-    private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture", "Animated Background"};
+    private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
 	private String[] fgTextureList = {"None", "Bushes", "Plants", "Trees"};
 	private String[] animTextureList = {"None", "Asteroids", "Snow"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
+	private String[] timerColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust grey value",
+			"Set white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
+			"Set green", "Set blue", "Set purple"};
 	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust opacity",
 			"Set white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
 			"Set green", "Set blue", "Set purple", "Set invisible"};
 	private float[] platformColor;
+	private int[] timerColor;
 	private String[] gravityList = {"Earth", "Moon", "Mars", "Zero"};
 	private String[] loadList = {"Load Level", "New Level"};
 	private String saveFName;
@@ -1276,6 +1280,7 @@ public class Editor extends GameState {
     	transPoly = new float[8];
     	startDirPoly = new float[ObjectVars.objectArrow.length];
 		platformColor = new float[4];
+		timerColor = new int[]{0, 0, 0};
 
     	// Use an integer to identify which mode is currently active
     	/* mode:
@@ -2612,6 +2617,10 @@ public class Editor extends GameState {
 				warnFont.draw(sb, warnMessage[i], toolbarWidth * 1.1f, SCRHEIGHT - (1.1f * i + 2) * warnHeight);
 			}
 		}
+		if (modeParent.equals("Timer Color")) {
+			warnFont.setColor(timerColor[0]/255.0f, timerColor[1]/255.0f, timerColor[2]/255.0f, 1);
+			warnFont.draw(sb, "This is the current timer color", toolbarWidth * 1.1f, SCRHEIGHT - (1.1f * totalNumMsgs + 2) * warnHeight);
+		}
 	}
 
 	public void dispose() {
@@ -2980,6 +2989,56 @@ public class Editor extends GameState {
 			LevelVars.set(LevelVars.PROP_FG_TEXTURE, modeChild);
 		} else if (modeParent.equals("Animated Background")) {
 			LevelVars.set(LevelVars.PROP_ANIMATED_BG, modeChild);
+		} else if (modeParent.equals("Timer Color")) {
+			if (GameInput.MBDRAG == true) {
+				timerColor = GetTimerColor();
+				int changeValue = (int) (255.0f - 255.0f*(GameInput.MBDRAGY / BikeGame.SCALE)/SCRHEIGHT);
+				if (modeChild.equals("Adjust red value")) {
+					if (changeValue < 0) timerColor[0] = 0;
+					else if (changeValue > 255) timerColor[0] = 255;
+					else timerColor[0] = changeValue;
+				} else if (modeChild.equals("Adjust green value")) {
+					if (changeValue < 0) timerColor[1] = 0;
+					else if (changeValue > 255) timerColor[1] = 255;
+					else timerColor[1] = changeValue;
+				} else if (modeChild.equals("Adjust blue value")) {
+					if (changeValue < 0) timerColor[2] = 0;
+					else if (changeValue > 255) timerColor[2] = 255;
+					else timerColor[2] = changeValue;
+				} else if (modeChild.equals("Adjust grey value")) {
+					if (changeValue < 0) for (int tt=0; tt<3; tt++) timerColor[tt] = 0;
+					else if (changeValue > 255) for (int tt=0; tt<3; tt++) timerColor[tt] = 0;
+					else for (int tt=0; tt<3; tt++) timerColor[tt] = changeValue;
+				}
+				LevelVars.set(LevelVars.PROP_TIMER_RED, String.valueOf(timerColor[0]));
+				LevelVars.set(LevelVars.PROP_TIMER_GREEN, String.valueOf(timerColor[1]));
+				LevelVars.set(LevelVars.PROP_TIMER_BLUE, String.valueOf(timerColor[2]));
+			} else {
+				if (modeChild.equals("Set white")) {
+					timerColor = new int[]{255, 255, 255};
+				} else if (modeChild.equals("Set light grey")) {
+					timerColor = new int[]{178, 178, 178};
+				} else if (modeChild.equals("Set dark grey")) {
+					timerColor = new int[]{89, 89, 89};
+				} else if (modeChild.equals("Set black")) {
+					timerColor = new int[]{0, 0, 0};
+				} else if (modeChild.equals("Set red")) {
+					timerColor = new int[]{255, 0, 0};
+				} else if (modeChild.equals("Set orange")) {
+					timerColor = new int[]{255, 204, 0};
+				} else if (modeChild.equals("Set yellow")) {
+					timerColor = new int[]{255, 255, 26};
+				} else if (modeChild.equals("Set green")) {
+					timerColor = new int[]{0, 255, 0};
+				} else if (modeChild.equals("Set blue")) {
+					timerColor = new int[]{0, 0, 255};
+				} else if (modeChild.equals("Set purple")) {
+					timerColor = new int[]{255, 127, 255};
+				}
+				LevelVars.set(LevelVars.PROP_TIMER_RED, String.valueOf(timerColor[0]));
+				LevelVars.set(LevelVars.PROP_TIMER_GREEN, String.valueOf(timerColor[1]));
+				LevelVars.set(LevelVars.PROP_TIMER_BLUE, String.valueOf(timerColor[2]));
+			}
 		}
 	}
 
@@ -5541,7 +5600,10 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Animated Background")) {
 					listChild.setItems(animTextureList);
 					pLevelIndex = GetListIndex("Animated Background", levelPropList);
-					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_ANIMATED_BG),animTextureList));
+					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_ANIMATED_BG), animTextureList));
+				} else if (modeParent.equals("Timer Color")) {
+					listChild.setItems(timerColors);
+					timerColor = GetTimerColor();
 				} else listChild.setItems(nullList);
 				break;
 			case 3 :
@@ -5753,6 +5815,13 @@ public class Editor extends GameState {
    ///   ALL POLYGON/VERTEX OPERATIONS   ///
   ///                                   ///
  /////////////////////////////////////////
+
+	public int[] GetTimerColor() {
+		timerColor[0] = Integer.parseInt(LevelVars.get(LevelVars.PROP_TIMER_RED));
+		timerColor[1] = Integer.parseInt(LevelVars.get(LevelVars.PROP_TIMER_GREEN));
+		timerColor[2] = Integer.parseInt(LevelVars.get(LevelVars.PROP_TIMER_BLUE));
+		return timerColor;
+	}
 
 	public void UpdatePlatformTexture() {
 		currentTexture = listChild.getSelected().toString();
