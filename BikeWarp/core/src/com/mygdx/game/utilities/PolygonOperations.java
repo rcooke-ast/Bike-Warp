@@ -471,6 +471,10 @@ public class PolygonOperations {
     	return angle;
     }
 
+    public static float GetLength(float xcen, float ycen, float xpnt, float ypnt) {
+		return (float) Math.sqrt( (xcen-xpnt)*(xcen-xpnt) + (ycen-ypnt)*(ycen-ypnt) );
+	}
+
 	public static boolean PointInPolygon(float[] poly, float px, float py) {
 		int szp;
 		boolean inside = false;

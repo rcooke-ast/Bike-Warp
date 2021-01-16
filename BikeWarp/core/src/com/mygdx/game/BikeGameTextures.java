@@ -195,6 +195,7 @@ public class BikeGameTextures {
         // Load an error image just in case something fails
         GetTexture("error",2);
         // Add some additional textures
+        GetTexture("track",2);
         // Add grass
         texture = new Texture(Gdx.files.internal("data/images/grass_smooth.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);

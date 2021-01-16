@@ -1,5 +1,7 @@
 package com.mygdx.game.handlers;
 
+import com.mygdx.game.utilities.PolygonOperations;
+
 public class DecorVars {
 	// Define the sounds that can be applied to certain decorations
 	public static final String[] platformSounds = {"None", "Rain", "Waterfall", "Wind"};
@@ -41,12 +43,15 @@ public class DecorVars {
 	public static final int Tree = 37;
 	public static final int Rock = 38;
 	public static final int Planet = 39;
+	public static final int Track = 40;
 	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
     public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundWaterfall,imageWaterfall};
-    public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain,imageRain};
+	public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain,imageRain};
+	public static final float trackLength = 30.0f;
+	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
     public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
@@ -112,6 +117,21 @@ public class DecorVars {
 
 	public static String[] GetDecorImages() {
 		return platformImages.clone();
+	}
+
+	public static float[] MakeTrack(float[] inarr) {
+		float[] track = new float[8];
+		track[0] = inarr[0];
+		track[1] = inarr[1] - trackLength/6;
+		track[2] = inarr[0] + inarr[3]*trackLength;
+		track[3] = inarr[1] - trackLength/6;
+		track[4] = inarr[0] + inarr[3]*trackLength;
+		track[5] = inarr[1] + trackLength/6;
+		track[6] = inarr[0];
+		track[7] = inarr[1] + trackLength/6;
+		// Now rotate
+		PolygonOperations.RotateXYArray(track,inarr[2],inarr[0],inarr[1]);
+		return track.clone();
 	}
 
 	public static String GetSoundFromIndex(int idx) {

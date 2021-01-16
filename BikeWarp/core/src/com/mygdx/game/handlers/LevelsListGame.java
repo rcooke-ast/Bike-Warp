@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 55; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 54; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -37,7 +37,7 @@ public class LevelsListGame {
 		gameLevelTips[lnum] = "Tip: Use the 'b' key to bunny hop";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Same Same But Different";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Same, But Different";
 		gameLevelFiles[lnum] = "data/gamelevels/SameSameButDifferent.lvl";
 
 		lnum += 1;
@@ -149,12 +149,8 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/Lunatic.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Multiverse (Part 1)";
-    	gameLevelFiles[lnum] = "data/gamelevels/MultiversePart1.lvl";
-
-		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Multiverse (Part 2)";
-    	gameLevelFiles[lnum] = "data/gamelevels/MultiversePart2.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Multiverse";
+    	gameLevelFiles[lnum] = "data/gamelevels/Multiverse.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Barracks";
@@ -178,7 +174,7 @@ public class LevelsListGame {
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Lunar Digger";
-    	gameLevelFiles[lnum] = "data/gamelevels/GoldDiggerMoon.lvl";
+    	gameLevelFiles[lnum] = "data/gamelevels/LunarDigger.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Free Will";

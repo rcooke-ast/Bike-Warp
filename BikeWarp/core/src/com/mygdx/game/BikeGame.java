@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -43,6 +44,7 @@ public class BikeGame implements ApplicationListener {
 
 		// Set the Input Processor to the key input I've written
 		Gdx.input.setInputProcessor(new GameInputProcessor());
+		Gdx.input.setCursorCatched(true);
 
 		sb = new SpriteBatch();
 		cam = new OrthographicCamera();

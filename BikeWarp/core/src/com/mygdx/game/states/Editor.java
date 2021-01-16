@@ -8,7 +8,6 @@ package com.mygdx.game.states;
 
 import static com.mygdx.game.handlers.B2DVars.PPM;
 
-import java.awt.Cursor;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -74,10 +73,7 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
-	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Planet", "Sign",
-//			"Sign (10)", "Sign (20)", "Sign (30)", "Sign (40)", "Sign (50)", "Sign (60)", "Sign (80)", "Sign (100)", "Sign (Bumps Ahead)", "Sign (Dash)", "Sign (Dot)",
-//			"Sign (Do Not Enter)", "Sign (Exclamation)", "Sign (Motorbikes)", "Sign (No Motorbikes)", "Sign (Ramp Ahead)", "Sign (Reduce Speed)", "Sign (Stop)",
-			"Rock", "Tree", "Tyre Stack"};
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Planet", "Sign", "Rock", "Track", "Tree", "Tyre Stack"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -276,12 +272,13 @@ public class Editor extends GameState {
     }
 
     public void create() {
-    	Gdx.input.setCursorCatched(false);
     	//Gdx.graphics.setDisplayMode(Gdx.graphics.getDesktopDisplayMode().width, Gdx.graphics.getDesktopDisplayMode().height, true);
     	// First step is to set the hudCam for rendering messages
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
+		Gdx.input.setCursorCatched(false);
+		//Gdx.input.setCursorPosition((int) SCRWIDTH/2, (int) SCRHEIGHT/2);
 		GameInputProcessor.SetCrop(BikeGame.viewport.x, BikeGame.viewport.y);
         hudCam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
         hudCam.position.set(SCRWIDTH/2,SCRHEIGHT/2,0);
@@ -692,17 +689,7 @@ public class Editor extends GameState {
 		buttonExit.addListener(new ClickListener() {
 			public void clicked (InputEvent event, float x, float y) {
 				if (!hideToolbar) {
-					if (!drawingPoly) {
-						if (!changesMade) {
-							gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
-						} else {
-							Message("Changes made since last save!", 1);
-							Message("Selecting 'Main Menu' again will exit without saving", 1);
-							SaveLevel(true); // Autosave
-							changesMade = false;
-						}
-						UncheckButtons(false);
-					}
+					CheckExit();
 				}
 			}
 		});
@@ -1122,15 +1109,21 @@ public class Editor extends GameState {
 								if (jsonLevelString.split(" ")[2].equals("P")) {
 									Message("Two vertices in this polygon are too close together (generating a small area)", 1);
 									Message("Try separating these vertices", 1);
-									for (int i=1; i<allPolygons.get(gotoPoly).length/2; i++) {
-										dist = (float) Math.sqrt((Math.pow(allPolygons.get(gotoPoly)[2*i]-allPolygons.get(gotoPoly)[2*i-2], 2) +
-												Math.pow(allPolygons.get(gotoPoly)[2*i+1]-allPolygons.get(gotoPoly)[2*i-1], 2)));
-										if (dist < clsdist) {
-											clsdist = dist;
-											idxcls = i;
+									ArrayList<Vector2> concaveVertices = PolygonOperations.MakeVertices(allPolygons.get(gotoPoly));
+									ArrayList<ArrayList<Vector2>> convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+									ArrayList<float[]> convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+									float xcen=0.0f, ycen=0.0f;
+									for (int aa = 0; aa<convexPolygons.size(); aa++) {
+										if (PolygonOperations.CheckAreas(convexPolygons.get(aa).clone())) {
+											for (int bb=0; bb<convexPolygons.get(aa).length/2; bb++) {
+												xcen += convexPolygons.get(aa)[2*bb];;
+												ycen += convexPolygons.get(aa)[2*bb+1];
+											}
+											xcen /= convexPolygons.get(aa).length/2;
+											ycen /= convexPolygons.get(aa).length/2;
 										}
 									}
-									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
+									MoveCameraTo(xcen, ycen, true);
 								} else if (jsonLevelString.split(" ")[2].equals("D")) {
 									Message("Two vertices in this decoration are too close together (generating a small area)", 1);
 									Message("Try separating these vertices", 1);
@@ -1149,6 +1142,7 @@ public class Editor extends GameState {
 							hideToolbar = true;
 							gsm.SetPlaying(true);
 							// Now launch the level!
+							Gdx.input.setCursorCatched(true);
 							gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
 						}
 					} catch (JSONException e) {
@@ -1342,6 +1336,21 @@ public class Editor extends GameState {
 		//
     }
 
+    private void CheckExit() {
+		if (!drawingPoly) {
+			if (!changesMade) {
+				Gdx.input.setCursorCatched(true);
+				gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
+			} else {
+				Message("Changes made since last save!", 1);
+				Message("Selecting 'Main Menu' again will exit without saving", 1);
+				SaveLevel(true); // Autosave
+				changesMade = false;
+			}
+			UncheckButtons(false);
+		}
+	}
+
     public boolean CheckVertInt(boolean autosave) {
 		// Check for vertices that are too close
 		float[] chkVertices = PolygonOperations.CheckVertexSizes(allPolygons, allPolygonTypes, allDecors, allDecorTypes);
@@ -1374,6 +1383,7 @@ public class Editor extends GameState {
 		if (GameInput.isPressed(GameInput.KEY_X)) flipX=!flipX;
 		if (GameInput.isPressed(GameInput.KEY_Y)) flipY=!flipY;
 		if (GameInput.isPressed(GameInput.KEY_R)) rotPoly=true;
+		if (GameInput.isPressed(GameInput.KEY_ESC)) CheckExit();
 //		if (GameInput.isPressed(GameInput.KEY_LEFT)) Undo();
 //		if (GameInput.isPressed(GameInput.KEY_RIGHT)) Redo();
 		if ((GameInput.isPressed(GameInput.KEY_D)) & ((engageDelete) | (clearGrass) | (addGrass))) {
@@ -1550,8 +1560,14 @@ public class Editor extends GameState {
     }
 
 	public void update(float dt) {
-		if (gsm.isPlaying) hideToolbar = true;
-		else hideToolbar = false;
+		if (gsm.isPlaying) {
+			Gdx.input.setCursorCatched(true);
+			hideToolbar = true;
+		} else {
+			hideToolbar = false;
+			Gdx.input.setCursorCatched(false);
+			//Gdx.input.setCursorPosition((int) SCRWIDTH/2, (int) SCRHEIGHT/2);
+		}
     	handleInput();
     	cam.update();
     	stage.setScrollFocus(null); // Forces scrolling to be used for zooming only
@@ -2246,6 +2262,10 @@ public class Editor extends GameState {
 			shapeRenderer.setColor(0, 0, 0.8f, opacity);
 			rCoord = Arrays.copyOfRange(decor, 0, 8);
 			shapeRenderer.polygon(rCoord);
+		} else if (dTyp == DecorVars.Track) {
+			shapeRenderer.setColor(1, 1, 0.1f, opacity);
+			float[] track = DecorVars.MakeTrack(decor.clone());
+			shapeRenderer.polygon(track);
 		} else if (dTyp == DecorVars.LargeStone) {
 			shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 			shapeRenderer.circle(decor[0], decor[1], decor[2]);
@@ -2337,8 +2357,11 @@ public class Editor extends GameState {
 					shapeRenderer.polygon(updatePoly);
 				} else if (DecorVars.IsRect(allDecorTypes.get(decorSelect))) {
 					float[] rectUpdPoly = new float[8];
-					for (int i=0; i<8; i++) rectUpdPoly[i] = updatePoly[i];
+					for (int i = 0; i < 8; i++) rectUpdPoly[i] = updatePoly[i];
 					shapeRenderer.polygon(rectUpdPoly);
+				} else if (allDecorTypes.get(decorSelect) == DecorVars.Track) {
+					float[] track = DecorVars.MakeTrack(updatePoly.clone());
+					shapeRenderer.polygon(track);
 				} else shapeRenderer.polygon(updatePoly);
 			}
 		}
@@ -2463,6 +2486,8 @@ public class Editor extends GameState {
 				shapeRenderer.setColor(1, 1, 0.1f, 1);
 				if ((allDecorTypes.get(decorSelect)==DecorVars.Waterfall) | (allDecorTypes.get(decorSelect)==DecorVars.Rain)) {
 					verts = Arrays.copyOfRange(allDecors.get(decorSelect), 0, 8);
+				} else if (allDecorTypes.get(decorSelect)==DecorVars.Track) {
+					verts = DecorVars.MakeTrack(allDecors.get(decorSelect).clone());
 				} else {
 					verts = allDecors.get(decorSelect).clone();
 				}
@@ -2478,6 +2503,8 @@ public class Editor extends GameState {
 				shapeRenderer.setColor(1, 1, 0.1f, 1);
 				if ((allDecorTypes.get(decorHover)==DecorVars.Waterfall) | (allDecorTypes.get(decorHover)==DecorVars.Rain)) {
 					verts = Arrays.copyOfRange(allDecors.get(decorHover), 0, 8);
+				} else if (allDecorTypes.get(decorHover)==DecorVars.Track) {
+					verts = DecorVars.MakeTrack(allDecors.get(decorHover).clone());
 				} else {
 					verts = allDecors.get(decorHover).clone();
 				}
@@ -4998,6 +5025,89 @@ public class Editor extends GameState {
 					IncrementDecor(objNum);
 				}
 			}
+		} else if (modeParent.equals("Track")) {
+			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				AddDecor(DecorVars.Track, tempx, tempy, -999.9f);
+			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				SelectDecor("up", DecorVars.Track, false, false);
+				engageDelete = true;
+			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", DecorVars.Track, false, false);
+					startX = GameInput.MBDOWNX;
+					startY = GameInput.MBDOWNY;
+				} else {
+					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
+					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+					MoveDecor(decorSelect, "track", endX, endY);
+				}
+			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "move");
+				decorSelect = -1;
+			} else if (modeChild.equals("Extend")) {
+				tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				if (GameInput.MBDRAG==true) {
+					if (vertSelect == -1) {
+						FindNearestSegmentDecor(false);
+					} else {
+						startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+						startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+						endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+						endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+						int segmNext = segmSelect + 1;
+						if (segmNext==4) segmNext = 0;
+//						if (segmNext < segmSelect) MoveSegment(decorSelect, segmNext, segmSelect, startX, startY);
+//						else MoveSegment(decorSelect, segmSelect, segmNext, startX, startY);
+						ExtendTrack(decorSelect, startX, startY, endX, endY);
+					}
+				} else if ((GameInput.MBJUSTPRESSED) & (decorSelect != -1) & (vertSelect != -1)) {
+					UpdateDecor(decorSelect, "move");
+					decorSelect = -1;
+					segmSelect = -1;
+					vertSelect = -1;
+				} else {
+					FindNearestSegmentDecor(true);
+				}
+			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
+				if (decorSelect == -1) {
+					SelectDecor("down", DecorVars.Track, false, false);
+					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				} else {
+					float[] track = DecorVars.MakeTrack(allDecors.get(decorSelect).clone());
+					float xcen = 0.5f*(track[0]+track[4]);
+					float ycen = 0.5f*(track[1]+track[5]);
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+					nullvarA = (float) Math.sqrt((endX-xcen)*(endX-xcen) + (endY-ycen)*(endY-ycen));
+					nullvarB = (float) Math.sqrt((startX-xcen)*(startX-xcen) + (startY-ycen)*(startY-ycen));
+					nullvarC = (float) Math.sqrt((startX-endX)*(startX-endX) + (startY-endY)*(startY-endY));
+					nullvarD = (float) Math.acos((nullvarA*nullvarA + nullvarB*nullvarB - nullvarC*nullvarC)/(2.0f*nullvarA*nullvarB));
+					if ((startX == xcen) & (startY == ycen)) return; // No rotation
+					else if (startX == xcen) {
+						if (endX>startX) nullvarD *= -1.0f;
+						if (startY<ycen) nullvarD *= -1.0f;
+					} else {
+						if (endY < endX*((startY-ycen)/(startX-xcen)) + (startY - startX*((startY-ycen)/(startX-xcen)))) nullvarD *= -1.0f;
+						if (startX < xcen) nullvarD *= -1.0f;
+					}
+					updatePoly = allDecors.get(decorSelect).clone();
+					float[] xyco = PolygonOperations.RotateCoordinate(allDecors.get(decorSelect)[0], allDecors.get(decorSelect)[1], MathUtils.radiansToDegrees*nullvarD, xcen, ycen);
+					updatePoly[0] = xyco[0];
+					updatePoly[1] = xyco[1];
+					updatePoly[2] += nullvarD;
+					if (updatePoly[2] >= 360.0f) updatePoly[2] -= 360.0f;
+				}
+			} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (decorSelect != -1)) {
+				UpdateDecor(decorSelect, "rotateobject");
+				decorSelect = -1;
+				GameInput.MBRELEASE=false;
+			}
 		}
 	}
 
@@ -5738,6 +5848,8 @@ public class Editor extends GameState {
 					listChild.setItems(itemsADMR);
 				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
+				} else if (modeParent.equals("Track")) {
+					listChild.setItems("Add", "Delete", "Move", "Extend", "Rotate");
 				} else listChild.setItems(itemsADMR);
 				break;
 			case 7 :
@@ -5999,7 +6111,7 @@ public class Editor extends GameState {
     	if (mode==5) {
 	    	updatePoly = allObjects.get(idx).clone();
     		// Move the segment
-	    	if (Math.abs(allObjects.get(idx)[2*verti]-allObjects.get(idx)[2*vertj]) < (Math.abs(allObjects.get(idx)[2*verti+1]-allObjects.get(idx)[2*vertj+1]))) {
+			if (Math.abs(allObjects.get(idx)[2*verti]-allObjects.get(idx)[2*vertj]) < (Math.abs(allObjects.get(idx)[2*verti+1]-allObjects.get(idx)[2*vertj+1]))) {
 	    		// More similar x values, so move in the x direction
 	    		updatePoly[2*verti] = startX;
 	    		updatePoly[2*vertj] = startX;
@@ -6016,7 +6128,7 @@ public class Editor extends GameState {
 			}
 			verts = updatePoly.clone();
     		// Move the segment
-	    	if (Math.abs(verts[2*verti]-verts[2*vertj]) < (Math.abs(verts[2*verti+1]-verts[2*vertj+1]))) {
+			if (Math.abs(verts[2*verti]-verts[2*vertj]) < (Math.abs(verts[2*verti+1]-verts[2*vertj+1]))) {
 	    		// More similar x values, so move in the x direction
 	    		updatePoly[2*verti] = startX;
 	    		updatePoly[2*vertj] = startX;
@@ -8240,6 +8352,10 @@ public class Editor extends GameState {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype==DecorVars.TyreStack) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype == DecorVars.Track) {
+			newPoly = DecorVars.decorTrack.clone();
+			newPoly[0] = xcen;
+			newPoly[1] = ycen;
 		}
 	}
 
@@ -8327,6 +8443,44 @@ public class Editor extends GameState {
 		}
 	}
 
+	private void ExtendTrack(int idx, float xpos, float ypos, float xend, float yend) {
+		updatePoly = allDecors.get(decorSelect).clone();
+		float[] track = DecorVars.MakeTrack(updatePoly);
+		float[] track_cl = track.clone();
+		float cenx = 0.5f * (track_cl[0] + track_cl[4]);
+		float ceny = 0.5f * (track_cl[1] + track_cl[5]);
+		float angle = (float) (2*Math.PI)-allDecors.get(decorSelect)[2];
+		float xpiv = allDecors.get(decorSelect)[0];
+		float ypiv = allDecors.get(decorSelect)[1];
+		int numSegChange;
+		PolygonOperations.RotateXYArray(track,angle,xpiv,ypiv);
+		float[] xypos = PolygonOperations.RotateCoordinate(xpos, ypos, MathUtils.radiansToDegrees*angle, xpiv, ypiv);
+		float[] xydrg = PolygonOperations.RotateCoordinate(xend, yend, MathUtils.radiansToDegrees*angle, xpiv, ypiv);
+		float[] xycen = PolygonOperations.RotateCoordinate(cenx, ceny, MathUtils.radiansToDegrees*angle, xpiv, ypiv);
+		numSegChange = (int) Math.round(Math.abs(xpiv-xydrg[0])/ DecorVars.trackLength);
+		if (xypos[0] < xycen[0]) {
+			// Extending/Contracting to the left
+			if ((numSegChange >= 1) & (xydrg[0]<xpiv+allDecors.get(decorSelect)[3]*DecorVars.trackLength)) {
+				// TODO :: - sometimes we need to subtract numSegChange
+				if (xydrg[0]<xpiv) {
+					// Extending
+					updatePoly[3] += numSegChange;
+					xypos = PolygonOperations.RotateCoordinate(xpiv - numSegChange * DecorVars.trackLength, ypiv, MathUtils.radiansToDegrees * allDecors.get(decorSelect)[2], xpiv, ypiv);
+				} else {
+					// Contracting
+					updatePoly[3] -= numSegChange;
+					xypos = PolygonOperations.RotateCoordinate(xpiv + numSegChange * DecorVars.trackLength, ypiv, MathUtils.radiansToDegrees * allDecors.get(decorSelect)[2], xpiv, ypiv);
+				}
+				updatePoly[0] = xypos[0];
+				updatePoly[1] = xypos[1];
+			}
+		} else {
+			if ((numSegChange >= 1) & (xydrg[0]>xpiv)) updatePoly[3] = numSegChange;
+		}
+		// Check it's not zero!
+		if (updatePoly[3] <= 0.5f) updatePoly[3] = 1.0f;
+	}
+
 	public void FindNearestSegmentDecor(boolean hover) {
 		int idxa, idxb, idxmin, polymin, flag;
 		float grad, intc, gradb, intcb, xint, yint, xa, xb, ya, yb;
@@ -8400,6 +8554,65 @@ public class Editor extends GameState {
 						flag=1;
 					}
 				}
+			} else if (allDecorTypes.get(j) == DecorVars.Track) {
+				arraySegm = DecorVars.MakeTrack(allDecors.get(j).clone());
+				for (int i=0; i<arraySegm.length/2; i++) {
+					if (i%2==0) continue;
+					idxa = i;
+					if (i == arraySegm.length/2 - 1) idxb = 0;
+					else idxb = i+1;
+					// Calculate the gradient
+					xa = arraySegm[2*idxa];
+					ya = arraySegm[2*idxa+1];
+					xb = arraySegm[2*idxb];
+					yb = arraySegm[2*idxb+1];
+					if (xa==xb) {
+						if (ya>yb) {
+							if (tempy>ya) yint = tempy-ya;
+							else if (tempy<yb) yint = yb-tempy;
+							else yint = 0.0f;
+						} else {
+							if (tempy>yb) yint = tempy-yb;
+							else if (tempy<ya) yint = ya-tempy;
+							else yint = 0.0f;
+						}
+						dist = (float) Math.sqrt((tempx-xa)*(tempx-xa) + yint*yint);
+					} else if (ya==yb) {
+						if (xa>xb) {
+							if (tempx>xa) yint = tempx-xa;
+							else if (tempx<xb) yint = xb-tempx;
+							else yint = 0.0f;
+						} else {
+							if (tempx>xb) yint = tempx-xb;
+							else if (tempx<xa) yint = xa-tempx;
+							else yint = 0.0f;
+						}
+						dist = (float) Math.sqrt((tempy-ya)*(tempy-ya) + yint*yint);
+					} else {
+						grad = (yb-ya)/(xb-xa);
+						intc = ya - grad*xa;
+						gradb = -(xb-xa)/(yb-ya);
+						intcb = tempy - gradb*tempx;
+						// Calculate the intersection, and make sure the intersection is within bounds
+						xint = (intcb-intc)/(grad-gradb);
+						if (xa < xb) {
+							if (xint<xa) xint = xa;
+							else if (xint>xb) xint = xb;
+						} else {
+							if (xint<xb) xint = xb;
+							else if (xint>xa) xint = xa;
+						}
+						// Calculate the distance between the intersection and the cursor
+						yint = grad*xint + intc;
+						dist = (float) Math.sqrt((tempx-xint)*(tempx-xint) + (tempy-yint)*(tempy-yint));
+					}
+					if ((dist < mindist) | (flag==0)) {
+						mindist = dist;
+						idxmin = i;
+						polymin = j;
+						flag=1;
+					}
+				}
 			}
 		}
 		if ((hover) & (flag != 0)) {
@@ -8447,6 +8660,10 @@ public class Editor extends GameState {
 				updatePoly[2*i] += shiftX;
 				updatePoly[2*i+1] += shiftY;
 			}
+		} else if (mode.equals("track")) {
+			updatePoly = allDecors.get(idx).clone();
+			updatePoly[0] += shiftX;
+			updatePoly[1] += shiftY;
 		} else {
 			// Just do the same as polygon
 			updatePoly = allDecors.get(idx).clone();
@@ -8468,8 +8685,9 @@ public class Editor extends GameState {
 					updatePoly[i] = cursposy + (allDecors.get(idx)[i-1]-cursposx)*(float) Math.sin(angle) + (allDecors.get(idx)[i]-cursposy)*(float) Math.cos(angle);
 				}
 			}
-    	} else if (mode.equals("rect")) {
-			updatePoly = new float[9];
+		} else if ((mode.equals("rect")) | (mode.equals("rect4"))) {
+			if (mode.equals("rect")) updatePoly = new float[9];
+			else updatePoly = new float[8];
 			float xcen;
 			float ycen;
 			for (int i = 0; i<8; i++){
@@ -8481,7 +8699,7 @@ public class Editor extends GameState {
 					updatePoly[i] = ycen + (allDecors.get(idx)[i-1]-xcen)*(float) Math.sin(angle) + (allDecors.get(idx)[i]-ycen)*(float) Math.cos(angle);
 				}
 			}
-			updatePoly[8] = allDecors.get(idx)[8];
+			if (mode.equals("rect")) updatePoly[8] = allDecors.get(idx)[8];
     	} else if (mode.equals("roadsign")) {
     		updatePoly = allDecors.get(idx).clone();
     		updatePoly[3] = angle;
@@ -8614,6 +8832,10 @@ public class Editor extends GameState {
 				if (!circle) {
 					if ((otype==DecorVars.Waterfall) | (otype==DecorVars.Rain)) {
 						inside = PolygonOperations.PointInPolygon(Arrays.copyOfRange(allDecors.get(i).clone(),0,8),tempx,tempy);
+					} else if (otype==DecorVars.Track) {
+						float[] track = DecorVars.MakeTrack(allDecors.get(i));
+						// Check if it's inside
+						inside = PolygonOperations.PointInPolygon(track,tempx,tempy);
 					} else {
 						inside = PolygonOperations.PointInPolygon(allDecors.get(i),tempx,tempy);
 					}

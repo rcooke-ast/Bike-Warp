@@ -52,7 +52,9 @@ public class EditorDecorIO {
         		ImageRoadSign(json, decors.get(i), "images/RS_dot.png", i);
         	} else if (DecorVars.IsRect(decorTypes.get(i))) {
         		ImageRect(json, decors.get(i), decorTypes.get(i), i);
-        	}
+        	} else if (decorTypes.get(i) == DecorVars.Track) {
+        		ImageTrack(json, decors.get(i), i);
+			}
         }
 		return;
 	}
@@ -114,7 +116,78 @@ public class EditorDecorIO {
 		return;
 	}
 
-	
+	public static void ImageTrack(JSONStringer json, float[] fs, int cnt) throws JSONException {
+		float trackLength = B2DVars.EPPM*DecorVars.trackLength;
+		float trackHeight = B2DVars.EPPM*DecorVars.trackLength/6.0f;  // This is actually half the height
+		float offset;
+		for (int tt=0; tt<(int)fs[3]; tt++) {
+			offset = tt*trackLength;
+			float[] xshaft = {-trackLength/2.0f, trackLength/2.0f, trackLength/2.0f, -trackLength/2.0f};
+			float[] yshaft = {-trackHeight, -trackHeight, trackHeight, trackHeight};
+			PolygonOperations.RotateArray(xshaft,yshaft,MathUtils.radiansToDegrees*fs[2],0.0f,0.0f);
+			float[] cenv = PolygonOperations.RotateCoordinate(fs[0]+(offset+0.5f*trackLength)/B2DVars.EPPM, fs[1], MathUtils.radiansToDegrees*fs[2], fs[0], fs[1]);
+			json.object(); // Start of Track
+			json.key("name").value("Decor"+cnt);
+			json.key("opacity").value(1);
+			json.key("renderOrder").value(0);
+			json.key("scale").value(1);
+			json.key("aspectScale").value(1);
+			json.key("angle").value(fs[2]);
+			json.key("center");
+			json.object();
+			json.key("x").value(cenv[0]*B2DVars.EPPM);
+			json.key("y").value(cenv[1]*B2DVars.EPPM);
+			json.endObject();
+			json.key("corners");
+			json.object();
+			json.key("x").array().value(xshaft[0]).value(xshaft[1]).value(xshaft[2]).value(xshaft[3]).endArray();
+			json.key("y").array().value(yshaft[0]).value(yshaft[1]).value(yshaft[2]).value(yshaft[3]).endArray();
+			json.endObject();
+			json.key("file").value("images/track.png");
+			json.key("filter").value(1);
+			json.key("glDrawElements").array().value(0).value(1).value(2).value(2).value(3).value(0).endArray();
+			json.key("glTexCoordPointer").array().value(0).value(1).value(1).value(1).value(1).value(0).value(0).value(0).endArray();
+			float unittrack = B2DVars.EPPM*DecorVars.trackLength;
+			json.key("glVertexPointer").array().value(-trackHeight).value(-0.5f*unittrack).value(trackHeight).value(-0.5f*unittrack).value(trackHeight).value(0.5f*unittrack).value(trackHeight).value(0.5f*unittrack).endArray();
+			json.endObject(); // End of Track
+		}
+		return;
+	}
+
+//	public static void ImageTrack(JSONStringer json, float[] fs, int cnt) throws JSONException {
+//		float trackLength = B2DVars.EPPM*DecorVars.trackLength*fs[3];
+//		float trackHeight = B2DVars.EPPM*DecorVars.trackLength/6.0f;  // This is actually half the height
+//		float[] xshaft = {-trackLength/2.0f, trackLength/2.0f, trackLength/2.0f, -trackLength/2.0f};
+//		float[] yshaft = {-trackHeight, -trackHeight, trackHeight, trackHeight};
+//		PolygonOperations.RotateArray(xshaft,yshaft,MathUtils.radiansToDegrees*fs[2],0.0f,0.0f);
+//		float[] cenv = PolygonOperations.RotateCoordinate(fs[0]+0.5f*trackLength/B2DVars.EPPM, fs[1], MathUtils.radiansToDegrees*fs[2], fs[0], fs[1]);
+//		json.object(); // Start of Track
+//		json.key("name").value("Decor"+cnt);
+//		json.key("opacity").value(1);
+//		json.key("renderOrder").value(0);
+//		json.key("scale").value(1);
+//		json.key("aspectScale").value(1);
+//		json.key("angle").value(fs[2]);
+//		json.key("center");
+//		json.object();
+//		json.key("x").value(cenv[0]*B2DVars.EPPM);
+//		json.key("y").value(cenv[1]*B2DVars.EPPM);
+//		json.endObject();
+//		json.key("corners");
+//		json.object();
+//		json.key("x").array().value(xshaft[0]).value(xshaft[1]).value(xshaft[2]).value(xshaft[3]).endArray();
+//		json.key("y").array().value(yshaft[0]).value(yshaft[1]).value(yshaft[2]).value(yshaft[3]).endArray();
+//		json.endObject();
+//		json.key("file").value("images/track.png");
+//		json.key("filter").value(1);
+//		json.key("glDrawElements").array().value(0).value(1).value(2).value(2).value(3).value(0).endArray();
+//		json.key("glTexCoordPointer").array().value(0).value(1).value(1).value(1).value(1).value(0).value(0).value(0).endArray();
+//		float unittrack = B2DVars.EPPM*DecorVars.trackLength;
+//		json.key("glVertexPointer").array().value(-trackHeight).value(-0.5f*unittrack).value(trackHeight).value(-0.5f*unittrack).value(trackHeight).value(0.5f*unittrack).value(trackHeight).value(0.5f*unittrack).endArray();
+//		json.endObject(); // End of Track
+//		return;
+//	}
+
 //	public static void ImageWaterfall(JSONStringer json, float[] fs, String imageFile, int cnt) throws JSONException {
 //		// Define some variables
 //		ArrayList<Vector2> concaveVertices = PolygonOperations.MakeVertices(fs);
