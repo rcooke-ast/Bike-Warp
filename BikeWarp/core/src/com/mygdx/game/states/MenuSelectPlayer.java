@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
@@ -105,9 +106,11 @@ public class MenuSelectPlayer extends GameState {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
     		if (currentOption < 0) currentOption = numOptions - 1;
+			BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
     		if (currentOption >= numOptions) currentOption = 0;
+			BikeGameSounds.PlayMenuSwitch();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if ((currentOption == numOptions-1) & (createPlayer == false)) {
     			createPlayer = true;
@@ -140,7 +143,8 @@ public class MenuSelectPlayer extends GameState {
         	} else {
         		// Set the current player
         		GameVars.SetCurrentPlayer(currentOption);
-        		fadeOut=1.0f;
+				BikeGameSounds.PlayMenuSelect();
+				fadeOut=1.0f;
         	}
         } else if (fadeOut==0.0f) {
         	// Go to the main menu

@@ -32,13 +32,13 @@ public class LevelsListGame {
 		gameLevelTips[lnum] = "Tip: Collect the emerald jewel and head to the exit warp";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Victoria Falls";
-		gameLevelFiles[lnum] = "data/gamelevels/VictoriaFalls.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Philosopher Falls";
+		gameLevelFiles[lnum] = "data/gamelevels/PhilosopherFalls.lvl";
 		gameLevelTips[lnum] = "Tip: Use the 'b' key to bunny hop";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Same, But Different";
-		gameLevelFiles[lnum] = "data/gamelevels/SameSameButDifferent.lvl";
+		gameLevelFiles[lnum] = "data/gamelevels/SameButDifferent.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". The Woodcutter";

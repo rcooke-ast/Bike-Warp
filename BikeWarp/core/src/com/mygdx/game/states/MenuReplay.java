@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
@@ -93,14 +94,18 @@ public class MenuReplay extends GameState {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
     		if (currentOption < 0) currentOption = numOptions - 1;
+			BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
     		if (currentOption >= numOptions) currentOption = 0;
+			BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
     		fadeOut=1.0f;
+			BikeGameSounds.PlayMenuSelect();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentOption == 0) {
         		fadeOut=1.0f;
+				BikeGameSounds.PlayMenuSelect();
         	} else {
         		// Load the replay
         		ReplayVars.LoadReplay(replayFiles.get(currentOption-1));

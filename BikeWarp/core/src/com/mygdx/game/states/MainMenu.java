@@ -6,11 +6,13 @@
 
 package com.mygdx.game.states;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameInputProcessor;
@@ -81,19 +83,22 @@ public class MainMenu extends GameState {
         		lastStationary = OptionsMainMenu.getCurrent();
             	scrollLevel = 0.0f;
             	scrollGoal -= 1.0f;
-            	OptionsMainMenu.lower();    			
+            	OptionsMainMenu.lower();
+				BikeGameSounds.PlayMenuSwitch();
     		} else {
         		lastStationary = OptionsMainMenu.getCurrent();
             	scrollLevel = 0.0f;
             	scrollGoal += 1.0f;        		
-            	OptionsMainMenu.raise();	
-    		}
+            	OptionsMainMenu.raise();
+				BikeGameSounds.PlayMenuSwitch();
+			}
     	} else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
         	if (scrollGoal == 0.0f) {
         		lastStationary = OptionsMainMenu.getCurrent();
             	scrollLevel = 0.0f;
             	scrollGoal -= 1.0f;
             	OptionsMainMenu.lower();
+				BikeGameSounds.PlayMenuSwitch();
         	}
         	sGoal--;
 //        	else lastStationary = OptionsMainMenu.menuOptions.length - (Math.abs(lastStationary - scrollLevel)%OptionsMainMenu.menuOptions.length);
@@ -104,33 +109,41 @@ public class MainMenu extends GameState {
             	scrollLevel = 0.0f;
             	scrollGoal += 1.0f;
             	OptionsMainMenu.raise();
+				BikeGameSounds.PlayMenuSwitch();
         	}
         	sGoal++;
 //        	else lastStationary = (Math.abs(lastStationary + scrollLevel)%OptionsMainMenu.menuOptions.length);
 //        	scrollGoal -= scrollLevel;
-        } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (sGoal==0) & (fadeOut==-1.0f)) {
+        } else if ((GameInput.isPressed(GameInput.KEY_E)) & (fadeOut==-1.0f)) {
+			fadeOut=1.0f;
+			goToLevel = GameStateManager.EDITOR;
+		} else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (sGoal==0) & (fadeOut==-1.0f)) {
         	fadeOut=1.0f;
-        	String tstName = OptionsMainMenu.menuStrings[OptionsMainMenu.getCurrent()];
-        	if (tstName=="Change Player") {
-        		goToLevel = GameStateManager.MENUPLAYER;
-        	} else if (tstName=="Custom Levels") {
-        		goToLevel = GameStateManager.MENUCUSTOM;
-        	} else if (tstName=="Single Player") {
-        		goToLevel = GameStateManager.MENULEVELS;
-        	} else if (tstName=="World Records") {
-        		goToLevel = GameStateManager.MENURECORDS;
-        	} else if (tstName=="Watch Replays") {
-        		goToLevel = GameStateManager.MENUREPLAY;
-        	} else if (tstName=="Design Level") {
-        		goToLevel = GameStateManager.EDITOR;
-        	} else if (tstName=="Options") {
-        		goToLevel = GameStateManager.MENUOPTIONSCOLOR;
-        	} else if (tstName=="Exit") {
-        		goToLevel = GameStateManager.MENUEXIT;
-        	}
+        	switch (OptionsMainMenu.menuStrings[OptionsMainMenu.getCurrent()]) {
+				case OptionsMainMenu.ChangePlayer:
+					goToLevel = GameStateManager.MENUPLAYER;
+					break;
+				case OptionsMainMenu.SinglePlayer:
+					goToLevel = GameStateManager.MENULEVELS;
+					break;
+				case OptionsMainMenu.Expansions:
+					goToLevel = GameStateManager.MENUCUSTOM;
+					break;
+				case OptionsMainMenu.Replays:
+					goToLevel = GameStateManager.MENUREPLAY;
+					break;
+				case OptionsMainMenu.Options:
+					goToLevel = GameStateManager.MENUOPTIONS;
+					break;
+				case OptionsMainMenu.Exit:
+					goToLevel = GameStateManager.MENUEXIT;
+					break;
+			}
+			BikeGameSounds.PlayMenuSelect();
         } else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (sGoal==0) & (fadeOut==-1.0f)) {
         	fadeOut=1.0f;
         	goToLevel = GameStateManager.MENUEXIT;
+			BikeGameSounds.PlayMenuSelect();
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(goToLevel, true, "none", -1, 0);

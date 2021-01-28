@@ -7,18 +7,7 @@
 package com.mygdx.game.handlers;
 
 import com.mygdx.game.BikeGame;
-import com.mygdx.game.states.GameState;
-import com.mygdx.game.states.LevelOptions;
-import com.mygdx.game.states.LevelSelectCustom;
-import com.mygdx.game.states.LevelSelectGame;
-import com.mygdx.game.states.MenuSelectPlayer;
-import com.mygdx.game.states.MainMenu;
-import com.mygdx.game.states.Editor;
-import com.mygdx.game.states.MenuExit;
-import com.mygdx.game.states.MenuRecords;
-import com.mygdx.game.states.MenuReplay;
-import com.mygdx.game.states.OptionColorSelect;
-import com.mygdx.game.states.Play;
+import com.mygdx.game.states.*;
 
 import java.util.Stack;
 
@@ -36,11 +25,11 @@ public class GameStateManager {
     public static final int MENUEXIT = 100001;
     public static final int MENURECORDS = 100002;
     public static final int MENUOPTIONS = 100003;
-    public static final int MENUOPTIONSCOLOR = 110003;
     public static final int MENUCUSTOM = 100004;
     public static final int MENULEVELS = 100005;
     public static final int MENUPLAYER = 100006;
     public static final int MENUREPLAY = 100007;
+    public static final int MENUOPTIONSCOLOR = 110008;
     public static final int PLAY = 200000;
     public static final int LEVELSELECT = 300000;
     public static final int LEVELOPTIONS = 300001;
@@ -78,7 +67,7 @@ public class GameStateManager {
         else if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
         else if (state == MENURECORDS) return new MenuRecords(this);
-        //else if (state == MENUOPTIONS) return new MenuOptions(this);
+        else if (state == MENUOPTIONS) return new MenuOptions(this);
         else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
         else if (state == MENUCUSTOM) return new LevelSelectCustom(this);
         else if (state == MENULEVELS) return new LevelSelectGame(this);

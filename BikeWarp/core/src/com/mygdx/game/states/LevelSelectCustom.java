@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.*;
 import com.mygdx.game.utilities.EditorIO;
@@ -88,13 +89,19 @@ public class LevelSelectCustom extends GameState {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
     		if (currentOption < 0) currentOption = totalItems-1;
+            BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
     		if (currentOption >= totalItems) currentOption = 0;
+            BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu
+            BikeGameSounds.PlayMenuSelect();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
-        	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
+        	if (currentOption==0) {
+        	    fadeOut=1.0f; // Return to Main Menu
+                BikeGameSounds.PlayMenuSelect();
+            }
         	else {
         		// Load the level
         		gsm.setState(GameStateManager.LEVELOPTIONS, true, "", currentOption-1, 1);

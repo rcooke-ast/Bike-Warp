@@ -7,6 +7,9 @@
 package com.mygdx.game.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -19,14 +22,15 @@ import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
-import com.mygdx.game.utilities.EditorIO;
 
 /**
  *
  * @author rcooke
  */
-public class LevelMenu extends GameState {
+public class MenuOptions extends GameState {
+    private static final String[] options = {"Main Menu", "Select Bike Colour", "Change Accelerator", "Change Brake", "Change Pull Right", "Change Pull Left", "Change Switch Direction", "Change Bunny Hop", "Change Nitrous", "Change Restart"};
 	private float SCRWIDTH, SCRHEIGHT;
 	private BitmapFont menuText;
     private static GlyphLayout glyphLayout = new GlyphLayout();
@@ -35,11 +39,13 @@ public class LevelMenu extends GameState {
     private float uRight, vTop, sheight;
     private float menuHeight, menuWidth, lvlWidth;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f;
-    private int currentOption, numMin, numLevShow, totalLevels;
+    private int currentOption, numMin, totalOptions;
+    private float checkLevels = 0.0f, keyNotAllowedTimer = 0.0f;
+    private boolean changeKey;
+    private int keyNotAllowed;
+    private String displayText = "";
 
-    private String[] stateItems;
-
-    public LevelMenu(GameStateManager gsm) {
+    public MenuOptions(GameStateManager gsm) {
         super(gsm);
         create();
     }
@@ -49,26 +55,25 @@ public class LevelMenu extends GameState {
         SCRWIDTH = BikeGame.viewport.width;
         SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.7f*SCRHEIGHT;
-        totalLevels = LevelsListGame.gameLevelNames.length;
         // Menu text
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
+        // Set text heights
         float scaleVal = 1.0f;
         menuText.getData().setScale(scaleVal);
         glyphLayout.setText(menuText, "XXXXXXXXXXXXXXX");
         menuWidth = glyphLayout.width;
         float tstMenuWidth;
-        for (int i=0; i<totalLevels; i++) {
-            glyphLayout.setText(menuText, LevelsListGame.gameLevelNames[i]);
+        for (int i = 0; i< totalOptions; i++) {
+            glyphLayout.setText(menuText, options[i]);
             tstMenuWidth = glyphLayout.width;
-        	if (tstMenuWidth > menuWidth) menuWidth = tstMenuWidth;
+            if (tstMenuWidth > menuWidth) menuWidth = tstMenuWidth;
         }
         scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/menuWidth;
         menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         glyphLayout.setText(menuText, "My");
         menuHeight = glyphLayout.height;
-        numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
-        if (numLevShow > totalLevels) numLevShow = totalLevels;
+        checkLevels = 0.0f;
         // Load the background metal grid
         metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
         float ratio = 4.0f;
@@ -79,39 +84,60 @@ public class LevelMenu extends GameState {
         metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner",1));
         // Set the starting option
         currentOption = 0;
-        numMin = 0;
         fadeOut = -1.0f;
         fadeIn = 0.0f;
+        totalOptions = options.length;
+        changeKey = false;
+        keyNotAllowed = 0;
+        keyNotAllowedTimer = 0.0f;
     }
 
     public void handleInput() {
+        if (changeKey) {
+            // Check if a new character is available
+            int currKey = GameInput.GetKeyPress();
+            if (GameInput.isPressed(GameInput.KEY_ESC)) {
+                fadeOut=1.0f; // Return to Main Menu
+                BikeGameSounds.PlayMenuSelect();
+            } else if (currKey != -1) {
+                if ((currKey >= 0) && (currKey <= 255)) {
+                    boolean allowed = GameVars.SetPlayerControls(currentOption-2, currKey);
+                    if (!allowed) keyNotAllowed = 2;
+                } else {
+                    keyNotAllowed = 1;
+                }
+                changeKey = false;
+            }
+            // No need to check the rest if we're entering a new character.
+            return;
+        }
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
-    		if (currentOption < 0) currentOption = totalLevels-1;
+    		if (currentOption < 0) currentOption = totalOptions -1;
             BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
-    		if (currentOption >= totalLevels) currentOption = 0;
+    		if (currentOption >= totalOptions) currentOption = 0;
             BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
-            BikeGameSounds.PlayMenuSelect();
         	fadeOut=1.0f; // Return to Main Menu
+            BikeGameSounds.PlayMenuSelect();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentOption==0) {
         	    fadeOut=1.0f; // Return to Main Menu
                 BikeGameSounds.PlayMenuSelect();
+            } else if (currentOption==1) {
+                gsm.setState(GameStateManager.MENUOPTIONSCOLOR, true, "", currentOption-1, 2);
+                BikeGameSounds.PlayMenuSelect();
             } else {
-        		// Load the level
-        		gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[currentOption])), currentOption-1, 2);
+        		// Changing the key
+                changeKey = true;
         	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(GameStateManager.PEEK, false, "none", currentOption-1, 2);
+    		checkLevels=0.0f;
         }
-    	//if (currentOption == 1) currentLevelTxt = "";
-    	if ((currentOption>numLevShow/2) & (currentOption<totalLevels-numLevShow/2)) numMin = currentOption-numLevShow/2;
-    	else if (currentOption<=numLevShow/2) numMin = 0;
-    	else if (currentOption>=totalLevels-numLevShow/2) numMin = totalLevels-numLevShow;
     }
     
     public void update(float dt) {
@@ -120,15 +146,24 @@ public class LevelMenu extends GameState {
 		cam.zoom = 1.0f;
     	cam.update();
 		handleInput();
+		// Set the fading
     	if (fadeOut > 0.0f) {
     		fadeOut -= dt/fadeTime;
     		if (fadeOut < 0.0f) fadeOut = 0.0f;
     	} else if (fadeIn <= 1.0f) {
     		fadeIn += dt/fadeTime;
-    		if (fadeIn > 1.0f) fadeIn = 2.0f;
+    		if (fadeIn > 1.0f) {
+    			fadeIn = 2.0f;
+    		}
     	}
-    	// Update menu options
-    	stateItems = new String[] {"Play Level", "Save Replay", "Watch Replay", "Skip Level", "Select Level", "Previous Level", "Next Level"};
+    	// Show key not allowed message
+        if (keyNotAllowed != 0) {
+            keyNotAllowedTimer += dt;
+            if (keyNotAllowedTimer > 1.0f) {
+                keyNotAllowedTimer = 0.0f;
+                keyNotAllowed = 0;
+            }
+        }
     }
     
     public void render() {
@@ -158,18 +193,29 @@ public class LevelMenu extends GameState {
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;
     	else alpha=1.0f;
-        for (int i=numMin; i<numMin+numLevShow; i++) {
+        for (int i=0; i<totalOptions; i++) {
         	if (currentOption == i) menuText.setColor(1, 1, 1, alpha);
         	else menuText.setColor(1, 1, 1, alpha/2);
-        	glyphLayout.setText(menuText, LevelsListGame.gameLevelNames[i]);
+        	glyphLayout.setText(menuText, options[i]);
         	lvlWidth = glyphLayout.width;
-        	menuText.draw(sb, LevelsListGame.gameLevelNames[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*numLevShow)/2 - 1.5f*(i-numMin)*menuHeight);
+        	menuText.draw(sb, options[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*totalOptions)/2 - 1.5f*i*menuHeight);
         }
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
-        glyphLayout.setText(menuText, LevelsListGame.gameLevelDescr[currentOption]);
+        if (keyNotAllowed == 1) {
+            displayText = "That key is not allowed";
+        } else if (keyNotAllowed == 2) {
+            displayText = "That key is already in use";
+        } else if (changeKey) {
+            displayText = "Press any key to set the " + options[currentOption].replace("Change ", "").toLowerCase() + " key";
+        } else {
+            if (currentOption == 0) displayText = "Press enter to return to the main menu";
+            else if (currentOption == 1) displayText = "Press enter to set the bike colour";
+            else displayText = "Press enter to change the " + options[currentOption].replace("Change ", "").toLowerCase() + " key.\n\nThe current key is:\n" + Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[currentOption-2]);
+        }
+        glyphLayout.setText(menuText, displayText);
         lvlWidth = glyphLayout.height;
-        menuText.draw(sb, LevelsListGame.gameLevelDescr[currentOption], cam.position.x, cam.position.y, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
+        menuText.draw(sb, displayText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
         sb.end();
     }
     

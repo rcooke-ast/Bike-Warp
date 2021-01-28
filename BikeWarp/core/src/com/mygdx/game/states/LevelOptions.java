@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
@@ -148,9 +149,11 @@ public class LevelOptions extends GameState {
     	if ((GameInput.isPressed(GameInput.KEY_UP)) & (!saveReplay)) {
     		currentOption--;
     		if (currentOption < 1) currentOption = totalOptions-1;
+			BikeGameSounds.PlayMenuSwitch();
         } else if ((GameInput.isPressed(GameInput.KEY_DOWN)) & (!saveReplay)) {
     		currentOption++;
     		if (currentOption >= totalOptions) currentOption = 1;
+			BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	if (saveReplay) saveReplay = false;
         	else fadeOut=1.0f; // Return to level selector

@@ -12,6 +12,7 @@ public class BikeGameSounds {
     public static Music rainSound, waterfallSound, windSound;
     private static ArrayList<Sound> sounds;
     private static ArrayList<String> soundNames;
+    private static int menuSwitch, menuSelect;
 
     public static void InitiateSounds() {
         // Initiate the arrays
@@ -21,6 +22,9 @@ public class BikeGameSounds {
         GetGameSounds();
         // Load all music
         GetGameMusic();
+        // Load the menu switch sound
+        menuSwitch = GetSoundIndex("bike_switch");
+        menuSelect = GetSoundIndex("finish");
     }
 
     public static Sound LoadBikeIdle() {
@@ -74,6 +78,14 @@ public class BikeGameSounds {
             if (file.equals(soundNames.get(i))) return i;
         }
         return -1;
+    }
+
+    public static void PlayMenuSwitch() {
+        long noID = sounds.get(menuSwitch).play(0.1f);
+    }
+
+    public static void PlayMenuSelect() {
+        long noID = sounds.get(menuSelect).play(1.0f);
     }
 
     public static void PlaySound(int index, float volume) {

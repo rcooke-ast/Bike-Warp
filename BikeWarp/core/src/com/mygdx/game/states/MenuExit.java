@@ -70,10 +70,13 @@ public class MenuExit extends GameState {
     	if ((GameInput.isPressed(GameInput.KEY_UP)) & (fadeOut==-1.0f)) {
     		currentOption--;
     		if (currentOption < 0) currentOption = 1;
+			BikeGameSounds.PlayMenuSwitch();
     	} else if ((GameInput.isPressed(GameInput.KEY_DOWN)) & (fadeOut==-1.0f)) {
     		currentOption++;
     		if (currentOption > 1) currentOption = 0;
+			BikeGameSounds.PlayMenuSwitch();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
+			BikeGameSounds.PlayMenuSelect();
         	action = currentOption;
         	fadeOut=1.0f;
         } else if (fadeOut==0.0f) {

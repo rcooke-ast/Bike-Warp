@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
+import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
@@ -97,6 +98,7 @@ public class LevelSelectGame extends GameState {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
     		if (currentOption < 0) currentOption = totalLevels-1;
+            BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_B)) {
         	int[] tmpval = GameVars.ValueInt(LevelsListGame.NUMGAMELEVELS, 1);
         	GameVars.plyrLevelComplete.set(GameVars.currentPlayer, tmpval.clone());
@@ -104,16 +106,23 @@ public class LevelSelectGame extends GameState {
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
     		if (currentOption >= totalLevels) currentOption = 0;
+            BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu
+            BikeGameSounds.PlayMenuSelect();
         } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(currentOption-1)==0)) {
+            BikeGameSounds.PlayMenuSelect();
         	GameVars.SetSkipLevel(currentOption-1); // Skip this level
         	totalLevels = GameVars.GetNumLevels();
         	LevelsListGame.updateRecords();
         	UpdateMenu();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
-        	if (currentOption==0) fadeOut=1.0f; // Return to Main Menu
+        	if (currentOption==0) {
+        	    fadeOut=1.0f; // Return to Main Menu
+                BikeGameSounds.PlayMenuSelect();
+            }
         	else {
+                BikeGameSounds.PlayMenuSelect();
         		// Load the level
         		gsm.setState(GameStateManager.LEVELOPTIONS, true, "", currentOption-1, 2);
         		//gsm.setState(GameStateManager.PLAY, true, EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.gameLevelFiles[currentOption])), currentOption-1, 2);

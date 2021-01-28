@@ -14,7 +14,7 @@ public class GameInput {
     
     public static boolean[] keys;
     public static boolean[] pkeys;
-    
+
     public static final int NUM_KEYS = 36;
     // Game keys
     public static final int KEY_ACCEL = 0;
@@ -71,23 +71,36 @@ public class GameInput {
     public static boolean MBJUSTDRAGGED = false;
     public static int SCROLL = 0;
     public static String currChar = "";
-    
+    public static boolean i_key, i_pkey;
+    public static int curr_key;
+
     static {
         keys = new boolean[NUM_KEYS];
         pkeys = new boolean[NUM_KEYS];
+        i_key = false;
+        i_pkey = false;
     }
     
     public static void update() {
         for (int i=0; i < NUM_KEYS; i++) {
             pkeys[i] = keys[i];
         }
+        i_pkey = i_key;
     }
-    
+
     public static void setCharacter(String character) { currChar = character; }
+    public static void setI_key(int kk, boolean b) {
+        i_key = b;
+        curr_key = kk;
+    }
     public static void setKey(int i, boolean b) { keys[i] = b; }
     public static void setpKey(int i, boolean b) { pkeys[i] = b; }
     public static boolean isDown(int i) { return keys[i]; }
     public static boolean isPressed(int i) { return keys[i] && !pkeys[i]; }
+    public static int GetKeyPress() {
+        if (i_key && !i_pkey) return curr_key;
+        else return -1;
+    }
     public static boolean isNumberPressed() {
     	return ( (keys[KEY_NUM0] && !pkeys[KEY_NUM0]) ||
     			 (keys[KEY_NUM1] && !pkeys[KEY_NUM1]) ||

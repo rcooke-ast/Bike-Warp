@@ -89,6 +89,19 @@ public class GameVars implements Serializable {
 	public static int[] GetPlayerSkipLevel() {return plyrLevelComplete.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
 	public static void SetPlayerBikeColor(float[] rgb) {plyrBikeColor.set(currentPlayer, rgb.clone());}
+	public static boolean SetPlayerControls(int index, int value) {
+		int[] newControls = plyrControls.get(currentPlayer).clone();
+		// Check if the key is not already being used
+		for (int ii=0; ii<newControls.length; ii++) {
+			if (newControls[ii] == value) return false;
+		}
+		newControls[index] = value;
+		plyrControls.set(currentPlayer, newControls.clone());
+		// Finally save the updates
+		SavePlayers();
+		return true;
+	}
+
 	// Get the world record times and aliases
 	public static int GetWorldTimes(int lvl, int indx) {return worldTimes.get(lvl)[indx];}
 	public static int GetWorldTimesDmnd(int lvl, int indx) {return worldTimesDmnd.get(lvl)[indx];}
@@ -464,18 +477,21 @@ public class GameVars implements Serializable {
 	public static float[] GetDefaultBikeColor() {
 	    //mBatch.setColor(1, 0, 1, 1); // Magenta
 	    //mBatch.setColor(0.1f,0.5f,1.0f,1.0f); // Blue
-		float[] color = new float[]{0.1f,0.5f,1.0f,1.0f};
+		float[] color = new float[]{0.1f,0.5f,1.0f,1.0f};  // Blue
+		//float[] color = new float[]{0.1568627450980392f, 0.23529411764705882f, 0.5882352941176471f, 1.0f};  // Midnight blue
 		return color.clone();
 	}
 
 	public static int[] GetDefaultControls() {
-		int[] controls = new int[6];
+		int[] controls = new int[8];
 		controls[0] = Keys.UP;
 		controls[1] = Keys.DOWN;
-		controls[2] = Keys.LEFT;
-		controls[3] = Keys.RIGHT;
+		controls[2] = Keys.RIGHT;
+		controls[3] = Keys.LEFT;
 		controls[4] = Keys.SPACE;
-		controls[5] = Keys.A;
+		controls[5] = Keys.B;
+		controls[6] = Keys.N;
+		controls[7] = Keys.R;
 		return controls.clone();
 	}
 

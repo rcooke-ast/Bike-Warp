@@ -33,20 +33,20 @@ public class GameInputProcessor extends InputMultiplexer {
         if ((k == Keys.ESCAPE) | (k == Keys.Q)) {
         	GameInput.setKey(GameInput.KEY_ESC, true);
         	if (disable_keys) return true;
-        } else if (k == Keys.R) {
-        	GameInput.setKey(GameInput.KEY_RESTART, true);
-        	GameInput.setKey(GameInput.KEY_R, true);
         }
         // Check is keys are disabled
     	if (disable_keys) return false;
     	// Game keys
-    	if (k == Keys.UP) GameInput.setKey(GameInput.KEY_ACCEL, true);
-    	if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_BRAKE, true);
-    	if (k == Keys.LEFT) GameInput.setKey(GameInput.KEY_SPINL, true);
-    	if (k == Keys.RIGHT) GameInput.setKey(GameInput.KEY_SPINR, true);
-    	if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_CHDIR, true);
-    	if (k == Keys.B) GameInput.setKey(GameInput.KEY_BUNNY, true);
-    	if (k == Keys.N) GameInput.setKey(GameInput.KEY_NITROUS, true);
+        if (GameVars.currentPlayer != -1) {
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[0]) GameInput.setKey(GameInput.KEY_ACCEL, true);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[1]) GameInput.setKey(GameInput.KEY_BRAKE, true);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[2]) GameInput.setKey(GameInput.KEY_SPINR, true);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[3]) GameInput.setKey(GameInput.KEY_SPINL, true);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[4]) GameInput.setKey(GameInput.KEY_CHDIR, true);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[5]) GameInput.setKey(GameInput.KEY_BUNNY, true);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[6]) GameInput.setKey(GameInput.KEY_NITROUS, true);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[7]) GameInput.setKey(GameInput.KEY_RESTART, true);
+        }
         // Other keys
         if (k == Keys.UP) GameInput.setKey(GameInput.KEY_UP, true);
         if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_DOWN, true);
@@ -57,6 +57,7 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, true);
         if (k == Keys.E) GameInput.setKey(GameInput.KEY_E, true);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, true);
+        if (k == Keys.R) GameInput.setKey(GameInput.KEY_R, true);
         if (k == Keys.S) GameInput.setKey(GameInput.KEY_S, true);
         if (k == Keys.X) GameInput.setKey(GameInput.KEY_X, true);
         if (k == Keys.Y) GameInput.setKey(GameInput.KEY_Y, true);
@@ -74,6 +75,8 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.NUM_7) GameInput.setKey(GameInput.KEY_NUM7, true);
         if (k == Keys.NUM_8) GameInput.setKey(GameInput.KEY_NUM8, true);
         if (k == Keys.NUM_9) GameInput.setKey(GameInput.KEY_NUM9, true);
+        // Now set the currently pressed key
+        GameInput.setI_key(k, true);
         return true;
     }
 
@@ -82,19 +85,21 @@ public class GameInputProcessor extends InputMultiplexer {
         if ((k == Keys.ESCAPE) | (k == Keys.Q)) {
         	GameInput.setKey(GameInput.KEY_ESC, false);
         	if (disable_keys) return true;
-        } else if (k == Keys.R) {
-        	GameInput.setKey(GameInput.KEY_RESTART, false);
-        	GameInput.setKey(GameInput.KEY_R, false);
         }
-    	if (disable_keys) return false;
+        if (disable_keys) return false;
     	// Game keys
-    	if (k == Keys.UP) GameInput.setKey(GameInput.KEY_ACCEL, false);
-    	if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_BRAKE, false);
-    	if (k == Keys.LEFT) GameInput.setKey(GameInput.KEY_SPINL, false);
-    	if (k == Keys.RIGHT) GameInput.setKey(GameInput.KEY_SPINR, false);
-    	if (k == Keys.SPACE) GameInput.setKey(GameInput.KEY_CHDIR, false);
-    	if (k == Keys.B) GameInput.setKey(GameInput.KEY_BUNNY, false);
-    	if (k == Keys.N) GameInput.setKey(GameInput.KEY_NITROUS, false);
+        if (GameVars.currentPlayer != -1) {
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[0]) GameInput.setKey(GameInput.KEY_ACCEL, false);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[1]) GameInput.setKey(GameInput.KEY_BRAKE, false);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[2]) GameInput.setKey(GameInput.KEY_SPINR, false);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[3]) GameInput.setKey(GameInput.KEY_SPINL, false);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[4]) GameInput.setKey(GameInput.KEY_CHDIR, false);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[5]) GameInput.setKey(GameInput.KEY_BUNNY, false);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[6])
+                GameInput.setKey(GameInput.KEY_NITROUS, false);
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[7])
+                GameInput.setKey(GameInput.KEY_RESTART, false);
+        }
         // Other keys
         if (k == Keys.UP) GameInput.setKey(GameInput.KEY_UP, false);
         if (k == Keys.DOWN) GameInput.setKey(GameInput.KEY_DOWN, false);
@@ -105,6 +110,7 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.B) GameInput.setKey(GameInput.KEY_B, false);
         if (k == Keys.E) GameInput.setKey(GameInput.KEY_E, false);
         if (k == Keys.N) GameInput.setKey(GameInput.KEY_N, false);
+        if (k == Keys.R) GameInput.setKey(GameInput.KEY_R, false);
         if (k == Keys.X) GameInput.setKey(GameInput.KEY_X, false);
         if (k == Keys.Y) GameInput.setKey(GameInput.KEY_Y, false);
         if (k == Keys.Z) GameInput.setKey(GameInput.KEY_Z, false);
@@ -122,6 +128,8 @@ public class GameInputProcessor extends InputMultiplexer {
         if (k == Keys.NUM_7) GameInput.setKey(GameInput.KEY_NUM7, false);
         if (k == Keys.NUM_8) GameInput.setKey(GameInput.KEY_NUM8, false);
         if (k == Keys.NUM_9) GameInput.setKey(GameInput.KEY_NUM9, false);
+        // Now set the currently pressed key
+        GameInput.setI_key(k, false);
         return true;
     }
 
