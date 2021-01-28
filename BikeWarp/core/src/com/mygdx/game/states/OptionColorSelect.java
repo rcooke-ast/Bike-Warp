@@ -252,7 +252,7 @@ public class OptionColorSelect extends GameState {
         // Draw the bike overlay
     	sb.setColor(1, 1, 1, 1);        
     	sb.begin();
-        sb.draw(bolay, cam.position.x-0.5f*wwidth*bscale*(1.0f+(968.0f/446.0f)), cam.position.y - BikeGame.V_HEIGHT*(5.0f/12.0f) + 0.5f*wheight, bscale*owidth/2.0f, oheight/2.0f, bscale*owidth, oheight, 1.0f, 1.0f, 0);
+        sb.draw(bolay, cam.position.x-0.5f*wwidth*bscale*(1.0f+(968.0f/446.0f)), cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight, bscale*owidth/2.0f, oheight/2.0f, bscale*owidth, oheight, 1.0f, 1.0f, 0);
         sb.end();
         // Draw front suspension
         if (bikeDirc == 1.0f) {

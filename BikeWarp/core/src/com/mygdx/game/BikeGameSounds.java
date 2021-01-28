@@ -85,7 +85,7 @@ public class BikeGameSounds {
     }
 
     public static void PlayMenuSelect() {
-        long noID = sounds.get(menuSelect).play(1.0f);
+        long noID = sounds.get(menuSelect).play(0.5f);
     }
 
     public static void PlaySound(int index, float volume) {
