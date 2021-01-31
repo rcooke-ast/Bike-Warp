@@ -531,8 +531,11 @@ public class EditorIO {
 
 	public static String GetBGTexture(String textName) {
 		String defval = "background_waterfall";
-		if (textName.equals("Mountains")) return "background_mountains";
-		else if (textName.equals("Space")) return "background_space";
+		if (textName.equals("Aurora")) return "background_aurora";
+		else if (textName.equals("Milky Way")) return "background_milkyway";
+		else if (textName.equals("Shooting Star")) return "background_shootingstar";
+		else if (textName.equals("Mountains")) return "background_mountains";
+		else if ((textName.equals("Stars")) | textName.equals("Space")) return "background_stars";
 		else if (textName.equals("Waterfall")) return "background_waterfall";
 		else if (textName.equals("None")) return "none";
 		else return null;

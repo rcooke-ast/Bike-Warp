@@ -77,7 +77,7 @@ public class Editor extends GameState {
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
-	private String[] bgTextureList = {"None", "Mountains", "Space", "Waterfall"};
+	private String[] bgTextureList = {"None", "Aurora", "Milky Way", "Mountains", "Shooting Star", "Stars", "Waterfall"};
 	private String[] fgTextureList = {"None", "Bushes", "Plants", "Trees"};
 	private String[] animTextureList = {"None", "Asteroids", "Snow"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
@@ -4974,11 +4974,17 @@ public class Editor extends GameState {
 			} else if ((modeChild.equals("Scale")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					SelectDecor("down", objNum, false, false);
-					startX = GameInput.MBDOWNX;
-					startY = GameInput.MBDOWNY;
+					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+//					startX = cam.zoom * (GameInput.MBDOWNX / BikeGame.SCALE);
+//					startY = - cam.zoom * (GameInput.MBDOWNY / BikeGame.SCALE);
+//					startX = GameInput.MBDOWNX;
+//					startY = GameInput.MBDOWNY;
 				} else {
-					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
-					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
+					endX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+					endY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+//					endX = cam.zoom*(GameInput.MBDRAGX)/BikeGame.SCALE - startX;
+//					endY = - cam.zoom*(GameInput.MBDRAGY)/BikeGame.SCALE - startY;
 					nullvarA = 0.5f*(allDecors.get(decorSelect)[0] + allDecors.get(decorSelect)[4]);
 					nullvarB = 0.5f*(allDecors.get(decorSelect)[1] + allDecors.get(decorSelect)[5]);
 					nullvarC = (float) (Math.sqrt((endX - nullvarA) * (endX - nullvarA) + (endY - nullvarB) * (endY - nullvarB)) / Math.sqrt((startX - nullvarA) * (startX - nullvarA) + (startY - nullvarB) * (startY - nullvarB)));

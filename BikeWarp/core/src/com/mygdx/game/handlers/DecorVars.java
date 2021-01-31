@@ -348,6 +348,9 @@ public class DecorVars {
 			case 9:
 				planetName = "moon";
 				break;
+			case 10:
+				planetName = "supernova";
+				break;
 			default:
 				break;
 		}
@@ -494,7 +497,7 @@ public class DecorVars {
 		} else if (decorID == Planet) {
 			xsize = 628.41345f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 10)) idx = 0;
+			if ((idx < 0) | (idx >= 11)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 628.41345f; // Sun
@@ -526,6 +529,9 @@ public class DecorVars {
 					break;
 				case 9:
 					xsize = 40.488487f*0.2725f; // Moon
+					break;
+				case 10:
+					xsize = 100.0f; // Supernova
 					break;
 				default:
 					break;

@@ -136,8 +136,11 @@ public class BikeGameTextures {
         GetTexture("ground_gravel",2);
         GetTexture("ground_mars",2);
         GetTexture("ground_moon",2);
+        //GetTexture("background_aurora",2);
         GetTexture("background_mountains",2);
-        GetTexture("background_space",2);
+        GetTexture("background_milkyway",2);
+        GetTexture("background_shootingstar",2);
+        GetTexture("background_stars",2);
         GetTexture("background_waterfall",2);
         GetTexture("foreground_bushes",2);
         GetTexture("foreground_plants",2);
@@ -192,6 +195,7 @@ public class BikeGameTextures {
         GetTexture("planet_uranus",2);
         GetTexture("planet_neptune",2);
         GetTexture("planet_moon",2);
+        GetTexture("planet_supernova",2);
         // Load an error image just in case something fails
         GetTexture("error",2);
         // Add some additional textures

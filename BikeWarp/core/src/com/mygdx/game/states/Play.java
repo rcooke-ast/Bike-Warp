@@ -2332,6 +2332,9 @@ public class Play extends GameState {
         float bcx, bcy, angle;
         float bscale = (float)Math.sin(bikeScale*Math.PI/2);
         //if ((bscale == -1.0f) | (bscale == 1.0f)) {
+        // TODO :: Need to change this if we are going to set the bike shade.
+        float cscl = 1.0f;
+        mBatch.setColor(cscl, cscl, cscl, 1);
         if (true) {
         	// Render the wheels
         	mBatch.draw(bikeWheel, bikeBodyLW.getPosition().x-0.22f, bikeBodyLW.getPosition().y-0.22f, 0.22f, 0.22f, 0.44f, 0.44f, 1.0f, 1.0f, MathUtils.radiansToDegrees*bikeBodyLW.getAngle());
@@ -2341,13 +2344,13 @@ public class Play extends GameState {
      	   if (bikeDirc == 1.0f) {
      		   wcx = bikeBodyLW.getPosition().x;
      		   wcy = bikeBodyLW.getPosition().y;
-     	       if (bscale > 0.0f) mBatch.setColor(1, 1, 1, bscale);
-     	       else mBatch.setColor(1, 1, 1, 0);
+     	       if (bscale > 0.0f) mBatch.setColor(cscl, cscl, cscl, bscale);
+     	       else mBatch.setColor(cscl, cscl,cscl, 0);
      	   } else {
      		   wcx = bikeBodyRW.getPosition().x;
      		   wcy = bikeBodyRW.getPosition().y;    		   
-     	       if (bscale < 0.0f) mBatch.setColor(1, 1, 1, -bscale);
-     	       else mBatch.setColor(1, 1, 1, 0);
+     	       if (bscale < 0.0f) mBatch.setColor(cscl, cscl, cscl, -bscale);
+     	       else mBatch.setColor(cscl, cscl, cscl, 0);
      	   }
             bcx = bikeBodyC.getPosition().x;
             bcy = bikeBodyC.getPosition().y;
@@ -2381,14 +2384,15 @@ public class Play extends GameState {
         bcy = bikeBodyC.getPosition().y;
         angle = bikeBodyC.getAngle();
         // Change the colour of the bike
-        mBatch.setColor(bikeCol[0], bikeCol[1], bikeCol[2], 1);
+        mBatch.setColor(bikeCol[0]*cscl, bikeCol[1]*cscl, bikeCol[2]*cscl, 1);
         mBatch.draw(bikeColour, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-        mBatch.setColor(1, 1, 1, 1);
+        mBatch.setColor(cscl, cscl, cscl, 1);
         bcx = bikeBodyC.getPosition().x;
         bcy = bikeBodyC.getPosition().y;
         angle = bikeBodyC.getAngle();
         // Render the bike overlay and player
         mBatch.draw(bikeOverlay, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+        mBatch.setColor(1, 1, 1, 1);
         mBatch.end();
 
        // Render the ground, grass, rain, and waterfalls
