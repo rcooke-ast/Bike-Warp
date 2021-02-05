@@ -22,10 +22,10 @@ import com.mygdx.game.utilities.EditorIO;
 
 public class MenuSelectPlayer extends GameState {
     private int currentOption, numPlyrShow, numMin, numOptions;
-    private Sprite background;
+    private Sprite background, stars, gamename;
     private BitmapFont question, playerList;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
-	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sheight, plyrWidth, plyrHeight, optWidth;
+	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sheight, plyrWidth, plyrHeight, optWidth, gn_height, gn_width;
     private float fadeIn, fadeOut, alpha, fadeTime = 0.5f;
     private final String header = "Select your player name, or create a new one";
     private String newName = "";
@@ -55,8 +55,12 @@ public class MenuSelectPlayer extends GameState {
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
-		sheight = 0.7f*BikeGame.viewport.height;
-        background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
+		sheight = 0.6f*BikeGame.viewport.height;
+		background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
+		stars = new Sprite(BikeGameTextures.LoadTexture("background_stars",2));
+		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename",1));
+		gn_width = SCRWIDTH*0.7f;
+		gn_height = gn_width*gamename.getHeight()/gamename.getWidth();
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -191,14 +195,16 @@ public class MenuSelectPlayer extends GameState {
     		sb.setColor(1, 1, 1, 1);
 	        sb.begin();
 	        // Draw Sky
-	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+			sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.25f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
 	    	else question.setColor(1, 1, 1, 1);
 	    	glyphLayout.setText(playerList, "Enter your alias:");
 	    	optWidth = glyphLayout.width;
-	        question.draw(sb, "Enter your alias:", (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 + 1.5f*qHeight);
+	        question.draw(sb, "Enter your alias:", (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 + 1.5f*qHeight- 2*plyrHeight);
 	        // Check if a new character is available
         	if (GameInput.currChar != "") {
         		if ((newName.length() > 0) & (GameInput.currChar == "\b")) newName = newName.substring(0, newName.length() - 1);
@@ -212,9 +218,8 @@ public class MenuSelectPlayer extends GameState {
 	    	playerList.setColor(1, 1, 1, alpha);
 			glyphLayout.setText(playerList, newName);
 	    	optWidth = glyphLayout.width;
-	    	playerList.draw(sb, newName, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2);
+	    	playerList.draw(sb, newName, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2- 2*plyrHeight);
 	    	sb.end();
-
 		} else {
 	    	// Render QUESTION
 	    	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
@@ -223,11 +228,13 @@ public class MenuSelectPlayer extends GameState {
 	        sb.begin();
 	        // Draw Sky
 	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.25f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
 	    	else question.setColor(1, 1, 1, 1);
-	        question.draw(sb, header, (SCRWIDTH-qWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 + 1.5f*qHeight);
+	        question.draw(sb, header, (SCRWIDTH-qWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 + 1.5f*qHeight - 2*plyrHeight);
 	        // Draw Player Names
 	    	if (fadeOut >= 0.0f) alpha=fadeOut;
 	    	else if (fadeIn < 1.0f) alpha=fadeIn;
@@ -242,7 +249,7 @@ public class MenuSelectPlayer extends GameState {
 	        	// Render the text
 				glyphLayout.setText(playerList, dispText);
 	        	optWidth = glyphLayout.width;
-	        	playerList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(i-numMin)*plyrHeight, optWidth, Align.center, false);
+	        	playerList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(i-numMin)*plyrHeight - 2*plyrHeight, optWidth, Align.center, false);
 	        }
 	        sb.end();
 		}

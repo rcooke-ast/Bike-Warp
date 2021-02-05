@@ -14,7 +14,7 @@ public class LevelVars {
 
 	public static String[] props;
     
-    public static final int NUM_PROPS = 13;
+    public static final int NUM_PROPS = 14;
     public static final int PROP_NUMJEWELS = 0;
     public static final int PROP_GROUND_TEXTURE = 1;
     public static final int PROP_SKY_TEXTURE = 2;
@@ -28,6 +28,7 @@ public class LevelVars {
     public static final int PROP_TIMER_RED = 10;
     public static final int PROP_TIMER_GREEN = 11;
     public static final int PROP_TIMER_BLUE = 12;
+    public static final int PROP_BIKE_SHADE = 13;
 
     static {
         props = new String[NUM_PROPS];
@@ -52,6 +53,7 @@ public class LevelVars {
         props[PROP_TIMER_RED] = "0";
         props[PROP_TIMER_GREEN] = "0";
         props[PROP_TIMER_BLUE] = "0";
+        props[PROP_BIKE_SHADE] = "1";
     }
     
 }

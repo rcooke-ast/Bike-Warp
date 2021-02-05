@@ -14,7 +14,7 @@ import com.mygdx.game.handlers.GameStateManager;
 
 public class MenuExit extends GameState {
     private int currentOption, action;
-    private Sprite background;
+    private Sprite background, stars;
     private BitmapFont question, ansYes, ansNo;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
     private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, yWidth, nWidth;
@@ -31,6 +31,7 @@ public class MenuExit extends GameState {
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
         background = new Sprite(BikeGameTextures.LoadTexture("sky_evening",2));
+		stars = new Sprite(BikeGameTextures.LoadTexture("background_stars",2));
         fadeOut = -1.0f;
         fadeIn = 0.0f;
         // Load the finish ball textures
@@ -122,6 +123,7 @@ public class MenuExit extends GameState {
         sb.begin();
         // Draw Sky
         sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
         // Draw Exit Ball
         //sb.draw(finishFG, cam.position.x-finishRad, cam.position.y-finishRad, finishRad, finishRad, 2.0f*finishRad, 2.0f*finishRad, 1.0f, 1.0f, finAngle);
  	   	//finAngle += 5.0f;

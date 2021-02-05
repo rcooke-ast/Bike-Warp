@@ -196,6 +196,7 @@ public class Play extends GameState {
     private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
+    private float bikeShadeScl = 1.0f;
 
     // Some items to be displayed on the HUD
     //private Sprite panelShadeA, panelShadeB;//, panelShadeC;
@@ -1817,10 +1818,13 @@ public class Play extends GameState {
         startAngle = (Float) mScene.getCustom(gameInfo, "startAngle", 0.0f);
         collectJewel = (Integer) mScene.getCustom(gameInfo, "numJewel", 0);
         bounds = (Vector2) mScene.getCustom(gameInfo, "bounds", new Vector2(0.0f, 1000.0f));
+        bikeShadeScl = (Float) mScene.getCustom(gameInfo, "bikeShadeScale", 1.0f);
+
         // Set the timer colour
         int timerRed = (Integer) mScene.getCustom(gameInfo, "timerColorRed", 0);
         int timerGreen = (Integer) mScene.getCustom(gameInfo, "timerColorGreen", 0);
         int timerBlue = (Integer) mScene.getCustom(gameInfo, "timerColorBlue", 0);
+
         timer.setColor(timerRed/255.0f, timerGreen/255.0f, timerBlue/255.0f, 1);
         // Load some sky properties
         String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
@@ -1841,7 +1845,14 @@ public class Play extends GameState {
         } else foreground = new Sprite(BikeGameTextures.LoadTexture(fgTextName,2));
         if ((bgTextName == null) || (bgTextName.equalsIgnoreCase("none"))) {
             paintBackdrop = false;
-        } else background = new Sprite(BikeGameTextures.LoadTexture(bgTextName,2));
+        } else {
+            int loadID = 2;
+//            if (bgTextName.contains("LevText_")) loadID = 3;
+//            // TODO :: SERIOUS ERROR HERE!!!
+//            String temp_loadname = "tst_bg_"+bgTextName;
+//            System.out.println("PLAY: Loading file name: " + temp_loadname);
+            background = new Sprite(BikeGameTextures.LoadTexture(bgTextName, loadID));
+        }
 
         // Get the two bike wheel motors
         leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();
@@ -2332,9 +2343,7 @@ public class Play extends GameState {
         float bcx, bcy, angle;
         float bscale = (float)Math.sin(bikeScale*Math.PI/2);
         //if ((bscale == -1.0f) | (bscale == 1.0f)) {
-        // TODO :: Need to change this if we are going to set the bike shade.
-        float cscl = 1.0f;
-        mBatch.setColor(cscl, cscl, cscl, 1);
+        mBatch.setColor(bikeShadeScl, bikeShadeScl, bikeShadeScl, 1);
         if (true) {
         	// Render the wheels
         	mBatch.draw(bikeWheel, bikeBodyLW.getPosition().x-0.22f, bikeBodyLW.getPosition().y-0.22f, 0.22f, 0.22f, 0.44f, 0.44f, 1.0f, 1.0f, MathUtils.radiansToDegrees*bikeBodyLW.getAngle());
@@ -2344,13 +2353,13 @@ public class Play extends GameState {
      	   if (bikeDirc == 1.0f) {
      		   wcx = bikeBodyLW.getPosition().x;
      		   wcy = bikeBodyLW.getPosition().y;
-     	       if (bscale > 0.0f) mBatch.setColor(cscl, cscl, cscl, bscale);
-     	       else mBatch.setColor(cscl, cscl,cscl, 0);
+     	       if (bscale > 0.0f) mBatch.setColor(bikeShadeScl, bikeShadeScl, bikeShadeScl, bscale);
+     	       else mBatch.setColor(bikeShadeScl, bikeShadeScl,bikeShadeScl, 0);
      	   } else {
      		   wcx = bikeBodyRW.getPosition().x;
      		   wcy = bikeBodyRW.getPosition().y;    		   
-     	       if (bscale < 0.0f) mBatch.setColor(cscl, cscl, cscl, -bscale);
-     	       else mBatch.setColor(cscl, cscl, cscl, 0);
+     	       if (bscale < 0.0f) mBatch.setColor(bikeShadeScl, bikeShadeScl, bikeShadeScl, -bscale);
+     	       else mBatch.setColor(bikeShadeScl, bikeShadeScl, bikeShadeScl, 0);
      	   }
             bcx = bikeBodyC.getPosition().x;
             bcy = bikeBodyC.getPosition().y;
@@ -2384,9 +2393,9 @@ public class Play extends GameState {
         bcy = bikeBodyC.getPosition().y;
         angle = bikeBodyC.getAngle();
         // Change the colour of the bike
-        mBatch.setColor(bikeCol[0]*cscl, bikeCol[1]*cscl, bikeCol[2]*cscl, 1);
+        mBatch.setColor(bikeCol[0]*bikeShadeScl, bikeCol[1]*bikeShadeScl, bikeCol[2]*bikeShadeScl, 1);
         mBatch.draw(bikeColour, bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
-        mBatch.setColor(cscl, cscl, cscl, 1);
+        mBatch.setColor(bikeShadeScl, bikeShadeScl, bikeShadeScl, 1);
         bcx = bikeBodyC.getPosition().x;
         bcy = bikeBodyC.getPosition().y;
         angle = bikeBodyC.getAngle();
