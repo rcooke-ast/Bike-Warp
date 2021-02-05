@@ -62,4 +62,25 @@ public class FileUtils {
 		}
 	}
 
+	public static int[][] deepCopyIntArray(int[][] input) {
+		if (input == null)
+			return null;
+		int[][] result = new int[input.length][];
+		for (int r = 0; r < input.length; r++) {
+			result[r] = input[r].clone();
+		}
+		return result;
+	}
+
+	public static float[][][] deepCopyFloatArray(float[][][] input) {
+		if (input == null)
+			return null;
+		float[][][] result = new float[input.length][input[0].length][];
+		for (int r = 0; r < input.length; r++) {
+			for (int s=0; s<input[0].length; s++) {
+				result[r][s] = input[r][s].clone();
+			}
+		}
+		return result;
+	}
 }

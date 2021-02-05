@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -74,10 +75,18 @@ public class Editor extends GameState {
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
 	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Planet", "Sign", "Rock", "Track", "Tree", "Tyre Stack"};
-    private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
+    private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
-	private String[] bgTextureList = {"None", "Aurora", "Milky Way", "Mountains", "Shooting Star", "Stars", "Waterfall"};
+	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Waterfall",
+			"Astronaut", "Blue Bubble", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
+			"Milky Way", "Milky Way (Blue Torch)", "Milky Way (Mountains)", "Milky Way (Rocks)", "Milky Way (Shooting Star)", "Milky Way (Tall Rocks)",
+			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
+			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Shuttle Launch", "Star Circles", "Stargazer",
+			"Stars (Blue)", "Stars (Blue/Dust)", "Stars (Blue/Green)", "Stars (Blue/Purple)", "Stars (Dusty)", "Stars (Orange)",
+			"Stars (Purple)", "Stars (Purple/Dust)", "Stars (Purple/Orange)", "Stars (Red)", "Stars+Clouds (Blue/Orange)", "Stars+Rocks (Blue/Pink)", "Stars+Trees (Green)", "Stars Sparse"
+	};
+	private String[] bgTextureListDef = bgTextureList.clone();
 	private String[] fgTextureList = {"None", "Bushes", "Plants", "Trees"};
 	private String[] animTextureList = {"None", "Asteroids", "Snow"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
@@ -103,6 +112,10 @@ public class Editor extends GameState {
 	private int[] warnType;
 	private float warnTime = 5.0f, warnHeight, toolbarWidth;
 	private int warnNumber;
+
+	// This array contains all levels in the current working directory, and those that are already in the level file
+//	private ArrayList<Texture> allLevelTextures = new ArrayList<Texture>();
+//	private ArrayList<String> allLevelTextureNames = new ArrayList<String>();
 
 	// Setup the arrays to store new polygons
 	private ArrayList<float[]> allPolygons = new ArrayList<float[]>();
@@ -307,7 +320,7 @@ public class Editor extends GameState {
 		// Generate the initial variables of a new level
 		ResetLevelDefaults();
 
-		// TODO :: FIX THIS!!
+		// Load the trace list images and make some level textures
 		traceList = EditorIO.LoadTraceImages(new String[] {"None"});
 
 		// Find all available background textures
@@ -319,6 +332,7 @@ public class Editor extends GameState {
 		for (int i=1; i<platformTextures.length; i++) {
 			bgTextureList[i+bsList.length-1] = platformTextures[i];
 		}
+//		AppendLevelTextures();
 
 		// Setup the fonts
 		FreeTypeFontGenerator gen = new FreeTypeFontGenerator(Gdx.files.internal("data/fonts/arialbd.ttf"));
@@ -507,10 +521,13 @@ public class Editor extends GameState {
 							} else {
 								if (selectLoadLevel.getSelectedIndex() == 1) {
 									// Refresh the canvas - A new level is being created
-									System.out.println("LEVEL WAS RESET 01!");
 									ResetLevelDefaults();
 									selectLoadLevel.setSelectedIndex(0);
 									textInputSave.setText("");
+									// Load the possible level textures
+//									allLevelTextureNames.clear();
+//									allLevelTextures.clear();
+//									AppendLevelTextures();
 								} else {
 									ArrayList<Object> loadedArray = EditorIO.loadLevel((String) selectLoadLevel.getSelected()+".lvl");
 									allPolygons = (ArrayList<float[]>) loadedArray.get(0);
@@ -526,7 +543,11 @@ public class Editor extends GameState {
 									allDecorPolys = (ArrayList<Integer>) loadedArray.get(10);
 									allDecorImages = (ArrayList<Object>) loadedArray.get(11);
 									String[] setLVs = (String[]) loadedArray.get(12);
+//									allLevelTextures = (ArrayList<Texture>) loadedArray.get(13);
+//									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+									// Load all possible textures that can be used
+//									AppendLevelTextures();
 									// Initialise the PolygonSprites
 									allPolygonSprites = new ArrayList<PolygonSprite>();
 									for (int i=0; i<allPolygons.size(); i++) {
@@ -1017,6 +1038,13 @@ public class Editor extends GameState {
 					// No intersections were found, so let's do some more checks...
 					try {
 						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys,allDecorImages);
+						// THIS IS NOT CLEAN - NEED TO ONLY SEND THE FILES THAT ARE ACTUALLY BEING USED!
+//						String temptext = textInputSave.getText();
+//						if (!BikeGameTextures.IsLevelLoaded(temptext)) {
+//							for (int i=0;i<allLevelTextures.size(); i++) {
+//								BikeGameTextures.AddLevelTexture(allLevelTextures.get(i), temptext, allLevelTextureNames.get(i));
+//							}
+//						}
 						try (FileWriter file = new FileWriter("tst.json")) {
 							JSONObject json = new JSONObject(jsonLevelString); // Convert text to object
 							file.write(json.toString(4));
@@ -1216,6 +1244,35 @@ public class Editor extends GameState {
 		allDecorPolys_Alt = new ArrayList<Integer>();
 		allDecorImages_Alt = new ArrayList<Object>();
 	}
+
+//	public void AppendLevelTextures() {
+//		Texture levTexture = null;
+//		boolean foundTexture;
+//		for (int lll=0; lll< traceList.length; lll++) {
+//			if (traceList[lll].equalsIgnoreCase("None")) continue;
+//			foundTexture = false;
+//			for (int kkk=0; kkk<allLevelTextureNames.size(); kkk++) {
+//				if (allLevelTextureNames.get(kkk).equalsIgnoreCase("LevText_"+traceList[lll])) foundTexture = true;
+//			}
+//			// Only add the texture if it hasn't been added already
+//			if (!foundTexture) {
+//				allLevelTextureNames.add("LevText_"+traceList[lll]);
+//				System.out.println("EDITOR: ADDING = "+"LevText_"+traceList[lll]);
+//				levTexture = new Texture(traceList[lll]);
+//				levTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+//				allLevelTextures.add(levTexture);
+//			}
+//		}
+//		if (levTexture!=null) levTexture.dispose();
+//		// Now update the background platform list to allow for extra user textures
+//		bgTextureList = new String[bgTextureListDef.length+allLevelTextureNames.size()];
+//		for (int i=0; i<bgTextureListDef.length; i++) {
+//			bgTextureList[i] = bgTextureListDef[i];
+//		}
+//		for (int i=0; i<allLevelTextureNames.size(); i++) {
+//			bgTextureList[i+bgTextureListDef.length] = allLevelTextureNames.get(i);
+//		}
+//	}
 
     public void ResetLevelDefaults() {
 		System.out.println("LEVEL WAS RESET!");
@@ -2647,6 +2704,9 @@ public class Editor extends GameState {
 		if (modeParent.equals("Timer Color")) {
 			warnFont.setColor(timerColor[0]/255.0f, timerColor[1]/255.0f, timerColor[2]/255.0f, 1);
 			warnFont.draw(sb, "This is the current timer color", toolbarWidth * 1.1f, SCRHEIGHT - (1.1f * totalNumMsgs + 2) * warnHeight);
+		} else if (modeParent.equals("Bike Shade")) {
+			warnFont.setColor(1, 1, 1, 1);
+			warnFont.draw(sb, "Current Bike Shade = "+Float.valueOf(LevelVars.get(LevelVars.PROP_BIKE_SHADE)), toolbarWidth * 1.1f, SCRHEIGHT - (1.1f * totalNumMsgs + 2) * warnHeight);
 		}
 	}
 
@@ -2891,9 +2951,23 @@ public class Editor extends GameState {
 	private void SaveLevel(boolean autosave) {
 		if (!CheckVertInt(autosave)) {
 			// No intersections were found, so the level can be saved without errors
+			// First find all Level Textures that have been used in the design
+//			ArrayList<Texture> levelImages = new ArrayList<Texture>();
+//			ArrayList<String> levelImageNames = new ArrayList<String>();
+//			if (LevelVars.get(LevelVars.PROP_BG_TEXTURE).contains("LevText_")) {
+//				for (int i=0; i<allLevelTextureNames.size(); i++) {
+//					if (allLevelTextureNames.get(i).equalsIgnoreCase(LevelVars.get(LevelVars.PROP_BG_TEXTURE))) {
+//						levelImages.add(allLevelTextures.get(i));
+//						levelImageNames.add(allLevelTextureNames.get(i));
+//					}
+//				}
+//			}
+			// We need to go through allDecorImages now to see if there's any other files to add to levelImages.
+
+			// Now save the level
 			try {
 				if (autosave) {
-					String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages,"autosave.lvl");
+					String isSaved = EditorIO.saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages, "autosave.lvl");
 					// If a change has been made, update the undo arrays
 					UpdateUndo();
 					if (undoCurrent == undoMax) undoCurrent = 0;
@@ -2919,6 +2993,9 @@ public class Editor extends GameState {
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+			// Clean up
+//			levelImages.clear();
+//			levelImageNames.clear();
 		}
 	}
 	
@@ -2996,6 +3073,17 @@ public class Editor extends GameState {
     		LevelVars.set(LevelVars.PROP_SKY_TEXTURE, modeChild);
 		} else if (modeParent.equals("Background Texture")) {
 			LevelVars.set(LevelVars.PROP_BG_TEXTURE, modeChild);
+		} else if (modeParent.equals("Bike Shade")) {
+			if (((modeChild.equals("Set")) & (GameInput.MBDRAG==true))) {
+				float changeValue = 1.0f-(GameInput.MBDRAGY / BikeGame.SCALE)/SCRHEIGHT;
+				LevelVars.set(LevelVars.PROP_BIKE_SHADE, Float.toString(changeValue));
+			} else if (modeChild.equals("Black")) {
+				LevelVars.set(LevelVars.PROP_BIKE_SHADE, "0.0f");
+			} else if (modeChild.equals("Grey")) {
+				LevelVars.set(LevelVars.PROP_BIKE_SHADE, "0.5f");
+			} else if (modeChild.equals("White")) {
+				LevelVars.set(LevelVars.PROP_BIKE_SHADE, "1.0f");
+			}
 		} else if (modeParent.equals("Level Bounds")) {
 			if (((modeChild.equals("Set Bounds")) & (GameInput.MBDRAG==true))) {
 				boundsBG[0] = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -5705,6 +5793,10 @@ public class Editor extends GameState {
 					listChild.setItems(bgTextureList);
 					pLevelIndex = GetListIndex("Background Texture", levelPropList);
 					listChild.setSelectedIndex(GetListIndex(LevelVars.get(LevelVars.PROP_BG_TEXTURE),bgTextureList));
+				} else if (modeParent.equals("Bike Shade")) {
+					listChild.setItems("Set", "Black", "Grey", "White");
+					pLevelIndex = GetListIndex("Bike Shade", levelPropList);
+					listChild.setSelectedIndex(0);
 				} else if (modeParent.equals("Level Bounds")) {
 					listChild.setItems("Set Bounds", "Reset Bounds");
 					Message("Click and drag on the canvas to set the background texture bounds", 0);

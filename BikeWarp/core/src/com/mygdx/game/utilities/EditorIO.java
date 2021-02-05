@@ -8,12 +8,17 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.B2DVars;
 import com.mygdx.game.handlers.DecorVars;
 import com.mygdx.game.handlers.LevelVars;
@@ -23,7 +28,6 @@ import com.mygdx.game.utilities.EditorJointIO;
 import com.mygdx.game.utilities.EditorObjectIO;
 import com.mygdx.game.utilities.json.JSONException;
 import com.mygdx.game.utilities.json.JSONStringer;
-
 
 public class EditorIO {
 
@@ -57,7 +61,63 @@ public class EditorIO {
 	private static int cntTransport;
 	private static int cntTransportInvisible;
 	private static int finishObjNumber = 3;
-	
+
+	private static ArrayList<float[][][]> ConvertTextureToArray(ArrayList<Texture> allLevelTextures) {
+		ArrayList<float[][][]> textureArray = new ArrayList<float[][][]>();
+		Pixmap pixmap = null;
+		Color color;
+		int width, height;
+		float[][][] textArr;
+		for (int i=0; i<allLevelTextures.size(); i++) {
+			if (!allLevelTextures.get(i).getTextureData().isPrepared()) {
+				allLevelTextures.get(i).getTextureData().prepare();
+			}
+			pixmap = allLevelTextures.get(i).getTextureData().consumePixmap();
+			width = pixmap.getWidth();
+			height = pixmap.getHeight();
+			textArr = new float[width][height][4];
+			for (int ww=0; ww<width; ww++) {
+				for (int hh=0; hh<height; hh++) {
+					color = new Color(pixmap.getPixel(ww, hh));
+					textArr[ww][hh][0] = color.r;
+					textArr[ww][hh][1] = color.g;
+					textArr[ww][hh][2] = color.b;
+					textArr[ww][hh][3] = color.a;
+				}
+			}
+			// Add the texture to the array
+			textureArray.add(FileUtils.deepCopyFloatArray(textArr));
+		}
+		if (pixmap != null) pixmap.dispose();
+		return textureArray;
+	}
+
+	private static ArrayList<Texture> ConvertArrayToTexture(ArrayList<float[][][]> textureArray) {
+		ArrayList<Texture> allTextures = new ArrayList<Texture>();
+		Pixmap pixmap = null;
+		int width, height;
+		float rr, gg, bb, aa;
+		for (int i=0; i<textureArray.size(); i++) {
+			width = textureArray.get(i).length;
+			height = textureArray.get(i)[0].length;
+			pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+			for (int ww=0; ww<width; ww++) {
+				for (int hh=0; hh<height; hh++) {
+					rr = textureArray.get(i)[ww][hh][0];
+					gg = textureArray.get(i)[ww][hh][1];
+					bb = textureArray.get(i)[ww][hh][2];
+					aa = textureArray.get(i)[ww][hh][3];
+					pixmap.setColor(rr, gg, bb, aa);
+					pixmap.drawPixel(ww, hh);
+				}
+			}
+			// Add the texture to the array
+			allTextures.add(new Texture(pixmap));
+		}
+		if (pixmap != null) pixmap.dispose();
+		return allTextures;
+	}
+
 	public static String saveLevel(ArrayList<float[]> allPolygons,
 								   ArrayList<Integer> allPolygonTypes,
 								   ArrayList<float[]> allPolygonPaths,
@@ -70,7 +130,12 @@ public class EditorIO {
 								   ArrayList<Integer> allDecorTypes,
 								   ArrayList<Integer> allDecorPolys,
 								   ArrayList<Object> allDecorImages,
+//								   ArrayList<Texture> allLevelTextures,
+//								   ArrayList<String> allLevelTextureNames,
 			String aOutputFileName) throws FileNotFoundException, JSONException {
+		// First need to convert the Textures into something that can be saved and loaded
+//		ArrayList<float[][][]> allTextures = ConvertTextureToArray(allLevelTextures);
+		// Now save the level
 		try{
 			ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream (levelDir+aOutputFileName));
 			outputStream.writeObject(allPolygons);
@@ -86,6 +151,8 @@ public class EditorIO {
 			outputStream.writeObject(allDecorPolys);
 			outputStream.writeObject(allDecorImages);
 			outputStream.writeObject(LevelVars.getProps());
+//			outputStream.writeObject(allTextures);
+//			outputStream.writeObject(allLevelTextureNames);
 			outputStream.close();
 		}
 		catch ( IOException e ){
@@ -127,6 +194,9 @@ public class EditorIO {
 		ArrayList<Integer> allDecorPolys = null;
 		ArrayList<Object> allDecorImages = new ArrayList<Object>();
 		String[] levelVarProps = null;
+//		ArrayList<float[][][]> allTextures = null;
+//		ArrayList<Texture> allLevelTextures = null;
+//		ArrayList<String> allLevelTextureNames = null;
 		ArrayList<Object> retarr = new ArrayList<Object>();
 		try {
 			// TODO :: If you want to reset level file format - comment out the relevant array, then update (see below)
@@ -144,7 +214,11 @@ public class EditorIO {
 			allDecorPolys = (ArrayList<Integer>)inputStream.readObject();
 			allDecorImages = (ArrayList<Object>)inputStream.readObject();
 			levelVarProps = (String[])inputStream.readObject();
+//			allTextures = (ArrayList<float[][][]>)inputStream.readObject();
+//			allLevelTextureNames = (ArrayList<String>)inputStream.readObject();
 			inputStream.close();
+			// Convert textures
+//			allLevelTextures = ConvertArrayToTexture(allTextures);
 			// Temporary fix to Coords
 //			allObjectCoords = new ArrayList<float[]>();
 //			float[] newCoord = new float[2];
@@ -299,6 +373,7 @@ public class EditorIO {
 //			}
 
 //			for (int ii=0; ii<levelVarProps.length; ii++) LevelVars.set(ii, levelVarProps[ii]);
+//			LevelVars.set(LevelVars.PROP_BIKE_SHADE, "1.0f");
 //			try {
 //				saveLevel(allPolygons, allPolygonTypes, allPolygonPaths, allPolygonTextures, allObjects, allObjectArrows, allObjectCoords, allObjectTypes, allDecors, allDecorTypes, allDecorPolys, allDecorImages, aInputFileName);
 //			} catch (Exception e) {
@@ -319,6 +394,8 @@ public class EditorIO {
 			retarr.add(allDecorPolys);
 			retarr.add(allDecorImages);
 			retarr.add(levelVarProps);
+//			retarr.add(allLevelTextures);
+//			retarr.add(allLevelTextureNames);
 		} catch (IOException e) {
 			System.out.println(e);
 			System.out.println("Problem reading the file " + aInputFileName);
@@ -343,6 +420,9 @@ public class EditorIO {
 		ArrayList<Integer> allDecorTypes = null;
 		ArrayList<Integer> allDecorPolys = null;
 		ArrayList<Object> allDecorImages = null;
+//		ArrayList<float[][][]> allTextures = null;
+//		ArrayList<Texture> allLevelTextures = null;
+//		ArrayList<String> allLevelTextureNames = null;
 		String[] levelVarProps = null;
 		String jsonLevelString = "";
 		try {
@@ -360,10 +440,21 @@ public class EditorIO {
 			allDecorPolys = (ArrayList<Integer>)inputStream.readObject();
 			allDecorImages = (ArrayList<Object>)inputStream.readObject();
 			levelVarProps = (String[])inputStream.readObject();
+//			allTextures = (ArrayList<float[][][]>)inputStream.readObject();
+//			allLevelTextureNames = (ArrayList<String>)inputStream.readObject();
 			inputStream.close();
 			// Carry on as normal
 			for (int i=0; i<levelVarProps.length; i++) LevelVars.set(i, levelVarProps[i]);
 			jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys,allDecorImages);
+			// Load the level textures
+//			if (!BikeGameTextures.IsLevelLoaded(aInputFileName.nameWithoutExtension())) {
+//				System.out.println("Generating textures!");
+//				// Convert the textures
+//				allLevelTextures = ConvertArrayToTexture(allTextures);
+//				for (int i=0;i<allLevelTextures.size(); i++) {
+//					BikeGameTextures.AddLevelTexture(allLevelTextures.get(i), aInputFileName.nameWithoutExtension(), allLevelTextureNames.get(i));
+//				}
+//			}
 		} catch (Exception e) {
 			System.out.println("Problem reading the file " + aInputFileName);
 			e.printStackTrace();
@@ -531,13 +622,54 @@ public class EditorIO {
 
 	public static String GetBGTexture(String textName) {
 		String defval = "background_waterfall";
-		if (textName.equals("Aurora")) return "background_aurora";
+		if (textName.equals("Aurora (Blue)")) return "background_aurora_blue";
+		else if (textName.equals("Aurora (Green)")) return "background_aurora_green";
 		else if (textName.equals("Milky Way")) return "background_milkyway";
 		else if (textName.equals("Shooting Star")) return "background_shootingstar";
 		else if (textName.equals("Mountains")) return "background_mountains";
 		else if ((textName.equals("Stars")) | textName.equals("Space")) return "background_stars";
 		else if (textName.equals("Waterfall")) return "background_waterfall";
 		else if (textName.equals("None")) return "none";
+		else if (textName.equals("Sunset")) return "bg_sunset";
+		else if (textName.equals("Astronaut")) return "bg_Astronaut";
+		else if (textName.equals("Blue Bubble")) return "bg_BubbleBlue";
+		else if (textName.equals("Earth At Night")) return "bg_EarthAtNight";
+		else if (textName.equals("Galaxy (Andromeda)")) return "bg_GalaxyAndromeda";
+		else if (textName.equals("Galaxy (Dusty)")) return "bg_GalaxyDusty";
+		else if (textName.equals("Galaxy (Spiral)")) return "bg_GalaxySpiral";
+		else if (textName.equals("Galaxy (White)")) return "bg_GalaxyWhite";
+		else if (textName.equals("Milky Way (Mountains)")) return "bg_MilkyWayMountains";
+		else if (textName.equals("Milky Way (Rocks)")) return "bg_MilkyWayRocks";
+		else if (textName.equals("Milky Way (Tall Rocks)")) return "bg_MilkyWayTallRocks";
+		else if (textName.equals("Milky Way (Blue Torch)")) return "bg_MilkyWay_BlueTorch";
+		else if (textName.equals("Milky Way (Shooting Star)")) return "bg_MilkyWay_ShootingStar2";
+		else if (textName.equals("Moon (Full)")) return "bg_MoonFull";
+		else if (textName.equals("Moon (Gibbous)")) return "bg_MoonGibbous";
+		else if (textName.equals("Moon (Rising)")) return "bg_MoonRising";
+		else if (textName.equals("Mountain (Stars Blue)")) return "bg_MountainStarsBlue";
+		else if (textName.equals("Mountain (Stars Yellow)")) return "bg_MountainStarsYellow";
+		else if (textName.equals("Nebula (Blue)")) return "bg_NebulaBlue";
+		else if (textName.equals("Nebula (Blue/Orange)")) return "bg_NebulaBlueOrange";
+		else if (textName.equals("Nebula (Orange)")) return "bg_NebulaOrange";
+		else if (textName.equals("Nebula (Red/Green)")) return "bg_NebulaRedGreen";
+		else if (textName.equals("Shuttle Launch")) return "bg_ShuttleLaunch";
+		else if (textName.equals("Star Circles")) return "bg_StarCircles";
+		else if (textName.equals("Stargazer")) return "bg_Stargazer";
+		else if (textName.equals("Stars (Blue)")) return "bg_StarsBlue";
+		else if (textName.equals("Stars (Blue/Dust)")) return "bg_StarsBlueDust";
+		else if (textName.equals("Stars (Blue/Green)")) return "bg_StarsBlueGreen";
+		else if (textName.equals("Stars (Blue/Purple)")) return "bg_StarsBluePurple";
+		else if (textName.equals("Stars+Clouds (Blue/Orange)")) return "bg_StarsCloudsBlueOrange";
+		else if (textName.equals("Stars (Dusty)")) return "bg_StarsDusty";
+		else if (textName.equals("Stars (Orange)")) return "bg_StarsOrange";
+		else if (textName.equals("Stars (Purple)")) return "bg_StarsPurple";
+		else if (textName.equals("Stars (Purple/Dust)")) return "bg_StarsPurpleDust";
+		else if (textName.equals("Stars (Purple/Orange)")) return "bg_StarsPurpleOrange";
+		else if (textName.equals("Stars (Red)")) return "bg_StarsRed";
+		else if (textName.equals("Stars+Rocks (Blue/Pink)")) return "bg_StarsRocksBluePink";
+		else if (textName.equals("Stars+Trees (Green)")) return "bg_TreesStarsGreen";
+		else if (textName.equals("Stars Sparse")) return "bg_StarsSparse";
+		//		else if (textName.contains("LevText")) return textName;
 		else return null;
 	}
 
@@ -992,6 +1124,11 @@ public class EditorIO {
 		json.object();
 		json.key("name").value("timerColorBlue");
 		json.key("int").value(Integer.parseInt(LevelVars.get(LevelVars.PROP_TIMER_BLUE)));
+		json.endObject();
+		// Set the bike shade
+		json.object();
+		json.key("name").value("bikeShadeScale");
+		json.key("float").value(Float.parseFloat(LevelVars.get(LevelVars.PROP_BIKE_SHADE)));
 		json.endObject();
         //
         json.endArray();

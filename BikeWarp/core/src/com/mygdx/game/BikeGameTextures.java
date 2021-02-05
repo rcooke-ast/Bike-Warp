@@ -3,6 +3,7 @@ package com.mygdx.game;
 // https://www.pxfuel.com/en/search?q=seamless+texture
 // https://www.wildtextures.com/category/free-textures/
 
+import java.io.File;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
@@ -18,6 +19,9 @@ public class BikeGameTextures {
     private static ArrayList<String> menuTextureNames;
     private static ArrayList<Texture> decorTextures;
     private static ArrayList<String> decorTextureNames;
+//    private static ArrayList<Texture> levelTextures;
+//    private static ArrayList<String> levelTextureNames;
+//    private static ArrayList<String> levelTexturesLoaded;
 
     public static void InitiateTextures() {
         // Initiate the arrays
@@ -27,6 +31,9 @@ public class BikeGameTextures {
         menuTextureNames = new ArrayList<String>();
         decorTextures = new ArrayList<Texture>();
         decorTextureNames = new ArrayList<String>();
+//        levelTextures = new ArrayList<Texture>();
+//        levelTextureNames = new ArrayList<String>();
+//        levelTexturesLoaded = new ArrayList<String>();
         // Load all level textures
         GetLevelImages();
         // Load any remaining menu textures
@@ -41,8 +48,26 @@ public class BikeGameTextures {
         return 0.5f;
     }
 
-    private static void GetTexture (String file, int flag) {
-        texture = new Texture(Gdx.files.internal("data/images/"+file+".png"));
+//    public static boolean IsLevelLoaded(String levelname) {
+//        for (int ll=0; ll<levelTexturesLoaded.size(); ll++) {
+//            if (levelname.equalsIgnoreCase(levelTexturesLoaded.get(ll))) return true;
+//        }
+//        return false;
+//    }
+//
+//    public static void AddLevelTexture(Texture texture, String levelname, String name) {
+//        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+//        levelTextures.add(texture);
+//        levelTextureNames.add(levelname+"_"+name);
+//        levelTexturesLoaded.add(levelname);
+//    }
+
+    private static void GetTexture(String file, int flag) {
+        String fext, fname = "data/images/"+file;
+        if (Gdx.files.internal(fname+".png").exists()) fext = fname + ".png";
+        else if (Gdx.files.internal(fname+".jpg").exists()) fext = fname + ".jpg";
+        else fext = "data/images/error.png";
+        texture = new Texture(Gdx.files.internal(fext));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         if (flag==0) {
             textures.add(texture);
@@ -121,6 +146,7 @@ public class BikeGameTextures {
         GetTexture("menu_black",1);
         GetTexture("metalpole_black",1);
         GetTexture("metalpole_blackcorner",1);
+        GetTexture("menu_gamename",1);
         // Add some additional textures
         texture = new Texture(Gdx.files.internal("data/images/metal_grid.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -142,6 +168,45 @@ public class BikeGameTextures {
         GetTexture("background_shootingstar",2);
         GetTexture("background_stars",2);
         GetTexture("background_waterfall",2);
+        GetTexture("bg_sunset", 2);
+        GetTexture("bg_Astronaut", 2);
+        GetTexture("bg_BubbleBlue", 2);
+        GetTexture("bg_EarthAtNight", 2);
+        GetTexture("bg_GalaxyAndromeda", 2);
+        GetTexture("bg_GalaxyDusty", 2);
+        GetTexture("bg_GalaxySpiral", 2);
+        GetTexture("bg_GalaxyWhite", 2);
+        GetTexture("bg_MilkyWayMountains", 2);
+        GetTexture("bg_MilkyWayRocks", 2);
+        GetTexture("bg_MilkyWayTallRocks", 2);
+        GetTexture("bg_MilkyWay_BlueTorch", 2);
+        GetTexture("bg_MilkyWay_ShootingStar2", 2);
+        GetTexture("bg_MoonFull", 2);
+        GetTexture("bg_MoonGibbous", 2);
+        GetTexture("bg_MoonRising", 2);
+        GetTexture("bg_MountainStarsBlue", 2);
+        GetTexture("bg_MountainStarsYellow", 2);
+        GetTexture("bg_NebulaBlue", 2);
+        GetTexture("bg_NebulaBlueOrange", 2);
+        GetTexture("bg_NebulaOrange", 2);
+        GetTexture("bg_NebulaRedGreen", 2);
+        GetTexture("bg_ShuttleLaunch", 2);
+        GetTexture("bg_StarCircles", 2);
+        GetTexture("bg_Stargazer", 2);
+        GetTexture("bg_StarsBlue", 2);
+        GetTexture("bg_StarsBlueDust", 2);
+        GetTexture("bg_StarsBlueGreen", 2);
+        GetTexture("bg_StarsBluePurple", 2);
+        GetTexture("bg_StarsCloudsBlueOrange", 2);
+        GetTexture("bg_StarsDusty", 2);
+        GetTexture("bg_StarsOrange", 2);
+        GetTexture("bg_StarsPurple", 2);
+        GetTexture("bg_StarsPurpleDust", 2);
+        GetTexture("bg_StarsPurpleOrange", 2);
+        GetTexture("bg_StarsRed", 2);
+        GetTexture("bg_StarsRocksBluePink", 2);
+        GetTexture("bg_StarsSparse", 2);
+        GetTexture("bg_TreesStarsGreen", 2);
         GetTexture("foreground_bushes",2);
         GetTexture("foreground_plants",2);
         GetTexture("foreground_trees",2);
@@ -218,6 +283,7 @@ public class BikeGameTextures {
         // flag = 0 loads all textures needed by the levels
         // flag = 1 loads menu textures
         // flag = 2 loads decoration textures
+        // flag = 3 loads level textures
         if (flag==0) {
             for (int i=0; i<textures.size(); i++) {
                 if (file.equals(textureNames.get(i))) return textures.get(i);
@@ -230,26 +296,41 @@ public class BikeGameTextures {
             for (int i=0; i<decorTextures.size(); i++) {
                 if (file.equals(decorTextureNames.get(i))) return decorTextures.get(i);
             }
+//        } else if (flag==3) {
+//            for (int i=0; i<levelTextures.size(); i++) {
+//                System.out.println("BLAH "+levelTextureNames.get(i));
+//                if (file.equals(levelTextureNames.get(i))) return levelTextures.get(i);
+//            }
         }
         return null;
     }
 
     public static void dispose () {
+        // Clear game textures
         for (int i=0; i<textures.size(); i++) {
             textures.get(i).dispose();
         }
         textures.clear();
         textureNames.clear();
+        // Clear menu textures
         for (int i=0; i<menuTextures.size(); i++) {
             menuTextures.get(i).dispose();
         }
         menuTextures.clear();
         menuTextureNames.clear();
+        // Clear decoration images
         for (int i=0; i<decorTextures.size(); i++) {
             decorTextures.get(i).dispose();
         }
         decorTextures.clear();
         decorTextureNames.clear();
+        // Clear level images
+//        for (int i=0; i<levelTextures.size(); i++) {
+//            levelTextures.get(i).dispose();
+//        }
+//        levelTextures.clear();
+//        levelTextureNames.clear();
+//        levelTexturesLoaded.clear();
     }
 
 }
