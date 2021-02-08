@@ -161,12 +161,13 @@ public class Play extends GameState {
     private float nitrousLevel = 0.0f; // Current level of nitrous
     private float rocketLevel = 0.0f; // Current level of rocket
     private float soundTimeGem = 0.0f, soundTimeKey=0.0f, soundTimeNitrous=0.0f, soundTimeDoor=0.0f, soundTimeGravity=0.0f;  // Time between sounds
-    private float finAngle = 0.0f, finishRad = 0.0f;
+    private float finAngle = 0.0f, finishRad = 0.0f, dmndrot=0.0f;
     private Vector2 startPosition, finishPosition;
     private float startDirection;
     private float startAngle;
+    private float dmnd_xpos, dmnd_ypos, dmnd_widt;
     private Texture texture;
-    private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar;
+    private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar, diamondSN;
     private Sprite bikeWheel, bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
@@ -308,7 +309,10 @@ public class Play extends GameState {
             personalRecord = GameVars.getTimeString(-1);
         }
         collectDiamond = false;
-        
+        dmnd_xpos = 0.0f;
+        dmnd_ypos = 0.0f;
+        dmnd_widt = 0.0f;
+
         // Create new wheel and rope joint definitions
         leftWheelL = new WheelJointDef();
         rightWheelL = new WheelJointDef();
@@ -1853,6 +1857,7 @@ public class Play extends GameState {
 //            System.out.println("PLAY: Loading file name: " + temp_loadname);
             background = new Sprite(BikeGameTextures.LoadTexture(bgTextName, loadID));
         }
+        diamondSN = new Sprite(BikeGameTextures.LoadTexture("planet_supernova",2));
 
         // Get the two bike wheel motors
         leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();
@@ -2243,6 +2248,16 @@ public class Play extends GameState {
             mPolyBatch.end();
     	}
 
+        if (!collectDiamond) {
+            mBatch.setProjectionMatrix(b2dCam.combined);
+            mBatch.begin();
+            dmndrot += 0.5f;
+            if (dmndrot > 360.0f) dmndrot -= 360.0f;
+            mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, dmndrot);
+            mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, 360.0f-dmndrot);
+            mBatch.end();
+        }
+
         // Render all of the spatials
     	if ((mSpatials != null) && (mSpatials.size > 0))
     	{
@@ -2560,6 +2575,11 @@ public class Play extends GameState {
     			if ((image.name.startsWith("Padlock"))|(image.name.startsWith("Key"))|(image.name.startsWith("Nitrous"))|(image.name.startsWith("Jewel"))|(image.name.startsWith("Diamond"))|(image.name.startsWith("Gravity"))) {
     				remBodies.add(image.body);
     				remBodiesIdx.add(i);
+                    if (image.name.startsWith("Diamond")) {
+                        dmnd_xpos = image.body.getPosition().x;
+                        dmnd_ypos = image.body.getPosition().y;
+                        dmnd_widt = image.width*15;
+                    }
     			} else if (image.name.startsWith("Transport")) {
     				transArr[0] = image.body.getPosition().x-image.width/2;
     				transArr[1] = image.body.getPosition().y-image.height/2;

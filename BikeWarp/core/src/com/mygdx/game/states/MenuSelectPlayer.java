@@ -55,8 +55,9 @@ public class MenuSelectPlayer extends GameState {
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
-		sheight = 0.6f*BikeGame.viewport.height;
-		background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
+		sheight = 0.4f*BikeGame.viewport.height;
+		//background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
+		background = new Sprite(BikeGameTextures.LoadTexture("menu_black",1));
 		stars = new Sprite(BikeGameTextures.LoadTexture("background_stars",2));
 		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename",1));
 		gn_width = SCRWIDTH*0.7f;
@@ -197,7 +198,8 @@ public class MenuSelectPlayer extends GameState {
 	        // Draw Sky
 			sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.25f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
+			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
@@ -229,7 +231,8 @@ public class MenuSelectPlayer extends GameState {
 	        // Draw Sky
 	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.25f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
+			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);

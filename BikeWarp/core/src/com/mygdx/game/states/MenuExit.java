@@ -14,10 +14,10 @@ import com.mygdx.game.handlers.GameStateManager;
 
 public class MenuExit extends GameState {
     private int currentOption, action;
-    private Sprite background, stars;
+    private Sprite background, stars, gamename;
     private BitmapFont question, ansYes, ansNo;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
-    private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, yWidth, nWidth;
+    private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, yWidth, nWidth, gn_width, gn_height;
     private float fadeIn, fadeOut, fadeTime = 0.5f;
     //private float finAngle=0.0f, finishRad;
    
@@ -30,8 +30,11 @@ public class MenuExit extends GameState {
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
-        background = new Sprite(BikeGameTextures.LoadTexture("sky_evening",2));
+        background = new Sprite(BikeGameTextures.LoadTexture("menu_black",1));
 		stars = new Sprite(BikeGameTextures.LoadTexture("background_stars",2));
+		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename",1));
+		gn_width = SCRWIDTH*0.7f;
+		gn_height = gn_width*gamename.getHeight()/gamename.getWidth();
         fadeOut = -1.0f;
         fadeIn = 0.0f;
         // Load the finish ball textures
@@ -122,8 +125,10 @@ public class MenuExit extends GameState {
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw Sky
-        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 		sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+		sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
         // Draw Exit Ball
         //sb.draw(finishFG, cam.position.x-finishRad, cam.position.y-finishRad, finishRad, finishRad, 2.0f*finishRad, 2.0f*finishRad, 1.0f, 1.0f, finAngle);
  	   	//finAngle += 5.0f;
