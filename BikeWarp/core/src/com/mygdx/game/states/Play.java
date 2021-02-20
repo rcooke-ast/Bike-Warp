@@ -7,6 +7,7 @@
 
 package com.mygdx.game.states;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -99,6 +100,9 @@ public class Play extends GameState {
     private Body gameInfo;
     private Array<float[]> switchGate;
     private Array<Body> remBodies;
+    private Array<Body> jewelBodies;
+    private ArrayList<Float> jewel_xpos, jewel_ypos;
+    private ArrayList<Boolean> jewel_mask;
     private Array<Fixture> triggerFixtList;
     private Array<Body> kinematicBodies;
     private Array<Vector2[]> kinematicPath;
@@ -161,19 +165,19 @@ public class Play extends GameState {
     private float nitrousLevel = 0.0f; // Current level of nitrous
     private float rocketLevel = 0.0f; // Current level of rocket
     private float soundTimeGem = 0.0f, soundTimeKey=0.0f, soundTimeNitrous=0.0f, soundTimeDoor=0.0f, soundTimeGravity=0.0f;  // Time between sounds
-    private float finAngle = 0.0f, finishRad = 0.0f, dmndrot=0.0f;
+    private float finAngle = 0.0f, finishRad = 0.0f;
     private Vector2 startPosition, finishPosition;
     private float startDirection;
     private float startAngle;
-    private float dmnd_xpos, dmnd_ypos, dmnd_widt;
+    private float dmnd_xpos, dmnd_ypos, dmnd_widt, dmndrot, jewel_widt, jewelrot;
     private Texture texture;
-    private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar, diamondSN;
+    private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar, diamondSN, diamondSNg;
     private Sprite bikeWheel, bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
     private static GlyphLayout glyphLayout = new GlyphLayout();
     private int timerStart, timerCurrent, timerTotal;
-    private String worldRecord, personalRecord;
+    private String worldRecord, personalRecord, worldRecordD, personalRecordD;
     private float timerWidth, timerHeight, timerWRWidth, timerWRHeight, jcntrWidth, jcntrHeight, infoWidth;
     private int collectKeyRed=0, collectKeyGreen=0, collectKeyBlue=0, collectNitrous=0, collectRocket=0;
     //private int[] animateJewel;
@@ -299,19 +303,32 @@ public class Play extends GameState {
 
         // Get the records
         if ((mode == 1) | (mode == 3)) {
-        	worldRecord = GameVars.getTimeString(-1);
+            worldRecord = GameVars.getTimeString(-1);
             personalRecord = GameVars.getTimeString(-1);
+            worldRecordD = GameVars.getTimeString(-1);
+            personalRecordD = GameVars.getTimeString(-1);
         } else if ((mode == 2) | (mode==4)) {
             worldRecord = GameVars.getTimeString(GameVars.worldTimes.get(levelID)[0]);
             personalRecord = GameVars.getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
+            worldRecordD = GameVars.getTimeString(GameVars.worldTimesDmnd.get(levelID)[0]);
+            personalRecordD = GameVars.getTimeString(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID)[0]);
         } else {
         	worldRecord = GameVars.getTimeString(-1);
             personalRecord = GameVars.getTimeString(-1);
+            worldRecordD = GameVars.getTimeString(-1);
+            personalRecordD = GameVars.getTimeString(-1);
         }
         collectDiamond = false;
         dmnd_xpos = 0.0f;
         dmnd_ypos = 0.0f;
         dmnd_widt = 0.0f;
+        dmndrot = 0.0f;
+        jewelrot = 0.0f;
+        jewelBodies = new Array<Body>();
+        jewel_xpos = new ArrayList<Float>();
+        jewel_mask = new ArrayList<Boolean>();
+        jewel_ypos = new ArrayList<Float>();
+        jewel_widt = 0.0f;
 
         // Create new wheel and rope joint definitions
         leftWheelL = new WheelJointDef();
@@ -1141,6 +1158,12 @@ public class Play extends GameState {
     				}
     			} else if (collectID.equals("Jewel")) {
                     colBodies.add(bodies.get(i));
+                    for (int jj=0; jj<jewel_mask.size(); jj++) {
+                        if (jewelBodies.get(jj).equals(bodies.get(i))) {
+                            jewel_mask.set(jj, false);
+                            break;
+                        }
+                    }
     				if (collectJewel != 0) collectJewel -= 1;
     				if (soundTimeGem <= 0.0f) {
     					BikeGameSounds.PlaySound(soundGem, 1.0f);
@@ -1858,6 +1881,7 @@ public class Play extends GameState {
             background = new Sprite(BikeGameTextures.LoadTexture(bgTextName, loadID));
         }
         diamondSN = new Sprite(BikeGameTextures.LoadTexture("planet_supernova",2));
+        diamondSNg = new Sprite(BikeGameTextures.LoadTexture("planet_supernova_green",2));
 
         // Get the two bike wheel motors
         leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();
@@ -2186,6 +2210,10 @@ public class Play extends GameState {
     	if (transportImages != null) transportImages.clear();
     	if (remBodies != null) remBodies.clear();
     	if (remBodiesIdx != null) remBodiesIdx.clear();
+        if (jewelBodies != null) jewelBodies.clear();
+        if (jewel_mask != null) jewel_mask.clear();
+        if (jewel_xpos != null) jewel_xpos.clear();
+        if (jewel_ypos != null) jewel_ypos.clear();
         if (kinematicBodies != null) kinematicBodies.clear();
     	if (kinematicPath != null) kinematicPath.clear();
         if (kinematicStartStop != null) kinematicStartStop.clear();
@@ -2257,6 +2285,18 @@ public class Play extends GameState {
             mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, 360.0f-dmndrot);
             mBatch.end();
         }
+
+        jewelrot += 0.5f;
+        if (jewelrot > 360.0f) jewelrot -= 360.0f;
+        mBatch.setProjectionMatrix(b2dCam.combined);
+        mBatch.begin();
+        for (int jj=0; jj<jewel_mask.size(); jj++) {
+            if (jewel_mask.get(jj)) {
+                mBatch.draw(diamondSNg, jewel_xpos.get(jj)-jewel_widt/2, jewel_ypos.get(jj)-jewel_widt/2, jewel_widt/2, jewel_widt/2, jewel_widt, jewel_widt, 1.0f, 1.0f, jewelrot);
+                mBatch.draw(diamondSNg, jewel_xpos.get(jj)-jewel_widt/2, jewel_ypos.get(jj)-jewel_widt/2, jewel_widt/2, jewel_widt/2, jewel_widt, jewel_widt, 1.0f, 1.0f, 360.0f-jewelrot);
+            }
+        }
+        mBatch.end();
 
         // Render all of the spatials
     	if ((mSpatials != null) && (mSpatials.size > 0))
@@ -2484,10 +2524,12 @@ public class Play extends GameState {
     	}
     	vshift += timerHeight + 5*HUDScaleFactor;
     	// WR
-    	timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
-    	vshift += timerWRHeight + 5*HUDScaleFactor;
+        if (collectDiamond) timerWR.draw(mBatch, "WR  " + worldRecordD, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+        else timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+        vshift += timerWRHeight + 5*HUDScaleFactor;
     	// PB
-    	timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+        if (collectDiamond) timerPB.draw(mBatch, "PB  " + personalRecordD, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+        else timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
     	vshift += timerWRHeight + 8*HUDScaleFactor;
     	if (collectJewel != 0) {
 	        // Draw the jewel and it's counter
@@ -2578,7 +2620,13 @@ public class Play extends GameState {
                     if (image.name.startsWith("Diamond")) {
                         dmnd_xpos = image.body.getPosition().x;
                         dmnd_ypos = image.body.getPosition().y;
-                        dmnd_widt = image.width*15;
+                        dmnd_widt = image.width*15.0f;
+                    } else if (image.name.startsWith("Jewel")) {
+                        jewelBodies.add(image.body);
+                        jewel_xpos.add(image.body.getPosition().x);
+                        jewel_ypos.add(image.body.getPosition().y);
+                        jewel_mask.add(true);
+                        jewel_widt = image.width*7.5f;
                     }
     			} else if (image.name.startsWith("Transport")) {
     				transArr[0] = image.body.getPosition().x-image.width/2;

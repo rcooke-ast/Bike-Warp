@@ -65,8 +65,8 @@ public class LevelsListGame {
 		gameLevelFiles[lnum] = "data/gamelevels/RaceTheTrain.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Misty Mountain";
-    	gameLevelFiles[lnum] = "data/gamelevels/MistyMountain.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Star Shadows";
+    	gameLevelFiles[lnum] = "data/gamelevels/StarShadows.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Watering Hole at Night";

@@ -2475,7 +2475,13 @@ public class Editor extends GameState {
 							rectUpdPoly = new float[8];
 							for (int i = 0; i < 8; i++) rectUpdPoly[i] = updateGroup.get(pp)[i];
 							shapeRenderer.polygon(rectUpdPoly);
-						} else shapeRenderer.polygon(updateGroup.get(pp));
+						} else if ((allDecorTypes.get(groupArrays.get(pp))==DecorVars.Rain) ||
+								(allDecorTypes.get(groupArrays.get(pp))==DecorVars.Waterfall)) {
+							rectUpdPoly = Arrays.copyOfRange(updateGroup.get(pp), 0, 8);
+							shapeRenderer.polygon(rectUpdPoly);
+						} else {
+							shapeRenderer.polygon(updateGroup.get(pp));
+						}
 					}
 				} else if (groupPOD.get(pp) == 1) {
 					// Color is set for each object separately

@@ -261,6 +261,7 @@ public class BikeGameTextures {
         GetTexture("planet_neptune",2);
         GetTexture("planet_moon",2);
         GetTexture("planet_supernova",2);
+        GetTexture("planet_supernova_green",2);
         // Load an error image just in case something fails
         GetTexture("error",2);
         // Add some additional textures

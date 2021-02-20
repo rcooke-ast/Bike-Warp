@@ -534,6 +534,7 @@ public class EditorIO {
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bark (Moss)")) return "images/ground_treebark_moss.png";
+		else if (textName.equals("Bark (Dark)")) return "images/ground_treebark_dark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
 		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";
@@ -572,6 +573,7 @@ public class EditorIO {
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bark (Moss)")) return "images/ground_treebark_moss.png";
+		else if (textName.equals("Bark (Dark)")) return "images/ground_treebark_dark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
 		else if (textName.equals("Bubbles")) return "images/ground_bubbles.png";
 		else if (textName.equals("Cracked Mud")) return "images/ground_cracked.png";

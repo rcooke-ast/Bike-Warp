@@ -54,7 +54,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -88,6 +88,7 @@ public class DecorVars {
 	public static final int textureReptile = 30;
 	public static final int textureFog = 31;
 	public static final int textureFogStain = 32;
+	public static final int textureBarkDark = 33;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -210,6 +211,7 @@ public class DecorVars {
 			case textureGrassShort+100: return "Grass (Short)";
 			case textureGrassMeadow+100: return "Grass (Meadow)";
 			case textureReptile+100: return "Reptile";
+			case (textureBarkDark+100): return "Bark (Dark)";
 			default: return "Grass";
 		}
     }
@@ -254,6 +256,7 @@ public class DecorVars {
 			case "Grass (Short)": return textureGrassShort+offs;
 			case "Grass (Meadow)": return textureGrassMeadow+offs;
 			case "Reptile": return textureReptile+offs;
+			case "Bark (Dark)": return textureBarkDark+offs;
 			default: {
 				if (offset == 0) return 0;
 				else return Grass;
