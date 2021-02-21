@@ -671,6 +671,8 @@ public class EditorIO {
 		else if (textName.equals("Stars+Rocks (Blue/Pink)")) return "bg_StarsRocksBluePink";
 		else if (textName.equals("Stars+Trees (Green)")) return "bg_TreesStarsGreen";
 		else if (textName.equals("Stars Sparse")) return "bg_StarsSparse";
+		else if (textName.equals("Planets (1)")) return "bg_planets_1";
+		else if (textName.equals("Sunset Mud")) return "bg_sunset_mud";
 		//		else if (textName.contains("LevText")) return textName;
 		else return null;
 	}

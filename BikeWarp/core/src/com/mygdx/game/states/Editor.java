@@ -78,11 +78,11 @@ public class Editor extends GameState {
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
-	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Waterfall",
+	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Sunset Mud", "Waterfall",
 			"Astronaut", "Blue Bubble", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
 			"Milky Way", "Milky Way (Blue Torch)", "Milky Way (Mountains)", "Milky Way (Rocks)", "Milky Way (Shooting Star)", "Milky Way (Tall Rocks)",
 			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
-			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Shuttle Launch", "Star Circles", "Stargazer",
+			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Planets (1)", "Shuttle Launch", "Star Circles", "Stargazer",
 			"Stars (Blue)", "Stars (Blue/Dust)", "Stars (Blue/Green)", "Stars (Blue/Purple)", "Stars (Dusty)", "Stars (Orange)",
 			"Stars (Purple)", "Stars (Purple/Dust)", "Stars (Purple/Orange)", "Stars (Red)", "Stars+Clouds (Blue/Orange)", "Stars+Rocks (Blue/Pink)", "Stars+Trees (Green)", "Stars Sparse"
 	};
@@ -3261,13 +3261,21 @@ public class Editor extends GameState {
 				if (GameInput.MBDRAG == true) {
 					if (vertSelect == -1) {
 						FindNearestSegment(false);
-					} else {
 						startX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
 						startY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
 						int segmNext = segmSelect + 1;
 						if (segmNext == allPolygons.get(polySelect).length / 2) segmNext = 0;
 						if (segmNext < segmSelect) AddVertex(polySelect, segmNext, segmSelect, startX, startY);
 						else AddVertex(polySelect, segmSelect, segmNext, startX, startY);
+						UpdatePolygon(polySelect, true);
+						vertSelect = -1;
+						FindNearestVertex(false);
+						startX = GameInput.MBDOWNX;
+						startY = GameInput.MBDOWNY;
+					} else {
+						endX = cam.zoom * (GameInput.MBDRAGX - startX) / BikeGame.SCALE;
+						endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
+						MoveVertex(polySelect, vertSelect, endX, endY);
 					}
 				} else if ((GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (vertSelect != -1)) {
 					UpdatePolygon(polySelect, true);

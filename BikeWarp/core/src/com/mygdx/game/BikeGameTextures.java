@@ -169,6 +169,7 @@ public class BikeGameTextures {
         GetTexture("background_stars",2);
         GetTexture("background_waterfall",2);
         GetTexture("bg_sunset", 2);
+        GetTexture("bg_sunset_mud", 2);
         GetTexture("bg_Astronaut", 2);
         GetTexture("bg_BubbleBlue", 2);
         GetTexture("bg_EarthAtNight", 2);
@@ -191,6 +192,7 @@ public class BikeGameTextures {
         GetTexture("bg_NebulaOrange", 2);
         GetTexture("bg_NebulaRedGreen", 2);
         GetTexture("bg_ShuttleLaunch", 2);
+        GetTexture("bg_planets_1", 2);
         GetTexture("bg_StarCircles", 2);
         GetTexture("bg_Stargazer", 2);
         GetTexture("bg_StarsBlue", 2);
