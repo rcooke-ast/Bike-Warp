@@ -44,6 +44,7 @@ public class DecorVars {
 	public static final int Rock = 38;
 	public static final int Planet = 39;
 	public static final int Track = 40;
+	public static final int Vehicle = 41;
 	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
@@ -54,7 +55,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -103,7 +104,7 @@ public class DecorVars {
     }
 
     public static boolean IsRect(int dTyp) {
-    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock)) {
+    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock) | (dTyp == Vehicle)) {
     		return true;
     	} else return false;
     }
@@ -314,6 +315,7 @@ public class DecorVars {
 		else if (decorID == Tree) return "images/tree_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Rock) return "images/rock_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Planet) return "images/planet_" + GetPlanetFromNumber(idx) + ".png";
+		else if (decorID == Vehicle) return "images/vehicle_" + String.format("%02d", idx) + ".png";
 		// Make some default to stop errors
 		return "images/error.png";
 	}
@@ -535,6 +537,30 @@ public class DecorVars {
 					break;
 				case 10:
 					xsize = 100.0f; // Supernova
+					break;
+				default:
+					break;
+			}
+		} else if (decorID == Vehicle) {
+			xsize = 400.0f;
+			scale = 1.0f;
+			if ((idx < 0) | (idx >= 4)) idx = 0;
+			switch (idx) {
+				case 0:
+					xsize = 400.0f; // Excavator
+					scale = 868.0f/1314.0f;
+					break;
+				case 1:
+					xsize = 400.0f; // Wrecking Ball
+					scale = 0.9552941176470588f;
+					break;
+				case 2:
+					xsize = 400.0f; // Digger
+					scale = 334.0f/620.0f;
+					break;
+				case 3:
+					xsize = 600.0f; // Dump truck
+					scale = 342.0f/865.0f;
 					break;
 				default:
 					break;
