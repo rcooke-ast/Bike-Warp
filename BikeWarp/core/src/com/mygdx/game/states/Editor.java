@@ -74,7 +74,7 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
-	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Planet", "Sign", "Rock", "Track", "Tree", "Tyre Stack", "Vehicle"};
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Sign", "Rock", "Track", "Tree", "Tyre Stack", "Vehicle"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -227,6 +227,7 @@ public class Editor extends GameState {
 	private TextButton buttonExecute;
 	private TextButton buttonUndo;
 	private TextButton buttonRedo;
+	private TextButton buttonGoTo;
 	private TextButton buttonPan;
 	private TextButton buttonTraceImage;
 	private TextButton buttonLevelProp;
@@ -367,6 +368,7 @@ public class Editor extends GameState {
 		buttonExecute = new TextButton("Execute", skin);
 		buttonUndo = new TextButton("Undo", skin);
 		buttonRedo = new TextButton("Redo", skin);
+		buttonGoTo = new TextButton("Go To", skin);
 		buttonPan = new TextButton("Pan", skin);
 		buttonLevelProp = new TextButton("Level Properties", skin);
 		buttonTraceImage = new TextButton("Trace Image", skin);
@@ -440,8 +442,8 @@ public class Editor extends GameState {
 		windowTBar.add(buttonRedo, buttonUndo);
 		windowTBar.row().fill().expandX().colspan(2);
 		windowTBar.add(buttonLevelProp);
-		windowTBar.row().fill().expandX().colspan(2);
-		windowTBar.add(buttonPan);
+		windowTBar.row().fill().expandX().colspan(1);
+		windowTBar.add(buttonGoTo, buttonPan);
 		windowTBar.row().fill().expandX().colspan(2);
 		windowTBar.add(buttonTraceImage);
 		windowTBar.row().fill().expandX().colspan(2);
@@ -550,9 +552,12 @@ public class Editor extends GameState {
 //									AppendLevelTextures();
 									// Initialise the PolygonSprites
 									allPolygonSprites = new ArrayList<PolygonSprite>();
+//									String colorString;
 									for (int i=0; i<allPolygons.size(); i++) {
 										allPolygonSprites.add(null);
 										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i)%2==0)) {
+//											colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f",0.0f,0.0f,0.0f,0.03f);
+//											allPolygonTextures.set(i,colorString);
 											MakePolygonSprite(i);
 										}
 										// TEMPORARY - DELETE THIS!
@@ -669,6 +674,20 @@ public class Editor extends GameState {
 						SetChildList();
 						mode = -999;
 						Redo();
+					}
+				}
+			}
+		});
+
+		buttonGoTo.addListener(new ClickListener() {
+			public void clicked (InputEvent event, float x, float y) {
+				if (!hideToolbar) {
+					if (!drawingPoly) {
+						UncheckButtons(false);
+						listParent.setItems(nullList);
+						SetChildList();
+						mode = -999;
+						MoveCameraTo(allObjects.get(1)[0],allObjects.get(1)[1],false);
 					}
 				}
 			}
@@ -1036,6 +1055,8 @@ public class Editor extends GameState {
 				UncheckButtons(false);
 				if (!CheckVertInt(false)) {
 					// No intersections were found, so let's do some more checks...
+					xcen = 0.0f;
+					ycen = 0.0f;
 					try {
 						jsonLevelString = EditorIO.JSONserialize(allPolygons,allPolygonTypes,allPolygonPaths,allPolygonTextures,allObjects,allObjectArrows,allObjectCoords,allObjectTypes,allDecors,allDecorTypes,allDecorPolys,allDecorImages);
 						// THIS IS NOT CLEAN - NEED TO ONLY SEND THE FILES THAT ARE ACTUALLY BEING USED!
@@ -1097,7 +1118,10 @@ public class Editor extends GameState {
 									}
 									MoveCameraTo(allPolygons.get(gotoPoly)[2*idxcls], allPolygons.get(gotoPoly)[2*idxcls+1], true);
 								}
-							} catch (Exception e) {}
+							} catch (Exception e) {
+								System.out.println("CU catch...");
+								e.printStackTrace();
+							}
 						} else if (jsonLevelString.startsWith("BD")) {
 							Message("Unable to play level!", 2);
 							try {
@@ -1127,7 +1151,10 @@ public class Editor extends GameState {
 									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);
 									MoveCameraTo(xcen,ycen,true);
 								}
-							} catch (Exception e) {}
+							} catch (Exception e) {
+								System.out.println("BD catch...");
+								e.printStackTrace();
+							}
 						} else if (jsonLevelString.startsWith("CA")) {
 							Message("Unable to play level!", 2);
 							try {
@@ -1163,7 +1190,10 @@ public class Editor extends GameState {
 									ycen = ycen/(float) (allDecors.get(gotoPoly).length/2);
 									MoveCameraTo(xcen,ycen,true);
 								}
-							} catch (Exception e) {}
+							} catch (Exception e) {
+								System.out.println("CA catch...");
+								e.printStackTrace();
+							}
 						} else {
 							enteringFilename = false;
 							stage.setKeyboardFocus(null);
@@ -1174,13 +1204,38 @@ public class Editor extends GameState {
 							gsm.setState(GameStateManager.PLAY, true, jsonLevelString, -1, 0);
 						}
 					} catch (JSONException e) {
+						System.out.println("Final catch...");
 						e.printStackTrace();
 //					} catch (IndexOutOfBoundsException e) {
 //						Message("A polygon in this level cannot be converted (an index was found out of bounds)", 2);
 //						Message("It is possible two vertices are too close together", 1);
 					}
 				}
-		    	// When we come back from the level, make sure we reset the hudCam (used for messages)
+
+				// Temp to find bad grass
+//				float areabst = 99999999999.9f;
+//				float area;
+//				int ibst = 0;
+//				ArrayList<Vector2> concaveVertices;
+//				ArrayList<ArrayList<Vector2>> convexVectorPolygons;
+//				ArrayList<float[]> convexPolygons;
+//				for (int dd=0; dd<allDecors.size(); dd++) {
+//					if ((allDecorTypes.get(dd)==DecorVars.Grass) | (allDecorTypes.get(dd)>=100)) {
+//						concaveVertices = PolygonOperations.MakeVertices(allDecors.get(dd));
+//						convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+//						convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+//						for (int aa = 0; aa<convexPolygons.size(); aa++) {
+//							area = PolygonOperations.CalculateArea(convexPolygons.get(aa).clone());
+//							if (area < areabst) {
+//								ibst = dd;
+//								areabst = area;
+//							}
+//						}
+//					}
+//				}
+//				MoveCameraTo(allDecors.get(ibst)[0],allDecors.get(ibst)[1],true);
+
+				// When we come back from the level, make sure we reset the hudCam (used for messages)
 				this.game.resize(Gdx.graphics.getDisplayMode().width, Gdx.graphics.getDisplayMode().height);
 				SCRWIDTH = BikeGame.viewport.width;
 				SCRHEIGHT = BikeGame.viewport.height;
@@ -5044,13 +5099,14 @@ public class Editor extends GameState {
     			decorSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
-		} else if ((modeParent.equals("Planet")) | (modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack")) | (modeParent.equals("Vehicle"))) {
+		} else if ((modeParent.equals("Planet")) | (modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack")) | (modeParent.equals("Vehicle")) | (modeParent.equals("Miscellaneous"))) {
 			int objNum;
 			if (modeParent.equals("Planet")) objNum=DecorVars.Planet;
 			else if (modeParent.equals("Rock")) objNum=DecorVars.Rock;
 			else if (modeParent.equals("Tree")) objNum=DecorVars.Tree;
 			else if (modeParent.equals("Tyre Stack")) objNum=DecorVars.TyreStack;
 			else if (modeParent.equals("Vehicle")) objNum=DecorVars.Vehicle;
+			else if (modeParent.equals("Miscellaneous")) objNum=DecorVars.Misc;
 			else return;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -5959,7 +6015,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Image", "Toggle Sound");
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
-				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle"))) {
+				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle")) || (modeParent.equals("Miscellaneous"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
 				} else if (modeParent.equals("Track")) {
 					listChild.setItems("Add", "Delete", "Move", "Extend", "Rotate");
@@ -8470,6 +8526,8 @@ public class Editor extends GameState {
 			newPoly[0] = xcen;
 			newPoly[1] = ycen;
 		} else if (otype==DecorVars.Vehicle) {
+			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype==DecorVars.Misc) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		}
 	}

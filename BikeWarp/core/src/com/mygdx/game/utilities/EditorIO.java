@@ -563,8 +563,9 @@ public class EditorIO {
 		else if (textName.equals("Steel")) return "images/ground_steel.png";
 		else if (textName.equals("Water")) return "images/ground_water.png";
 		else if (textName.equals("Wood")) return "images/ground_wood.png";
-		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
 		else if (textName.equals("Wood Plancks (H)")) return "images/ground_woodplanksH.png";
+		else if (textName.equals("Wood Plancks (D)")) return "images/ground_woodplanksD.png";
+		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
 		else return defval;
 	}
 	
@@ -604,6 +605,7 @@ public class EditorIO {
 		else if (textName.equals("Water")) return "images/ground_water.png";
 		else if (textName.equals("Wood")) return "images/ground_wood.png";
 		else if (textName.equals("Wood Plancks (V)")) return "images/ground_woodplanksV.png";
+		else if (textName.equals("Wood Plancks (D)")) return "images/ground_woodplanksD.png";
 		else if (textName.equals("Wood Plancks (H)")) return "images/ground_woodplanksH.png";
 		else return defval;
 	}

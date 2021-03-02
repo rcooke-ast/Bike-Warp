@@ -45,6 +45,7 @@ public class DecorVars {
 	public static final int Planet = 39;
 	public static final int Track = 40;
 	public static final int Vehicle = 41;
+	public static final int Misc = 42;
 	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
@@ -55,7 +56,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -90,6 +91,7 @@ public class DecorVars {
 	public static final int textureFog = 31;
 	public static final int textureFogStain = 32;
 	public static final int textureBarkDark = 33;
+	public static final int textureWoodPlancksD = 34;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -104,7 +106,7 @@ public class DecorVars {
     }
 
     public static boolean IsRect(int dTyp) {
-    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock) | (dTyp == Vehicle)) {
+    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock) | (dTyp == Vehicle) | (dTyp == Misc)) {
     		return true;
     	} else return false;
     }
@@ -205,6 +207,7 @@ public class DecorVars {
 			case textureWater+100: return "Water";
 			case textureWood+100: return "Wood";
 			case textureWoodPlancksH+100: return "Wood Plancks (H)";
+			case textureWoodPlancksD+100: return "Wood Plancks (D)";
 			case textureWoodPlancksV+100: return "Wood Plancks (V)";
 			case textureBarkMoss+100: return "Bark (Moss)";
 			case textureDirt+100: return "Dirt";
@@ -250,6 +253,7 @@ public class DecorVars {
 			case "Water": return textureWater+offs;
 			case "Wood": return textureWood+offs;
 			case "Wood Plancks (H)": return textureWoodPlancksH+offs;
+			case "Wood Plancks (D)": return textureWoodPlancksD+offs;
 			case "Wood Plancks (V)": return textureWoodPlancksV+offs;
 			case "Bark (Moss)": return textureBarkMoss+offs;
 			case "Dirt": return textureDirt+offs;
@@ -316,6 +320,7 @@ public class DecorVars {
 		else if (decorID == Rock) return "images/rock_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Planet) return "images/planet_" + GetPlanetFromNumber(idx) + ".png";
 		else if (decorID == Vehicle) return "images/vehicle_" + String.format("%02d", idx) + ".png";
+		else if (decorID == Misc) return "images/misc_" + GetMiscFromNumber(idx) + ".png";
 		// Make some default to stop errors
 		return "images/error.png";
 	}
@@ -360,6 +365,21 @@ public class DecorVars {
 				break;
 		}
 		return planetName;
+	}
+
+	private static String GetMiscFromNumber(int idx) {
+		String miscName = "emerald";
+		switch (idx) {
+			case 0:
+				miscName = "emerald";
+				break;
+			case 1:
+				miscName = "diamond";
+				break;
+			default:
+				break;
+		}
+		return miscName;
 	}
 
 	public static float[] GetCoordRect(int decorID, int idx) {
@@ -561,6 +581,22 @@ public class DecorVars {
 				case 3:
 					xsize = 600.0f; // Dump truck
 					scale = 342.0f/865.0f;
+					break;
+				default:
+					break;
+			}
+		} else if (decorID == Misc) {
+			xsize = 10.0f;
+			scale = 1.0f;
+			if ((idx < 0) | (idx >= 2)) idx = 0;
+			switch (idx) {
+				case 0:
+					xsize = 30.0f; // Emerald
+					scale = 1.0f;
+					break;
+				case 1:
+					xsize = 30.0f; // Diamond
+					scale = 1.0f;
 					break;
 				default:
 					break;

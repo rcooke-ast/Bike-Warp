@@ -241,6 +241,25 @@ public class PolygonOperations {
 		return false;
 	}
 
+	public static float CalculateArea(float[] poly) {
+		int lenpoly = poly.length/2;
+		int i1, i2;
+		float tst = 0.0f;
+		float e1x, e1y, e2x, e2y;
+		// Compute the area
+		for (int i=0; i<lenpoly; i++) {
+			i1 = i;
+			if (i==lenpoly-1) i2=0;
+			else i2 = i+1;
+			e1x = poly[2*i1];
+			e1y = poly[2*i1+1];
+			e2x = poly[2*i2];
+			e2y = poly[2*i2+1];
+			tst += e1x * e2y - e1y * e2x;
+		}
+		return tst;
+	}
+
 //	public static boolean CheckAreas(float[] poly) {
 //		int lenpoly = poly.length/2;
 //		float failval = 0.0038f; // This limit was found empirically.
