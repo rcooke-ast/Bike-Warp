@@ -1786,6 +1786,8 @@ public class Play extends GameState {
               updateCameraPostion();
           }
           mNextState = GAME_STATE.LOADED;
+          if (containsWaterfall) updateWaterfall(0.0f);
+          if (containsRain) updateRain(0.0f);
        } else if (mAssetManager.update()) {
           // each iteration adds to the scene that is ultimately returned...
           mScene = mAssetManager.get(LEVEL_FILE_LIST[mRubeFileList][mRubeFileIndex++], RubeScene.class);
@@ -2124,9 +2126,9 @@ public class Play extends GameState {
     		    // Only consider bodies where the path is set
     		    vertices = (RubeVertexArray) mScene.getCustom(bodies.get(i), "path", null);
     		    if (vertices != null) {
-        		    kinematicBodies.add(bodies.get(i));
+                    kinematicBodies.add(bodies.get(i));
     			    kinematicPath.add(vertices.toVector2().clone());
-    		    }
+                }
     	    }
         }
         if (kinematicBodies.size != 0) {

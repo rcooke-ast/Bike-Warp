@@ -3708,22 +3708,30 @@ public class Editor extends GameState {
     		} else if (modeChild.equals("Add Vertex")) {
     			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
     			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-        		if (GameInput.MBDRAG==true) {
-        			if (vertSelect == -1) {
-        				FindNearestSegment(false);
-        			} else {
-            			startX = cam.position.x + cam.zoom*(GameInput.MBDRAGX/BikeGame.SCALE - 0.5f*SCRWIDTH);
-            			startY = cam.position.y - cam.zoom*(GameInput.MBDRAGY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-            			int segmNext = segmSelect + 1;
-            			if (segmNext==allPolygons.get(polySelect).length/2) segmNext = 0;
-            			if (segmNext < segmSelect) AddVertex(polySelect, segmNext, segmSelect, startX, startY);
-            			else AddVertex(polySelect, segmSelect, segmNext, startX, startY);
-        			}
-        		} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect != -1) & (vertSelect != -1)) {
-             			UpdatePolygon(polySelect, true);
-             			polySelect = -1;
-             			vertSelect = -1;
-        		} else FindNearestSegment(true);
+				if (GameInput.MBDRAG == true) {
+					if (vertSelect == -1) {
+						FindNearestSegment(false);
+						startX = cam.position.x + cam.zoom * (GameInput.MBDRAGX / BikeGame.SCALE - 0.5f * SCRWIDTH);
+						startY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
+						int segmNext = segmSelect + 1;
+						if (segmNext == allPolygons.get(polySelect).length / 2) segmNext = 0;
+						if (segmNext < segmSelect) AddVertex(polySelect, segmNext, segmSelect, startX, startY);
+						else AddVertex(polySelect, segmSelect, segmNext, startX, startY);
+						UpdatePolygon(polySelect, true);
+						vertSelect = -1;
+						FindNearestVertex(false);
+						startX = GameInput.MBDOWNX;
+						startY = GameInput.MBDOWNY;
+					} else {
+						endX = cam.zoom * (GameInput.MBDRAGX - startX) / BikeGame.SCALE;
+						endY = -cam.zoom * (GameInput.MBDRAGY - startY) / BikeGame.SCALE;
+						MoveVertex(polySelect, vertSelect, endX, endY);
+					}
+				} else if ((GameInput.MBJUSTPRESSED == true) & (polySelect != -1) & (vertSelect != -1)) {
+					UpdatePolygon(polySelect, true);
+					polySelect = -1;
+					vertSelect = -1;
+				} else FindNearestSegment(true);
     		} else if (modeChild.equals("Delete Vertex")) {
     			tempx = cam.position.x + cam.zoom*(GameInput.MBMOVEX/BikeGame.SCALE - 0.5f*SCRWIDTH);
     			tempy = cam.position.y - cam.zoom*(GameInput.MBMOVEY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
@@ -4943,7 +4951,13 @@ public class Editor extends GameState {
         	} else if (modeChild.equals("Add All Surfaces")) {
         		addGrass = true;
         		clearGrass = false;
-        	}
+        	} else if (modeChild.equals("Set All Surfaces")) {
+				for (int i = 0; i<allDecors.size(); i++) {
+					if ((allDecorTypes.get(i) == DecorVars.Grass) | (allDecorTypes.get(i) >= 100)) {
+						allDecorTypes.set(i, surfaceTexture);
+					}
+				}
+			}
 		} else if (modeParent.equals("Set Surface Texture")) {
 			surfaceTexture = DecorVars.GetPlatformIndexFromString(modeChild, 1);
 			if (GameInput.MBJUSTPRESSED) {
@@ -6005,7 +6019,7 @@ public class Editor extends GameState {
 				if (modeParent.startsWith("Sign")) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
 				} else if (modeParent.equals("Surface")) {
-					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Surfaces", "Delete All Surfaces");
+					listChild.setItems("Add", "Delete", "Move Vertex", "Add All Surfaces", "Set All Surfaces", "Delete All Surfaces");
 				} else if (modeParent.equals("Set Surface Texture")) {
 					Message("Select texture, then click on surface to apply it", 0);
 					listChild.setItems(platformTextures);

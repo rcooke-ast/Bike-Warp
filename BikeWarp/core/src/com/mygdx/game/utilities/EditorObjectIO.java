@@ -2211,6 +2211,23 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
             pathlength = 0.0f;
 	        for (int j = 0; j<((path.length-8)/2)-1; j++) pathlength += (float)Math.sqrt((path[8+2*j]-path[8+2*(j+1)])*(path[8+2*j]-path[8+2*(j+1)]) + (path[8+2*j+1]-path[8+2*(j+1)+1])*(path[8+2*j+1]-path[8+2*(j+1)+1]));
         }
+//        else if (path.length == 10) {
+//			json.object();
+//			json.key("name").value("path");
+//			json.key("vertices");
+//			json.object(); // Begin vertices object
+//			json.key("x");
+//			json.array();
+//			for (int j = 0; j<2; j++) json.value(B2DVars.EPPM*path[8]);
+//			json.endArray();
+//			json.key("y");
+//			json.array();
+//			for (int j = 0; j<2; j++) json.value(B2DVars.EPPM*path[9]);
+//			json.endArray();
+//			json.endObject(); // End the vertices object
+//			json.endObject();
+//			pathlength = 0.0f;
+//		}
         // CP: Set Velocity
         json.object();
         json.key("name").value("speed");
@@ -2232,7 +2249,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		json.key("float").value(path[7]);
 		json.endObject();
         // CP: Set path length
-        if (pathlength >= 0.0) {
+        if (pathlength >= 0.0f) {
         	json.object();
         	json.key("name").value("pathlength");
         	json.key("float").value(B2DVars.EPPM*pathlength);

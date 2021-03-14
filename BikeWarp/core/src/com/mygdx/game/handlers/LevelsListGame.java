@@ -81,8 +81,8 @@ public class LevelsListGame {
 		gameLevelFiles[lnum] = "data/gamelevels/MahlaselaPass.lvl";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Mount Kilimanjaro";
-		gameLevelFiles[lnum] = "data/gamelevels/Kilimanjaro.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Base Camp";
+		gameLevelFiles[lnum] = "data/gamelevels/BaseCamp.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Tree Hopper";
@@ -93,8 +93,8 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/Levitate.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Global Warming";
-    	gameLevelFiles[lnum] = "data/gamelevels/GlobalWarming.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". Moon Shadow";
+    	gameLevelFiles[lnum] = "data/gamelevels/MoonShadow.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Logging";

@@ -56,7 +56,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -92,6 +92,7 @@ public class DecorVars {
 	public static final int textureFogStain = 32;
 	public static final int textureBarkDark = 33;
 	public static final int textureWoodPlancksD = 34;
+	public static final int textureSnowLight = 35;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -203,6 +204,7 @@ public class DecorVars {
 			case textureSand+100: return "Sand";
 			case textureShade+100: return "Shade";
 			case textureSnow+100: return "Snow";
+			case textureSnowLight+100: return "Snow (light)";
 			case textureSteel+100: return "Steel";
 			case textureWater+100: return "Water";
 			case textureWood+100: return "Wood";
@@ -249,6 +251,7 @@ public class DecorVars {
 			case "Sand": return textureSand+offs;
 			case "Shade": return textureShade+offs;
 			case "Snow": return textureSnow+offs;
+			case "Snow (light)": return textureSnowLight+offs;
 			case "Steel": return textureSteel+offs;
 			case "Water": return textureWater+offs;
 			case "Wood": return textureWood+offs;
