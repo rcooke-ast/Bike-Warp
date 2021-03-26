@@ -441,14 +441,16 @@ public class EditorImageIO {
 		return 1;
 	}
 
-	public static int ImageJewel(JSONStringer json, float[] fs, int bodyIndex, int cnt) throws JSONException {
+	public static int ImageJewel(JSONStringer json, float[] fs, int dType, int bodyIndex, int cnt) throws JSONException {
 		float rotAngle = PolygonOperations.GetAngle(fs[0], fs[1], fs[4], fs[5]);
 		float jWidth = B2DVars.EPPM*ObjectVars.objectJewel[4];
 		float[] xarr = {-jWidth, jWidth, jWidth, -jWidth};
 		float[] yarr = {-jWidth, -jWidth, jWidth, jWidth};
 		PolygonOperations.RotateArray(xarr, yarr, rotAngle, 0.0f, 0.0f);
 		json.object(); // Start of Jewel
-		json.key("name").value("Jewel"+cnt);
+		if (dType==ObjectVars.JewelBG) json.key("name").value("JewelBG"+cnt);
+		else if (dType==ObjectVars.JewelFG) json.key("name").value("JewelFG"+cnt);
+		else json.key("name").value("Jewel"+cnt);
 		json.key("opacity").value(1);
 		json.key("renderOrder").value(0);
 		json.key("scale").value(1);
@@ -475,14 +477,16 @@ public class EditorImageIO {
 		return 1;
 	}
 
-	public static int ImageJewelDiamond(JSONStringer json, float[] fs, int bodyIndex, int cnt) throws JSONException {
+	public static int ImageJewelDiamond(JSONStringer json, float[] fs, int dType, int bodyIndex, int cnt) throws JSONException {
 		float rotAngle = PolygonOperations.GetAngle(fs[0], fs[1], fs[4], fs[5]);
 		float jWidth = B2DVars.EPPM*ObjectVars.objectJewel[4];
 		float[] xarr = {-jWidth, jWidth, jWidth, -jWidth};
 		float[] yarr = {-jWidth, -jWidth, jWidth, jWidth};
 		PolygonOperations.RotateArray(xarr, yarr, rotAngle, 0.0f, 0.0f);
 		json.object(); // Start of Jewel
-		json.key("name").value("Diamond"+cnt);
+		if (dType==ObjectVars.JewelBG) json.key("name").value("DiamondBG"+cnt);
+		else if (dType==ObjectVars.JewelFG) json.key("name").value("DiamondFG"+cnt);
+		else json.key("name").value("Diamond"+cnt);
 		json.key("opacity").value(1);
 		json.key("renderOrder").value(0);
 		json.key("scale").value(1);

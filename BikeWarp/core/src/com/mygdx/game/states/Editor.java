@@ -73,7 +73,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Start", "Finish", "Change Order"};
 	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Sign", "Rock", "Track", "Tree", "Tyre Stack", "Vehicle"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
@@ -548,6 +548,30 @@ public class Editor extends GameState {
 //									allLevelTextures = (ArrayList<Texture>) loadedArray.get(13);
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+
+									// Temporary for Short Supply
+//									ArrayList<float[]> allPolygons_alt = new ArrayList<float[]>();
+//									for (int dd=0; dd<allDecors.size(); dd++) {
+//										allPolygons_alt.add(allDecors.get(dd).clone());
+//									}
+//									// Reset polygons
+//									allPolygons = new ArrayList<float[]>();
+//									allPolygonTypes = new ArrayList<Integer>();
+//									allPolygonPaths = new ArrayList<float[]>();
+//									allPolygonTextures = new ArrayList<String>();
+//									// Reset Decors
+//									allDecors = new ArrayList<float[]>();
+//									allDecorTypes = new ArrayList<Integer>();
+//									allDecorPolys = new ArrayList<Integer>();
+//									allDecorImages = new ArrayList<Object>();
+//									// Add polygons
+//									for (int dd=0; dd<allPolygons_alt.size(); dd++) {
+//										allPolygons.add(allPolygons_alt.get(dd).clone());
+//										allPolygonTypes.add(0);
+//										allPolygonPaths.add(null);
+//										allPolygonTextures.add("");
+//									}
+
 									// Load all possible textures that can be used
 //									AppendLevelTextures();
 									// Initialise the PolygonSprites
@@ -1020,12 +1044,16 @@ public class Editor extends GameState {
 								Message("Click and drag the object to rotate it", 0);
 							} else if (chldMd.equals("Delete Vertex")) {
 								Message("First select vertex, then press 'd' to delete", 0);
-							} else if (chldMd.equals("Delete All Grass")) {
-								Message("Press 'd' to delete all grass from the level - you have been warned!", 0);
-							} else if (chldMd.equals("Add All Grass")) {
-								Message("Press 'd' to add grass to every segment on all platforms - you have been warned!", 0);
+							} else if (chldMd.equals("Delete All Surfaces")) {
+								Message("Press 's' to delete all grass from the level - you have been warned!", 0);
+							} else if (chldMd.equals("Add All Surfaces")) {
+								Message("Press 'a' to add grass to every segment on all platforms - you have been warned!", 0);
 							} else if (chldMd.equals("Next Item")) {
 								Message("Click on an item of this type to change the property of this item", 0);
+							} else if (chldMd.equals("Move To Front")) {
+								Message("Click on an item of this type to move it to the front of these items", 0);
+							} else if (chldMd.equals("Move To Back")) {
+								Message("Click on an item of this type to move it to the back of these items", 0);
 							}
 						}
 					}
@@ -1443,7 +1471,7 @@ public class Editor extends GameState {
 		// Determine the number of jewels in the level
 		numJewels = 0;
 		for (int i=finishObjNumber; i<allObjectTypes.size(); i++) {
-			if (allObjectTypes.get(i) == ObjectVars.Jewel) numJewels += 1;
+			if (ObjectVars.IsEmerald(allObjectTypes.get(i))) numJewels += 1;
 		}
 		//
     }
@@ -1498,7 +1526,7 @@ public class Editor extends GameState {
 		if (GameInput.isPressed(GameInput.KEY_ESC)) CheckExit();
 //		if (GameInput.isPressed(GameInput.KEY_LEFT)) Undo();
 //		if (GameInput.isPressed(GameInput.KEY_RIGHT)) Redo();
-		if ((GameInput.isPressed(GameInput.KEY_D)) & ((engageDelete) | (clearGrass) | (addGrass))) {
+		if ((GameInput.isPressed(GameInput.KEY_D)) & (engageDelete)) {
 			if ((mode==4) & (modeParent.equals("Set Path"))) {
 				if (vertSelect != -1) {
 					if (allPolygonPaths.get(polySelect).length >= 12) {
@@ -1550,15 +1578,7 @@ public class Editor extends GameState {
 				ResetGroups();
 				SaveLevel(true);
 			} else {
-				if (clearGrass) {
-					DeleteAllGrass();
-					clearGrass = false;
-					engageDelete = false;
-				} else if (addGrass) {
-					AddAllGrass();
-					addGrass = false;
-					engageDelete = false;
-				} else if (polySelect != -1) {
+				if (polySelect != -1) {
 					if (vertSelect != -1) {
 						if (allPolygons.get(polySelect).length <= 6) DeletePolygon(polySelect, true);
 						else DeleteVertex(polySelect, vertSelect);
@@ -1593,6 +1613,16 @@ public class Editor extends GameState {
 				objectHover = -1;
 				segmHover = -1;
 			}
+		}
+		if ((GameInput.isPressed(GameInput.KEY_S)) & (clearGrass)) {
+			DeleteAllGrass();
+			clearGrass = false;
+			engageDelete = false;
+		}
+		if ((GameInput.isPressed(GameInput.KEY_A)) & (addGrass)) {
+			AddAllGrass();
+			addGrass = false;
+			engageDelete = false;
 		}
 		if (setCursor) {
 			if (GameInput.MBJUSTPRESSED) {
@@ -2211,7 +2241,7 @@ public class Editor extends GameState {
 			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
 			shapeRenderer.polygon(objarray);
 			shapeRenderer.polygon(objArrow);
-		} else if (otype == ObjectVars.Jewel) {
+		} else if (ObjectVars.IsEmerald(otype)) {
 			if (i==2) {
 				// Diamond Jewel
 				if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
@@ -3064,7 +3094,7 @@ public class Editor extends GameState {
 		// Calculate emeralds first
 		numJewels = 0;
 		for (int i=finishObjNumber; i<allObjectTypes.size(); i++) {
-			if (allObjectTypes.get(i) == ObjectVars.Jewel) numJewels += 1;			
+			if (ObjectVars.IsEmerald(allObjectTypes.get(i))) numJewels += 1;
 		}
 		LevelVars.set(LevelVars.PROP_NUMJEWELS, Integer.toString(numJewels));		
 	}
@@ -4465,11 +4495,11 @@ public class Editor extends GameState {
 				AddObject(ObjectVars.Jewel, tempx, tempy, -999.9f);
 				numJewels += 1;
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				SelectObject("up", ObjectVars.Jewel, false, false);
+				SelectJewel("up", false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
-					SelectObject("down", ObjectVars.Jewel, false, false);
+					SelectJewel("down", false, false);
 					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
@@ -4482,7 +4512,7 @@ public class Editor extends GameState {
 				objectSelect = -1;
     		} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
     			if (objectSelect == -1) {
-    				SelectObject("down", ObjectVars.Jewel, false, false);
+					SelectJewel("down", false, false);
     				startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
     				startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
     			} else {
@@ -4506,7 +4536,22 @@ public class Editor extends GameState {
     			UpdateObject(objectSelect, "rotateobject", true);
     			objectSelect = -1;
             	GameInput.MBRELEASE=false;
-    		}
+			} else if ((modeChild.equals("Toggle FG/BG")) & (GameInput.MBJUSTPRESSED)) {
+				SelectJewel("up", false, false);
+				if (objectSelect != -1) {
+					if (allObjectTypes.get(objectSelect)==ObjectVars.JewelBG) {
+						allObjectTypes.set(objectSelect, ObjectVars.Jewel);
+						Message("Object moved to middleground", 0);
+					} else if (allObjectTypes.get(objectSelect)==ObjectVars.Jewel) {
+						allObjectTypes.set(objectSelect, ObjectVars.JewelFG);
+						Message("Object moved to foreground", 0);
+					} else if (allObjectTypes.get(objectSelect)==ObjectVars.JewelFG) {
+						allObjectTypes.set(objectSelect, ObjectVars.JewelBG);
+						Message("Object moved to background", 0);
+					}
+					objectSelect = -1;
+				}
+			}
 		} else if (modeParent.equals("Log")) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -4850,7 +4895,24 @@ public class Editor extends GameState {
 				UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
 			}
-    	}
+    	} else if (modeParent.equals("Change Order")) {
+			if (GameInput.MBJUSTPRESSED) {
+				SelectObjectAny("down");
+				if ((modeChild.equals("Move To Front")) & (objectSelect != -1)) {
+					// Add to the end of the list
+					allObjects.add(allObjects.get(objectSelect).clone());
+					allObjectTypes.add(allObjectTypes.get(objectSelect));
+					allObjectCoords.add(allObjectCoords.get(objectSelect).clone());
+					if (allObjectArrows.get(objectSelect)==null) {
+						allObjectArrows.add(null);
+					} else {
+						allObjectArrows.add(allObjectArrows.get(objectSelect).clone());
+					}
+					// Delete the original
+					DeleteObject(objectSelect, true);
+				}
+			}
+		}
 	}
 
 	public void ControlMode6() {
@@ -4923,8 +4985,12 @@ public class Editor extends GameState {
 				AddDecor(surfaceTexture, tempx, tempy, -999.9f);
 				Message("Added a surface texture: "+DecorVars.GetPlatformTextureFromIndex(surfaceTexture), 0);
 			} else if (modeChild.equals("Add")) {
+				addGrass = false;
+				clearGrass = false;
 				FindNearestSegment(true);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
+				addGrass = false;
+				clearGrass = false;
 				SelectDecorSurface("up");
 				if (decorSelect != -1) engageDelete = true;
     		} else if (modeChild.equals("Move Vertex")) {
@@ -5972,7 +6038,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate");
 					pObjectIndex = GetListIndex("",objectList);
 				} else if (modeParent.equals("Emerald")) {
-					listChild.setItems(itemsADMR);
+					listChild.setItems("Add", "Delete", "Move", "Rotate", "Toggle FG/BG");
 					pObjectIndex = GetListIndex("Emerald",objectList);
 				} else if (modeParent.equals("Log")) {
 					listChild.setItems(itemsADM);
@@ -6004,8 +6070,8 @@ public class Editor extends GameState {
 				} else if (modeParent.equals("Finish")) {
 					listChild.setItems("Put","Move");
 					pObjectIndex = GetListIndex("Finish",objectList);
-				} else if (modeParent.equals("")) {
-					listChild.setItems(nullList);
+				} else if (modeParent.equals("Change Order")) {
+					listChild.setItems("Move To Back", "Move To Front");
 					pObjectIndex = GetListIndex("",objectList);
 				} else if (modeParent.equals("")) {
 					listChild.setItems(nullList);
@@ -7525,12 +7591,12 @@ public class Editor extends GameState {
 			newCoord = allObjectCoords_Alt.get(idx).clone();
 			objArrows = (ArrayList<float[]>) allObjectArrows_Alt.clone();
 			allObjectTypes.add(allObjectTypes_Alt.get(idx).intValue());
-			if (allObjectTypes_Alt.get(idx).intValue() == ObjectVars.Jewel) numJewels += 1; // Check if it was an emerald that was copied
+			if (ObjectVars.IsEmerald(allObjectTypes_Alt.get(idx).intValue())) numJewels += 1; // Check if it was an emerald that was copied
 		} else {
 			newCoord = allObjectCoords.get(idx).clone();
 			objArrows = (ArrayList<float[]>) allObjectArrows.clone();
 			allObjectTypes.add(allObjectTypes.get(idx).intValue());
-			if (allObjectTypes.get(idx).intValue() == ObjectVars.Jewel) numJewels += 1; // Check if it was an emerald that was copied
+			if (ObjectVars.IsEmerald(allObjectTypes.get(idx).intValue())) numJewels += 1; // Check if it was an emerald that was copied
 		}
 		newCoord[0] += shiftX;
 		newCoord[1] += shiftY;
@@ -7549,7 +7615,7 @@ public class Editor extends GameState {
 
 	public void DeleteObject(int idx, boolean autosave) {
 		changesMade = true;
-		if (allObjectTypes.get(idx) == ObjectVars.Jewel) numJewels -= 1;
+		if (ObjectVars.IsEmerald(allObjectTypes.get(idx))) numJewels -= 1;
 		allObjects.remove(idx);
 		allObjectTypes.remove(idx);
 		allObjectCoords.remove(idx);
@@ -7710,7 +7776,7 @@ public class Editor extends GameState {
 				newPoly[2*i] = ObjectVars.objectGravity[2*i] + xcen;
 				newPoly[2*i+1] = ObjectVars.objectGravity[2*i+1] + ycen;
 			}
-		} else if (otype == ObjectVars.Jewel) {
+		} else if (ObjectVars.IsEmerald(otype)) {
 			newPoly = new float[ObjectVars.objectJewel.length];
 			for (int i = 0; i<ObjectVars.objectJewel.length/2; i++){
 				newPoly[2*i] = ObjectVars.objectJewel[2*i] + xcen;
@@ -8034,6 +8100,12 @@ public class Editor extends GameState {
 				}
 			}
 		}
+	}
+
+	private void SelectJewel(String downup, boolean rotate, boolean circle) {
+		SelectObject(downup, ObjectVars.Jewel, rotate, circle);
+		if (objectSelect == -1) SelectObject(downup, ObjectVars.JewelFG, rotate, circle);
+		if (objectSelect == -1) SelectObject(downup, ObjectVars.JewelBG, rotate, circle);
 	}
 
 	public void SelectObject(String downup, int otype, boolean rotate, boolean circle) {

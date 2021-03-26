@@ -87,6 +87,7 @@ public class Play extends GameState {
     private int mPositionIter = 3;
 
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
+    private Array<Integer> mSpatialsFGBG; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
     private Array<PolySpatial> mPolySpatials;
     private Array<Float> mCollBGAlpha, mCollFGAlpha;
@@ -103,6 +104,7 @@ public class Play extends GameState {
     private Array<Body> jewelBodies;
     private ArrayList<Float> jewel_xpos, jewel_ypos;
     private ArrayList<Boolean> jewel_mask;
+    private ArrayList<Integer> jewel_posn;
     private Array<Fixture> triggerFixtList;
     private Array<Body> kinematicBodies;
     private Array<Vector2[]> kinematicPath;
@@ -170,6 +172,7 @@ public class Play extends GameState {
     private float startDirection;
     private float startAngle;
     private float dmnd_xpos, dmnd_ypos, dmnd_widt, dmndrot, jewel_widt, jewelrot;
+    private int dmnd_posn;
     private Texture texture;
     private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar, diamondSN, diamondSNg;
     private Sprite bikeWheel, bikeColour, bikeOverlay, suspensionRear, suspensionFront;
@@ -322,11 +325,13 @@ public class Play extends GameState {
         dmnd_xpos = 0.0f;
         dmnd_ypos = 0.0f;
         dmnd_widt = 0.0f;
+        dmnd_posn = 1;
         dmndrot = 0.0f;
         jewelrot = 0.0f;
         jewelBodies = new Array<Body>();
         jewel_xpos = new ArrayList<Float>();
         jewel_mask = new ArrayList<Boolean>();
+        jewel_posn = new ArrayList<Integer>();
         jewel_ypos = new ArrayList<Float>();
         jewel_widt = 0.0f;
 
@@ -1180,7 +1185,8 @@ public class Play extends GameState {
 	    			nullvar = -1;
 	        		for (int j = 0; j < remBodies.size; j++) {
 	        			if (remBodies.get(j) == bodies.get(i)) {
-	        				mSpatials.removeIndex(remBodiesIdx.get(j));
+                            mSpatials.removeIndex(remBodiesIdx.get(j));
+                            mSpatialsFGBG.removeIndex(remBodiesIdx.get(j));
 	        				nullvar = j;
 	        			} else if (nullvar != -1) {
 	        				remBodiesIdx.set(j, remBodiesIdx.get(j)-1);
@@ -2202,7 +2208,8 @@ public class Play extends GameState {
     	if (mTextureRegionMap != null) mTextureRegionMap.clear();
     	if (mTextureMap != null) mTextureMap.clear();
     	// Clear all of the arrays
-    	if (mSpatials != null) mSpatials.clear();
+        if (mSpatials != null) mSpatials.clear();
+        if (mSpatialsFGBG != null) mSpatialsFGBG.clear();
     	if (mDecors != null) mDecors.clear();
     	if (mPolySpatials != null) mPolySpatials.clear();
     	if (waterfallBackground != null) waterfallBackground.clear();
@@ -2213,6 +2220,7 @@ public class Play extends GameState {
     	if (remBodies != null) remBodies.clear();
     	if (remBodiesIdx != null) remBodiesIdx.clear();
         if (jewelBodies != null) jewelBodies.clear();
+        if (jewel_posn != null) jewel_posn.clear();
         if (jewel_mask != null) jewel_mask.clear();
         if (jewel_xpos != null) jewel_xpos.clear();
         if (jewel_ypos != null) jewel_ypos.clear();
@@ -2267,6 +2275,8 @@ public class Play extends GameState {
         }
     	mBatch.end();
 
+        renderSpatials(0);
+
     	// Render the collisionless background
         if ((mCollisionlessBG != null) && (mCollisionlessBG.size > 0)) {
         	mPolyBatch.setProjectionMatrix(b2dCam.combined);
@@ -2278,39 +2288,7 @@ public class Play extends GameState {
             mPolyBatch.end();
     	}
 
-        if (!collectDiamond) {
-            mBatch.setProjectionMatrix(b2dCam.combined);
-            mBatch.begin();
-            dmndrot += 0.5f;
-            if (dmndrot > 360.0f) dmndrot -= 360.0f;
-            mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, dmndrot);
-            mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, 360.0f-dmndrot);
-            mBatch.end();
-        }
-
-        jewelrot += 0.5f;
-        if (jewelrot > 360.0f) jewelrot -= 360.0f;
-        mBatch.setProjectionMatrix(b2dCam.combined);
-        mBatch.begin();
-        for (int jj=0; jj<jewel_mask.size(); jj++) {
-            if (jewel_mask.get(jj)) {
-                mBatch.draw(diamondSNg, jewel_xpos.get(jj)-jewel_widt/2, jewel_ypos.get(jj)-jewel_widt/2, jewel_widt/2, jewel_widt/2, jewel_widt, jewel_widt, 1.0f, 1.0f, jewelrot);
-                mBatch.draw(diamondSNg, jewel_xpos.get(jj)-jewel_widt/2, jewel_ypos.get(jj)-jewel_widt/2, jewel_widt/2, jewel_widt/2, jewel_widt, jewel_widt, 1.0f, 1.0f, 360.0f-jewelrot);
-            }
-        }
-        mBatch.end();
-
-        // Render all of the spatials
-    	if ((mSpatials != null) && (mSpatials.size > 0))
-    	{
-    		mBatch.setProjectionMatrix(b2dCam.combined);
-    		mBatch.begin();
-    		for (int i = 0; i < mSpatials.size; i++)
-    		{
-    			mSpatials.get(i).render(mBatch, 0);
-    		}
-    		mBatch.end();
-    	}
+        renderSpatials(1);
 
     	// Render the open (or opening) doors
     	mBatch.begin();
@@ -2484,6 +2462,8 @@ public class Play extends GameState {
            mPolyBatch.end();
 	   	}
 
+        renderSpatials(2);
+
         // Render some items onto the HUD
         renderHUD();
 
@@ -2499,6 +2479,36 @@ public class Play extends GameState {
         }
        
         if (debug) b2dr.render(mWorld, b2dCam.combined);
+    }
+
+    private void renderSpatials(int posn) {
+        mBatch.setProjectionMatrix(b2dCam.combined);
+        mBatch.begin();
+        if ((!collectDiamond) & (dmnd_posn==posn)) {
+            dmndrot += 0.5f;
+            if (dmndrot > 360.0f) dmndrot -= 360.0f;
+            mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, dmndrot);
+            mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, 360.0f-dmndrot);
+        }
+
+        jewelrot += 0.5f;
+        if (jewelrot > 360.0f) jewelrot -= 360.0f;
+        for (int jj=0; jj<jewel_mask.size(); jj++) {
+            if ((jewel_mask.get(jj)) & (jewel_posn.get(jj)==posn)) {
+                mBatch.draw(diamondSNg, jewel_xpos.get(jj)-jewel_widt/2, jewel_ypos.get(jj)-jewel_widt/2, jewel_widt/2, jewel_widt/2, jewel_widt, jewel_widt, 1.0f, 1.0f, jewelrot);
+                mBatch.draw(diamondSNg, jewel_xpos.get(jj)-jewel_widt/2, jewel_ypos.get(jj)-jewel_widt/2, jewel_widt/2, jewel_widt/2, jewel_widt, jewel_widt, 1.0f, 1.0f, 360.0f-jewelrot);
+            }
+        }
+
+        // Render all of the spatials
+        if ((mSpatials != null) && (mSpatials.size > 0)) {
+            for (int i = 0; i < mSpatials.size; i++) {
+                if (posn == mSpatialsFGBG.get(i)) {
+                    mSpatials.get(i).render(mBatch, 0);
+                }
+            }
+        }
+        mBatch.end();
     }
 
     private void renderHUD()
@@ -2588,7 +2598,8 @@ public class Play extends GameState {
     	float[] transArr = new float[6];
     	if ((images != null) && (images.size > 0))
     	{
-    		mSpatials = new Array<SimpleSpatial>();
+            mSpatials = new Array<SimpleSpatial>();
+            mSpatialsFGBG = new Array<Integer>();
     		//mDecors = new Array<SimpleImage>();
     		transportImages = new Array<float[]>();
     		doorImages = new Array<float[]>();
@@ -2615,20 +2626,36 @@ public class Play extends GameState {
 //         	   		spatial = new SimpleSpatial(texture, image.flip, image.body, image.color, mTmp, image.center,
 //         	   			 image.angleInRads * MathUtils.radiansToDegrees);
 //             	}
-    			mSpatials.add(spatial);
+                mSpatials.add(spatial);
     			if ((image.name.startsWith("Padlock"))|(image.name.startsWith("Key"))|(image.name.startsWith("Nitrous"))|(image.name.startsWith("Jewel"))|(image.name.startsWith("Diamond"))|(image.name.startsWith("Gravity"))) {
-    				remBodies.add(image.body);
-    				remBodiesIdx.add(i);
+                    remBodies.add(image.body);
+                    remBodiesIdx.add(i);
                     if (image.name.startsWith("Diamond")) {
                         dmnd_xpos = image.body.getPosition().x;
                         dmnd_ypos = image.body.getPosition().y;
                         dmnd_widt = image.width*15.0f;
+                        if (image.name.startsWith("DiamondBG")) dmnd_posn = 0;
+                        else if (image.name.startsWith("DiamondFG")) dmnd_posn = 2;
+                        else dmnd_posn = 1;
+                        mSpatialsFGBG.add(dmnd_posn);
                     } else if (image.name.startsWith("Jewel")) {
                         jewelBodies.add(image.body);
                         jewel_xpos.add(image.body.getPosition().x);
                         jewel_ypos.add(image.body.getPosition().y);
                         jewel_mask.add(true);
                         jewel_widt = image.width*7.5f;
+                        if (image.name.startsWith("JewelFG")) {
+                            jewel_posn.add(2);
+                            mSpatialsFGBG.add(2);
+                        } else if (image.name.startsWith("JewelBG")) {
+                            jewel_posn.add(0);
+                            mSpatialsFGBG.add(0);
+                        } else {
+                            jewel_posn.add(1);
+                            mSpatialsFGBG.add(1);
+                        }
+                    } else {
+                        mSpatialsFGBG.add(1);
                     }
     			} else if (image.name.startsWith("Transport")) {
     				transArr[0] = image.body.getPosition().x-image.width/2;
@@ -2638,14 +2665,18 @@ public class Play extends GameState {
     				transArr[4] = image.scale;
     				transArr[5] = MathUtils.radiansToDegrees*image.angleInRads;
     				transportImages.add(transArr.clone());
-    			}
+                    mSpatialsFGBG.add(1);
+    			} else {
+                    mSpatialsFGBG.add(1);
+                }
     		}
     	}
     	// Render the decorations
     	Array<RubeDecor> decors = scene.getDecors();
     	if ((decors != null) && (decors.size > 0))
     	{
-    		if (mSpatials==null) mSpatials = new Array<SimpleSpatial>();
+            if (mSpatials==null) mSpatials = new Array<SimpleSpatial>();
+            if (mSpatialsFGBG==null) mSpatialsFGBG = new Array<Integer>();
     		SimpleSpatial spatial;
     		for (int i = 0; i < decors.size; i++)
     		{
@@ -2664,6 +2695,7 @@ public class Play extends GameState {
 //    			}
     			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2), decor.flip, null, decor.color, mTmp, decor.center, decor.angleInRads * MathUtils.radiansToDegrees);
     			mSpatials.add(spatial);
+                mSpatialsFGBG.add(1);
     		}
     	}
     }

@@ -995,7 +995,7 @@ public class EditorIO {
         		addBodies = EditorObjectIO.AddGravity(json, allObjects.get(i), allObjectTypes.get(i), cntGravity, gravityVec);
         		bodyIdx += addBodies;
         		cntGravity += 1;
-        	} else if (allObjectTypes.get(i) == ObjectVars.Jewel) {
+        	} else if (ObjectVars.IsEmerald(allObjectTypes.get(i))) {
         		addBodies = EditorObjectIO.AddJewel(json, allObjects.get(i), cntJewel);
         		cntJewel += 1;
         		bodyIdx += addBodies;
@@ -1656,7 +1656,7 @@ public class EditorIO {
             }
         }
         // Add Diamond Jewel
-        EditorImageIO.ImageJewelDiamond(json, allObjects.get(2), bodyIdx, 0);
+        EditorImageIO.ImageJewelDiamond(json, allObjects.get(2), allObjectTypes.get(2), bodyIdx, 0);
         bodyIdx += 1;
         for (int i = finishObjNumber; i<allObjects.size(); i++){
         	if (allObjectTypes.get(i) == ObjectVars.BallChain) {
@@ -1692,8 +1692,8 @@ public class EditorIO {
         		addBodies = EditorImageIO.ImageGravity(json, allObjects.get(i), bodyIdx, cntGravity, gravityVec);
         		bodyIdx += addBodies;
         		cntGravity += 1;
-        	} else if (allObjectTypes.get(i) == ObjectVars.Jewel) {
-        		addBodies = EditorImageIO.ImageJewel(json, allObjects.get(i), bodyIdx, cntJewel);
+        	} else if (ObjectVars.IsEmerald(allObjectTypes.get(i))) {
+        		addBodies = EditorImageIO.ImageJewel(json, allObjects.get(i), allObjectTypes.get(i), bodyIdx, cntJewel);
         		bodyIdx += addBodies;
         		cntJewel += 1;
         	} else if ((allObjectTypes.get(i) == ObjectVars.KeyRed)|(allObjectTypes.get(i) == ObjectVars.KeyGreen)|(allObjectTypes.get(i) == ObjectVars.KeyBlue)) {

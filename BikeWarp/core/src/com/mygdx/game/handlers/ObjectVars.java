@@ -43,6 +43,8 @@ public class ObjectVars {
     public static final int PlanetUranus = 37;
     public static final int PlanetNeptune = 38;
     public static final int DoorKey = 39;
+    public static final int JewelBG = 40;
+    public static final int JewelFG = 41;
 
     // Define the vertices
     public static final float[] objectArrow = {-1.0f,0.0f,-1.0f,-30.0f,-6.0f,-30.0f,0.0f,-40.0f,6.0f,-30.0f,1.0f,-30.0f,1.0f,0.0f};
@@ -130,6 +132,11 @@ public class ObjectVars {
 
     public static boolean IsPlanet(int dTyp) {
         if ((dTyp >= PlanetSun) && (dTyp<=PlanetNeptune)) return true;
+        return false;
+    }
+
+    public static boolean IsEmerald(int dTyp) {
+        if ((dTyp == Jewel) | (dTyp == JewelBG) | (dTyp == JewelFG)) return true;
         return false;
     }
 
