@@ -962,6 +962,44 @@ public class EditorImageIO {
 		return 2;
 	}
 
+	public static int ImageUFO(JSONStringer json, float[] fs, int bodyIndex, int cnt) throws JSONException {
+		float xcen = 0.5f*B2DVars.EPPM*(fs[0]+fs[4]);
+		float ycen = 0.5f*B2DVars.EPPM*(fs[1]+fs[5]);
+		float rotAngle;
+		if (fs[0] == fs[6]) {
+			rotAngle = 0.0f; // No rotation needed
+		} else if (fs[1] == fs[7]) {
+			rotAngle = 90.0f;
+		} else {
+			rotAngle = 90.0f + MathUtils.radiansToDegrees * (float) Math.atan( (fs[1] - fs[7])/(fs[0] - fs[6]) );
+		}
+		json.object(); // Start of UFO
+		json.key("name").value("UFO"+cnt);
+		json.key("opacity").value(1);
+		json.key("renderOrder").value(0);
+		json.key("scale").value(1);
+		json.key("aspectScale").value(1);
+		json.key("angle").value(MathUtils.degreesToRadians*rotAngle);
+		json.key("body").value(bodyIndex);
+		json.key("center");
+		json.object();
+		json.key("x").value(0);
+		json.key("y").value(0);
+		json.endObject();
+		json.key("corners");
+		json.object();
+		json.key("x").array().value(B2DVars.EPPM*fs[0]-xcen).value(B2DVars.EPPM*fs[2]-xcen).value(B2DVars.EPPM*fs[4]-xcen).value(B2DVars.EPPM*fs[6]-xcen).endArray();
+		json.key("y").array().value(B2DVars.EPPM*fs[1]-ycen).value(B2DVars.EPPM*fs[3]-ycen).value(B2DVars.EPPM*fs[5]-ycen).value(B2DVars.EPPM*fs[7]-ycen).endArray();
+		json.endObject();
+		json.key("file").value("images/vehicle_05.png");
+		json.key("filter").value(1);
+		json.key("glDrawElements").array().value(0).value(1).value(2).value(2).value(3).value(0).endArray();
+		json.key("glTexCoordPointer").array().value(0).value(0).value(1).value(0).value(1).value(1).value(0).value(1).endArray();
+		json.key("glVertexPointer").array().value(B2DVars.EPPM*ObjectVars.objectUFO[0]).value(B2DVars.EPPM*ObjectVars.objectUFO[1]).value(B2DVars.EPPM*ObjectVars.objectUFO[2]).value(B2DVars.EPPM*ObjectVars.objectUFO[3]).value(B2DVars.EPPM*ObjectVars.objectUFO[4]).value(B2DVars.EPPM*ObjectVars.objectUFO[5]).value(B2DVars.EPPM*ObjectVars.objectUFO[6]).value(B2DVars.EPPM*ObjectVars.objectUFO[7]).endArray();
+		json.endObject(); // End of UFO
+		return 1;
+	}
+
 	public static int ImageFallingSign(JSONStringer json, float[] fpo, float[] fpa, int bodyIndex, int cnt) throws JSONException {
 		float rd = 30.0f*B2DVars.EPPM;
 		float shaftLength = 5.0f*rd;

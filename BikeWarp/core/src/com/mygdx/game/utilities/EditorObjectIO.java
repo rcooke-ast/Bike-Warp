@@ -1472,6 +1472,7 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	}
 
 	public static int AddTransport(JSONStringer json, float[] fs, int objType, int cnt, Vector2 gravityVec) throws JSONException {
+		int silent = ObjectVars.IsTransportSilent(objType) ? 1 : 0;
 		float xcenA = B2DVars.EPPM*(fs[0]+fs[4])*0.5f;
 		float ycenA = B2DVars.EPPM*(fs[1]+fs[5])*0.5f;
 		float xcenB = B2DVars.EPPM*(fs[8]+fs[12])*0.5f;
@@ -1487,12 +1488,23 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 	        else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Moon")) gravity = B2DVars.GRAVITY_MOON;
 	        else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Zero")) gravity = B2DVars.GRAVITY_ZERO;
 	        else gravity = B2DVars.GRAVITY_EARTH;
+		} else if (objType == ObjectVars.TransportSilent) {
+			// Use the default gravity
+			if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Earth")) gravity = B2DVars.GRAVITY_EARTH;
+			else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Mars")) gravity = B2DVars.GRAVITY_MARS;
+			else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Moon")) gravity = B2DVars.GRAVITY_MOON;
+			else if (LevelVars.get(LevelVars.PROP_GRAVITY).equals("Zero")) gravity = B2DVars.GRAVITY_ZERO;
+			else gravity = B2DVars.GRAVITY_EARTH;
 		} else if (objType != ObjectVars.Transport) {
 			// Some other form of invisible transport
 	        if (objType == ObjectVars.TransportInvisibleEarth) gravity = B2DVars.GRAVITY_EARTH;
 	        else if (objType == ObjectVars.TransportInvisibleMars) gravity = B2DVars.GRAVITY_MARS;
 	        else if (objType == ObjectVars.TransportInvisibleMoon) gravity = B2DVars.GRAVITY_MOON;
 	        else if (objType == ObjectVars.TransportInvisibleZero) gravity = B2DVars.GRAVITY_ZERO;
+			else if (objType == ObjectVars.TransportSilentEarth) gravity = B2DVars.GRAVITY_EARTH;
+			else if (objType == ObjectVars.TransportSilentMars) gravity = B2DVars.GRAVITY_MARS;
+			else if (objType == ObjectVars.TransportSilentMoon) gravity = B2DVars.GRAVITY_MOON;
+			else if (objType == ObjectVars.TransportSilentZero) gravity = B2DVars.GRAVITY_ZERO;
 	        else gravity = B2DVars.GRAVITY_EARTH;
 		}
         float xgrav = 0.0f, ygrav=-gravity;
@@ -1519,6 +1531,10 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         json.key("name").value("transportAngle");
         json.key("float").value(rotAngleB-rotAngleA);
         json.endObject();
+		json.object();
+		json.key("name").value("transportSilent");
+		json.key("int").value(silent);
+		json.endObject();
         if (gravityVec != null) {
             json.object();
             json.key("name").value("gravityVector");
@@ -1650,6 +1666,151 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		json.key("type").value(0);
 		json.endObject(); // End of Transport B
 		return 2; // Return number of bodies added
+	}
+
+	public static int AddUFO(JSONStringer json, float[] fs, float[] path, int cnt) throws JSONException {
+		float xcen = B2DVars.EPPM*(fs[0]+fs[4])*0.5f;
+		float ycen = B2DVars.EPPM*(fs[1]+fs[5])*0.5f;
+		json.object(); // Start of UFO
+		json.key("angle").value(0);
+		if (path != null) {
+			if (path[2]==1) json.key("angularVelocity").value(MathUtils.degreesToRadians*path[0]);
+			else json.key("angularVelocity").value(MathUtils.degreesToRadians*(path[0]-360));
+		} else json.key("angularVelocity").value(0);
+		json.key("awake").value(true);
+		json.key("fixedRotation").value(false);
+		if (path != null) {
+			json.key("customProperties");
+			json.array();
+			// CP: Set the path
+			float pathlength = -1.0f;
+			if (path.length >= 12) {
+				json.object();
+				json.key("name").value("path");
+				json.key("vertices");
+				json.object(); // Begin vertices object
+				json.key("x");
+				json.array();
+				for (int j = 0; j<(path.length-8)/2; j++) json.value(B2DVars.EPPM*path[8+2*j]);
+				json.endArray();
+				json.key("y");
+				json.array();
+				for (int j = 0; j<(path.length-8)/2; j++) json.value(B2DVars.EPPM*path[8+2*j+1]);
+				json.endArray();
+				json.endObject(); // End the vertices object
+				json.endObject();
+				pathlength = 0.0f;
+				for (int j = 0; j<((path.length-8)/2)-1; j++) pathlength += (float)Math.sqrt((path[8+2*j]-path[8+2*(j+1)])*(path[8+2*j]-path[8+2*(j+1)]) + (path[8+2*j+1]-path[8+2*(j+1)+1])*(path[8+2*j+1]-path[8+2*(j+1)+1]));
+			}
+//        else if (path.length == 10) {
+//			json.object();
+//			json.key("name").value("path");
+//			json.key("vertices");
+//			json.object(); // Begin vertices object
+//			json.key("x");
+//			json.array();
+//			for (int j = 0; j<2; j++) json.value(B2DVars.EPPM*path[8]);
+//			json.endArray();
+//			json.key("y");
+//			json.array();
+//			for (int j = 0; j<2; j++) json.value(B2DVars.EPPM*path[9]);
+//			json.endArray();
+//			json.endObject(); // End the vertices object
+//			json.endObject();
+//			pathlength = 0.0f;
+//		}
+			// CP: Set Velocity
+			json.object();
+			json.key("name").value("speed");
+			json.key("float").value(B2DVars.EPPM*path[1]);
+			json.endObject();
+			// CP: Set Direction
+			json.object();
+			json.key("name").value("direction");
+			json.key("int").value((int)path[3]);
+			json.endObject();
+			// CP: Set Start Time
+			json.object();
+			json.key("name").value("starttime");
+			json.key("float").value(path[6]);
+			json.endObject();
+			// CP: Set Stop Time
+			json.object();
+			json.key("name").value("stoptime");
+			json.key("float").value(path[7]);
+			json.endObject();
+			// CP: Set path length
+			if (pathlength >= 0.0f) {
+				json.object();
+				json.key("name").value("pathlength");
+				json.key("float").value(B2DVars.EPPM*pathlength);
+				json.endObject();
+			}
+			if (path.length >= 12) {
+				float bestval = -1.0f;
+				int bestidx = 0;
+				for (int j = 0; j<(path.length-8)/2; j++) {
+					if (j == 0) bestval = (float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5]));
+					else if ((float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5])) < bestval) {
+						bestval = (float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5]));
+						bestidx = j;
+					}
+				}
+				json.object();
+				json.key("name").value("index");
+				json.key("int").value(bestidx);
+				json.endObject();
+			} else {
+				json.object();
+				json.key("name").value("index");
+				json.key("int").value(0);
+				json.endObject();
+			}
+			json.endArray();
+		}
+		// Add the fixtures
+		json.key("fixture");
+		json.array();
+		json.object();
+		json.key("density").value(30.0);
+		json.key("friction").value(0.3);
+		json.key("restitution").value(0.5);
+		json.key("name").value("fixture8");
+		json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+		json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_DOOR | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_SWITCH);
+		json.key("polygon");
+		json.object(); // Begin polygon object
+		json.key("vertices");
+		json.object(); // Begin vertices object
+		json.key("x");
+		json.array();
+		json.value(B2DVars.EPPM*fs[0]-xcen);
+		json.value(B2DVars.EPPM*fs[2]-xcen);
+		json.value(B2DVars.EPPM*fs[4]-xcen);
+		json.value(B2DVars.EPPM*fs[6]-xcen);
+		json.endArray();
+		json.key("y");
+		json.array();
+		json.value(B2DVars.EPPM*fs[1]-ycen);
+		json.value(B2DVars.EPPM*fs[3]-ycen);
+		json.value(B2DVars.EPPM*fs[5]-ycen);
+		json.value(B2DVars.EPPM*fs[7]-ycen);
+		json.endArray();
+		json.endObject(); // End the vertices object
+		json.endObject(); // End polygon object
+		json.endObject(); // End this fixture
+		json.endArray(); // End the array of fixtures
+		// Add some final properties for the UFO body
+		json.key("linearVelocity").value(0);
+		json.key("name").value("UFO"+cnt);
+		json.key("position");
+		json.object();
+		json.key("x").value(B2DVars.EPPM*path[4]);
+		json.key("y").value(B2DVars.EPPM*path[5]);
+		json.endObject();
+		json.key("type").value(1);
+		json.endObject(); // End of UFO
+		return 1; // Return number of bodies added
 	}
 
 	public static void AddBoundary(JSONStringer json, String textString) throws JSONException {

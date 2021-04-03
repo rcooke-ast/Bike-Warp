@@ -1397,6 +1397,7 @@ public class Play extends GameState {
     	if (bodies.size != 0) {
     		Vector2 transportXY = (Vector2)mScene.getCustom(bodies.get(0), "transportXY", null);
     		float transportAngle = (Float)mScene.getCustom(bodies.get(0), "transportAngle", 0.0f);
+            int transportSilent = (Integer) mScene.getCustom(bodies.get(0), "transportSilent", 0);
             Vector2 gravNext = (Vector2)mScene.getCustom(bodies.get(0), "gravityVector", mWorld.getGravity().cpy());
     		if (transportXY != null) {
     			// Derive the offset from the chassis to the centre of the transporter and account for rotation (use the chassis as reference)
@@ -1437,7 +1438,7 @@ public class Play extends GameState {
     			bikeBodyRW.setLinearVelocity(cCoord[0],cCoord[1]);
     			// Force transporters to be inactive
     			canTransport = 0.0f;
-    			BikeGameSounds.PlaySound(soundTransport, 1.0f);
+    			if (transportSilent==0) BikeGameSounds.PlaySound(soundTransport, 1.0f);
     			// Now update the gravity, if it's an invisible transport
 				float angleGrav;
 				if (gravityScale >= 0.0f) {

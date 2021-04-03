@@ -128,6 +128,7 @@ public class BikeGameTextures {
         GetTexture("transport_spiral",0);
         GetTexture("waterfall",0);
         GetTexture("wood_link",0);
+        GetTexture("vehicle_05", 0);
     }
 
     private static void GetMenuImages() {
@@ -251,7 +252,7 @@ public class BikeGameTextures {
         for (int i=0; i<8; i++) GetTexture("rock_"+String.format("%02d", i), 2);
         for (int i=0; i<8; i++) GetTexture("tree_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
-        for (int i=0; i<4; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
+        for (int i=0; i<6; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
         GetTexture("misc_emerald", 2);
         GetTexture("misc_diamond", 2);
         // Planets

@@ -45,6 +45,12 @@ public class ObjectVars {
     public static final int DoorKey = 39;
     public static final int JewelBG = 40;
     public static final int JewelFG = 41;
+    public static final int UFO = 42;
+    public static final int TransportSilentEarth = 43;
+    public static final int TransportSilentMars = 44;
+    public static final int TransportSilentMoon = 45;
+    public static final int TransportSilentZero = 46;
+    public static final int TransportSilent = 47;
 
     // Define the vertices
     public static final float[] objectArrow = {-1.0f,0.0f,-1.0f,-30.0f,-6.0f,-30.0f,0.0f,-40.0f,6.0f,-30.0f,1.0f,-30.0f,1.0f,0.0f};
@@ -71,7 +77,8 @@ public class ObjectVars {
     public static final float objectPadlock = 18.0f;
     public static final float objectTriggerWidth = 5.0f;
     public static final float[] objectSpikeZone = {-100.0f,-100.0f,100.0f,-100.0f,100.0f,100.0f,-100.0f,100.0f};
-    
+    public static final float[] objectUFO = {-500.0f, -110.61588330632091f, 500.0f, -110.61588330632091f, 500.0f, 110.61588330632091f, -500.0f, 110.61588330632091f};
+
     // Define the global properties for some of the objects
     public static final float ChainLinkSize = 1.0f; // Size of a single link in a chain (in metres)
     //public static final float ChainLinkSize = 1.3f; // Size of a single link in a chain (in metres)
@@ -95,9 +102,15 @@ public class ObjectVars {
     }
 
     public static boolean IsTransportInvisible(int dTyp) {
-    	if ((dTyp == TransportInvisible) | (dTyp == TransportInvisibleEarth) | (dTyp == TransportInvisibleMars) | (dTyp == TransportInvisibleMoon) | (dTyp == TransportInvisibleZero)) {
-    		return true;
-    	} else return false;
+        if ((dTyp == TransportInvisible) | (dTyp == TransportInvisibleEarth) | (dTyp == TransportInvisibleMars) | (dTyp == TransportInvisibleMoon) | (dTyp == TransportInvisibleZero)) {
+            return true;
+        } else return false;
+    }
+
+    public static boolean IsTransportSilent(int dTyp) {
+        if ((dTyp == TransportSilent) | (dTyp == TransportSilentEarth) | (dTyp == TransportSilentMars) | (dTyp == TransportSilentMoon) | (dTyp == TransportSilentZero)) {
+            return true;
+        } else return false;
     }
 
     public static float[] MakePlanet(int dTyp, float xcen, float ycen) {

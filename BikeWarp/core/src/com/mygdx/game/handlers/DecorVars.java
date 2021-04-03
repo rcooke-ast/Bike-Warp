@@ -56,7 +56,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -93,6 +93,7 @@ public class DecorVars {
 	public static final int textureBarkDark = 33;
 	public static final int textureWoodPlancksD = 34;
 	public static final int textureSnowLight = 35;
+	public static final int textureBarkH = 36;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -185,6 +186,7 @@ public class DecorVars {
 			case (textureDefault+100): return "Default";
 			case (textureAsphalt+100): return "Asphalt";
 			case (textureBark+100): return "Bark";
+			case (textureBarkH+100): return "Bark (H)";
 			case (textureBricks+100): return "Bricks";
 			case (textureBubbles+100): return "Bubbles";
 			case (textureCrackedMud+100): return "Cracked Mud";
@@ -232,6 +234,7 @@ public class DecorVars {
 			}
 			case "Asphalt": return textureAsphalt+offs;
 			case "Bark": return textureBark+offs;
+			case "Bark (H)": return textureBarkH+offs;
 			case "Bricks": return textureBricks+offs;
 			case "Bubbles": return textureBubbles+offs;
 			case "Cracked Mud": return textureCrackedMud+offs;
@@ -567,7 +570,7 @@ public class DecorVars {
 		} else if (decorID == Vehicle) {
 			xsize = 400.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 4)) idx = 0;
+			if ((idx < 0) | (idx >= 6)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 400.0f; // Excavator
@@ -584,6 +587,14 @@ public class DecorVars {
 				case 3:
 					xsize = 600.0f; // Dump truck
 					scale = 342.0f/865.0f;
+					break;
+				case 4:
+					xsize = 350.0f; // Van
+					scale = 732.0f/1506.0f;
+					break;
+				case 5:
+					xsize = 500.0f; // UFO
+					scale = 273.0f/1234.0f;
 					break;
 				default:
 					break;
@@ -608,5 +619,10 @@ public class DecorVars {
 		// Generate the coordinates
 		float[] coords = {-xsize+shiftX, -xsize*scale+shiftY, xsize+shiftX, -xsize*scale+shiftY, xsize+shiftX, xsize*scale+shiftY, -xsize+shiftX, xsize*scale+shiftY, idx};
 		return coords;
+	}
+
+	public static float[] MakeMoveableRect(int decorID, int idx, float shiftX, float shiftY) {
+		// TODO :: Need to convert input decorID and idx to the corresponding value in GetRectMultiple()
+		return GetRectMultiple(Vehicle, 5, shiftX, shiftY); // This is the UFO
 	}
 }

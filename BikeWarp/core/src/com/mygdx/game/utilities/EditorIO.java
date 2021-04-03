@@ -60,6 +60,8 @@ public class EditorIO {
 	private static int cntSpikeZone;
 	private static int cntTransport;
 	private static int cntTransportInvisible;
+	private static int cntTransportSilent;
+	private static int cntUFO;
 	private static int finishObjNumber = 3;
 
 	private static ArrayList<float[][][]> ConvertTextureToArray(ArrayList<Texture> allLevelTextures) {
@@ -533,6 +535,7 @@ public class EditorIO {
 		else if (textName.startsWith("COLOR_")) return textName;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
+		else if (textName.equals("Bark (H)")) return "images/ground_treebarkH.png";
 		else if (textName.equals("Bark (Moss)")) return "images/ground_treebark_moss.png";
 		else if (textName.equals("Bark (Dark)")) return "images/ground_treebark_dark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
@@ -575,6 +578,7 @@ public class EditorIO {
 		else if (textName.startsWith("COLOR_")) return textName;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
+		else if (textName.equals("Bark (H)")) return "images/ground_treebarkH.png";
 		else if (textName.equals("Bark (Moss)")) return "images/ground_treebark_moss.png";
 		else if (textName.equals("Bark (Dark)")) return "images/ground_treebark_dark.png";
 		else if (textName.equals("Bricks")) return "images/ground_bricks.png";
@@ -733,6 +737,8 @@ public class EditorIO {
     	cntSpikeZone = 0;
     	cntTransport = 0;
     	cntTransportInvisible = 0;
+		cntTransportSilent = 0;
+    	cntUFO = 0;
     	// Determine what texture to be used for the ground
     	String textString = GetTexture(LevelVars.get(LevelVars.PROP_GROUND_TEXTURE), "Default");
     	String textPlatform;
@@ -1042,7 +1048,17 @@ public class EditorIO {
         		addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), allObjectTypes.get(i), cntTransportInvisible, gravityVec.cpy());
         		cntTransportInvisible += 1;
         		bodyIdx += addBodies;
-        	}
+        	} else if (ObjectVars.IsTransportSilent(allObjectTypes.get(i))) {
+				Vector2 gravityVec = new Vector2(allObjectArrows.get(i)[2]-allObjectArrows.get(i)[0],allObjectArrows.get(i)[3]-allObjectArrows.get(i)[1]);
+				gravityVec.nor();
+				addBodies = EditorObjectIO.AddTransport(json, allObjects.get(i), allObjectTypes.get(i), cntTransportSilent, gravityVec.cpy());
+				cntTransportSilent += 1;
+				bodyIdx += addBodies;
+			} else if (allObjectTypes.get(i) == ObjectVars.UFO) {
+				addBodies = EditorObjectIO.AddUFO(json, allObjects.get(i), allObjectArrows.get(i), cntUFO);
+				cntUFO += 1;
+				bodyIdx += addBodies;
+			}
         }
         
         // Add some GameInfo to a body at the origin
@@ -1644,6 +1660,8 @@ public class EditorIO {
         cntSpikeZone = 0;
         cntTransport = 0;
         cntTransportInvisible = 0;
+        cntTransportSilent = 0;
+        cntUFO = 0;
         // Apply images to falling bodies
         for (int i = 0; i<allPolygons.size(); i++){
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
@@ -1728,11 +1746,19 @@ public class EditorIO {
         		addBodies = EditorImageIO.ImageTransport(json, allObjects.get(i), bodyIdx, cntTransport);
         		bodyIdx += addBodies;
         		cntTransport += 1;
-        	} else if (allObjectTypes.get(i) == ObjectVars.TransportInvisible) {
-        		addBodies = 2;
-        		bodyIdx += addBodies;
-        		cntTransportInvisible += 1;
-        	}
+        	} else if (ObjectVars.IsTransportInvisible(allObjectTypes.get(i))) {
+				addBodies = 2;
+				bodyIdx += addBodies;
+				cntTransportInvisible += 1;
+			} else if (ObjectVars.IsTransportSilent(allObjectTypes.get(i))) {
+				addBodies = 2;
+				bodyIdx += addBodies;
+				cntTransportSilent += 1;
+			} else if (allObjectTypes.get(i) == ObjectVars.UFO) {
+				addBodies = EditorImageIO.ImageUFO(json, allObjects.get(i), bodyIdx, cntUFO);
+				bodyIdx += addBodies;
+				cntUFO += 1;
+			}
         }
         json.endArray(); // End of image array
         // Add joints

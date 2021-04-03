@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 54; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 56; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -117,8 +117,12 @@ public class LevelsListGame {
 		gameLevelFiles[lnum] = "data/gamelevels/Abandoned.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Tony The African Hawk";
-    	gameLevelFiles[lnum] = "data/gamelevels/TonyTheAfricanHawk.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Tony The African Hawk";
+		gameLevelFiles[lnum] = "data/gamelevels/TonyTheAfricanHawk.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Tony Hawk (Alien Remix)";
+		gameLevelFiles[lnum] = "data/gamelevels/TonyHawkAlienRemix.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". In The Canopy";
