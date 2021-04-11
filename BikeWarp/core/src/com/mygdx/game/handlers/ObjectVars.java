@@ -51,6 +51,8 @@ public class ObjectVars {
     public static final int TransportSilentMoon = 45;
     public static final int TransportSilentZero = 46;
     public static final int TransportSilent = 47;
+    public static final int MoveableSign = 48;
+    // These numbers must not exceed 100, due to signs
 
     // Define the vertices
     public static final float[] objectArrow = {-1.0f,0.0f,-1.0f,-30.0f,-6.0f,-30.0f,0.0f,-40.0f,6.0f,-30.0f,1.0f,-30.0f,1.0f,0.0f};
@@ -78,6 +80,7 @@ public class ObjectVars {
     public static final float objectTriggerWidth = 5.0f;
     public static final float[] objectSpikeZone = {-100.0f,-100.0f,100.0f,-100.0f,100.0f,100.0f,-100.0f,100.0f};
     public static final float[] objectUFO = {-500.0f, -110.61588330632091f, 500.0f, -110.61588330632091f, 500.0f, 110.61588330632091f, -500.0f, 110.61588330632091f};
+    public static final float[] objectCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
 
     // Define the global properties for some of the objects
     public static final float ChainLinkSize = 1.0f; // Size of a single link in a chain (in metres)
@@ -93,6 +96,10 @@ public class ObjectVars {
         if ((dTyp == KeyBlue) | (dTyp == KeyGreen) | (dTyp == KeyRed)) {
             return true;
         } else return false;
+    }
+
+    public static boolean IsMoveableSign(int dTyp) {
+        return DecorVars.IsRoadSign(dTyp-100);
     }
 
     public static boolean IsGravity(int dTyp) {

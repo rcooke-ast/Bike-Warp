@@ -104,7 +104,7 @@ public class BikeGameTextures {
         GetTexture("key_blue",0);
         GetTexture("key_green",0);
         GetTexture("log",0);
-        GetTexture("metal_pole_1x16",0);
+        GetRoadSigns(0);
         GetTexture("metalplate",0);
         GetTexture("nitrous",0);
         GetTexture("nitrous_tube",0);
@@ -154,6 +154,30 @@ public class BikeGameTextures {
         texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
         menuTextures.add(texture);
         menuTextureNames.add("metal_grid");
+    }
+
+    private static void GetRoadSigns(int flag) {
+        GetTexture("RS_bumps",flag);
+        GetTexture("RS_dash",flag);
+        GetTexture("RS_dot",flag);
+        GetTexture("RS_donotenter",flag);
+        GetTexture("RS_exclamation",flag);
+        GetTexture("RS_motorbike",flag);
+        GetTexture("RS_nomotorbike",flag);
+        GetTexture("RS_rampahead",flag);
+        GetTexture("RS_reducespeed",flag);
+        GetTexture("RS_speed_10",flag);
+        GetTexture("RS_speed_flag0",flag);
+        GetTexture("RS_speed_30",flag);
+        GetTexture("RS_speed_40",flag);
+        GetTexture("RS_speed_50",flag);
+        GetTexture("RS_speed_60",flag);
+        GetTexture("RS_speed_80",flag);
+        GetTexture("RS_speed_100",flag);
+        GetTexture("RS_stop",flag);
+        GetTexture("RS_noaliens",flag);
+        GetTexture("RS_toxic",flag);
+        GetTexture("metal_pole_1x16",flag);
     }
 
     private static void GetDecorations() {
@@ -229,25 +253,7 @@ public class BikeGameTextures {
         GetTexture("records_stone",2);
         GetTexture("records_stone_dark",2);
         GetTexture("records_stone_menu",2);
-        GetTexture("RS_bumps",2);
-        GetTexture("RS_dash",2);
-        GetTexture("RS_dot",2);
-        GetTexture("RS_donotenter",2);
-        GetTexture("RS_exclamation",2);
-        GetTexture("RS_motorbike",2);
-        GetTexture("RS_nomotorbike",2);
-        GetTexture("RS_rampahead",2);
-        GetTexture("RS_reducespeed",2);
-        GetTexture("RS_speed_10",2);
-        GetTexture("RS_speed_20",2);
-        GetTexture("RS_speed_30",2);
-        GetTexture("RS_speed_40",2);
-        GetTexture("RS_speed_50",2);
-        GetTexture("RS_speed_60",2);
-        GetTexture("RS_speed_80",2);
-        GetTexture("RS_speed_100",2);
-        GetTexture("RS_stop",2);
-        GetTexture("metal_pole_1x16",2);
+        GetRoadSigns(2);
         GetTexture("binbag",2);
         for (int i=0; i<8; i++) GetTexture("rock_"+String.format("%02d", i), 2);
         for (int i=0; i<8; i++) GetTexture("tree_"+String.format("%02d", i), 2);

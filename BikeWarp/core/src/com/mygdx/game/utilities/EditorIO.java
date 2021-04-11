@@ -62,6 +62,7 @@ public class EditorIO {
 	private static int cntTransportInvisible;
 	private static int cntTransportSilent;
 	private static int cntUFO;
+	private static int cntMoveableSign;
 	private static int finishObjNumber = 3;
 
 	private static ArrayList<float[][][]> ConvertTextureToArray(ArrayList<Texture> allLevelTextures) {
@@ -479,14 +480,13 @@ public class EditorIO {
 			}
 		}
 		// Repeat but insert the files into the array
-		String[] allLevels = new String[defaultStr.length+numFiles];
-		for (int i=0; i<defaultStr.length; i++) allLevels[i] = defaultStr[i];
-		numFiles = defaultStr.length;
+		String[] allLevs = new String[numFiles];
+		numFiles = 0;//defaultStr.length;
 		for (File fileEntry : folder.listFiles()) {
 			if (fileEntry.isFile()) {
 				temp = fileEntry.getName();
 				if ((temp.substring(temp.lastIndexOf('.') + 1, temp.length()).toLowerCase()).equals("lvl")) {
-					allLevels[numFiles] =  FileUtils.getBaseName(fileEntry.getName());
+					allLevs[numFiles] =  FileUtils.getBaseName(fileEntry.getName());
 					// Reset all levels
 					// TODO :: If you want to reset level file format - save them upon loading
 //					try {
@@ -498,6 +498,12 @@ public class EditorIO {
 				}
 			}
 		}
+		// Sort the files
+		Arrays.sort(allLevs);
+		// Now append the sorted level names to the default string.
+		String[] allLevels = new String[defaultStr.length+numFiles];
+		for (int i=0; i<defaultStr.length; i++) allLevels[i] = defaultStr[i];
+		for (int i=0; i<numFiles; i++) allLevels[i+defaultStr.length] = allLevs[i];
 		return allLevels;
 	}
 
@@ -739,6 +745,7 @@ public class EditorIO {
     	cntTransportInvisible = 0;
 		cntTransportSilent = 0;
     	cntUFO = 0;
+		cntMoveableSign = 0;
     	// Determine what texture to be used for the ground
     	String textString = GetTexture(LevelVars.get(LevelVars.PROP_GROUND_TEXTURE), "Default");
     	String textPlatform;
@@ -1057,6 +1064,10 @@ public class EditorIO {
 			} else if (allObjectTypes.get(i) == ObjectVars.UFO) {
 				addBodies = EditorObjectIO.AddUFO(json, allObjects.get(i), allObjectArrows.get(i), cntUFO);
 				cntUFO += 1;
+				bodyIdx += addBodies;
+			} else if (ObjectVars.IsMoveableSign(allObjectTypes.get(i))) {
+        		addBodies = EditorObjectIO.AddSign(json, allObjects.get(i), allObjectArrows.get(i), cntMoveableSign);
+				cntMoveableSign += 1;
 				bodyIdx += addBodies;
 			}
         }
@@ -1662,6 +1673,7 @@ public class EditorIO {
         cntTransportInvisible = 0;
         cntTransportSilent = 0;
         cntUFO = 0;
+		cntMoveableSign = 0;
         // Apply images to falling bodies
         for (int i = 0; i<allPolygons.size(); i++){
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
@@ -1758,6 +1770,10 @@ public class EditorIO {
 				addBodies = EditorImageIO.ImageUFO(json, allObjects.get(i), bodyIdx, cntUFO);
 				bodyIdx += addBodies;
 				cntUFO += 1;
+			} else if (ObjectVars.IsMoveableSign(allObjectTypes.get(i))) {
+				addBodies = EditorImageIO.ImageMoveableSign(json, allObjects.get(i), allObjectTypes.get(i), bodyIdx, cntMoveableSign);
+				bodyIdx += addBodies;
+        		cntMoveableSign += 1;
 			}
         }
         json.endArray(); // End of image array

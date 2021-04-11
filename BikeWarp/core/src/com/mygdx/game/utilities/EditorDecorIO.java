@@ -14,43 +14,10 @@ public class EditorDecorIO {
 
 	public static void AddDecorations(JSONStringer json, ArrayList<float[]> decors, ArrayList<Integer> decorTypes) throws JSONException {
         for (int i = 0; i<decors.size(); i++){
-        	if (decorTypes.get(i) == DecorVars.RoadSign_Stop) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_stop.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_DoNotEnter) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_donotenter.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_Bumps) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_bumps.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_Exclamation) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_exclamation.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_Motorbike) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_motorbike.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_NoMotorbike) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_nomotorbike.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_RampAhead) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_rampahead.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_ReduceSpeed) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_reducespeed.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_10) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_10.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_20) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_20.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_30) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_30.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_40) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_40.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_50) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_50.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_60) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_60.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_80) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_80.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_100) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_speed_100.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_Dash) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_dash.png", i);
-        	} else if (decorTypes.get(i) == DecorVars.RoadSign_Dot) {
-        		ImageRoadSign(json, decors.get(i), "images/RS_dot.png", i);
-        	} else if (DecorVars.IsRect(decorTypes.get(i))) {
+        	if (DecorVars.IsRoadSign(decorTypes.get(i))) {
+        		String imageFile = DecorVars.GetRoadSignFilename(decorTypes.get(i));
+        		ImageRoadSign(json, decors.get(i), imageFile, i);
+			} else if (DecorVars.IsRect(decorTypes.get(i))) {
         		ImageRect(json, decors.get(i), decorTypes.get(i), i);
         	} else if (decorTypes.get(i) == DecorVars.Track) {
         		ImageTrack(json, decors.get(i), i);

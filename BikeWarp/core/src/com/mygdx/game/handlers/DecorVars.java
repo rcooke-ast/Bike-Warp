@@ -33,7 +33,9 @@ public class DecorVars {
     public static final int RoadSign_80 = 14;
     public static final int RoadSign_100 = 15;
     public static final int RoadSign_Dash = 16;
-    public static final int RoadSign_Dot = 17;
+	public static final int RoadSign_Dot = 17;
+	public static final int RoadSign_NoAliens = 18;
+	public static final int RoadSign_Toxic = 19;
     public static final int Grass = 29;
     public static final int LargeStone = 30;
     public static final int Waterfall = 31;
@@ -102,7 +104,7 @@ public class DecorVars {
     			(dTyp == RoadSign_ReduceSpeed) | (dTyp == RoadSign_Exclamation) | (dTyp == RoadSign_10) |
     			(dTyp == RoadSign_20) | (dTyp == RoadSign_30) | (dTyp == RoadSign_40) |
     			(dTyp == RoadSign_50) | (dTyp == RoadSign_60) | (dTyp == RoadSign_80) |
-    			(dTyp == RoadSign_100) | (dTyp == RoadSign_Dash) | (dTyp == RoadSign_Dot)) {
+    			(dTyp == RoadSign_100) | (dTyp == RoadSign_Dash) | (dTyp == RoadSign_Dot) | (dTyp == RoadSign_NoAliens) | (dTyp == RoadSign_Toxic)) {
     		return true;
     	} else return false;
     }
@@ -293,7 +295,8 @@ public class DecorVars {
     	else if (modeParent.equals("Sign (No Motorbikes)")) return RoadSign_NoMotorbike;
     	else if (modeParent.equals("Sign (Ramp Ahead)")) return RoadSign_RampAhead;
     	else if (modeParent.equals("Sign (Reduce Speed)")) return RoadSign_ReduceSpeed;
-    	else if (modeParent.equals("Sign (Stop)")) return RoadSign_Stop;
+		else if (modeParent.equals("Sign (Stop)")) return RoadSign_Stop;
+		else if (modeParent.equals("Sign (No Aliens)")) return RoadSign_NoAliens;
     	else return -1;
     }
 
@@ -315,9 +318,55 @@ public class DecorVars {
     	else if (objNumber == RoadSign_NoMotorbike) return "No Motorbikes";
     	else if (objNumber == RoadSign_RampAhead) return "Ramp Ahead";
     	else if (objNumber == RoadSign_ReduceSpeed) return "Reduce Speed";
-    	else if (objNumber == RoadSign_Stop) return "Stop";
+		else if (objNumber == RoadSign_Stop) return "Stop";
+		else if (objNumber == RoadSign_NoAliens) return "No Aliens";
     	else return "";
     }
+
+    public static String GetRoadSignFilename(int decorID) {
+		if (decorID == DecorVars.RoadSign_Stop) {
+			return "images/RS_stop.png";
+		} else if (decorID == DecorVars.RoadSign_DoNotEnter) {
+			return "images/RS_donotenter.png";
+		} else if (decorID == DecorVars.RoadSign_Bumps) {
+			return "images/RS_bumps.png";
+		} else if (decorID == DecorVars.RoadSign_Exclamation) {
+			return "images/RS_exclamation.png";
+		} else if (decorID == DecorVars.RoadSign_Motorbike) {
+			return "images/RS_motorbike.png";
+		} else if (decorID == DecorVars.RoadSign_NoMotorbike) {
+			return "images/RS_nomotorbike.png";
+		} else if (decorID == DecorVars.RoadSign_RampAhead) {
+			return "images/RS_rampahead.png";
+		} else if (decorID == DecorVars.RoadSign_ReduceSpeed) {
+			return "images/RS_reducespeed.png";
+		} else if (decorID == DecorVars.RoadSign_10) {
+			return "images/RS_speed_10.png";
+		} else if (decorID == DecorVars.RoadSign_20) {
+			return "images/RS_speed_20.png";
+		} else if (decorID == DecorVars.RoadSign_30) {
+			return "images/RS_speed_30.png";
+		} else if (decorID == DecorVars.RoadSign_40) {
+			return "images/RS_speed_40.png";
+		} else if (decorID == DecorVars.RoadSign_50) {
+			return "images/RS_speed_50.png";
+		} else if (decorID == DecorVars.RoadSign_60) {
+			return "images/RS_speed_60.png";
+		} else if (decorID == DecorVars.RoadSign_80) {
+			return "images/RS_speed_80.png";
+		} else if (decorID == DecorVars.RoadSign_100) {
+			return "images/RS_speed_100.png";
+		} else if (decorID == DecorVars.RoadSign_Dash) {
+			return "images/RS_dash.png";
+		} else if (decorID == DecorVars.RoadSign_Dot) {
+			return "images/RS_dot.png";
+		} else if (decorID == DecorVars.RoadSign_NoAliens) {
+			return "images/RS_noaliens.png";
+		} else if (decorID == DecorVars.RoadSign_Toxic) {
+			return "images/RS_toxic.png";
+		}
+		return "images/error.png";
+	}
 
 	public static String GetImageRect(int decorID, int idx) {
 		if (decorID == BinBag) return "images/binbag.png";

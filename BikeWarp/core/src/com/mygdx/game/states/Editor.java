@@ -73,7 +73,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Sign", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
 	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Sign", "Rock", "Track", "Tree", "Tyre Stack", "Vehicle"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
@@ -2434,6 +2434,14 @@ public class Editor extends GameState {
 			else shapeRenderer.setColor(0.5f, 0.5f, 0.5f, opacity);
 			shapeRenderer.polygon(objarray);
 			if (objArrow != null) renderPath(objArrow);
+		} else if (ObjectVars.IsMoveableSign(otype)) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.5f, 0.5f, 0.5f, opacity);
+			shapeRenderer.circle(objarray[0], objarray[1], objarray[2]);
+			// Render the pole
+			rCoord = PolygonOperations.RotateCoordinate(objarray[0], objarray[1]-5.0f*objarray[2], MathUtils.radiansToDegrees*objarray[3], objarray[0], objarray[1]);
+			shapeRenderer.line(objarray[0], objarray[1], rCoord[0], rCoord[1]);
+			if (objArrow != null) renderPath(objArrow);
 		} else if (otype == ObjectVars.Start) {
 			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
 			else shapeRenderer.setColor(1, 0.8f, 0, opacity);
@@ -2590,7 +2598,11 @@ public class Editor extends GameState {
 					else if (allPolygonTypes.get(polySelect)%2 == 1) shapeRenderer.circle(updatePoly[0], updatePoly[1], updatePoly[2]);
 				}
 			} else if (objectSelect != -1) {
-				if (updatePoly.length == 3) shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
+				if (ObjectVars.IsMoveableSign(allObjectTypes.get(objectSelect))) {
+					shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
+					rCoord = PolygonOperations.RotateCoordinate(updatePoly[0], updatePoly[1]-5.0f*updatePoly[2], MathUtils.radiansToDegrees*updatePoly[3], updatePoly[0], updatePoly[1]);
+					shapeRenderer.line(updatePoly[0], updatePoly[1], rCoord[0], rCoord[1]);
+				} else if (updatePoly.length == 3) shapeRenderer.circle(updatePoly[0],updatePoly[1],updatePoly[2]);
 				else if (updatePoly.length == 4) shapeRenderer.line(updatePoly[0],updatePoly[1],updatePoly[2],updatePoly[3]);
 				else shapeRenderer.polygon(updatePoly);
 			} else if (decorSelect != -1) {
@@ -2882,6 +2894,14 @@ public class Editor extends GameState {
 				} else if (allObjectTypes.get(i)==ObjectVars.UFO) {
 					glyphLayout.setText(signFont, "Stop Start Time = 1.234567890 seconds");
 					signWidth = glyphLayout.height;  // This is actually height, not width
+					// Draw the start/stop time
+					signFont.draw(sb, String.format("Stop Time = %f seconds",allObjectArrows.get(i)[7]), allObjectCoords.get(i)[0], allObjectCoords.get(i)[1] + signWidth / 2 + textadd);
+					textadd += 1.2f * signWidth;
+					signFont.draw(sb, String.format("Start Time = %f seconds",allObjectArrows.get(i)[6]), allObjectCoords.get(i)[0], allObjectCoords.get(i)[1] + signWidth / 2 + textadd);
+				} else if (ObjectVars.IsMoveableSign(allObjectTypes.get(i))) {
+					glyphLayout.setText(signFont, DecorVars.GetObjectName(allObjectTypes.get(i)-100));
+					signWidth = glyphLayout.width;  // This is actually height, not width
+					signFont.draw(sb, DecorVars.GetObjectName(allObjectTypes.get(i)-100), allObjects.get(i)[0]-signWidth/2, allObjects.get(i)[1]+0.3f*allObjects.get(i)[2]);
 					// Draw the start/stop time
 					signFont.draw(sb, String.format("Stop Time = %f seconds",allObjectArrows.get(i)[7]), allObjectCoords.get(i)[0], allObjectCoords.get(i)[1] + signWidth / 2 + textadd);
 					textadd += 1.2f * signWidth;
@@ -4941,30 +4961,38 @@ public class Editor extends GameState {
 					IncrementObject(allObjectTypes.get(objectSelect));
 				}
 			}
-		} else if (modeParent.equals("UFO")) {
+		} else if ((modeParent.equals("UFO")) | (modeParent.equals("Sign"))) {
+			// Get the object type first
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
-				AddObject(ObjectVars.UFO, tempx, tempy, -999.9f);
+				int objTyp = ObjectVars.UFO;
+				if (modeParent.equals("Sign")) objTyp = 100+DecorVars.RoadSign_Stop;
+				AddObject(objTyp, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
-				SelectObject("up", ObjectVars.UFO, false, false);
+				if (modeParent.equals("UFO")) SelectObject("up", ObjectVars.UFO, false, false);
+				else if (modeParent.equals("Sign")) SelectObjectSign("up", -1, false, true);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
-					SelectObject("down", ObjectVars.UFO, false, false);
+					if (modeParent.equals("UFO")) SelectObject("down", ObjectVars.UFO, false, false);
+					else if (modeParent.equals("Sign")) SelectObjectSign("down", -1, false, true);
 					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
 					endX = cam.zoom*(GameInput.MBDRAGX-startX)/BikeGame.SCALE;
 					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
-					MoveObject(objectSelect, "polygon", endX, endY);
+					if (modeParent.equals("UFO")) MoveObject(objectSelect, "polygon", endX, endY);
+					else if (modeParent.equals("Sign")) MoveObject(objectSelect, "circle", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
-				UpdateObject(objectSelect, "move", true);
+				if (modeParent.equals("UFO")) UpdateObject(objectSelect, "move", true);
+				else if (modeParent.equals("Sign")) UpdateObject(objectSelect, "moveball", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
-					SelectObject("down", ObjectVars.UFO, false, false);
+					if (modeParent.equals("UFO")) SelectObject("down", ObjectVars.UFO, false, false);
+					else if (modeParent.equals("Sign")) SelectObjectSign("down", -1, false, true);
 					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				} else {
@@ -4982,7 +5010,8 @@ public class Editor extends GameState {
 						if (endY < endX*((startY-allObjectCoords.get(objectSelect)[1])/(startX-allObjectCoords.get(objectSelect)[0])) + (startY - startX*((startY-allObjectCoords.get(objectSelect)[1])/(startX-allObjectCoords.get(objectSelect)[0])))) nullvarD *= -1.0f;
 						if (startX < allObjectCoords.get(objectSelect)[0]) nullvarD *= -1.0f;
 					}
-					RotateObject(objectSelect, "object", nullvarD);
+					if (modeParent.equals("UFO")) RotateObject(objectSelect, "object", nullvarD);
+					else if (modeParent.equals("Sign")) RotateObject(objectSelect, "sign", nullvarD);
 				}
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
 				UpdateObject(objectSelect, "rotateobject", true);
@@ -5030,7 +5059,8 @@ public class Editor extends GameState {
 					ResetSelect();
 				} else if ((GameInput.MBJUSTPRESSED==true) & (objectSelect == -1)) {
 					// Select an object
-					SelectObject("down", ObjectVars.UFO, false, false);
+					if (modeParent.equals("UFO")) SelectObject("down", ObjectVars.UFO, false, false);
+					else if (modeParent.equals("Sign")) SelectObjectSign("down", -1, false, true);
 				} else if ((GameInput.MBJUSTPRESSED==true) & (polySelect == -1)) {
 					boolean inside = false;
 					// Select a polygon
@@ -5049,6 +5079,16 @@ public class Editor extends GameState {
 							break;
 						}
 					}
+				}
+			} else if ((modeChild.equals("Next Item")) & (GameInput.MBJUSTPRESSED)) {
+				// Select the object
+				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
+				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+				SelectObjectSign("down", -1, false, true);
+				// Increment variation by 1
+				if (objectSelect != -1) {
+					int setValue = IncrementDecorSign(allObjectTypes.get(objectSelect), true);
+					allObjectTypes.set(objectSelect, setValue);
 				}
 			}
 		} else if (modeParent.equals("Start")) {
@@ -5221,7 +5261,8 @@ public class Editor extends GameState {
 				SelectDecorSign("down", objNum, false, true);
 				// Increment variation by 1
 				if (decorSelect != -1) {
-					IncrementDecorSign();
+					int setValue = IncrementDecorSign(allDecorTypes.get(decorSelect), false);
+					allDecorTypes.set(decorSelect, setValue);
 				}
 			}
 		} else if (modeParent.equals("Surface")) {
@@ -6330,6 +6371,10 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move", "Rotate", "Scale", "Set Path From Platform");
 					//"Select Path", "Extend Path", "Move Path", "Rotate Path", "Scale Path", "Flip Path x", "Flip Path y", "Insert Vertex", "Move Vertex", "Delete Vertex", "Flip Direction", "Flip Rotation", "Set Rotation", "Set Speed", "Set Start Time", "Set Stop Time"
 					pObjectIndex = GetListIndex("UFO",objectList);
+				} else if (modeParent.equals("Sign")) {
+					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Set Path From Platform");
+					//"Select Path", "Extend Path", "Move Path", "Rotate Path", "Scale Path", "Flip Path x", "Flip Path y", "Insert Vertex", "Move Vertex", "Delete Vertex", "Flip Direction", "Flip Rotation", "Set Rotation", "Set Speed", "Set Start Time", "Set Stop Time"
+					pObjectIndex = GetListIndex("Sign",objectList);
 				} else if (modeParent.equals("Start")) {
 					listChild.setItems("Put", "Move", "Rotate", "Flip Direction");
 					pObjectIndex = GetListIndex("Start",objectList);
@@ -7840,7 +7885,7 @@ public class Editor extends GameState {
 		allObjects.add(newPoly.clone());
 		allObjectTypes.add(otype);
 		allObjectCoords.add(newCoord.clone());
-		if (otype == ObjectVars.UFO) {
+		if ((otype == ObjectVars.UFO) | (ObjectVars.IsMoveableSign(otype))) {
 			float[] newArr = {0.0f,100.0f,1.0f,1.0f,xcen,ycen,0.0f,0.0f};
 			allObjectArrows.add(newArr.clone());
 		} else if (angle == -999.9f) {
@@ -8085,6 +8130,11 @@ public class Editor extends GameState {
 				newPoly[2*i] = ObjectVars.objectUFO[2*i] + xcen;
 				newPoly[2*i+1] = ObjectVars.objectUFO[2*i+1] + ycen;
 			}
+		} else if (ObjectVars.IsMoveableSign(otype)) {
+			newPoly = new float[ObjectVars.objectCircleRoadSign.length];
+			newPoly[0] = ObjectVars.objectCircleRoadSign[0] + xcen;
+			newPoly[1] = ObjectVars.objectCircleRoadSign[1] + ycen;
+			newPoly[2] = ObjectVars.objectCircleRoadSign[2];
 		} else if (ObjectVars.IsPlanet(otype)) {
 			newPoly = ObjectVars.MakePlanet(otype, xcen, ycen).clone();
 		}
@@ -8102,6 +8152,10 @@ public class Editor extends GameState {
 			updatePoly = allObjects.get(idx).clone();
 			updatePoly[0] += shiftX;
 			updatePoly[1] += shiftY;
+//			if (ObjectVars.IsMoveableSign(allObjectTypes.get(idx))) {
+//				updatePath = allObjectArrows.get(idx).clone();
+				// Now update the path position
+//			}
 		} else if (mode.equals("moveball")) {
 			updatePoly = new float[3];
 			updatePoly[0] = allObjects.get(idx)[0] + shiftX;
@@ -8244,7 +8298,10 @@ public class Editor extends GameState {
 				updatePoly[2*i] = xcen + (allObjects.get(idx)[2*i+(tentry-1)*8]-xcen)*(float) Math.cos(angle) - (allObjects.get(idx)[2*i+1+(tentry-1)*8]-ycen)*(float) Math.sin(angle);
 				updatePoly[2*i+1] = ycen + (allObjects.get(idx)[2*i+(tentry-1)*8]-xcen)*(float) Math.sin(angle) + (allObjects.get(idx)[2*i+1+(tentry-1)*8]-ycen)*(float) Math.cos(angle);
 			}			
-    	}
+    	} else if (mode.equals("sign")) {
+			updatePoly = allObjects.get(idx).clone();
+			updatePoly[3] = angle;
+		}
 	}
 
 	public void ScaleObject(int idx, float hside, float angle) {
@@ -8402,6 +8459,50 @@ public class Editor extends GameState {
 		SelectObject(downup, ObjectVars.Jewel, rotate, circle);
 		if (objectSelect == -1) SelectObject(downup, ObjectVars.JewelFG, rotate, circle);
 		if (objectSelect == -1) SelectObject(downup, ObjectVars.JewelBG, rotate, circle);
+	}
+
+	public void SelectObjectSign(String downup, int otype, boolean rotate, boolean circle) {
+		int addValue = 100;
+		SelectObject(downup, addValue+DecorVars.RoadSign_10, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_20, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_30, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_40, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_50, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_60, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_80, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_100, rotate, circle);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_Bumps, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_Dot, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_Dash, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_DoNotEnter, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_Exclamation, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_Motorbike, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_NoMotorbike, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_RampAhead, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_ReduceSpeed, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_Stop, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_NoAliens, rotate, true);
+		if (objectSelect != -1) return;
+		SelectObject(downup, addValue+DecorVars.RoadSign_Toxic, rotate, true);
+		if (objectSelect != -1) return;
 	}
 
 	public void SelectObject(String downup, int otype, boolean rotate, boolean circle) {
@@ -9392,7 +9493,12 @@ public class Editor extends GameState {
 		if (decorSelect != -1) return;
 		SelectDecor(downup, DecorVars.RoadSign_Stop, rotate, true);
 		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_NoAliens, rotate, true);
+		if (decorSelect != -1) return;
+		SelectDecor(downup, DecorVars.RoadSign_Toxic, rotate, true);
+		if (decorSelect != -1) return;
 	}
+
 	public void SelectDecor(String downup, int otype, boolean rotate, boolean circle) {
 		// otype = -1 means don't check the object type
 		ResetSelect();
@@ -9438,45 +9544,53 @@ public class Editor extends GameState {
 		}
 	}
 
-	public void IncrementDecorSign() {
-		int dectype = allDecorTypes.get(decorSelect);
-		if (dectype == DecorVars.RoadSign_Stop) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_DoNotEnter);
-		} else if (dectype == DecorVars.RoadSign_DoNotEnter) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Bumps);
-		} else if (dectype == DecorVars.RoadSign_Bumps) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Exclamation);
-		} else if (dectype == DecorVars.RoadSign_Exclamation) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Motorbike);
-		} else if (dectype == DecorVars.RoadSign_Motorbike) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_NoMotorbike);
-		} else if (dectype == DecorVars.RoadSign_NoMotorbike) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_RampAhead);
-		} else if (dectype == DecorVars.RoadSign_RampAhead) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_ReduceSpeed);
-		} else if (dectype == DecorVars.RoadSign_ReduceSpeed) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_10);
-		} else if (dectype == DecorVars.RoadSign_10) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_20);
-		} else if (dectype == DecorVars.RoadSign_20) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_30);
-		} else if (dectype == DecorVars.RoadSign_30) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_40);
-		} else if (dectype == DecorVars.RoadSign_40) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_50);
-		} else if (dectype == DecorVars.RoadSign_50) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_60);
-		} else if (dectype == DecorVars.RoadSign_60) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_80);
-		} else if (dectype == DecorVars.RoadSign_80) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_100);
-		} else if (dectype == DecorVars.RoadSign_100) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Dash);
-		} else if (dectype == DecorVars.RoadSign_Dash) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Dot);
-		} else if (dectype == DecorVars.RoadSign_Dot) {
-			allDecorTypes.set(decorSelect, DecorVars.RoadSign_Stop);
+	public int IncrementDecorSign(int dectype, boolean isObject) {
+		// Check if it's an object/decoration
+		int addValue = 0; // decoration
+		if (isObject) addValue += 100; // object
+		// Increment
+		if (dectype == DecorVars.RoadSign_Stop+addValue) {
+			return DecorVars.RoadSign_DoNotEnter+addValue;
+		} else if (dectype == DecorVars.RoadSign_DoNotEnter+addValue) {
+			return DecorVars.RoadSign_Bumps+addValue;
+		} else if (dectype == DecorVars.RoadSign_Bumps+addValue) {
+			return DecorVars.RoadSign_Exclamation+addValue;
+		} else if (dectype == DecorVars.RoadSign_Exclamation+addValue) {
+			return DecorVars.RoadSign_Motorbike+addValue;
+		} else if (dectype == DecorVars.RoadSign_Motorbike+addValue) {
+			return DecorVars.RoadSign_NoMotorbike+addValue;
+		} else if (dectype == DecorVars.RoadSign_NoMotorbike+addValue) {
+			return DecorVars.RoadSign_RampAhead+addValue;
+		} else if (dectype == DecorVars.RoadSign_RampAhead+addValue) {
+			return DecorVars.RoadSign_ReduceSpeed+addValue;
+		} else if (dectype == DecorVars.RoadSign_ReduceSpeed+addValue) {
+			return DecorVars.RoadSign_10+addValue;
+		} else if (dectype == DecorVars.RoadSign_10+addValue) {
+			return DecorVars.RoadSign_20+addValue;
+		} else if (dectype == DecorVars.RoadSign_20+addValue) {
+			return DecorVars.RoadSign_30+addValue;
+		} else if (dectype == DecorVars.RoadSign_30+addValue) {
+			return DecorVars.RoadSign_40+addValue;
+		} else if (dectype == DecorVars.RoadSign_40+addValue) {
+			return DecorVars.RoadSign_50+addValue;
+		} else if (dectype == DecorVars.RoadSign_50+addValue) {
+			return DecorVars.RoadSign_60+addValue;
+		} else if (dectype == DecorVars.RoadSign_60+addValue) {
+			return DecorVars.RoadSign_80+addValue;
+		} else if (dectype == DecorVars.RoadSign_80+addValue) {
+			return DecorVars.RoadSign_100+addValue;
+		} else if (dectype == DecorVars.RoadSign_100+addValue) {
+			return DecorVars.RoadSign_Dash+addValue;
+		} else if (dectype == DecorVars.RoadSign_Dash+addValue) {
+			return DecorVars.RoadSign_Dot+addValue;
+		} else if (dectype == DecorVars.RoadSign_Dot+addValue) {
+			return DecorVars.RoadSign_NoAliens+addValue;
+		} else if (dectype == DecorVars.RoadSign_NoAliens+addValue) {
+			return DecorVars.RoadSign_Toxic+addValue;
+		} else if (dectype == DecorVars.RoadSign_Toxic+addValue) {
+			return DecorVars.RoadSign_Stop+addValue;
 		}
+		return -1; // Fail
 	}
 
 	public void IncrementDecor(int objNum) {

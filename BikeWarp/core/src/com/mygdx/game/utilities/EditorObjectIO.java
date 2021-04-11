@@ -1813,6 +1813,177 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		return 1; // Return number of bodies added
 	}
 
+	public static int AddSign(JSONStringer json, float[] fs, float[] path, int cnt) throws JSONException {
+		// Get the central values
+		float xcen = B2DVars.EPPM*fs[0];
+		float ycen = B2DVars.EPPM*fs[1];
+		// Make the post
+		float rd = fs[2]*B2DVars.EPPM;
+		float shaftLength = 5.0f*rd;
+		float[] xshaft = {-0.03f, 0.03f, 0.03f, -0.03f};
+		float[] yshaft = {-shaftLength, -shaftLength, 0.0f, 0.0f};
+		PolygonOperations.RotateArray(xshaft,yshaft,MathUtils.radiansToDegrees*fs[3],0.0f,0.0f);
+		// Now go through and add to the json file
+		json.object(); // Start of Moveable Sign
+		json.key("angle").value(0);
+		if (path != null) {
+			if (path[2]==1) json.key("angularVelocity").value(MathUtils.degreesToRadians*path[0]);
+			else json.key("angularVelocity").value(MathUtils.degreesToRadians*(path[0]-360));
+		} else json.key("angularVelocity").value(0);
+		json.key("awake").value(true);
+		json.key("fixedRotation").value(false);
+		if (path != null) {
+			json.key("customProperties");
+			json.array();
+			// CP: Set the path
+			float pathlength = -1.0f;
+			if (path.length >= 12) {
+				json.object();
+				json.key("name").value("path");
+				json.key("vertices");
+				json.object(); // Begin vertices object
+				json.key("x");
+				json.array();
+				for (int j = 0; j<(path.length-8)/2; j++) json.value(B2DVars.EPPM*path[8+2*j]);
+				json.endArray();
+				json.key("y");
+				json.array();
+				for (int j = 0; j<(path.length-8)/2; j++) json.value(B2DVars.EPPM*path[8+2*j+1]);
+				json.endArray();
+				json.endObject(); // End the vertices object
+				json.endObject();
+				pathlength = 0.0f;
+				for (int j = 0; j<((path.length-8)/2)-1; j++) pathlength += (float)Math.sqrt((path[8+2*j]-path[8+2*(j+1)])*(path[8+2*j]-path[8+2*(j+1)]) + (path[8+2*j+1]-path[8+2*(j+1)+1])*(path[8+2*j+1]-path[8+2*(j+1)+1]));
+			}
+//        else if (path.length == 10) {
+//			json.object();
+//			json.key("name").value("path");
+//			json.key("vertices");
+//			json.object(); // Begin vertices object
+//			json.key("x");
+//			json.array();
+//			for (int j = 0; j<2; j++) json.value(B2DVars.EPPM*path[8]);
+//			json.endArray();
+//			json.key("y");
+//			json.array();
+//			for (int j = 0; j<2; j++) json.value(B2DVars.EPPM*path[9]);
+//			json.endArray();
+//			json.endObject(); // End the vertices object
+//			json.endObject();
+//			pathlength = 0.0f;
+//		}
+			// CP: Set Velocity
+			json.object();
+			json.key("name").value("speed");
+			json.key("float").value(B2DVars.EPPM*path[1]);
+			json.endObject();
+			// CP: Set Direction
+			json.object();
+			json.key("name").value("direction");
+			json.key("int").value((int)path[3]);
+			json.endObject();
+			// CP: Set Start Time
+			json.object();
+			json.key("name").value("starttime");
+			json.key("float").value(path[6]);
+			json.endObject();
+			// CP: Set Stop Time
+			json.object();
+			json.key("name").value("stoptime");
+			json.key("float").value(path[7]);
+			json.endObject();
+			// CP: Set path length
+			if (pathlength >= 0.0f) {
+				json.object();
+				json.key("name").value("pathlength");
+				json.key("float").value(B2DVars.EPPM*pathlength);
+				json.endObject();
+			}
+			if (path.length >= 12) {
+				float bestval = -1.0f;
+				int bestidx = 0;
+				for (int j = 0; j<(path.length-8)/2; j++) {
+					if (j == 0) bestval = (float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5]));
+					else if ((float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5])) < bestval) {
+						bestval = (float)Math.sqrt((path[8+2*j]-path[4])*(path[8+2*j]-path[4]) + (path[8+2*j+1]-path[5])*(path[8+2*j+1]-path[5]));
+						bestidx = j;
+					}
+				}
+				json.object();
+				json.key("name").value("index");
+				json.key("int").value(bestidx);
+				json.endObject();
+			} else {
+				json.object();
+				json.key("name").value("index");
+				json.key("int").value(0);
+				json.endObject();
+			}
+			json.endArray();
+		}
+		// Add the fixtures
+		json.key("fixture");
+		json.array();
+		// Start with the sign
+		json.object();
+		json.key("density").value(30.0);
+		json.key("friction").value(0.3);
+		json.key("restitution").value(0.5);
+		json.key("name").value("fixture8");
+		json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+		json.key("filter-maskBits").value(B2DVars.BIT_DOOR);
+		json.key("circle");
+		// Begin circle object
+		json.object();
+		// Specify the center of the circle
+		json.key("center").value(0);
+		// Specify the radius of the circle
+		json.key("radius").value(B2DVars.EPPM*fs[2]);
+		json.endObject(); // End circle object
+		json.endObject(); // End this fixture
+		// Now for the post
+		json.object();
+		json.key("density").value(30.0);
+		json.key("friction").value(0.3);
+		json.key("restitution").value(0.5);
+		json.key("name").value("fixture8");
+		json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+		json.key("filter-maskBits").value(B2DVars.BIT_DOOR);
+		json.key("polygon");
+		json.object(); // Begin polygon object
+		json.key("vertices");
+		json.object(); // Begin vertices object
+		json.key("x");
+		json.array();
+		json.value(xshaft[0]);
+		json.value(xshaft[1]);
+		json.value(xshaft[2]);
+		json.value(xshaft[3]);
+		json.endArray();
+		json.key("y");
+		json.array();
+		json.value(yshaft[0]);
+		json.value(yshaft[1]);
+		json.value(yshaft[2]);
+		json.value(yshaft[3]);
+		json.endArray();
+		json.endObject(); // End the vertices object
+		json.endObject(); // End polygon object
+		json.endObject(); // End this fixture
+		json.endArray(); // End the array of fixtures
+		// Add some final properties for the Sign body
+		json.key("linearVelocity").value(0);
+		json.key("name").value("MoveableSign"+cnt);
+		json.key("position");
+		json.object();
+		json.key("x").value(xcen);
+		json.key("y").value(ycen);
+		json.endObject();
+		json.key("type").value(1);
+		json.endObject(); // End of Sign
+		return 1; // Return number of bodies added
+	}
+
 	public static void AddBoundary(JSONStringer json, String textString) throws JSONException {
 		float friction = 0.9f;
 		float restitution = 0.2f;
