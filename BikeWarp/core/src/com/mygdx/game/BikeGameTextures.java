@@ -198,6 +198,7 @@ public class BikeGameTextures {
         GetTexture("bg_Astronaut", 2);
         GetTexture("bg_BubbleBlue", 2);
         GetTexture("bg_EarthAtNight", 2);
+        GetTexture("bg_Earth", 2);
         GetTexture("bg_GalaxyAndromeda", 2);
         GetTexture("bg_GalaxyDusty", 2);
         GetTexture("bg_GalaxySpiral", 2);

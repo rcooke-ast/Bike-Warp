@@ -79,7 +79,7 @@ public class Editor extends GameState {
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Sunset Mud", "Waterfall",
-			"Astronaut", "Blue Bubble", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
+			"Astronaut", "Blue Bubble", "Earth", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
 			"Milky Way", "Milky Way (Blue Torch)", "Milky Way (Mountains)", "Milky Way (Rocks)", "Milky Way (Shooting Star)", "Milky Way (Tall Rocks)",
 			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
 			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Planets (1)", "Shuttle Launch", "Star Circles", "Stargazer",

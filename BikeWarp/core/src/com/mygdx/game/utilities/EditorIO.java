@@ -651,6 +651,7 @@ public class EditorIO {
 		else if (textName.equals("Sunset")) return "bg_sunset";
 		else if (textName.equals("Astronaut")) return "bg_Astronaut";
 		else if (textName.equals("Blue Bubble")) return "bg_BubbleBlue";
+		else if (textName.equals("Earth")) return "bg_Earth";
 		else if (textName.equals("Earth At Night")) return "bg_EarthAtNight";
 		else if (textName.equals("Galaxy (Andromeda)")) return "bg_GalaxyAndromeda";
 		else if (textName.equals("Galaxy (Dusty)")) return "bg_GalaxyDusty";
