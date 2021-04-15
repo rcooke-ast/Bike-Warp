@@ -73,8 +73,8 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Log", "Nitrous", "Pendulum", "Planet", "Sign", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
-	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Sign", "Rock", "Track", "Tree", "Tyre Stack", "Vehicle"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Lander", "Log", "Nitrous", "Pendulum", "Planet", "Sign", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Rock", "Shade", "Sign", "Track", "Tree", "Tyre Stack", "Vehicle"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -165,6 +165,7 @@ public class Editor extends GameState {
 	private Stage stage;
 	private Skin skin;
 	private boolean hideToolbar = false;
+	private boolean hideText = false;
 	private boolean setCursor = false;
 	private boolean engageDelete = false;
 	private boolean clearGrass = false, addGrass = false;
@@ -1518,7 +1519,10 @@ public class Editor extends GameState {
     }
 
     public void handleInput() {
+		// Used keys:
+		// ACDERSTXY
 		if (GameInput.isPressed(GameInput.KEY_T)) hideToolbar = !hideToolbar;
+		if (GameInput.isPressed(GameInput.KEY_B)) hideText = !hideText;
 		if (GameInput.isPressed(GameInput.KEY_C)) setCursor = true;
 		if (GameInput.isPressed(GameInput.KEY_E)) ExecuteLevel();
 		if (GameInput.isPressed(GameInput.KEY_X)) flipX=!flipX;
@@ -1828,10 +1832,12 @@ public class Editor extends GameState {
 		shapeRenderer.end();
 
         // Draw the decoration signs
-        sb.setProjectionMatrix(cam.combined);
-        sb.begin();
-        renderSigns();
-        sb.end();
+		if (!hideText) {
+			sb.setProjectionMatrix(cam.combined);
+			sb.begin();
+			renderSigns();
+			sb.end();
+		}
 
         // If there are any warning/error messages, write them to screen
 		sb.setProjectionMatrix(hudCam.combined);
@@ -2524,6 +2530,9 @@ public class Editor extends GameState {
 		} else if (dTyp == DecorVars.LargeStone) {
 			shapeRenderer.setColor(0.7f, 0.7f, 0.7f, opacity);
 			shapeRenderer.circle(decor[0], decor[1], decor[2]);
+		} else if (dTyp == DecorVars.Shade) {
+			shapeRenderer.setColor(0, 0.8f, 0.0f, opacity);
+			shapeRenderer.polygon(decor);
 		}
 	}
 
@@ -5321,22 +5330,25 @@ public class Editor extends GameState {
 					decorSelect = -1;
 				}
 			}
-		} else if ((modeParent.equals("Climate (Soft Edge)")) || (modeParent.equals("Climate (Hard Edge)"))) {
+		} else if ((modeParent.equals("Climate (Soft Edge)")) || (modeParent.equals("Climate (Hard Edge)")) || (modeParent.equals("Shade"))) {
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Climate (Soft Edge)")) AddDecor(DecorVars.Rain, tempx, tempy, -999.9f);
 				else if (modeParent.equals("Climate (Hard Edge)")) AddDecor(DecorVars.Waterfall, tempx, tempy, -999.9f);
+				else if (modeParent.equals("Shade")) AddDecor(DecorVars.Shade, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("up", DecorVars.Rain, false, false);
 				else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				else if (modeParent.equals("Shade")) SelectDecor("up", DecorVars.Shade, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (decorSelect == -1) {
 					if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("down", DecorVars.Rain, false, false);
 					else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("down", DecorVars.Waterfall, false, false);
+					else if (modeParent.equals("Shade")) SelectDecor("down", DecorVars.Shade, false, false);
 					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
@@ -6408,6 +6420,8 @@ public class Editor extends GameState {
 					listChild.setItems(itemsADMR);
 				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle")) || (modeParent.equals("Miscellaneous"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
+				} else if (modeParent.equals("Shade")) {
+					listChild.setItems("Add", "Delete", "Move", "Move Segment");
 				} else if (modeParent.equals("Track")) {
 					listChild.setItems("Add", "Delete", "Move", "Extend", "Rotate");
 				} else listChild.setItems(itemsADMR);
@@ -8996,45 +9010,51 @@ public class Editor extends GameState {
 	}
 
 	public void MakeDecor(int otype, float xcen, float ycen, float angle) {
-		angle *= MathUtils.PI/180.0;
-		if (otype==DecorVars.Waterfall) {
+		angle *= MathUtils.PI / 180.0;
+		if (otype == DecorVars.Waterfall) {
 			newPoly = new float[DecorVars.decorWaterfall.length];
-			for (int i=0; i<4; i++) {
-				newPoly[2*i] = DecorVars.decorWaterfall[2*i] + xcen;
-				newPoly[2*i+1] = DecorVars.decorWaterfall[2*i+1] + ycen;
+			for (int i = 0; i < 4; i++) {
+				newPoly[2 * i] = DecorVars.decorWaterfall[2 * i] + xcen;
+				newPoly[2 * i + 1] = DecorVars.decorWaterfall[2 * i + 1] + ycen;
 			}
-			for (int i=8; i<11; i++) newPoly[i] = DecorVars.decorWaterfall[i];
-		} else if (otype==DecorVars.Rain) {
+			for (int i = 8; i < 11; i++) newPoly[i] = DecorVars.decorWaterfall[i];
+		} else if (otype == DecorVars.Rain) {
 			newPoly = new float[DecorVars.decorRain.length];
-			for (int i=0; i<4; i++) {
-				newPoly[2*i] = DecorVars.decorRain[2*i] + xcen;
-				newPoly[2*i+1] = DecorVars.decorRain[2*i+1] + ycen;
+			for (int i = 0; i < 4; i++) {
+				newPoly[2 * i] = DecorVars.decorRain[2 * i] + xcen;
+				newPoly[2 * i + 1] = DecorVars.decorRain[2 * i + 1] + ycen;
 			}
-			for (int i=8; i<11; i++) newPoly[i] = DecorVars.decorRain[i];
+			for (int i = 8; i < 11; i++) newPoly[i] = DecorVars.decorRain[i];
 		} else if (DecorVars.IsRoadSign(otype)) {
 			newPoly = new float[DecorVars.decorCircleRoadSign.length];
 			newPoly[0] = DecorVars.decorCircleRoadSign[0] + xcen;
 			newPoly[1] = DecorVars.decorCircleRoadSign[1] + ycen;
 			newPoly[2] = DecorVars.decorCircleRoadSign[2];
 			newPoly[3] = DecorVars.decorCircleRoadSign[3];
-		} else if (otype==DecorVars.BinBag) {
+		} else if (otype == DecorVars.BinBag) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
-		} else if (otype==DecorVars.Planet) {
+		} else if (otype == DecorVars.Planet) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
-		} else if (otype==DecorVars.Rock) {
+		} else if (otype == DecorVars.Rock) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
-		} else if (otype==DecorVars.Tree) {
+		} else if (otype == DecorVars.Tree) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
-		} else if (otype==DecorVars.TyreStack) {
+		} else if (otype == DecorVars.TyreStack) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype == DecorVars.Track) {
 			newPoly = DecorVars.decorTrack.clone();
 			newPoly[0] = xcen;
 			newPoly[1] = ycen;
-		} else if (otype==DecorVars.Vehicle) {
+		} else if (otype == DecorVars.Vehicle) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
-		} else if (otype==DecorVars.Misc) {
+		} else if (otype == DecorVars.Misc) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype == DecorVars.Shade) {
+			newPoly = new float[DecorVars.decorShade.length];
+			for (int i = 0; i < 4; i++) {
+				newPoly[2 * i] = DecorVars.decorShade[2 * i] + xcen;
+				newPoly[2 * i + 1] = DecorVars.decorShade[2 * i + 1] + ycen;
+			}
 		}
 	}
 
@@ -9173,9 +9193,10 @@ public class Editor extends GameState {
 			if ((!hover) & (decorSelect != -1)) {
 				if (j!=decorSelect) continue;
 			}
-			if ((allDecorTypes.get(j) == DecorVars.Waterfall) | (allDecorTypes.get(j) == DecorVars.Rain)) {
+			if ((allDecorTypes.get(j) == DecorVars.Waterfall) | (allDecorTypes.get(j) == DecorVars.Rain) | (allDecorTypes.get(j) == DecorVars.Shade)) {
 				if ((modeParent.equals("Climate (Soft Edge)")) & (allDecorTypes.get(j)!=DecorVars.Rain)) continue;
 				if ((modeParent.equals("Climate (Hard Edge)")) & (allDecorTypes.get(j)!=DecorVars.Waterfall)) continue;
+				if ((modeParent.equals("Shade")) & (allDecorTypes.get(j)!=DecorVars.Shade)) continue;
 				arraySegm = Arrays.copyOfRange(allDecors.get(j).clone(), 0, 8);
 				for (int i=0; i<arraySegm.length/2; i++) {
 					idxa = i;

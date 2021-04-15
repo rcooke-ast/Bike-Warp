@@ -48,12 +48,14 @@ public class DecorVars {
 	public static final int Track = 40;
 	public static final int Vehicle = 41;
 	public static final int Misc = 42;
+	public static final int Shade = 43;
 	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
     public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundWaterfall,imageWaterfall};
 	public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain,imageRain};
+	public static final float[] decorShade = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
 	public static final float trackLength = 30.0f;
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
@@ -376,6 +378,7 @@ public class DecorVars {
 		else if (decorID == Planet) return "images/planet_" + GetPlanetFromNumber(idx) + ".png";
 		else if (decorID == Vehicle) return "images/vehicle_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Misc) return "images/misc_" + GetMiscFromNumber(idx) + ".png";
+		else if (decorID == Shade) return "images/shade.png";
 		// Make some default to stop errors
 		return "images/error.png";
 	}

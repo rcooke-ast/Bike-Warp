@@ -21,6 +21,8 @@ public class EditorDecorIO {
         		ImageRect(json, decors.get(i), decorTypes.get(i), i);
         	} else if (decorTypes.get(i) == DecorVars.Track) {
         		ImageTrack(json, decors.get(i), i);
+			} else if (decorTypes.get(i) == DecorVars.Shade) {
+				ImageRect(json, decors.get(i), decorTypes.get(i), i);
 			}
         }
 		return;
@@ -206,8 +208,14 @@ public class EditorDecorIO {
 		float ycen = 0.5f*B2DVars.EPPM*(fs[1]+fs[5]);
 		float rotAngle = PolygonOperations.GetAngle(fs[0], fs[1], fs[2], fs[3]);
 		// Set the Image properties
-		String imageFile = DecorVars.GetImageRect(decorID, (int) fs[8]);
-		float[] coord = DecorVars.GetCoordRect(decorID, (int) fs[8]);
+		String imageFile = DecorVars.GetImageRect(-1, -1);
+		float[] coord = fs.clone();
+		if (fs.length == 8) {
+			imageFile = DecorVars.GetImageRect(decorID, -1);
+		} else {
+			imageFile = DecorVars.GetImageRect(decorID, (int) fs[8]);
+			coord = DecorVars.GetCoordRect(decorID, (int) fs[8]);
+		}
 		// Add image
 		json.object(); // Start of Rectangular Image
 		json.key("name").value("Decor"+cnt);

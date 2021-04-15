@@ -279,6 +279,7 @@ public class BikeGameTextures {
         GetTexture("error",2);
         // Add some additional textures
         GetTexture("track",2);
+        GetTexture("shade",2);
         // Add grass
         texture = new Texture(Gdx.files.internal("data/images/grass_smooth.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);

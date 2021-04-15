@@ -89,6 +89,7 @@ public class Play extends GameState {
     private Array<SimpleSpatial> mSpatials; // used for rendering rube images
     private Array<Integer> mSpatialsFGBG; // used for rendering rube images
     private Array<SimpleImage> mDecors; // used for rendering decorations
+    private Array<SimpleImage> mDecorsFG; // used for rendering decorations
     private Array<PolySpatial> mPolySpatials;
     private Array<Float> mCollBGAlpha, mCollFGAlpha;
     private Array<PolySpatial> mAnimatedBG;
@@ -2211,7 +2212,8 @@ public class Play extends GameState {
     	// Clear all of the arrays
         if (mSpatials != null) mSpatials.clear();
         if (mSpatialsFGBG != null) mSpatialsFGBG.clear();
-    	if (mDecors != null) mDecors.clear();
+        if (mDecors != null) mDecors.clear();
+        if (mDecorsFG != null) mDecorsFG.clear();
     	if (mPolySpatials != null) mPolySpatials.clear();
     	if (waterfallBackground != null) waterfallBackground.clear();
     	if (rainBackground != null) rainBackground.clear();
@@ -2240,6 +2242,12 @@ public class Play extends GameState {
     }
 
     private void renderWorld() {
+        // Make sure everything rotates at the same speed
+        dmndrot += 0.5f;
+        jewelrot += 0.5f;
+        if (dmndrot > 360.0f) dmndrot -= 360.0f;
+        if (jewelrot > 360.0f) jewelrot -= 360.0f;
+        // Carry out the rendering...
         mPolyBatch.enableBlending();
     	// Render the background Sky
 		mBatch.setProjectionMatrix(hudCam.combined);
@@ -2452,6 +2460,9 @@ public class Play extends GameState {
           mPolyBatch.end();
        }
 
+       // Render foreground decorations
+       // TODO :: Need to render FG decorations.
+
 	   // Render the collisionless foreground
 	   if ((mCollisionlessFG != null) && (mCollisionlessFG.size > 0)) {
 		   mPolyBatch.setProjectionMatrix(b2dCam.combined);
@@ -2464,6 +2475,7 @@ public class Play extends GameState {
 	   	}
 
         renderSpatials(2);
+        renderSpatials(3);
 
         // Render some items onto the HUD
         renderHUD();
@@ -2486,14 +2498,10 @@ public class Play extends GameState {
         mBatch.setProjectionMatrix(b2dCam.combined);
         mBatch.begin();
         if ((!collectDiamond) & (dmnd_posn==posn)) {
-            dmndrot += 0.5f;
-            if (dmndrot > 360.0f) dmndrot -= 360.0f;
             mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, dmndrot);
             mBatch.draw(diamondSN, dmnd_xpos-dmnd_widt/2, dmnd_ypos-dmnd_widt/2, dmnd_widt/2, dmnd_widt/2, dmnd_widt, dmnd_widt, 1.0f, 1.0f, 360.0f-dmndrot);
         }
 
-        jewelrot += 0.5f;
-        if (jewelrot > 360.0f) jewelrot -= 360.0f;
         for (int jj=0; jj<jewel_mask.size(); jj++) {
             if ((jewel_mask.get(jj)) & (jewel_posn.get(jj)==posn)) {
                 mBatch.draw(diamondSNg, jewel_xpos.get(jj)-jewel_widt/2, jewel_ypos.get(jj)-jewel_widt/2, jewel_widt/2, jewel_widt/2, jewel_widt, jewel_widt, 1.0f, 1.0f, jewelrot);
@@ -2594,14 +2602,14 @@ public class Play extends GameState {
      */
     private void createSpatialsFromRubeImages(RubeScene scene)
     {
-    	// Render the images
-    	Array<RubeImage> images = scene.getImages();
-    	float[] transArr = new float[6];
+        Array<RubeImage> images = scene.getImages();
+        float[] transArr = new float[6];
+        int fgbgIdx;
+        // Render the images
     	if ((images != null) && (images.size > 0))
     	{
-            mSpatials = new Array<SimpleSpatial>();
-            mSpatialsFGBG = new Array<Integer>();
-    		//mDecors = new Array<SimpleImage>();
+            if (mSpatials==null) mSpatials = new Array<SimpleSpatial>();
+            if (mSpatialsFGBG==null) mSpatialsFGBG = new Array<Integer>();
     		transportImages = new Array<float[]>();
     		doorImages = new Array<float[]>();
     		remBodies = new Array<Body>();
@@ -2636,7 +2644,7 @@ public class Play extends GameState {
                         dmnd_ypos = image.body.getPosition().y;
                         dmnd_widt = image.width*15.0f;
                         if (image.name.startsWith("DiamondBG")) dmnd_posn = 0;
-                        else if (image.name.startsWith("DiamondFG")) dmnd_posn = 2;
+                        else if (image.name.startsWith("DiamondFG")) dmnd_posn = 3;
                         else dmnd_posn = 1;
                         mSpatialsFGBG.add(dmnd_posn);
                     } else if (image.name.startsWith("Jewel")) {
@@ -2646,8 +2654,8 @@ public class Play extends GameState {
                         jewel_mask.add(true);
                         jewel_widt = image.width*7.5f;
                         if (image.name.startsWith("JewelFG")) {
-                            jewel_posn.add(2);
-                            mSpatialsFGBG.add(2);
+                            jewel_posn.add(3);
+                            mSpatialsFGBG.add(3);
                         } else if (image.name.startsWith("JewelBG")) {
                             jewel_posn.add(0);
                             mSpatialsFGBG.add(0);
@@ -2672,19 +2680,21 @@ public class Play extends GameState {
                 }
     		}
     	}
-    	// Render the decorations
-    	Array<RubeDecor> decors = scene.getDecors();
-    	if ((decors != null) && (decors.size > 0))
-    	{
+        // Render the decorations
+        Array<RubeDecor> decors = scene.getDecors();
+        if ((decors != null) && (decors.size > 0))
+        {
             if (mSpatials==null) mSpatials = new Array<SimpleSpatial>();
             if (mSpatialsFGBG==null) mSpatialsFGBG = new Array<Integer>();
-    		SimpleSpatial spatial;
-    		for (int i = 0; i < decors.size; i++)
-    		{
-    			RubeDecor decor = decors.get(i);
-    			mTmp.set(decor.width, decor.height);
-    			String textureFileName = "data/" + decor.file;
-				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2));
+            SimpleSpatial spatial;
+            for (int i = 0; i < decors.size; i++)
+            {
+                RubeDecor decor = decors.get(i);
+                fgbgIdx = 1;
+                if (decor.file.contains("shade.png")) fgbgIdx = 2;
+                mTmp.set(decor.width, decor.height);
+                String textureFileName = "data/" + decor.file;
+                mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2));
 //    			texture = mTextureMap.get(textureFileName);
 //    			if (texture == null)
 //    			{
@@ -2694,11 +2704,11 @@ public class Play extends GameState {
 //    			} else {
 //    				texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 //    			}
-    			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2), decor.flip, null, decor.color, mTmp, decor.center, decor.angleInRads * MathUtils.radiansToDegrees);
-    			mSpatials.add(spatial);
-                mSpatialsFGBG.add(1);
-    		}
-    	}
+                spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2), decor.flip, null, decor.color, mTmp, decor.center, decor.angleInRads * MathUtils.radiansToDegrees);
+                mSpatials.add(spatial);
+                mSpatialsFGBG.add(fgbgIdx);
+            }
+        }
     }
 
     /**
