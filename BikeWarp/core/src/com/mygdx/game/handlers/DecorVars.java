@@ -493,7 +493,7 @@ public class DecorVars {
 			}
 		} else if (decorID == Tree) {
 			xsize = 300.0f;
-			if ((idx < 0) | (idx >= 8)) idx = 0;
+			if ((idx < 0) | (idx >= 12)) idx = 0;
 			switch (idx) {
 			case 0 :
 				scale = 1.364605543710f;
@@ -521,6 +521,18 @@ public class DecorVars {
 				xsize *= 1.2f;
 				scale = 1.0f;
 				break;
+			case 8 :
+				xsize = 12.0f;
+				scale = 1.796875f;
+			case 9 :
+				xsize = 10.0f;
+				scale = 2.34375f;
+			case 10 :
+				xsize = 10.0f;
+				scale = 1.8125f;
+			case 11 :
+				xsize = 15.0f;
+				scale = 1.3046875f;
 			default :
 				break;
 			}

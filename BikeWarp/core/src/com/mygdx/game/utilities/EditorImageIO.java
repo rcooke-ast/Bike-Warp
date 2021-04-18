@@ -1001,6 +1001,54 @@ public class EditorImageIO {
 		return 1;
 	}
 
+	public static int ImageLunarLander(JSONStringer json, float[] fs, int bodyIndex, int cnt) throws JSONException {
+		String image_fname = "images/lander.png";
+		// Get the center, xmin, xmax, ymin, ymax of the lander
+		int xmn = ObjectVars.GetLanderMinMax(0,0);
+		int xmx = ObjectVars.GetLanderMinMax(0,1);
+		int ymn = ObjectVars.GetLanderMinMax(1,0);
+		int ymx = ObjectVars.GetLanderMinMax(1,1);
+		float xmin = B2DVars.EPPM*fs[xmn];
+		float ymin = B2DVars.EPPM*fs[ymn];
+		float xmax = B2DVars.EPPM*fs[xmx];
+		float ymax = B2DVars.EPPM*fs[ymx];
+		float xcen = 0.5f*(xmin+xmax);
+		float ycen = 0.5f*(ymin+ymax);
+		xmin += (4.0f/500.0f)*(xcen-xmin);
+		xmin -= (4.0f/500.0f)*(xmax-xcen);
+		ymin += (10.0f/500.0f)*(ycen-ymin);
+		ymax -= (10.0f/500.0f)*(ymax-ycen);
+		//
+		float rotAngle = 0.0f;
+		json.object(); // Start of Lunar Lander
+		json.key("name").value("Lander"+cnt);
+		json.key("opacity").value(1);
+		json.key("renderOrder").value(0);
+		json.key("scale").value(1);
+		json.key("aspectScale").value(1);
+		json.key("angle").value(rotAngle);
+		json.key("body").value(bodyIndex);
+		json.key("center");
+		json.object();
+		json.key("x").value(0);
+		json.key("y").value(0);
+		json.endObject();
+		json.key("corners");
+		json.object();
+		json.key("x").array().value(xmin-xcen).value(xmax-xcen).value(xmax-xcen).value(xmin-xcen).endArray();
+		json.key("y").array().value(ymin-ycen).value(ymin-ycen).value(ymax-ycen).value(ymax-ycen).endArray();
+		json.endObject();
+		json.key("file").value(image_fname);
+		json.key("filter").value(1);
+		json.key("glDrawElements").array().value(0).value(1).value(2).value(2).value(3).value(0).endArray();
+		json.key("glTexCoordPointer").array().value(0).value(0).value(1).value(0).value(1).value(1).value(0).value(1).endArray();
+		//json.key("glVertexPointer").array().value(B2DVars.EPPM*ObjectVars.objectNitrous[0]).value(B2DVars.EPPM*ObjectVars.objectNitrous[1]).value(B2DVars.EPPM*ObjectVars.objectNitrous[2]).value(B2DVars.EPPM*ObjectVars.objectNitrous[3]).value(B2DVars.EPPM*ObjectVars.objectNitrous[4]).value(B2DVars.EPPM*ObjectVars.objectNitrous[5]).value(B2DVars.EPPM*ObjectVars.objectNitrous[6]).value(B2DVars.EPPM*ObjectVars.objectNitrous[7]).endArray();
+		// This probably needs to change if the rotation changes...
+		json.key("glVertexPointer").array().value(xmin-xcen).value(ymin-ycen).value(xmax-xcen).value(ymin-ycen).value(xmax-xcen).value(ymax-ycen).value(xmin-xcen).value(ymax-ycen).endArray();
+		json.endObject(); // End of Lunar Lander
+		return 1;
+	}
+
 	public static int ImageFallingSign(JSONStringer json, float[] fpo, float[] fpa, int bodyIndex, int cnt) throws JSONException {
 		float rd = 30.0f*B2DVars.EPPM;
 		float shaftLength = 5.0f*rd;

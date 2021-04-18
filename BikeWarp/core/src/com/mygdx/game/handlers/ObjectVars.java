@@ -52,6 +52,7 @@ public class ObjectVars {
     public static final int TransportSilentZero = 46;
     public static final int TransportSilent = 47;
     public static final int MoveableSign = 48;
+    public static final int LunarLander = 49;
     // These numbers must not exceed 100, due to signs
 
     // Define the vertices
@@ -81,6 +82,7 @@ public class ObjectVars {
     public static final float[] objectSpikeZone = {-100.0f,-100.0f,100.0f,-100.0f,100.0f,100.0f,-100.0f,100.0f};
     public static final float[] objectUFO = {-500.0f, -110.61588330632091f, 500.0f, -110.61588330632091f, 500.0f, 110.61588330632091f, -500.0f, 110.61588330632091f};
     public static final float[] objectCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
+    public static final float[] objectLunarLander = {-107.2914f, 76.8769f, -106.4205f, 106.9721f, -87.6598f, 128.533f, -70.2991f, 134.833f, -72.0111f, 173.1142f, -64.0807f, 176.8843f, -70.191f, 188.8449f, -66.1507f, 196.1144f, -56.1333f, 180.619f, 2.451f, 207.0846f, 34.4725f, 198.5965f, 40.6798f, 199.7095f, 60.1112f, 192.4395f, 73.6406f, 176.9093f, 88.681f, 171.629f, 107.0817f, 152.7484f, 124.8422f, 127.7875f, 133.0699f, 126.48f, 133.79f, 108.2396f, 130.1899f, 97.6793f, 125.8697f, 93.8393f, 139.3782f, 43.697f, 127.1274f, 37.1203f, 199.6054f, -117.7127f, 216.4508f, -118.6401f, 232.6442f, -121.2151f, 234.209f, -129.5176f, 225.5311f, -134.6661f, 217.711f, -135.606f, 207.0114f, -135.7656f, 194.5413f, -135.8258f, 181.1013f, -135.0359f, 170.9812f, -128.8657f, 167.2197f, -120.9078f, 184.4931f, -118.075f, 160.2163f, -64.8691f, 141.9978f, -66.7129f, 80.4415f, -60.3316f, -62.1243f, -62.6167f, -89.1445f, -64.6114f, -126.3159f, -68.5676f, -155.56084f, -69.6822f, -176.1205f, -117.8202f, -158.77935f, -120.4402f, -164.25707f, -130.4095f, -174.9694f, -135.0012f, -186.98955f, -135.4414f, -195.3797f, -135.4114f, -205.08055f, -135.6463f, -218.40245f, -134.5768f, -226.55834f, -127.5234f, -223.4804f, -121.32f, -201.93395f, -117.7835f, -191.0971f, -117.3434f, -127.5405f, 18.9104f, -120.8203f, 29.3108f, -121.6203f, 36.5111f, -118.1002f, 41.1513f, -105.13976f, 47.5515f, -86.7391f, 50.2716f};
 
     // Define the global properties for some of the objects
     public static final float ChainLinkSize = 1.0f; // Size of a single link in a chain (in metres)
@@ -176,4 +178,11 @@ public class ObjectVars {
         return -1;
     }
 
+    public static int GetLanderMinMax(int xy, int minmax) {
+        if ((xy==0) && (minmax==0)) return 100;
+        if ((xy==0) && (minmax==1)) return 52;
+        if ((xy==1) && (minmax==0)) return 61;
+        if ((xy==1) && (minmax==1)) return 19;
+        return -1;
+    }
 }

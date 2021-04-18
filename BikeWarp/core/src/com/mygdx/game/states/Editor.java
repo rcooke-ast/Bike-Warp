@@ -73,7 +73,7 @@ public class Editor extends GameState {
 	private String[] itemsADM = {"Add", "Delete", "Move"};
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
-	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Lander", "Log", "Nitrous", "Pendulum", "Planet", "Sign", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
+	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Lunar Lander", "Log", "Nitrous", "Pendulum", "Planet", "Sign", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
 	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Rock", "Shade", "Sign", "Track", "Tree", "Tyre Stack", "Vehicle"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
@@ -549,6 +549,28 @@ public class Editor extends GameState {
 //									allLevelTextures = (ArrayList<Texture>) loadedArray.get(13);
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+
+									// Temporary for Anne Frank
+//									for (int i=0; i<allDecorPolys.size(); i++) {
+//										if (allDecorTypes.get(i) == DecorVars.Grass) {
+//											allDecorPolys.set(i, 0);
+//										}
+//									}
+
+									// Temporary for Lunatic
+//									for (int dd=0; dd<allPolygons.size(); dd++) {
+//										if (allPolygonTypes.get(dd) == 4) {
+//											for (int pp = 0; pp < allPolygonPaths.get(dd).length / 2; pp++) {
+//												System.out.println(allPolygonPaths.get(dd)[2 * pp]);
+//											}
+//										}
+//									}
+//											System.out.println("----");
+//											for (int pp=0; pp<allPolygons.get(dd).length/2; pp++) {
+//												System.out.println(allPolygons.get(dd)[2*pp+1]);
+//											}
+//										}
+//									}
 
 									// Temporary for Short Supply
 //									ArrayList<float[]> allPolygons_alt = new ArrayList<float[]>();
@@ -2440,6 +2462,10 @@ public class Editor extends GameState {
 			else shapeRenderer.setColor(0.5f, 0.5f, 0.5f, opacity);
 			shapeRenderer.polygon(objarray);
 			if (objArrow != null) renderPath(objArrow);
+		} else if (otype == ObjectVars.LunarLander) {
+			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
+			else shapeRenderer.setColor(0.5f, 0.5f, 0.5f, opacity);
+			shapeRenderer.polygon(objarray);
 		} else if (ObjectVars.IsMoveableSign(otype)) {
 			if (isUpdate) shapeRenderer.setColor(1, 1, 0.1f, 1);
 			else shapeRenderer.setColor(0.5f, 0.5f, 0.5f, opacity);
@@ -4970,22 +4996,25 @@ public class Editor extends GameState {
 					IncrementObject(allObjectTypes.get(objectSelect));
 				}
 			}
-		} else if ((modeParent.equals("UFO")) | (modeParent.equals("Sign"))) {
+		} else if ((modeParent.equals("UFO")) | (modeParent.equals("Sign")) | (modeParent.equals("Lunar Lander"))) {
 			// Get the object type first
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)) {
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				int objTyp = ObjectVars.UFO;
 				if (modeParent.equals("Sign")) objTyp = 100+DecorVars.RoadSign_Stop;
+				else if (modeParent.equals("Lunar Lander")) objTyp = ObjectVars.LunarLander;
 				AddObject(objTyp, tempx, tempy, -999.9f);
 			} else if ((modeChild.equals("Delete")) & (GameInput.MBJUSTPRESSED)) {
 				if (modeParent.equals("UFO")) SelectObject("up", ObjectVars.UFO, false, false);
 				else if (modeParent.equals("Sign")) SelectObjectSign("up", -1, false, true);
+				else if (modeParent.equals("Lunar Lander")) SelectObject("up", ObjectVars.LunarLander, false, false);
 				engageDelete = true;
 			} else if ((modeChild.equals("Move")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					if (modeParent.equals("UFO")) SelectObject("down", ObjectVars.UFO, false, false);
 					else if (modeParent.equals("Sign")) SelectObjectSign("down", -1, false, true);
+					else if (modeParent.equals("Lunar Lander")) SelectObject("down", ObjectVars.LunarLander, false, false);
 					startX = GameInput.MBDOWNX;
 					startY = GameInput.MBDOWNY;
 				} else {
@@ -4993,15 +5022,18 @@ public class Editor extends GameState {
 					endY = - cam.zoom*(GameInput.MBDRAGY-startY)/BikeGame.SCALE;
 					if (modeParent.equals("UFO")) MoveObject(objectSelect, "polygon", endX, endY);
 					else if (modeParent.equals("Sign")) MoveObject(objectSelect, "circle", endX, endY);
+					else if (modeParent.equals("Lunar Lander")) MoveObject(objectSelect, "polygon", endX, endY);
 				}
 			} else if ((modeChild.equals("Move")) & (GameInput.MBJUSTPRESSED==true) & (objectSelect != -1)) {
 				if (modeParent.equals("UFO")) UpdateObject(objectSelect, "move", true);
 				else if (modeParent.equals("Sign")) UpdateObject(objectSelect, "moveball", true);
+				else if (modeParent.equals("Lunar Lander")) UpdateObject(objectSelect, "move", true);
 				objectSelect = -1;
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBDRAG==true)) {
 				if (objectSelect == -1) {
 					if (modeParent.equals("UFO")) SelectObject("down", ObjectVars.UFO, false, false);
 					else if (modeParent.equals("Sign")) SelectObjectSign("down", -1, false, true);
+					else if (modeParent.equals("UFO")) SelectObject("down", ObjectVars.LunarLander, false, false);
 					startX = cam.position.x + cam.zoom*(GameInput.MBDOWNX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 					startY = cam.position.y - cam.zoom*(GameInput.MBDOWNY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				} else {
@@ -5021,6 +5053,7 @@ public class Editor extends GameState {
 					}
 					if (modeParent.equals("UFO")) RotateObject(objectSelect, "object", nullvarD);
 					else if (modeParent.equals("Sign")) RotateObject(objectSelect, "sign", nullvarD);
+					else if (modeParent.equals("Lunar Lander")) RotateObject(objectSelect, "object", nullvarD);
 				}
 			} else if ((modeChild.equals("Rotate")) & (GameInput.MBRELEASE==true) & (objectSelect != -1)) {
 				UpdateObject(objectSelect, "rotateobject", true);
@@ -6383,6 +6416,9 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move", "Rotate", "Scale", "Set Path From Platform");
 					//"Select Path", "Extend Path", "Move Path", "Rotate Path", "Scale Path", "Flip Path x", "Flip Path y", "Insert Vertex", "Move Vertex", "Delete Vertex", "Flip Direction", "Flip Rotation", "Set Rotation", "Set Speed", "Set Start Time", "Set Stop Time"
 					pObjectIndex = GetListIndex("UFO",objectList);
+				} else if (modeParent.equals("Lunar Lander")) {
+					listChild.setItems("Add", "Delete", "Move");
+					pObjectIndex = GetListIndex("Lunar Lander",objectList);
 				} else if (modeParent.equals("Sign")) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Set Path From Platform");
 					//"Select Path", "Extend Path", "Move Path", "Rotate Path", "Scale Path", "Flip Path x", "Flip Path y", "Insert Vertex", "Move Vertex", "Delete Vertex", "Flip Direction", "Flip Rotation", "Set Rotation", "Set Speed", "Set Start Time", "Set Stop Time"
@@ -8143,6 +8179,12 @@ public class Editor extends GameState {
 			for (int i = 0; i<ObjectVars.objectUFO.length/2; i++){
 				newPoly[2*i] = ObjectVars.objectUFO[2*i] + xcen;
 				newPoly[2*i+1] = ObjectVars.objectUFO[2*i+1] + ycen;
+			}
+		} else if (otype == ObjectVars.LunarLander) {
+			newPoly = new float[ObjectVars.objectLunarLander.length];
+			for (int i = 0; i<ObjectVars.objectLunarLander.length/2; i++){
+				newPoly[2*i] = ObjectVars.objectLunarLander[2*i] + xcen;
+				newPoly[2*i+1] = ObjectVars.objectLunarLander[2*i+1] + ycen;
 			}
 		} else if (ObjectVars.IsMoveableSign(otype)) {
 			newPoly = new float[ObjectVars.objectCircleRoadSign.length];

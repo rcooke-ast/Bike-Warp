@@ -63,6 +63,7 @@ public class EditorIO {
 	private static int cntTransportSilent;
 	private static int cntUFO;
 	private static int cntMoveableSign;
+	private static int cntLunarLander;
 	private static int finishObjNumber = 3;
 
 	private static ArrayList<float[][][]> ConvertTextureToArray(ArrayList<Texture> allLevelTextures) {
@@ -747,6 +748,7 @@ public class EditorIO {
 		cntTransportSilent = 0;
     	cntUFO = 0;
 		cntMoveableSign = 0;
+		cntLunarLander = 0;
     	// Determine what texture to be used for the ground
     	String textString = GetTexture(LevelVars.get(LevelVars.PROP_GROUND_TEXTURE), "Default");
     	String textPlatform;
@@ -1067,9 +1069,15 @@ public class EditorIO {
 				cntUFO += 1;
 				bodyIdx += addBodies;
 			} else if (ObjectVars.IsMoveableSign(allObjectTypes.get(i))) {
-        		addBodies = EditorObjectIO.AddSign(json, allObjects.get(i), allObjectArrows.get(i), cntMoveableSign);
+				addBodies = EditorObjectIO.AddSign(json, allObjects.get(i), allObjectArrows.get(i), cntMoveableSign);
 				cntMoveableSign += 1;
 				bodyIdx += addBodies;
+			} else if (allObjectTypes.get(i) == ObjectVars.LunarLander) {
+				String failure = "";
+				failure = EditorObjectIO.AddLunarLander(json, allObjects.get(i), cntLunarLander);
+				cntLunarLander += 1;
+				if (!failure.equalsIgnoreCase("")) return failure;
+				bodyIdx += 1;
 			}
         }
         
@@ -1675,6 +1683,7 @@ public class EditorIO {
         cntTransportSilent = 0;
         cntUFO = 0;
 		cntMoveableSign = 0;
+		cntLunarLander = 0;
         // Apply images to falling bodies
         for (int i = 0; i<allPolygons.size(); i++){
             if ((allPolygonTypes.get(i) == 2) | (allPolygonTypes.get(i) == 3)) {
@@ -1731,7 +1740,11 @@ public class EditorIO {
         		addBodies = EditorImageIO.ImageKey(json, allObjects.get(i), bodyIdx, cntKey, allObjectTypes.get(i));
         		bodyIdx += addBodies;
         		cntKey += 1;
-        	} else if (allObjectTypes.get(i) == ObjectVars.Log) {
+        	} else if (allObjectTypes.get(i) == ObjectVars.LunarLander) {
+				addBodies = EditorImageIO.ImageLunarLander(json, allObjects.get(i), bodyIdx, cntLunarLander);
+				bodyIdx += addBodies;
+				cntLunarLander += 1;
+			} else if (allObjectTypes.get(i) == ObjectVars.Log) {
         		addBodies = EditorImageIO.ImageLog(json, allObjects.get(i), bodyIdx, cntLog);
         		bodyIdx += addBodies;
         		cntLog += 1;

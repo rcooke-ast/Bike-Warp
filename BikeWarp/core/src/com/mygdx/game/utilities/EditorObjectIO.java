@@ -1813,6 +1813,90 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
 		return 1; // Return number of bodies added
 	}
 
+	public static String AddLunarLander(JSONStringer json, float[] fs, int cnt) throws JSONException {
+		int xmin = ObjectVars.GetLanderMinMax(0,0);
+		int xmax = ObjectVars.GetLanderMinMax(0,1);
+		int ymin = ObjectVars.GetLanderMinMax(1,0);
+		int ymax = ObjectVars.GetLanderMinMax(1,1);
+		float xcen = 0.5f*(fs[xmin]+fs[xmax])*B2DVars.EPPM;
+		float ycen = 0.5f*(fs[ymin]+fs[ymax])*B2DVars.EPPM;
+		// Setup the BD
+		ArrayList<float[]> convexPolygons;
+		ArrayList<ArrayList<Vector2>> convexVectorPolygons;
+		ArrayList<Vector2> concaveVertices;
+		concaveVertices = PolygonOperations.MakeVertices(fs);
+		try {
+			convexVectorPolygons = BayazitDecomposer.convexPartition(concaveVertices);
+		} catch (IndexOutOfBoundsException e) {
+			return "BD "+cnt+" Pl";
+		}
+		convexPolygons = PolygonOperations.MakeConvexPolygon(convexVectorPolygons);
+		// Start the json file
+		json.object();
+		json.key("angle").value(0);
+		json.key("angularVelocity").value(0);
+		json.key("awake").value(true);
+//		json.key("userData").value("GroundFall");
+//		json.key("customProperties");
+//		json.array();
+//		json.object();
+//		json.key("name").value("FallTime");
+//		json.key("float").value(0.0f);
+//		json.endObject();
+//		json.endArray();
+		// Add the fixtures
+		json.key("fixture");
+		json.array();
+		for (int k = 0; k<convexPolygons.size(); k++){
+			if (PolygonOperations.CheckUnique(convexPolygons.get(k).clone())) return "CU "+cnt+" Pl"; // A problem with the length^2 of a polygon
+			if (PolygonOperations.CheckAreas(convexPolygons.get(k).clone())) return "CA "+cnt+" Pl"; // One of the areas was too small
+			//else if (PolygonOperations.CheckConvexHull(convexPolygons.get(k).clone())) return "CH "+i+" P"; // polygon is not convex
+			json.object();
+			// Specify other properties of this fixture
+			json.key("density").value(250);
+			json.key("friction").value(0.9f);
+			json.key("restitution").value(0.2f);
+			json.key("name").value("fixture8");
+			json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+			json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
+			json.key("polygon");
+			json.object(); // Begin polygon object
+			json.key("vertices");
+			json.object(); // Begin vertices object
+			json.key("x");
+			json.array();
+			for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+				json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j]-xcen);
+			}
+			json.endArray();
+			json.key("y");
+			json.array();
+			for (int j = 0; j<convexPolygons.get(k).length/2; j++){
+				json.value(B2DVars.EPPM*convexPolygons.get(k)[2*j+1]-ycen);
+			}
+			json.endArray();
+			json.endObject(); // End the vertices object
+			json.endObject(); // End polygon object
+			json.endObject(); // End this fixture
+		}
+		if (concaveVertices != null) concaveVertices.clear();
+		if (convexVectorPolygons != null) convexVectorPolygons.clear();
+		if (convexPolygons != null) convexPolygons.clear();
+		json.endArray(); // End of the fixtures for the ground
+		// Add some final properties for the boulder body
+		json.key("linearVelocity").value(0);
+		json.key("linearDamping").value(0.5f);
+		json.key("name").value("LunarLander"+cnt);
+		json.key("position");
+		json.object();
+		json.key("x").value(xcen);
+		json.key("y").value(ycen);
+		json.endObject();
+		json.key("type").value(2);
+		json.endObject();
+		return "";
+	}
+
 	public static int AddSign(JSONStringer json, float[] fs, float[] path, int cnt) throws JSONException {
 		// Get the central values
 		float xcen = B2DVars.EPPM*fs[0];
