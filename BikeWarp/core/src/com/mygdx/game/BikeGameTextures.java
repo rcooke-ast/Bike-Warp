@@ -197,6 +197,7 @@ public class BikeGameTextures {
         GetTexture("bg_sunset", 2);
         GetTexture("bg_sunset_mud", 2);
         GetTexture("bg_Astronaut", 2);
+        GetTexture("bg_AuroraTrees", 2);
         GetTexture("bg_BubbleBlue", 2);
         GetTexture("bg_EarthAtNight", 2);
         GetTexture("bg_Earth", 2);
@@ -261,6 +262,7 @@ public class BikeGameTextures {
         for (int i=0; i<12; i++) GetTexture("tree_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
         for (int i=0; i<6; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
+        for (int i=0; i<3; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
         GetTexture("misc_emerald", 2);
         GetTexture("misc_diamond", 2);
         // Planets

@@ -74,12 +74,12 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Lunar Lander", "Log", "Nitrous", "Pendulum", "Planet", "Sign", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
-	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Rock", "Shade", "Sign", "Track", "Tree", "Tyre Stack", "Vehicle"};
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Portrait", "Rock", "Shade", "Sign", "Track", "Tree", "Tyre Stack", "Vehicle"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
 	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Sunset Mud", "Waterfall",
-			"Astronaut", "Blue Bubble", "Earth", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
+			"Astronaut", "Aurora (Trees)", "Blue Bubble", "Earth", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
 			"Milky Way", "Milky Way (Blue Torch)", "Milky Way (Mountains)", "Milky Way (Rocks)", "Milky Way (Shooting Star)", "Milky Way (Tall Rocks)",
 			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
 			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Planets (1)", "Shuttle Launch", "Star Circles", "Stargazer",
@@ -5511,7 +5511,7 @@ public class Editor extends GameState {
     			decorSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
-		} else if ((modeParent.equals("Planet")) | (modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack")) | (modeParent.equals("Vehicle")) | (modeParent.equals("Miscellaneous"))) {
+		} else if ((modeParent.equals("Planet")) | (modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack")) | (modeParent.equals("Vehicle")) | (modeParent.equals("Miscellaneous")) | (modeParent.equals("Portrait"))) {
 			int objNum;
 			if (modeParent.equals("Planet")) objNum=DecorVars.Planet;
 			else if (modeParent.equals("Rock")) objNum=DecorVars.Rock;
@@ -5519,6 +5519,7 @@ public class Editor extends GameState {
 			else if (modeParent.equals("Tyre Stack")) objNum=DecorVars.TyreStack;
 			else if (modeParent.equals("Vehicle")) objNum=DecorVars.Vehicle;
 			else if (modeParent.equals("Miscellaneous")) objNum=DecorVars.Misc;
+			else if (modeParent.equals("Portrait")) objNum=DecorVars.Portrait;
 			else return;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -6454,7 +6455,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Image", "Toggle Sound");
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
-				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle")) || (modeParent.equals("Miscellaneous"))) {
+				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle")) || (modeParent.equals("Miscellaneous")) || (modeParent.equals("Portrait"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
 				} else if (modeParent.equals("Shade")) {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment");
@@ -9076,6 +9077,8 @@ public class Editor extends GameState {
 		} else if (otype == DecorVars.BinBag) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype == DecorVars.Planet) {
+			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype == DecorVars.Portrait) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype == DecorVars.Rock) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);

@@ -643,6 +643,7 @@ public class EditorIO {
 		String defval = "background_waterfall";
 		if (textName.equals("Aurora (Blue)")) return "background_aurora_blue";
 		else if (textName.equals("Aurora (Green)")) return "background_aurora_green";
+		else if (textName.equals("Aurora (Trees)")) return "bg_AuroraTrees";
 		else if (textName.equals("Milky Way")) return "background_milkyway";
 		else if (textName.equals("Shooting Star")) return "background_shootingstar";
 		else if (textName.equals("Mountains")) return "background_mountains";

@@ -1014,10 +1014,10 @@ public class EditorImageIO {
 		float ymax = B2DVars.EPPM*fs[ymx];
 		float xcen = 0.5f*(xmin+xmax);
 		float ycen = 0.5f*(ymin+ymax);
-		xmin += (4.0f/500.0f)*(xcen-xmin);
-		xmin -= (4.0f/500.0f)*(xmax-xcen);
-		ymin += (10.0f/500.0f)*(ycen-ymin);
-		ymax -= (10.0f/500.0f)*(ymax-ycen);
+		xmin -= (4.0f/500.0f)*(xcen-xmin);
+		xmax += (4.0f/500.0f)*(xmax-xcen);
+		ymin -= (4.0f/500.0f)*(ycen-ymin);
+		ymax += (4.0f/500.0f)*(ymax-ycen);
 		//
 		float rotAngle = 0.0f;
 		json.object(); // Start of Lunar Lander

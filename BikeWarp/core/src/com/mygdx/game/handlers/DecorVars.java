@@ -2,6 +2,8 @@ package com.mygdx.game.handlers;
 
 import com.mygdx.game.utilities.PolygonOperations;
 
+import javax.sound.sampled.Port;
+
 public class DecorVars {
 	// Define the sounds that can be applied to certain decorations
 	public static final String[] platformSounds = {"None", "Rain", "Waterfall", "Wind"};
@@ -49,6 +51,7 @@ public class DecorVars {
 	public static final int Vehicle = 41;
 	public static final int Misc = 42;
 	public static final int Shade = 43;
+	public static final int Portrait = 44;
 	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
@@ -112,7 +115,7 @@ public class DecorVars {
     }
 
     public static boolean IsRect(int dTyp) {
-    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock) | (dTyp == Vehicle) | (dTyp == Misc)) {
+    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock) | (dTyp == Vehicle) | (dTyp == Misc) | (dTyp == Portrait)) {
     		return true;
     	} else return false;
     }
@@ -379,6 +382,7 @@ public class DecorVars {
 		else if (decorID == Vehicle) return "images/vehicle_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Misc) return "images/misc_" + GetMiscFromNumber(idx) + ".png";
 		else if (decorID == Shade) return "images/shade.png";
+		else if (decorID == Portrait) return "images/portrait_" + String.format("%02d", idx) + ".png";
 		// Make some default to stop errors
 		return "images/error.png";
 	}
@@ -674,6 +678,30 @@ public class DecorVars {
 					break;
 				case 1:
 					xsize = 30.0f; // Diamond
+					scale = 1.0f;
+					break;
+				default:
+					break;
+			}
+		} else if (decorID == Portrait) {
+			xsize = 400.0f;
+			scale = 1.0f;
+			if ((idx < 0) | (idx >= 3)) idx = 0;
+			switch (idx) {
+				case 0:
+					xsize = 400.0f; // Marie Curie
+					scale = 1.0f;
+					break;
+				case 1:
+					xsize = 400.0f; // Miep Gies
+					scale = 1.0f;
+					break;
+				case 2:
+					xsize = 400.0f; // Ruth Ginsberg
+					scale = 592.0f/474.0f;
+					break;
+				case 3:
+					xsize = 400.0f; // Ghandi -- NOT IMPLEMENTED YET!
 					scale = 1.0f;
 					break;
 				default:
