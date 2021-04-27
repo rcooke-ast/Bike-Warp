@@ -1214,27 +1214,32 @@ public class Play extends GameState {
 
     private void updateFallingBodies(float dt) {
     	Array<Body> joints = cl.getJoints();
-    	boolean touched;
+    	boolean touched = false;
+    	float touchReq;
     	for (int i = 0; i < joints.size; i++) {
     		touched = false;
-    		for (int j = 0; j < fallingJoints.size; j++) {
-        		if (joints.get(i).getJointList().first().joint.equals(fallingJoints.get(j).getJointList().first().joint)) touched = true;
-    		}
-    		if (touched == false) {
+            // Only do this step if a touch is required
+            for (int j = 0; j < fallingJoints.size; j++) {
+                if (joints.get(i).getJointList().first().joint.equals(fallingJoints.get(j).getJointList().first().joint)) touched = true;
+            }
+    		if (!touched) {
     			fallingJoints.add(joints.get(i));
     			fallingJointsFallTime.add((Float) mScene.getCustom(joints.get(i), "FallTime", fallTime));
     			fallingJointsTime.add(0.0f);
     		}
     	}
-    	int i = 0;
-    	for (int j = 0; j < fallingJointsTime.size; j++) {
-    		fallingJointsTime.set(i, dt+fallingJointsTime.get(i));
-    		if (fallingJointsTime.get(i)>fallingJointsFallTime.get(i)) {
-    			mWorld.destroyJoint(fallingJoints.get(i).getJointList().first().joint);
-    			fallingJoints.removeIndex(i);
-    			fallingJointsFallTime.removeIndex(i);
-    			fallingJointsTime.removeIndex(i);
-    		} else i += 1;
+    	int ii = 0;
+    	int fjsz = fallingJointsTime.size;
+    	for (int j = 0; j < fjsz; j++) {
+    		fallingJointsTime.set(ii, dt+fallingJointsTime.get(ii));
+    		if (fallingJointsTime.get(ii)>fallingJointsFallTime.get(ii)) {
+    		    if (fallingJoints.get(ii).getJointList().size != 0) {
+                    mWorld.destroyJoint(fallingJoints.get(ii).getJointList().first().joint);
+                    fallingJoints.removeIndex(ii);
+                    fallingJointsFallTime.removeIndex(ii);
+                    fallingJointsTime.removeIndex(ii);
+                }
+    		} else ii += 1;
     	}
     	joints.clear();
     }
@@ -2124,11 +2129,11 @@ public class Play extends GameState {
 //       triggerBody.setUserData(userData);
 //       triggerFixtList = triggerBody.getFixtureList();
 
-        // Find all kinematic bodies
+        // Find all kinematic and falling bodies
         Array<Body> bodies = new Array<Body>();
         mWorld.getBodies(bodies);
         RubeVertexArray vertices;
-        float startTime, stopTime;
+        float startTime, stopTime, touchReq;
         for (int i=0; i<bodies.size; i++) {
     	    if (bodies.get(i).getType().equals(BodyType.KinematicBody)) {
     		    // Only consider bodies where the path is set
@@ -2137,7 +2142,14 @@ public class Play extends GameState {
                     kinematicBodies.add(bodies.get(i));
     			    kinematicPath.add(vertices.toVector2().clone());
                 }
-    	    }
+    	    } else if (bodies.get(i).getType().equals(BodyType.DynamicBody)) {
+                touchReq = (Float) mScene.getCustom(bodies.get(i), "TouchRequired", 1.0f);
+                if (touchReq<0.5f) {
+                    fallingJoints.add(bodies.get(i));
+                    fallingJointsFallTime.add((Float) mScene.getCustom(bodies.get(i), "FallTime", fallTime));
+                    fallingJointsTime.add(0.0f);
+                }
+            }
         }
         if (kinematicBodies.size != 0) {
             kinematicDirection = new int[kinematicBodies.size];

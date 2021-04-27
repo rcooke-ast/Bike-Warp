@@ -74,7 +74,7 @@ public class Editor extends GameState {
 	private String[] itemsADMRSFv = {"Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex"};
 	private String[] itemsADMR = {"Add", "Delete", "Move", "Rotate"};
 	private String[] objectList = {"Ball & Chain", "Boulder", "Bridge", "Crate", "Diamond", "Doors/Keys", "Emerald", "Gate Switch", "Gravity", "Lunar Lander", "Log", "Nitrous", "Pendulum", "Planet", "Sign", "Spike", "Spike Zone", "Transport", "Transport (invisible)", "Transport (silent)", "UFO", "Start", "Finish", "Change Order"};
-	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Portrait", "Rock", "Shade", "Sign", "Track", "Tree", "Tyre Stack", "Vehicle"};
+	private String[] decorateList = {"Surface", "Set Surface Texture", "Bin Bag", "Climate (Hard Edge)", "Climate (Soft Edge)", "Miscellaneous", "Planet", "Portrait", "Rock", "Shade", "Sign", "Text", "Track", "Tree", "Tyre Stack", "Vehicle"};
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
@@ -84,7 +84,8 @@ public class Editor extends GameState {
 			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
 			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Planets (1)", "Shuttle Launch", "Star Circles", "Stargazer",
 			"Stars (Blue)", "Stars (Blue/Dust)", "Stars (Blue/Green)", "Stars (Blue/Purple)", "Stars (Dusty)", "Stars (Orange)",
-			"Stars (Purple)", "Stars (Purple/Dust)", "Stars (Purple/Orange)", "Stars (Red)", "Stars+Clouds (Blue/Orange)", "Stars+Rocks (Blue/Pink)", "Stars+Trees (Green)", "Stars Sparse"
+			"Stars (Purple)", "Stars (Purple/Dust)", "Stars (Purple/Orange)", "Stars (Red)", "Stars+Clouds (Blue/Orange)", "Stars+Rocks (Blue/Pink)", "Stars+Trees (Green)", "Stars Sparse",
+			"Waterfall 1", "Waterfall 2", "Waterfall 3"
 	};
 	private String[] bgTextureListDef = bgTextureList.clone();
 	private String[] fgTextureList = {"None", "Bushes", "Plants", "Trees"};
@@ -549,6 +550,15 @@ public class Editor extends GameState {
 //									allLevelTextures = (ArrayList<Texture>) loadedArray.get(13);
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+
+									// Temporary for Hiraeth Part 2
+//									float[] newPoly = new float[] {10.0f, 0.0f, 0.0f, 0.0f};
+//									for (int i=0; i<allPolygons.size(); i++) {
+//										if ((allPolygonTypes.get(i) == 6) || (allPolygonTypes.get(i) == 7)) {
+//											allPolygonTypes.set(i,allPolygonTypes.get(i)-2);
+//											allPolygonPaths.set(i,newPoly.clone());
+//										}
+//									}
 
 									// Temporary for Anne Frank
 //									for (int i=0; i<allDecorPolys.size(); i++) {
@@ -2075,17 +2085,17 @@ public class Editor extends GameState {
 				shapeRenderer.circle(poly[0], poly[1], poly[2]);
 			}
 			// Draw the centre of the body
-			// fall time, damping, sign x, sign y
+			// fall time, damping, touch required, nothing
 			shapeRenderer.setColor(0.8f, 0.2f, 0.2f, opacity);
-			shapeRenderer.circle(polyPath[2], polyPath[3], 5);
-			shapeRenderer.line(polyPath[2]-5, polyPath[3], polyPath[2]+5, polyPath[3]);
-			shapeRenderer.line(polyPath[2], polyPath[3]-5, polyPath[2], polyPath[3]+5);
+			shapeRenderer.circle(poly[0], poly[1], 5);
+			shapeRenderer.line(poly[0]-5, poly[1], poly[0]+5, poly[1]);
+			shapeRenderer.line(poly[0], poly[1]-5, poly[0], poly[1]+5);
 			// Draw the fall time arrow
-			shapeRenderer.line(polyPath[2], polyPath[3], polyPath[2], polyPath[3]-polyPath[0]/B2DVars.EPPM);
-			shapeRenderer.line(polyPath[2]-10, polyPath[3]-polyPath[0]/B2DVars.EPPM, polyPath[2]+10, polyPath[3]-polyPath[0]/B2DVars.EPPM);
+			shapeRenderer.line(poly[0], poly[1], poly[0], poly[1]-polyPath[0]/B2DVars.EPPM);
+			shapeRenderer.line(poly[0]-10, poly[1]-polyPath[0]/B2DVars.EPPM, poly[0]+10, poly[1]-polyPath[0]/B2DVars.EPPM);
 			// Draw the damping arrow
-			shapeRenderer.line(polyPath[2], polyPath[3], polyPath[2], polyPath[3]+polyPath[1]/B2DVars.EPPM);
-			shapeRenderer.line(polyPath[2]-10, polyPath[3]+polyPath[1]/B2DVars.EPPM, polyPath[2]+10, polyPath[3]+polyPath[1]/B2DVars.EPPM);
+			shapeRenderer.line(poly[0], poly[1], poly[0], poly[1]+polyPath[1]/B2DVars.EPPM);
+			shapeRenderer.line(poly[0]-10, poly[1]+polyPath[1]/B2DVars.EPPM, poly[0]+10, poly[1]+polyPath[1]/B2DVars.EPPM);
 		} else if (polyType <= 7) {
 			// Trigger Polygons
 			if (polySelect == i) shapeRenderer.setColor(1, 0, 1, 1);
@@ -2702,6 +2712,10 @@ public class Editor extends GameState {
 							rectUpdPoly = new float[8];
 							for (int i = 0; i < 8; i++) rectUpdPoly[i] = updateGroup.get(pp)[i];
 							shapeRenderer.polygon(rectUpdPoly);
+						} else if ((allDecorTypes.get(groupArrays.get(pp))==DecorVars.Rain) ||
+								(allDecorTypes.get(groupArrays.get(pp))==DecorVars.Waterfall)) {
+							rectUpdPoly = Arrays.copyOfRange(updateGroup.get(pp), 0, 8);
+							shapeRenderer.polygon(rectUpdPoly);
 						} else shapeRenderer.polygon(updateGroup.get(pp));
 					} else {
 						if (DecorVars.IsRoadSign(allDecorTypes.get(groupArrays.get(pp)))) {
@@ -2892,6 +2906,16 @@ public class Editor extends GameState {
 					signFont.draw(sb, String.format("Stop Time = %f seconds",allPolygonPaths.get(i)[7]), allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
 					textadd += 1.2f * signWidth;
 					signFont.draw(sb, String.format("Start Time = %f seconds",allPolygonPaths.get(i)[6]), allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
+				} else if (allPolygonTypes.get(i) <= 5) {
+					// Falling platforms
+					String touchReq = "True";
+					if (allPolygonPaths.get(i)[2] < 0.5f) touchReq = "False";
+					glyphLayout.setText(signFont, "Touch required = False");
+					signWidth = glyphLayout.height;  // This is actually height, not width
+					// Draw the start/stop time
+					signFont.draw(sb, String.format("Touch required = %s",touchReq), allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
+					textadd += 1.2f * signWidth;
+					signFont.draw(sb, "Fall time = " + String.format("%.2f", allPolygonPaths.get(i)[0]) + " seconds", allPolygons.get(i)[0], allPolygons.get(i)[1] + signWidth / 2 + textadd);
 				}
 			}
 		}
@@ -3589,7 +3613,7 @@ public class Editor extends GameState {
 					if (polySelect == -1) SelectPolygon("down", true);
 					else {
 						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
-						float fallTime = (allPolygonPaths.get(polySelect)[3] - endY) * B2DVars.EPPM;
+						float fallTime = (allPolygons.get(polySelect)[1] - endY) * B2DVars.EPPM;
 						if (fallTime < 0.0f) fallTime = 0.0f;
 						warnMessage[warnNumber] = "Fall time = " + String.format("%.2f", fallTime) + " seconds";
 						warnElapse[warnNumber] = 0.0f;
@@ -3605,7 +3629,7 @@ public class Editor extends GameState {
 					if (polySelect == -1) SelectPolygon("down", true);
 					else {
 						endY = cam.position.y - cam.zoom * (GameInput.MBDRAGY / BikeGame.SCALE - 0.5f * SCRHEIGHT);
-						float damping = (allPolygonPaths.get(polySelect)[3] - endY) * B2DVars.EPPM;
+						float damping = (allPolygons.get(polySelect)[1] - endY) * B2DVars.EPPM;
 						if (damping > 0.0f) damping = 0.0f;
 						warnMessage[warnNumber] = "Damping = " + String.format("%.2f", -damping) + " per second";
 						warnElapse[warnNumber] = 0.0f;
@@ -3617,6 +3641,16 @@ public class Editor extends GameState {
 					UpdatePath(polySelect);
 					polySelect = -1;
 					GameInput.MBRELEASE = false;
+				} else if ((modeChild.equals("Toggle Touch Required")) & (GameInput.MBJUSTPRESSED)) {
+					SelectPolygon("up", true);
+					if (polySelect != -1) {
+						float[] pthPoly = allPolygonPaths.get(polySelect);
+						pthPoly[2] = 1.0f - allPolygonPaths.get(polySelect)[2];
+						allPolygonPaths.set(polySelect, pthPoly.clone());
+						if (allPolygonPaths.get(polySelect)[2] < 0.5f) Message("Touch required = False", 0);
+						else Message("Touch required = True", 0);
+						polySelect = -1;
+					}
 				}
 			} else if (mode == 9) {
 				// Trigger platform
@@ -5511,7 +5545,7 @@ public class Editor extends GameState {
     			decorSelect = -1;
             	GameInput.MBRELEASE=false;
     		}
-		} else if ((modeParent.equals("Planet")) | (modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack")) | (modeParent.equals("Vehicle")) | (modeParent.equals("Miscellaneous")) | (modeParent.equals("Portrait"))) {
+		} else if ((modeParent.equals("Planet")) | (modeParent.equals("Rock")) | (modeParent.equals("Tree")) | (modeParent.equals("Tyre Stack")) | (modeParent.equals("Vehicle")) | (modeParent.equals("Miscellaneous")) | (modeParent.equals("Portrait")) | (modeParent.equals("Text"))) {
 			int objNum;
 			if (modeParent.equals("Planet")) objNum=DecorVars.Planet;
 			else if (modeParent.equals("Rock")) objNum=DecorVars.Rock;
@@ -5520,6 +5554,7 @@ public class Editor extends GameState {
 			else if (modeParent.equals("Vehicle")) objNum=DecorVars.Vehicle;
 			else if (modeParent.equals("Miscellaneous")) objNum=DecorVars.Misc;
 			else if (modeParent.equals("Portrait")) objNum=DecorVars.Portrait;
+			else if (modeParent.equals("Text")) objNum=DecorVars.Text;
 			else return;
 			if ((modeChild.equals("Add")) & (GameInput.MBJUSTPRESSED)){
 				tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
@@ -6455,7 +6490,7 @@ public class Editor extends GameState {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG", "Toggle Image", "Toggle Sound");
 				} else if (modeParent.equals("Bin Bag")) {
 					listChild.setItems(itemsADMR);
-				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle")) || (modeParent.equals("Miscellaneous")) || (modeParent.equals("Portrait"))) {
+				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle")) || (modeParent.equals("Miscellaneous")) || (modeParent.equals("Portrait")) || (modeParent.equals("Text"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
 				} else if (modeParent.equals("Shade")) {
 					listChild.setItems("Add", "Delete", "Move", "Move Segment");
@@ -6465,7 +6500,7 @@ public class Editor extends GameState {
 				break;
 			case 7 :
 				if (modeParent.equals("Polygon")) {
-					listChild.setItems("Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex", "Set Sign", "Set Fall Time", "Set Damping");
+					listChild.setItems("Add", "Delete", "Move", "Rotate", "Scale", "Flip x", "Flip y", "Add Vertex", "Delete Vertex", "Move Vertex", "Set Sign", "Set Fall Time", "Set Damping", "Toggle Touch Required");
 					pFallingIndex = GetListIndex("Polygon",itemsPRC);
 				} else if (modeParent.equals("Rectangle")) {
 					listChild.setItems("Add");
@@ -6637,7 +6672,7 @@ public class Editor extends GameState {
 				xcenp = newPoly[0];
 				ycenp = newPoly[1]+newPoly[2];				
 			}
-			float[] newArr = {5.0f, 0.5f, xcenp, ycenp};
+			float[] newArr = {5.0f, 0.5f, 0.0f, ycenp}; // Fall time, linear damping, Touch Required (0/1=no/yes), NOTHING
 			allPolygonPaths.add(newArr.clone());
 		} else if (mode==9) {
 			// Trigger platform
@@ -9079,6 +9114,8 @@ public class Editor extends GameState {
 		} else if (otype == DecorVars.Planet) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype == DecorVars.Portrait) {
+			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+		} else if (otype == DecorVars.Text) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype == DecorVars.Rock) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);

@@ -52,6 +52,7 @@ public class DecorVars {
 	public static final int Misc = 42;
 	public static final int Shade = 43;
 	public static final int Portrait = 44;
+	public static final int Text = 45;
 	// The above numbers must not exceed 100, because of the surface textures
 
     // Define the vertices
@@ -115,7 +116,7 @@ public class DecorVars {
     }
 
     public static boolean IsRect(int dTyp) {
-    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock) | (dTyp == Vehicle) | (dTyp == Misc) | (dTyp == Portrait)) {
+    	if ((dTyp == BinBag) | (dTyp == Planet) | (dTyp == TyreStack) | (dTyp == Tree) | (dTyp == Rock) | (dTyp == Vehicle) | (dTyp == Misc) | (dTyp == Portrait) | (dTyp == Text)) {
     		return true;
     	} else return false;
     }
@@ -383,6 +384,7 @@ public class DecorVars {
 		else if (decorID == Misc) return "images/misc_" + GetMiscFromNumber(idx) + ".png";
 		else if (decorID == Shade) return "images/shade.png";
 		else if (decorID == Portrait) return "images/portrait_" + String.format("%02d", idx) + ".png";
+		else if (decorID == Text) return "images/text_" + String.format("%02d", idx) + ".png";
 		// Make some default to stop errors
 		return "images/error.png";
 	}
@@ -423,6 +425,15 @@ public class DecorVars {
 			case 10:
 				planetName = "supernova";
 				break;
+			case 11:
+				planetName = "radiodish";
+				break;
+			case 12:
+				planetName = "dishbase";
+				break;
+			case 13:
+				planetName = "dish";
+				break;
 			default:
 				break;
 		}
@@ -437,6 +448,9 @@ public class DecorVars {
 				break;
 			case 1:
 				miscName = "diamond";
+				break;
+			case 2:
+				miscName = "diary";
 				break;
 			default:
 				break;
@@ -596,7 +610,7 @@ public class DecorVars {
 		} else if (decorID == Planet) {
 			xsize = 628.41345f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 11)) idx = 0;
+			if ((idx < 0) | (idx >= 14)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 628.41345f; // Sun
@@ -631,6 +645,18 @@ public class DecorVars {
 					break;
 				case 10:
 					xsize = 100.0f; // Supernova
+					break;
+				case 11:
+					xsize = 500.0f; // Radio Telescope
+					scale = 741.0f/586.0f;
+					break;
+				case 12:
+					xsize = (363.0f/586.0f)*500.0f; // Radio Telescope Base
+					scale = 143.0f/363.0f;
+					break;
+				case 13:
+					xsize = 500.0f; // Radio Telescope Dish
+					scale = 637.0f/586.0f;
 					break;
 				default:
 					break;
@@ -670,7 +696,7 @@ public class DecorVars {
 		} else if (decorID == Misc) {
 			xsize = 10.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 2)) idx = 0;
+			if ((idx < 0) | (idx >= 3)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 30.0f; // Emerald
@@ -680,29 +706,76 @@ public class DecorVars {
 					xsize = 30.0f; // Diamond
 					scale = 1.0f;
 					break;
+				case 2:
+					xsize = 50.0f; // Diary
+					scale = 447.0f/452.0f;
+					break;
 				default:
 					break;
 			}
 		} else if (decorID == Portrait) {
 			xsize = 400.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 3)) idx = 0;
+			if ((idx < 0) | (idx >= 9)) idx = 0;
 			switch (idx) {
 				case 0:
-					xsize = 400.0f; // Marie Curie
-					scale = 1.0f;
+					scale = 2364.0f/1920.0f;
 					break;
 				case 1:
-					xsize = 400.0f; // Miep Gies
 					scale = 1.0f;
 					break;
 				case 2:
-					xsize = 400.0f; // Ruth Ginsberg
 					scale = 592.0f/474.0f;
 					break;
 				case 3:
-					xsize = 400.0f; // Ghandi -- NOT IMPLEMENTED YET!
-					scale = 1.0f;
+					scale = 1283.0f/1600.0f;
+					break;
+				case 4:
+					scale = 1067.0f/850.0f;
+					break;
+				case 5:
+					scale = 636.0f/526.0f;
+					break;
+				case 6:
+					scale = 1048.0f/1181.0f;
+					break;
+				case 7:
+					scale = 1190.0f/861.0f;
+					break;
+				case 8:
+					scale = 769.0f/567.0f;
+					break;
+				default:
+					break;
+			}
+		} else if (decorID == Text) {
+			xsize = 400.0f;
+			scale = 1.0f;
+			if ((idx < 0) | (idx >= 8)) idx = 0;
+			switch (idx) {
+				case 0:
+					scale = 150.0f/600.0f;
+					break;
+				case 1:
+					scale = 150.0f/600.0f;
+					break;
+				case 2:
+					scale = 150.0f/600.0f;
+					break;
+				case 3:
+					scale = 150.0f/600.0f;
+					break;
+				case 4:
+					scale = 150.0f/600.0f;
+					break;
+				case 5:
+					scale = 150.0f/600.0f;
+					break;
+				case 6:
+					scale = 150.0f/600.0f;
+					break;
+				case 7:
+					scale = 150.0f/600.0f;
 					break;
 				default:
 					break;

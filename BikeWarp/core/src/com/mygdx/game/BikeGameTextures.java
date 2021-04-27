@@ -237,6 +237,9 @@ public class BikeGameTextures {
         GetTexture("bg_StarsRocksBluePink", 2);
         GetTexture("bg_StarsSparse", 2);
         GetTexture("bg_TreesStarsGreen", 2);
+        GetTexture("bg_Waterfall1", 2);
+        GetTexture("bg_Waterfall2", 2);
+        GetTexture("bg_Waterfall3", 2);
         GetTexture("foreground_bushes",2);
         GetTexture("foreground_plants",2);
         GetTexture("foreground_trees",2);
@@ -262,9 +265,11 @@ public class BikeGameTextures {
         for (int i=0; i<12; i++) GetTexture("tree_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
         for (int i=0; i<6; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
-        for (int i=0; i<3; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
+        for (int i=0; i<9; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
+        for (int i=0; i<8; i++) GetTexture("text_"+String.format("%02d", i), 2);
         GetTexture("misc_emerald", 2);
         GetTexture("misc_diamond", 2);
+        GetTexture("misc_diary", 2);
         // Planets
         GetTexture("planet_sun",2);
         GetTexture("planet_mercury",2);
@@ -278,6 +283,9 @@ public class BikeGameTextures {
         GetTexture("planet_moon",2);
         GetTexture("planet_supernova",2);
         GetTexture("planet_supernova_green",2);
+        GetTexture("planet_radiodish",2);
+        GetTexture("planet_dish",2);
+        GetTexture("planet_dishbase",2);
         // Load an error image just in case something fails
         GetTexture("error",2);
         // Add some additional textures

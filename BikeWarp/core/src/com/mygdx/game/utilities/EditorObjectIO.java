@@ -2219,10 +2219,14 @@ public static int AddPendulum(JSONStringer json, float[] fs, int cnt) throws JSO
         json.key("name").value("GameInfo");
         json.key("string").value("SURFACE");
         json.endObject();
-        json.object();
-        json.key("name").value("FallTime");
-        json.key("float").value(path[0]);
-        json.endObject();
+		json.object();
+		json.key("name").value("FallTime");
+		json.key("float").value(path[0]);
+		json.endObject();
+		json.object();
+		json.key("name").value("TouchRequired");
+		json.key("float").value(path[2]);
+		json.endObject();
         json.endArray();
         // Add the fixtures
         json.key("fixture");
