@@ -78,14 +78,13 @@ public class Editor extends GameState {
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
-	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Sunset Mud", "Waterfall",
+	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Sunset Mud", "Waterfall", "Waterfall 1", "Waterfall 2", "Waterfall 3",
 			"Astronaut", "Aurora (Trees)", "Blue Bubble", "Earth", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
 			"Milky Way", "Milky Way (Blue Torch)", "Milky Way (Mountains)", "Milky Way (Rocks)", "Milky Way (Shooting Star)", "Milky Way (Tall Rocks)",
 			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
 			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Planets (1)", "Shuttle Launch", "Star Circles", "Stargazer",
 			"Stars (Blue)", "Stars (Blue/Dust)", "Stars (Blue/Green)", "Stars (Blue/Purple)", "Stars (Dusty)", "Stars (Orange)",
-			"Stars (Purple)", "Stars (Purple/Dust)", "Stars (Purple/Orange)", "Stars (Red)", "Stars+Clouds (Blue/Orange)", "Stars+Rocks (Blue/Pink)", "Stars+Trees (Green)", "Stars Sparse",
-			"Waterfall 1", "Waterfall 2", "Waterfall 3"
+			"Stars (Purple)", "Stars (Purple/Dust)", "Stars (Purple/Orange)", "Stars (Red)", "Stars+Clouds (Blue/Orange)", "Stars+Rocks (Blue/Pink)", "Stars+Trees (Green)", "Stars Sparse"
 	};
 	private String[] bgTextureListDef = bgTextureList.clone();
 	private String[] fgTextureList = {"None", "Bushes", "Plants", "Trees"};
