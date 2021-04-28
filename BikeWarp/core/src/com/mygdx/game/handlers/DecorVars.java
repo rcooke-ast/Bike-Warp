@@ -455,6 +455,9 @@ public class DecorVars {
 			case 2:
 				miscName = "diary";
 				break;
+			case 3:
+				miscName = "log";
+				break;
 			default:
 				break;
 		}
@@ -702,7 +705,7 @@ public class DecorVars {
 		} else if (decorID == Misc) {
 			xsize = 10.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 3)) idx = 0;
+			if ((idx < 0) | (idx >= 4)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 30.0f; // Emerald
@@ -715,6 +718,10 @@ public class DecorVars {
 				case 2:
 					xsize = 50.0f; // Diary
 					scale = 447.0f/452.0f;
+					break;
+				case 3:
+					xsize = 25.0f; // Log
+					scale = 1.0f;
 					break;
 				default:
 					break;
