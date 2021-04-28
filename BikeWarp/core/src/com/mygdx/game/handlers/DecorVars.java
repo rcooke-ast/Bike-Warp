@@ -434,6 +434,9 @@ public class DecorVars {
 			case 13:
 				planetName = "dish";
 				break;
+			case 14:
+				planetName = "dishbolt";
+				break;
 			default:
 				break;
 		}
@@ -610,7 +613,7 @@ public class DecorVars {
 		} else if (decorID == Planet) {
 			xsize = 628.41345f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 14)) idx = 0;
+			if ((idx < 0) | (idx >= 15)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 628.41345f; // Sun
@@ -658,6 +661,9 @@ public class DecorVars {
 					xsize = 500.0f; // Radio Telescope Dish
 					scale = 637.0f/586.0f;
 					break;
+				case 14:
+					xsize = 400.0f; // Radio dish bolt
+					scale = 194.0f/305.0f;
 				default:
 					break;
 			}

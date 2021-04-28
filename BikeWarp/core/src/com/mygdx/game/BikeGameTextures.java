@@ -286,6 +286,7 @@ public class BikeGameTextures {
         GetTexture("planet_radiodish",2);
         GetTexture("planet_dish",2);
         GetTexture("planet_dishbase",2);
+        GetTexture("planet_dishbolt",2);
         // Load an error image just in case something fails
         GetTexture("error",2);
         // Add some additional textures
