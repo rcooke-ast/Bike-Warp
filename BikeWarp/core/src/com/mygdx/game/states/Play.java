@@ -1247,19 +1247,19 @@ public class Play extends GameState {
     private void updateTriggerBodies (float dt) {
     	// First delete the trigger joints
     	Array<Body> joints = cl.getTriggerJoints();
-    	try {
-	    	for (int i = 0; i < joints.size; i++) {
-	    		mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
-	    		triggerFixtList = joints.get(i).getFixtureList();
-	    		for (int j=0; j < triggerFixtList.size; j++) {
-	    			if (triggerFixtList.get(j).getUserData().equals("GroundTrigger")) {
-	    				joints.get(i).destroyFixture(triggerFixtList.get(j));
-	    			}
-	    		}
-	    		triggerFixtList.clear();
-	    	}
-	    	joints.clear();
-    	} catch (IllegalStateException e) {}  
+        for (int i = 0; i < joints.size; i++) {
+            if (joints.get(i).getJointList().size != 0) {
+                mWorld.destroyJoint(joints.get(i).getJointList().first().joint);
+                triggerFixtList = joints.get(i).getFixtureList();
+                for (int j=0; j < triggerFixtList.size; j++) {
+                    if (triggerFixtList.get(j).getUserData().equals("GroundTrigger")) {
+                        joints.get(i).destroyFixture(triggerFixtList.get(j));
+                    }
+                }
+                triggerFixtList.clear();
+            }
+        }
+        joints.clear();
     }
 
     private void updateKinematicBodies(float dt) {

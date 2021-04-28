@@ -551,11 +551,29 @@ public class Editor extends GameState {
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
 									// Temporary for Hiraeth Part 2
-//									float[] newPoly = new float[] {10.0f, 0.0f, 0.0f, 0.0f};
 //									for (int i=0; i<allPolygons.size(); i++) {
-//										if ((allPolygonTypes.get(i) == 6) || (allPolygonTypes.get(i) == 7)) {
-//											allPolygonTypes.set(i,allPolygonTypes.get(i)-2);
-//											allPolygonPaths.set(i,newPoly.clone());
+//										if ((allPolygonTypes.get(i) == 4) || (allPolygonTypes.get(i) == 5)) {
+//											allPolygonTypes.set(i,allPolygonTypes.get(i)+2);
+//											// Trigger platform
+//											int imax = 0;
+//											float xcenp, ycenp;
+//											float maxv = -10000.0f;
+//											if (allPolygonTypes.get(i)==6) {
+//												for (int jj=0; jj<allPolygons.get(i).length/2; jj++) {
+//													if (allPolygons.get(i)[2*jj+1] > maxv) {
+//														imax = jj;
+//														maxv = allPolygons.get(i)[2*jj+1];
+//													}
+//												}
+//												xcenp = allPolygons.get(i)[2*imax];
+//												ycenp = allPolygons.get(i)[2*imax+1];
+//											} else {
+//												xcenp = allPolygons.get(i)[0];
+//												ycenp = allPolygons.get(i)[1];
+//											}
+//											// (x, y of point on platform), (x, y of middle of trigger), (length, angle) of trigger
+//											float[] newArr = {xcenp, ycenp, xcenp-100.0f, ycenp-1000.0f, 500.0f, 0.0f};
+//											allPolygonPaths.set(i,newArr.clone());
 //										}
 //									}
 
