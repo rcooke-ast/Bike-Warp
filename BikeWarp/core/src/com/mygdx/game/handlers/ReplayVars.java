@@ -8,7 +8,6 @@ package com.mygdx.game.handlers;
 
 import java.util.ArrayList;
 import java.io.Serializable;
-import com.badlogic.gdx.Input.Keys;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +34,10 @@ public class ReplayVars implements Serializable {
     public static ArrayList<Float> replayLW_X, replayLW_Y, replayLW_A, replayLW_V;
     public static ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A, replayRW_V;
     public static ArrayList<Float> replayChangeDir;
+	public static ArrayList<ArrayList<Float>> replayDynamicBodies_X = new ArrayList<ArrayList<Float>>();
+	public static ArrayList<ArrayList<Float>> replayDynamicBodies_Y = new ArrayList<ArrayList<Float>>();
+	public static ArrayList<ArrayList<Float>> replayDynamicBodies_A = new ArrayList<ArrayList<Float>>();
+	public static ArrayList<ArrayList<Float>> replayDynamicBodies_V = new ArrayList<ArrayList<Float>>();
     public static int replayCntr = 0, replayCDCntr = 0, levelNumber=-1, replayMode=-1, replayTimer;
     public static String levelName="";
 
@@ -58,6 +61,10 @@ public class ReplayVars implements Serializable {
     	replayRW_A = new ArrayList<Float>();
     	replayRW_V = new ArrayList<Float>();
     	replayChangeDir = new ArrayList<Float>();
+		replayDynamicBodies_X = new ArrayList<ArrayList<Float>>();
+		replayDynamicBodies_Y = new ArrayList<ArrayList<Float>>();
+		replayDynamicBodies_A = new ArrayList<ArrayList<Float>>();
+		replayDynamicBodies_V = new ArrayList<ArrayList<Float>>();
     	replayCntr = 0;
     	replayCDCntr = 0;
     	levelName = name;
@@ -91,6 +98,12 @@ public class ReplayVars implements Serializable {
 		return replayCntr;
 	}
 
+	public static void ResetReplayCounter() {
+    	// Only use this routine if the replay is being reset while a replay is being shown
+		replayCntr = 0;
+		replayCDCntr = 0;
+	}
+
 	public static boolean CheckSwitchDirection(int rIndex) {
 		boolean switchIt = false;
 		if (replayCDCntr >= replayChangeDir.size()) return switchIt;
@@ -99,6 +112,16 @@ public class ReplayVars implements Serializable {
 			replayCDCntr += 1;
 		}
 		return switchIt;
+	}
+
+	public static void SetupDynamicBodies(int nbodies) {
+    	for (int dd=0; dd<nbodies; dd++) {
+			replayDynamicBodies_X.add(new ArrayList<Float>());
+			replayDynamicBodies_Y.add(new ArrayList<Float>());
+			replayDynamicBodies_A.add(new ArrayList<Float>());
+			replayDynamicBodies_V.add(new ArrayList<Float>());
+		}
+    	System.out.println(100+replayDynamicBodies_X.size());
 	}
 
 	public static void UpdateKeyPress() {
@@ -136,7 +159,11 @@ public class ReplayVars implements Serializable {
 	    	replayRW_Y = (ArrayList<Float>) oi.readObject();
 	    	replayRW_A = (ArrayList<Float>) oi.readObject();
 	    	replayRW_V = (ArrayList<Float>) oi.readObject();
-	    	replayChangeDir = (ArrayList<Float>) oi.readObject();
+			replayChangeDir = (ArrayList<Float>) oi.readObject();
+			replayDynamicBodies_X = (ArrayList<ArrayList<Float>>) oi.readObject();
+			replayDynamicBodies_Y = (ArrayList<ArrayList<Float>>) oi.readObject();
+			replayDynamicBodies_A = (ArrayList<ArrayList<Float>>) oi.readObject();
+			replayDynamicBodies_V = (ArrayList<ArrayList<Float>>) oi.readObject();
 	    	replayTimer = (int) oi.readObject();
 
 			// Close files
@@ -182,6 +209,10 @@ public class ReplayVars implements Serializable {
 			o.writeObject(replayRW_A);
 			o.writeObject(replayRW_V);
 			o.writeObject(replayChangeDir);
+			o.writeObject(replayDynamicBodies_X);
+			o.writeObject(replayDynamicBodies_Y);
+			o.writeObject(replayDynamicBodies_A);
+			o.writeObject(replayDynamicBodies_V);
 			o.writeObject(replayTimer);
 
 			// Close the file

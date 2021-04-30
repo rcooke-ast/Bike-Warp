@@ -103,6 +103,7 @@ public class Play extends GameState {
     private Array<float[]> switchGate;
     private Array<Body> remBodies;
     private Array<Body> jewelBodies;
+    private ArrayList<Body> allDynamicBodies;
     private ArrayList<Float> jewel_xpos, jewel_ypos;
     private ArrayList<Boolean> jewel_mask;
     private ArrayList<Integer> jewel_posn;
@@ -150,6 +151,7 @@ public class Play extends GameState {
 	private float dircGrav;
     private float bikeScale = 1.0f;
     private float bikeScaleLev = 0.05f;
+    private float bikeScaleLevOrig = 0.05f;
     private float gravityScale = -1.0f;
     private Vector2 bounds = null; 
     private Vector2 gravityPrev = new Vector2(), gravityNew = new Vector2(), gravityOld = new Vector2();
@@ -479,6 +481,7 @@ public class Play extends GameState {
     	lrIsDown = false;
     	
     	// Set the replay in motion
+        allDynamicBodies = new ArrayList<Body>();
     	replayTime = 0.0f;
     }
     
@@ -583,6 +586,7 @@ public class Play extends GameState {
                 // Reset the replay
             	if (!isReplay) {
             		ReplayVars.Reset(editorString, levelID, mode);
+            		ReplayVars.SetupDynamicBodies(allDynamicBodies.size());
 	   				replayTime = 0.0f;
 	   				ReplayVars.replayCntr = 0;
 	   				ReplayVars.replayCDCntr = 0;
@@ -694,6 +698,7 @@ public class Play extends GameState {
     	            	gsm.SetPlaying(false);
     	            	// Start it again
     	            	if (mode != 0) {
+                            ResetReplay();
     	            		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
     	            		gsm.SetPlaying(true);
     	            	}
@@ -821,6 +826,58 @@ public class Play extends GameState {
 	    // Switch the texture
 	}
 
+	private void ResetReplay() {
+        replayTime = 0.0f;
+        ReplayVars.ResetReplayCounter();
+        bikeScaleLev = bikeScaleLevOrig;
+        bikeDirc = startDirection;
+        bikeScale = startDirection;
+        bikeScaleLev *= startDirection;
+        // Destroy all joints, and create the left-facing joints
+        // First Destroy
+        mWorld.destroyJoint(leftWheel);
+        mWorld.destroyJoint(rightWheel);
+        mWorld.destroyJoint(leftRope);
+        mWorld.destroyJoint(rightRope);
+        // Now Create
+        if (bikeDirc == 1.0f) {
+            leftWheel = (WheelJoint) mWorld.createJoint(leftWheelR);
+            rightWheel = (WheelJoint) mWorld.createJoint(rightWheelR);
+            leftRope = (RopeJoint) mWorld.createJoint(leftRopeR);
+            rightRope = (RopeJoint) mWorld.createJoint(rightRopeR);
+        } else {
+            leftWheel = (WheelJoint) mWorld.createJoint(leftWheelL);
+            rightWheel = (WheelJoint) mWorld.createJoint(rightWheelL);
+            leftRope = (RopeJoint) mWorld.createJoint(leftRopeL);
+            rightRope = (RopeJoint) mWorld.createJoint(rightRopeL);
+        }
+        // First, get the transform for rotating the body
+        // Transform the left wheel
+        bikeBodyLW.setTransform(new Vector2(0.0f,0.0f), startAngle);
+        // Transform the Right Wheel
+        float[] cCoord = PolygonOperations.RotateCoordinate(bikeBodyRW.getPosition().x, bikeBodyRW.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        Vector2 temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyRW.setTransform(temppos, startAngle);
+        // Transform the Head
+        cCoord = PolygonOperations.RotateCoordinate(bikeBodyH.getPosition().x, bikeBodyH.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyH.setTransform(temppos, startAngle);
+        // Transform the Rider Body
+        cCoord = PolygonOperations.RotateCoordinate(bikeBodyR.getPosition().x, bikeBodyR.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyR.setTransform(temppos, startAngle);
+        // Transform the Chassis
+        cCoord = PolygonOperations.RotateCoordinate(bikeBodyC.getPosition().x, bikeBodyC.getPosition().y, startAngle*MathUtils.radiansToDegrees, 0.0f, 0.0f);
+        temppos = new Vector2(cCoord[0],cCoord[1]);
+        bikeBodyC.setTransform(temppos, startAngle);
+        // Translate the bike into the starting position
+        bikeBodyLW.setTransform(bikeBodyLW.getPosition().add(startPosition), bikeBodyLW.getAngle());
+        bikeBodyRW.setTransform(bikeBodyRW.getPosition().add(startPosition), bikeBodyRW.getAngle());
+        bikeBodyH.setTransform(bikeBodyH.getPosition().add(startPosition), bikeBodyH.getAngle());
+        bikeBodyR.setTransform(bikeBodyR.getPosition().add(startPosition), bikeBodyR.getAngle());
+        bikeBodyC.setTransform(bikeBodyC.getPosition().add(startPosition), bikeBodyC.getAngle());
+    }
+
 	private void updateBikeReplay(float dt) {
 		Vector2 temppos;
 		replayTime += dt;
@@ -869,6 +926,18 @@ public class Play extends GameState {
 
 		// Update the Bike Sound
 		UpdateBikeSound();
+
+		// Update the details of every dynamic body
+        float dyn_x, dyn_y, dyn_a, dyn_v;
+        for (int dd=0; dd<allDynamicBodies.size(); dd++) {
+            dyn_a = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_A.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_A.get(dd).get(rIndex+1), mid);
+            dyn_x = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_X.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_X.get(dd).get(rIndex+1), mid);
+            dyn_y = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_Y.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_Y.get(dd).get(rIndex+1), mid);
+            dyn_v = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_V.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_V.get(dd).get(rIndex+1), mid);
+            temppos = new Vector2(dyn_x, dyn_y);
+            allDynamicBodies.get(dd).setTransform(temppos, dyn_a);
+            allDynamicBodies.get(dd).setAngularVelocity(dyn_v);
+        }
 
 		// Check if the bike direction needs to be switched
 		if (ReplayVars.CheckSwitchDirection(rIndex)) switchBikeDirection();
@@ -919,6 +988,13 @@ public class Play extends GameState {
 		ReplayVars.replayRW_Y.add(RWCen.y);
 		ReplayVars.replayRW_A.add(bikeBodyRW.getAngle());
 		ReplayVars.replayRW_V.add(bikeBodyRW.getAngularVelocity());
+		// All other dynamic bodies in the level
+        for (int dd=0; dd<ReplayVars.replayDynamicBodies_X.size(); dd++) {
+            ReplayVars.replayDynamicBodies_X.get(dd).add(allDynamicBodies.get(dd).getPosition().x);
+            ReplayVars.replayDynamicBodies_Y.get(dd).add(allDynamicBodies.get(dd).getPosition().y);
+            ReplayVars.replayDynamicBodies_A.get(dd).add(allDynamicBodies.get(dd).getAngle());
+            ReplayVars.replayDynamicBodies_V.get(dd).add(allDynamicBodies.get(dd).getAngularVelocity());
+        }
 	}
 	
 	private void UpdateBikeSound() {
@@ -1776,20 +1852,21 @@ public class Play extends GameState {
              // each iteration adds to the scene that is ultimately returned...
         	  if ((i==0) & (editorString != null)) {
         		  // Load an editor scene
-//        		  Thread.setDefaultUncaughtExceptionHandler( (thread, throwable) -> {
-//        		        System.out.println(throwable.getMessage());
-//        		        mScene = loader.addEditorScene(editorString);
-//        		        System.out.println("made it!");
-//        		       	});
         	       // Handle uncaught exceptions
         		  mScene = loader.addEditorScene(editorString);
-//          	   gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
-//     	    	   gsm.SetPlaying(false);
-//         	       return;
-        		  mRubeFileIndex++;
+        		  // Get all dynamic bodies now
+                  Array<Body> bodies = mScene.getBodies();
+                  for (int dd=0; dd<bodies.size; dd++) {
+                      if (bodies.get(dd).getType().equals(BodyType.DynamicBody)) {
+                          allDynamicBodies.add(bodies.get(dd));
+                      }
+                  }
+                  //bodies.clear();
+                  mRubeFileIndex++;
         	  } else {
         		  // Load a level
         		  mScene = loader.addScene(Gdx.files.internal(LEVEL_FILE_LIST[mRubeFileList][mRubeFileIndex++]));
+        		  //mWorld.getBodies(bodies);
         	  }
           }
           int failed = processScene();
@@ -1803,7 +1880,7 @@ public class Play extends GameState {
           if (containsRain) updateRain(0.0f);
        } else if (mAssetManager.update()) {
           // each iteration adds to the scene that is ultimately returned...
-          mScene = mAssetManager.get(LEVEL_FILE_LIST[mRubeFileList][mRubeFileIndex++], RubeScene.class);
+           mScene = mAssetManager.get(LEVEL_FILE_LIST[mRubeFileList][mRubeFileIndex++], RubeScene.class);
           if (mRubeFileIndex < LEVEL_FILE_LIST[mRubeFileList].length)
           {
              mAssetManager.load(LEVEL_FILE_LIST[mRubeFileList][mRubeFileIndex], RubeScene.class);
@@ -2235,6 +2312,7 @@ public class Play extends GameState {
     	if (remBodies != null) remBodies.clear();
     	if (remBodiesIdx != null) remBodiesIdx.clear();
         if (jewelBodies != null) jewelBodies.clear();
+        if (allDynamicBodies != null) allDynamicBodies.clear();
         if (jewel_posn != null) jewel_posn.clear();
         if (jewel_mask != null) jewel_mask.clear();
         if (jewel_xpos != null) jewel_xpos.clear();
