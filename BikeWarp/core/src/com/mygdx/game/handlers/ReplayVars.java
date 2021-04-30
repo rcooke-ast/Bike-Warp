@@ -121,7 +121,6 @@ public class ReplayVars implements Serializable {
 			replayDynamicBodies_A.add(new ArrayList<Float>());
 			replayDynamicBodies_V.add(new ArrayList<Float>());
 		}
-    	System.out.println(100+replayDynamicBodies_X.size());
 	}
 
 	public static void UpdateKeyPress() {

@@ -647,8 +647,8 @@ public class Play extends GameState {
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
-	     	   			if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	     	   			if ((!isReplay) && (mode != 0)) ReplayVars.replayTimer = timerTotal;
+                        if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	     	   			StopSounds();
 	     	   			BikeGameSounds.PlaySound(soundFinish, 1.0f);
 	     	   			if (!isReplay) GameVars.SetTimerTotal(timerTotal);
@@ -698,7 +698,7 @@ public class Play extends GameState {
     	            	gsm.SetPlaying(false);
     	            	// Start it again
     	            	if (mode != 0) {
-                            ResetReplay();
+                            //if ((mode == 3) || (mode == 4)) ResetReplay();
     	            		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
     	            		gsm.SetPlaying(true);
     	            	}
