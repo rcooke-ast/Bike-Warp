@@ -556,6 +556,7 @@ public class EditorIO {
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
 		else if (textName.equals("Grass (Meadow)")) return "images/grass_meadow.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
+		else if (textName.equals("Gravel (Dark)")) return "images/ground_graveldark.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
 		else if (textName.equals("Lava")) return "images/ground_lava.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
@@ -599,6 +600,7 @@ public class EditorIO {
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
 		else if (textName.equals("Grass (Meadow)")) return "images/grass_meadow.png";
 		else if (textName.equals("Gravel")) return "images/ground_gravel.png";
+		else if (textName.equals("Gravel (Dark)")) return "images/ground_graveldark.png";
 		else if (textName.equals("Ice")) return "images/ground_ice.png";
 		else if (textName.equals("Lava")) return "images/ground_lava.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";

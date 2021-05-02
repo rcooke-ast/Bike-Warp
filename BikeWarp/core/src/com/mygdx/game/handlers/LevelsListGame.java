@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 55; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 61; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -109,6 +109,14 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/OverTheFalls.lvl";
 
 		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Banksy Tribute";
+		gameLevelFiles[lnum] = "data/gamelevels/Banksy.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Anne Frank Tribute";
+		gameLevelFiles[lnum] = "data/gamelevels/AnneFrank.lvl";
+
+		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Shadow Trials";
 		gameLevelFiles[lnum] = "data/gamelevels/ShadowTrials.lvl";
 
@@ -142,7 +150,23 @@ public class LevelsListGame {
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Gold Digger";
-		gameLevelFiles[lnum] = "data/gamelevels/GoldDiggerEarth.lvl";
+		gameLevelFiles[lnum] = "data/gamelevels/GoldDigger.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Kumano Kodo";
+		gameLevelFiles[lnum] = "data/gamelevels/KumanoKodo.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". The Tale of the Purple Moon";
+		gameLevelFiles[lnum] = "data/gamelevels/PurpleMoon.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". A Rolling Moon Gathers No Moss";
+		gameLevelFiles[lnum] = "data/gamelevels/RollingMoon.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". The Battle of the Four Samurai";
+		gameLevelFiles[lnum] = "data/gamelevels/Samurai.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Snowy Peaks";

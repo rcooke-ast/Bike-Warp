@@ -26,7 +26,7 @@ public class OptionsMainMenu {
     public static final int[] menuStrings = {ChangePlayer,SinglePlayer,Expansions,Replays,Options,Exit};
     public static Sprite[] menuOptions;
     static {
-        currentOption = 0;
+        currentOption = 1;
     }
 
     public static void raise() {

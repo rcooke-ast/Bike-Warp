@@ -265,7 +265,7 @@ public class BikeGameTextures {
         for (int i=0; i<12; i++) GetTexture("tree_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
         for (int i=0; i<6; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
-        for (int i=0; i<9; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
+        for (int i=0; i<10; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
         for (int i=0; i<8; i++) GetTexture("text_"+String.format("%02d", i), 2);
         GetTexture("misc_emerald", 2);
         GetTexture("misc_diamond", 2);

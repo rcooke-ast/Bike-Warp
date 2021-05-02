@@ -64,7 +64,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -102,6 +102,7 @@ public class DecorVars {
 	public static final int textureWoodPlancksD = 34;
 	public static final int textureSnowLight = 35;
 	public static final int textureBarkH = 36;
+	public static final int textureGravelDark = 37;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -202,6 +203,7 @@ public class DecorVars {
 			case (textureFogStain+100): return "Fog Stain";
 			case (textureGrass+100): return "Grass";
 			case (textureGravel+100): return "Gravel";
+			case (textureGravelDark+100): return "Gravel (Dark)";
 			case (textureIce+100): return "Ice";
 			case textureLava+100: return "Lava";
 			case textureLeaves+100: return "Leaves";
@@ -250,6 +252,7 @@ public class DecorVars {
 			case "Fog Stain": return textureFogStain+offs;
 			case "Grass": return textureGrass+offs;
 			case "Gravel": return textureGravel+offs;
+			case "Gravel (Dark)": return textureGravelDark+offs;
 			case "Ice": return textureIce+offs;
 			case "Lava": return textureLava+offs;
 			case "Leaves": return textureLeaves+offs;
@@ -729,7 +732,7 @@ public class DecorVars {
 		} else if (decorID == Portrait) {
 			xsize = 400.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 9)) idx = 0;
+			if ((idx < 0) | (idx >= 10)) idx = 0;
 			switch (idx) {
 				case 0:
 					scale = 2364.0f/1920.0f;
@@ -757,6 +760,9 @@ public class DecorVars {
 					break;
 				case 8:
 					scale = 769.0f/567.0f;
+					break;
+				case 9:
+					scale = 5304.0f/7952.0f;
 					break;
 				default:
 					break;
