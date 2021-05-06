@@ -550,6 +550,91 @@ public class Editor extends GameState {
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
+									// Temporary for Myth of Sisyphus (part 3)
+//									float xcen = 0.0f, ycen=0.0f, crad=100.0f, orad=200.0f;
+//									int nSamp = 300;
+//									int cntr = 0;
+//									float[] tubePoly = new float[nSamp];
+//									for (int i=0; i<allPolygons.size(); i++) {
+//										if (allPolygonTypes.get(i) == 6) {
+//											switch (cntr) {
+//												case 0:
+//													xcen = 35516.054688f;
+//													ycen = 49744.988281f;
+//													crad = 351.869781f;
+//													orad = 365.07798f;
+//													nSamp = 160;
+//													break;
+//												case 1:
+//													xcen = 36320.015625f;
+//													ycen = 49667.046875f;
+//													crad = 351.869781f;
+//													orad = 365.07798f;
+//													nSamp = 160;
+//													break;
+//												case 2:
+//													xcen = 36039.304688f;
+//													ycen = 50417.265625f;
+//													crad = 351.869781f;
+//													orad = 365.07798f;
+//													nSamp = 160;
+//													break;
+//												case 3:
+//													xcen = 35955.652344f;
+//													ycen = 49946.464844f;
+//													crad = 886.061646f;
+//													orad = 921.60693f;
+//													nSamp = 300;
+//													break;
+//												case 4:
+//													break;
+//											}
+//											tubePoly = new float[nSamp];
+//											for (int dd=0; dd<nSamp/4; dd++) {
+//												tubePoly[2*dd] = xcen + orad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/4-1));
+//												tubePoly[2*dd+1] = ycen + orad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/4-1));
+//											}
+//											for (int dd=0; dd<nSamp/4; dd++) {
+//												tubePoly[nSamp - 2*dd - 2] = xcen + crad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/4-1));
+//												tubePoly[nSamp - 2*dd - 1] = ycen + crad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/4-1));
+//											}
+//											tubePoly[1] += 0.05f;
+//											tubePoly[nSamp-1] += 0.05f;
+//											allPolygons.set(i, tubePoly.clone());
+//											cntr += 1;
+//										}
+//									}
+
+
+									// Temporary for Myth of Sisyphus (part 2)
+									// x, y = 3029.0242, 95318.36
+									//884.60693
+									//884.9013
+//									float[] extraPoly = new float[] {3182.5986f, 94443.43f, 3192.5986f, 94443.43f, 3192.5986f, 94943.43f, 3182.5986f, 94943.43f};
+//									int nSamp = 300;
+//									float[] tubePoly = new float[nSamp];
+//									for (int dd=0; dd<nSamp/4; dd++) {
+//										tubePoly[2*dd] = 3029.0242f + 921.60693f * (float) Math.cos(2.0*Math.PI*dd/(nSamp/4-1));
+//										tubePoly[2*dd+1] = 95318.36f + 921.60693f * (float) Math.sin(2.0*Math.PI*dd/(nSamp/4-1));
+//									}
+//									for (int dd=0; dd<nSamp/4; dd++) {
+//										tubePoly[nSamp - 2*dd - 2] = 3029.0242f + 884.60693f * (float) Math.cos(2.0*Math.PI*dd/(nSamp/4-1));
+//										tubePoly[nSamp - 2*dd - 1] = 95318.36f + 884.60693f * (float) Math.sin(2.0*Math.PI*dd/(nSamp/4-1));
+//									}
+//									tubePoly[1] += 0.05f;
+//									tubePoly[nSamp-1] += 0.05f;
+////									allPolygons.add(tubePoly.clone());
+////									allPolygonTypes.add(6);
+////									allPolygonTextures.add("");
+////									allPolygonSprites.add(null);
+////									allPolygonPaths.add(extraPoly.clone());
+//									for (int i=0; i<allPolygons.size(); i++) {
+//										if (allPolygonTypes.get(i) == 6) {
+//											allPolygons.set(i, tubePoly.clone());
+//											break;
+//										}
+//									}
+
 									// Temporary for Hiraeth Part 2
 //									for (int i=0; i<allPolygons.size(); i++) {
 //										if ((allPolygonTypes.get(i) == 4) || (allPolygonTypes.get(i) == 5)) {
@@ -1959,6 +2044,8 @@ public class Editor extends GameState {
 				shapeRenderer.polygon(poly);
 			} else if (polyType%2 == 1) {
 				shapeRenderer.circle(poly[0], poly[1], poly[2]);
+//				System.out.println("----");
+//				System.out.printf("%ff, %ff, %ff;", poly[0], poly[1], poly[2]);
 			}
 		} else if (polyType <= 3) {
 			// Kinematic Polygons
