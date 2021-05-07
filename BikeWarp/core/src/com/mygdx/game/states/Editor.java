@@ -550,6 +550,21 @@ public class Editor extends GameState {
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
+									// Temporary for Barracks
+//									String[] colorStringArr;
+//									String colorString = "";
+//									float colval = 0.9f;
+//									for (int i=0; i<allPolygons.size(); i++) {
+//										allPolygonSprites.add(null);
+//										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i) % 2 == 0)) {
+//											colorStringArr = allPolygonTextures.get(i).split("_");
+//											if ((colorStringArr[1].startsWith("1.0")) & (colorStringArr[2].startsWith("1.0")) & (colorStringArr[3].startsWith("1.0"))) {
+//												colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f", colval, colval, colval, 1.0f);
+//												allPolygonTextures.set(i, colorString);
+//											}
+//										}
+//									}
+
 									// Temporary for Myth of Sisyphus (part 3)
 //									float xcen = 0.0f, ycen=0.0f, crad=100.0f, orad=200.0f;
 //									int nSamp = 300;

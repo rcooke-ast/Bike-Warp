@@ -29,7 +29,7 @@ public class MenuReplay extends GameState {
     private final String header = "Select a replay to watch";
     private String newName = "";
     private boolean createPlayer = false;
-    private ArrayList<String> replayFiles;
+    private String[] replayFiles;
 
 	public MenuReplay(GameStateManager gsm) {
 		super(gsm);
@@ -67,9 +67,9 @@ public class MenuReplay extends GameState {
         glyphLayout.setText(replayList, "Return to Main Menu");
         replayWidth = glyphLayout.width;
         float tstReplayWidth;
-        numOptions = 1 + replayFiles.size();
-        for (int i=0; i<replayFiles.size(); i++) {
-        	glyphLayout.setText(replayList, replayFiles.get(i));
+        numOptions = 1 + replayFiles.length;
+        for (int i=0; i<replayFiles.length; i++) {
+        	glyphLayout.setText(replayList, replayFiles[i]);
         	tstReplayWidth = glyphLayout.width;
         	if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
         }
@@ -108,7 +108,7 @@ public class MenuReplay extends GameState {
 				BikeGameSounds.PlayMenuSelect();
         	} else {
         		// Load the replay
-        		ReplayVars.LoadReplay(replayFiles.get(currentOption-1));
+        		ReplayVars.LoadReplay(replayFiles[currentOption-1]);
         		int mode = ReplayVars.replayMode; // Determine if it's a training or game level
         		// Now execute the replay
         		gsm.setState(GameStateManager.PLAY, true, ReplayVars.levelName, ReplayVars.levelNumber, mode);
@@ -174,7 +174,7 @@ public class MenuReplay extends GameState {
         	else replayList.setColor(1, 1, 1, alpha/2);
         	// Grab the text to display
         	if (i == 0) dispText = "Return to Main Menu";
-        	else dispText = replayFiles.get(i-1);
+        	else dispText = replayFiles[i-1];
         	// Render the text
 			glyphLayout.setText(replayList, dispText);
         	optWidth = glyphLayout.width;

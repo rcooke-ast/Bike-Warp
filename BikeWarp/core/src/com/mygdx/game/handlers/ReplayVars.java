@@ -6,6 +6,8 @@
 
 package com.mygdx.game.handlers;
 
+import com.badlogic.gdx.utils.Array;
+
 import java.util.ArrayList;
 import java.io.Serializable;
 
@@ -16,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 
 /**
  *
@@ -73,17 +76,24 @@ public class ReplayVars implements Serializable {
     }
 
     // Check the player and world record times
-	public static ArrayList<String> GetReplayList() {
+	public static String[] GetReplayList() {
 		File f = new File(replayDir);
 		if (!f.exists()) f.mkdir();
 		String[] fils = f.list();
-		ArrayList<String> files = new ArrayList<String>();
+		Array<String> files = new Array<String>();
 		for (int ff=0; ff<fils.length; ff++) {
 			if (fils[ff].endsWith(replayExt)) {
 				files.add(fils[ff]);
 			}
 		}
-		return files;
+		// Put the files in a string list
+		String[] repFiles = new String[files.size];
+		for (int ff=0; ff<files.size; ff++) {
+			repFiles[ff] = files.get(ff);
+		}
+		// Sort the files
+		Arrays.sort(repFiles);
+		return repFiles;
 	}
 
     // Check the player and world record times
