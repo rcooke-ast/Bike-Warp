@@ -104,6 +104,8 @@ public class BikeGameTextures {
         GetTexture("key_blue",0);
         GetTexture("key_green",0);
         GetTexture("log",0);
+        GetTexture("nitrous_fire_01",0);
+        GetTexture("nitrous_fire_02",0);
         GetRoadSigns(0);
         GetTexture("metalplate",0);
         GetTexture("nitrous",0);

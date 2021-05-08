@@ -178,6 +178,8 @@ public class Play extends GameState {
     private int dmnd_posn;
     private Texture texture;
     private Sprite blackScreen, sky, background, foreground, finishFG, openDoor, switchGL, switchRL, metalBar, diamondSN, diamondSNg;
+    private ArrayList<Sprite> nitFire;
+    private int nitFireCntr;
     private Sprite bikeWheel, bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
@@ -1033,6 +1035,10 @@ public class Play extends GameState {
 				}
 			}
 		}
+		if (applyNitrous==1) {
+            nitFireCntr += 1;
+            if (nitFireCntr>=nitFire.size()) nitFireCntr = 0;
+        }
 		UpdateBikeSound();
 		if ((bikeScale > -1.0f) & (bikeScale < 1.0f)) {
 			bikeScale += bikeScaleLev;
@@ -1974,6 +1980,10 @@ public class Play extends GameState {
         }
         diamondSN = new Sprite(BikeGameTextures.LoadTexture("planet_supernova",2));
         diamondSNg = new Sprite(BikeGameTextures.LoadTexture("planet_supernova_green",2));
+        nitFire = new ArrayList<>();
+        nitFire.add(new Sprite(BikeGameTextures.LoadTexture("nitrous_fire_01",0)));
+        nitFire.add(new Sprite(BikeGameTextures.LoadTexture("nitrous_fire_02",0)));
+        nitFireCntr = 0;
 
         // Get the two bike wheel motors
         leftWheel = mScene.getNamed(WheelJoint.class, "leftwheel").first();
@@ -2476,6 +2486,13 @@ public class Play extends GameState {
         mBatch.begin();
         float bcx, bcy, angle;
         float bscale = (float)Math.sin(bikeScale*Math.PI/2);
+        // Render Nitrous fire first
+        bcx = bikeBodyC.getPosition().x;
+        bcy = bikeBodyC.getPosition().y;
+        angle = bikeBodyC.getAngle();
+        if (applyNitrous==1) {
+            mBatch.draw(nitFire.get(nitFireCntr), bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+        }
         //if ((bscale == -1.0f) | (bscale == 1.0f)) {
         mBatch.setColor(bikeShadeScl, bikeShadeScl, bikeShadeScl, 1);
         if (true) {
