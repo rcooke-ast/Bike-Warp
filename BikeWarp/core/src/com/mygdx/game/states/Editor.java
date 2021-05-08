@@ -91,10 +91,10 @@ public class Editor extends GameState {
 	private String[] animTextureList = {"None", "Asteroids", "Snow"};
 	private String[] platformTextures = DecorVars.GetPlatformTextures();
 	private String[] timerColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust grey value",
-			"Set white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
+			"Set white", "Set off white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
 			"Set green", "Set blue", "Set purple"};
 	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust opacity",
-			"Set white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
+			"Set white", "Set off white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
 			"Set green", "Set blue", "Set purple", "Set invisible"};
 	private float[] platformColor;
 	private int[] timerColor;
@@ -551,19 +551,19 @@ public class Editor extends GameState {
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
 									// Temporary for Barracks
-//									String[] colorStringArr;
-//									String colorString = "";
-//									float colval = 0.9f;
-//									for (int i=0; i<allPolygons.size(); i++) {
-//										allPolygonSprites.add(null);
-//										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i) % 2 == 0)) {
-//											colorStringArr = allPolygonTextures.get(i).split("_");
-//											if ((colorStringArr[1].startsWith("1.0")) & (colorStringArr[2].startsWith("1.0")) & (colorStringArr[3].startsWith("1.0"))) {
-//												colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f", colval, colval, colval, 1.0f);
-//												allPolygonTextures.set(i, colorString);
-//											}
-//										}
-//									}
+									String[] colorStringArr;
+									String colorString = "";
+									float colval = 0.9f;
+									for (int i=0; i<allPolygons.size(); i++) {
+										allPolygonSprites.add(null);
+										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i) % 2 == 0)) {
+											colorStringArr = allPolygonTextures.get(i).split("_");
+											if ((colorStringArr[1].startsWith("1.0")) & (colorStringArr[2].startsWith("1.0")) & (colorStringArr[3].startsWith("1.0"))) {
+												colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f", colval, colval, colval, 1.0f);
+												allPolygonTextures.set(i, colorString);
+											}
+										}
+									}
 
 									// Temporary for Myth of Sisyphus (part 3)
 //									float xcen = 0.0f, ycen=0.0f, crad=100.0f, orad=200.0f;
@@ -3542,6 +3542,8 @@ public class Editor extends GameState {
 			} else {
 				if (modeChild.equals("Set white")) {
 					timerColor = new int[]{255, 255, 255};
+				} else if (modeChild.equals("Set off white")) {
+					timerColor = new int[]{230, 230, 230};
 				} else if (modeChild.equals("Set light grey")) {
 					timerColor = new int[]{178, 178, 178};
 				} else if (modeChild.equals("Set dark grey")) {
@@ -3938,6 +3940,8 @@ public class Editor extends GameState {
 				} else if (polySelect != -1) {
 					if (modeChild.equals("Set white")) {
 						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set off white")) {
+						platformColor = new float[]{0.9f, 0.9f, 0.9f, 1.0f};
 					} else if (modeChild.equals("Set light grey")) {
 						platformColor = new float[]{0.7f, 0.7f, 0.7f, 1.0f};
 					} else if (modeChild.equals("Set dark grey")) {
@@ -4384,6 +4388,8 @@ public class Editor extends GameState {
 				} else if (polySelect != -1) {
 					if (modeChild.equals("Set white")) {
 						platformColor = new float[]{1.0f, 1.0f, 1.0f, 1.0f};
+					} else if (modeChild.equals("Set off white")) {
+						platformColor = new float[]{0.9f, 0.9f, 0.9f, 1.0f};
 					} else if (modeChild.equals("Set light grey")) {
 						platformColor = new float[]{0.7f, 0.7f, 0.7f, 1.0f};
 					} else if (modeChild.equals("Set dark grey")) {
