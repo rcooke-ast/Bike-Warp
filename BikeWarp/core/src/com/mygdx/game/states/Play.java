@@ -2485,13 +2485,14 @@ public class Play extends GameState {
         // Render the colour of the bike
         mBatch.begin();
         float bcx, bcy, angle;
+        float pixtomet = 1.125f/1096.0f;
         float bscale = (float)Math.sin(bikeScale*Math.PI/2);
         // Render Nitrous fire first
         bcx = bikeBodyC.getPosition().x;
         bcy = bikeBodyC.getPosition().y;
         angle = bikeBodyC.getAngle();
         if (applyNitrous==1) {
-            mBatch.draw(nitFire.get(nitFireCntr), bcx-bscale*0.72f, bcy-0.3f, bscale*0.72f, 0.3f, bscale*1.44f, 1.125f, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
+            mBatch.draw(nitFire.get(nitFireCntr), bcx-bscale*580.0f*pixtomet, bcy-21.0f*pixtomet, bscale*580.0f*pixtomet, 21.0f*pixtomet, bscale*128.0f*pixtomet, 94.0f*pixtomet, 1.0f, 1.0f, MathUtils.radiansToDegrees*angle);
         }
         //if ((bscale == -1.0f) | (bscale == 1.0f)) {
         mBatch.setColor(bikeShadeScl, bikeShadeScl, bikeShadeScl, 1);
