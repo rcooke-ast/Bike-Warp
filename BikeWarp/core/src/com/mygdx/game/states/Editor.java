@@ -550,20 +550,52 @@ public class Editor extends GameState {
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
-									// Temporary for Barracks
-									String[] colorStringArr;
-									String colorString = "";
-									float colval = 0.9f;
-									for (int i=0; i<allPolygons.size(); i++) {
-										allPolygonSprites.add(null);
-										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i) % 2 == 0)) {
-											colorStringArr = allPolygonTextures.get(i).split("_");
-											if ((colorStringArr[1].startsWith("1.0")) & (colorStringArr[2].startsWith("1.0")) & (colorStringArr[3].startsWith("1.0"))) {
-												colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f", colval, colval, colval, 1.0f);
-												allPolygonTextures.set(i, colorString);
-											}
-										}
+									// Temporary for Battle of the Samurai
+									float xcen = 0.0f, ycen=0.0f, crad=100.0f;
+									int nSamp = 180;
+									int cntr = 0;
+									float[] tubePoly = new float[nSamp];
+									xcen = 38364.699219f;
+									ycen = 4760.935059f;
+									crad = 724.585815f;
+									tubePoly = new float[nSamp];
+									for (int dd=0; dd<nSamp/2; dd++) {
+										tubePoly[2*dd] = xcen + crad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/2));
+										tubePoly[2*dd+1] = ycen + crad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/2));
 									}
+									allPolygons.add(tubePoly.clone());
+									allPolygonTypes.add(0);
+									allPolygonTextures.add("");
+									allPolygonPaths.add(null);
+									allPolygonSprites.add(null);
+									xcen = 40059.132813f;
+									ycen = 4760.935059f;
+									crad = 724.585815f;
+									tubePoly = new float[nSamp];
+									for (int dd=0; dd<nSamp/2; dd++) {
+										tubePoly[2*dd] = xcen + crad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/2));
+										tubePoly[2*dd+1] = ycen + crad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/2));
+									}
+									allPolygons.add(tubePoly.clone());
+									allPolygonTypes.add(0);
+									allPolygonTextures.add("");
+									allPolygonPaths.add(null);
+									allPolygonSprites.add(null);
+
+									// Temporary for Barracks
+//									String[] colorStringArr;
+//									String colorString = "";
+//									float colval = 0.9f;
+//									for (int i=0; i<allPolygons.size(); i++) {
+//										allPolygonSprites.add(null);
+//										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i) % 2 == 0)) {
+//											colorStringArr = allPolygonTextures.get(i).split("_");
+//											if ((colorStringArr[1].startsWith("1.0")) & (colorStringArr[2].startsWith("1.0")) & (colorStringArr[3].startsWith("1.0"))) {
+//												colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f", colval, colval, colval, 1.0f);
+//												allPolygonTextures.set(i, colorString);
+//											}
+//										}
+//									}
 
 									// Temporary for Myth of Sisyphus (part 3)
 //									float xcen = 0.0f, ycen=0.0f, crad=100.0f, orad=200.0f;
