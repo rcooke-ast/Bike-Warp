@@ -499,7 +499,7 @@ public class GameVars implements Serializable {
 	@SuppressWarnings("unchecked")
 	public static void LoadPlayers() {
 		try {
-			FileInputStream fi = new FileInputStream(new File("BGstate.dat"));
+			FileInputStream fi = new FileInputStream(new File("ABstate.dat"));
 			ObjectInputStream oi = new ObjectInputStream(fi);
 
 			// Read objects
@@ -533,7 +533,7 @@ public class GameVars implements Serializable {
 	public static void SavePlayers() {
 		FileOutputStream f;
 		try {
-			f = new FileOutputStream(new File("BGstate.dat"));
+			f = new FileOutputStream(new File("ABstate.dat"));
 			ObjectOutputStream o = new ObjectOutputStream(f);
 
 			// Write objects to file

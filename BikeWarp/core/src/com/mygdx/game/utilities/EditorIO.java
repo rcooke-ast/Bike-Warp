@@ -571,6 +571,7 @@ public class EditorIO {
 		else if (textName.equals("Roof tile (red)")) return "images/roof_red.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";
 		else if (textName.equals("Shade")) return "images/ground_shade.png";
+		else if (textName.equals("Shade (Light)")) return "images/ground_shadelight.png";
 		else if (textName.equals("Snow")) return "images/ground_snow.png";
 		else if (textName.equals("Snow (light)")) return "images/ground_snowlight.png";
 		else if (textName.equals("Steel")) return "images/ground_steel.png";
@@ -616,6 +617,7 @@ public class EditorIO {
 		else if (textName.equals("Roof tile (red)")) return "images/roof_red.png";
 		else if (textName.equals("Sand")) return "images/ground_sand.png";
 		else if (textName.equals("Shade")) return "images/ground_shade.png";
+		else if (textName.equals("Shade (Light)")) return "images/ground_shadelight.png";
 		else if (textName.equals("Snow")) return "images/ground_snow.png";
 		else if (textName.equals("Snow (light)")) return "images/ground_snowlight.png";
 		else if (textName.equals("Steel")) return "images/ground_steel.png";
@@ -695,9 +697,6 @@ public class EditorIO {
 		else if (textName.equals("Stars+Trees (Green)")) return "bg_TreesStarsGreen";
 		else if (textName.equals("Stars Sparse")) return "bg_StarsSparse";
 		else if (textName.equals("Planets (1)")) return "bg_planets_1";
-		else if (textName.equals("Sunset Mud")) return "bg_sunset_mud";
-		else if (textName.equals("Waterfall 1")) return "bg_Waterfall1";
-		else if (textName.equals("Waterfall 2")) return "bg_Waterfall2";
 		else if (textName.equals("Waterfall 3")) return "bg_Waterfall3";
 		//		else if (textName.contains("LevText")) return textName;
 		else return null;

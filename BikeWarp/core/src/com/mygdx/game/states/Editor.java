@@ -78,7 +78,7 @@ public class Editor extends GameState {
     private String[] levelPropList = {"Gravity", "Ground Texture", "Sky Texture", "Background Texture", "Bike Shade", "Level Bounds", "Foreground Texture", "Animated Background", "Timer Color"};
 	private String[] groundTextureList = DecorVars.GetPlatformTextures();
 	private String[] skyTextureList = {"Blue Sky", "Dusk", "Evening", "Islands", "Mars", "Moon", "Sunrise"};
-	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Sunset Mud", "Waterfall", "Waterfall 1", "Waterfall 2", "Waterfall 3",
+	private String[] bgTextureList = {"None", "Aurora", "Mountains", "Shooting Star", "Stars", "Sunset", "Waterfall", "Waterfall 3",
 			"Astronaut", "Aurora (Trees)", "Blue Bubble", "Earth", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
 			"Milky Way", "Milky Way (Blue Torch)", "Milky Way (Mountains)", "Milky Way (Rocks)", "Milky Way (Shooting Star)", "Milky Way (Tall Rocks)",
 			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
@@ -551,47 +551,47 @@ public class Editor extends GameState {
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
 									// Temporary for Battle of the Samurai
-									float xcen = 0.0f, ycen=0.0f, crad=100.0f;
-									int nSamp = 180;
-									int cntr = 0;
-									float[] tubePoly = new float[nSamp];
-									xcen = 38364.699219f;
-									ycen = 4760.935059f;
-									crad = 724.585815f;
-									tubePoly = new float[nSamp];
-									for (int dd=0; dd<nSamp/2; dd++) {
-										tubePoly[2*dd] = xcen + crad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/2));
-										tubePoly[2*dd+1] = ycen + crad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/2));
-									}
-									allPolygons.add(tubePoly.clone());
-									allPolygonTypes.add(0);
-									allPolygonTextures.add("");
-									allPolygonPaths.add(null);
-									allPolygonSprites.add(null);
-									xcen = 40059.132813f;
-									ycen = 4760.935059f;
-									crad = 724.585815f;
-									tubePoly = new float[nSamp];
-									for (int dd=0; dd<nSamp/2; dd++) {
-										tubePoly[2*dd] = xcen + crad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/2));
-										tubePoly[2*dd+1] = ycen + crad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/2));
-									}
-									allPolygons.add(tubePoly.clone());
-									allPolygonTypes.add(0);
-									allPolygonTextures.add("");
-									allPolygonPaths.add(null);
-									allPolygonSprites.add(null);
+//									float xcen = 0.0f, ycen=0.0f, crad=100.0f;
+//									int nSamp = 180;
+//									int cntr = 0;
+//									float[] tubePoly = new float[nSamp];
+//									xcen = 38364.699219f;
+//									ycen = 4760.935059f;
+//									crad = 724.585815f;
+//									tubePoly = new float[nSamp];
+//									for (int dd=0; dd<nSamp/2; dd++) {
+//										tubePoly[2*dd] = xcen + crad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/2));
+//										tubePoly[2*dd+1] = ycen + crad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/2));
+//									}
+//									allPolygons.add(tubePoly.clone());
+//									allPolygonTypes.add(0);
+//									allPolygonTextures.add("");
+//									allPolygonPaths.add(null);
+//									allPolygonSprites.add(null);
+//									xcen = 40059.132813f;
+//									ycen = 4760.935059f;
+//									crad = 724.585815f;
+//									tubePoly = new float[nSamp];
+//									for (int dd=0; dd<nSamp/2; dd++) {
+//										tubePoly[2*dd] = xcen + crad * (float) Math.cos(2.0*Math.PI*dd/(nSamp/2));
+//										tubePoly[2*dd+1] = ycen + crad * (float) Math.sin(2.0*Math.PI*dd/(nSamp/2));
+//									}
+//									allPolygons.add(tubePoly.clone());
+//									allPolygonTypes.add(0);
+//									allPolygonTextures.add("");
+//									allPolygonPaths.add(null);
+//									allPolygonSprites.add(null);
 
-									// Temporary for Barracks
+									// Temporary for Barracks (and later, Mos Part 2)
 //									String[] colorStringArr;
 //									String colorString = "";
-//									float colval = 0.9f;
+//									float colval = 0.05f;
 //									for (int i=0; i<allPolygons.size(); i++) {
 //										allPolygonSprites.add(null);
 //										if ((allPolygonTextures.get(i).startsWith("COLOR_")) && (allPolygonTypes.get(i) % 2 == 0)) {
 //											colorStringArr = allPolygonTextures.get(i).split("_");
-//											if ((colorStringArr[1].startsWith("1.0")) & (colorStringArr[2].startsWith("1.0")) & (colorStringArr[3].startsWith("1.0"))) {
-//												colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$f", colval, colval, colval, 1.0f);
+//											if ((colorStringArr[1].startsWith("0.0")) & (colorStringArr[2].startsWith("0.0")) & (colorStringArr[3].startsWith("0.0"))) {
+//												colorString = String.format("COLOR_%1$f_%2$f_%3$f_%4$s", colval, colval, colval, colorStringArr[4]);
 //												allPolygonTextures.set(i, colorString);
 //											}
 //										}

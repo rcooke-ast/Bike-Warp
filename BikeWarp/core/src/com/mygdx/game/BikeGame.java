@@ -2,7 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Cursor;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -38,6 +38,9 @@ public class BikeGame implements ApplicationListener {
 
 	@Override
 	public void create () {
+		// Start an asset manager
+		//AssetManager manager = new AssetManager();
+
 		// Load the textures and sounds
 		BikeGameTextures.InitiateTextures();
 		BikeGameSounds.InitiateSounds();

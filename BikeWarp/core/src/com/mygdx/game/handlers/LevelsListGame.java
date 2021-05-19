@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 61; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 65; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -97,8 +97,16 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/MoonShadow.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Logging";
-    	gameLevelFiles[lnum] = "data/gamelevels/Logging.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Logging";
+		gameLevelFiles[lnum] = "data/gamelevels/Logging.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Puzzler";
+		gameLevelFiles[lnum] = "data/gamelevels/Puzzler.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Global Warming";
+		gameLevelFiles[lnum] = "data/gamelevels/GlobalWarming.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Wormhole";
@@ -111,6 +119,10 @@ public class LevelsListGame {
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Banksy Tribute";
 		gameLevelFiles[lnum] = "data/gamelevels/Banksy.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Dinosaur (Triceratops)";
+		gameLevelFiles[lnum] = "data/gamelevels/DinosaurTriceratops.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". Anne Frank Tribute";
@@ -229,8 +241,12 @@ public class LevelsListGame {
     	gameLevelFiles[lnum] = "data/gamelevels/OlympusMons.lvl";
 
 		lnum += 1;
-    	gameLevelNames[lnum] = String.valueOf(lnum)+". Swim Between the Flags";
-    	gameLevelFiles[lnum] = "data/gamelevels/SwimBetweenTheFlags.lvl";
+    	gameLevelNames[lnum] = String.valueOf(lnum)+". The Message";
+    	gameLevelFiles[lnum] = "data/gamelevels/TheMessage.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". On the Shoulders of Giants";
+		gameLevelFiles[lnum] = "data/gamelevels/shoulders.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". The Myth of Sisyphus (Part 1)";

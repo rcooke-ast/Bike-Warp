@@ -64,7 +64,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Shade (Light)", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -104,6 +104,7 @@ public class DecorVars {
 	public static final int textureBarkH = 36;
 	public static final int textureGravelDark = 37;
 	public static final int textureLavaDark = 38;
+	public static final int textureShadeLight = 39;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -217,6 +218,7 @@ public class DecorVars {
 			case textureRoofTileRed+100: return "Roof tile (red)";
 			case textureSand+100: return "Sand";
 			case textureShade+100: return "Shade";
+			case textureShadeLight+100: return "Shade (Light)";
 			case textureSnow+100: return "Snow";
 			case textureSnowLight+100: return "Snow (light)";
 			case textureSteel+100: return "Steel";
@@ -267,6 +269,7 @@ public class DecorVars {
 			case "Roof tile (red)": return textureRoofTileRed+offs;
 			case "Sand": return textureSand+offs;
 			case "Shade": return textureShade+offs;
+			case "Shade (Light)": return textureShadeLight+offs;
 			case "Snow": return textureSnow+offs;
 			case "Snow (light)": return textureSnowLight+offs;
 			case "Steel": return textureSteel+offs;
@@ -463,6 +466,9 @@ public class DecorVars {
 				break;
 			case 3:
 				miscName = "log";
+				break;
+			case 4:
+				miscName = "sisyphus";
 				break;
 			default:
 				break;
@@ -679,7 +685,7 @@ public class DecorVars {
 		} else if (decorID == Vehicle) {
 			xsize = 400.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 6)) idx = 0;
+			if ((idx < 0) | (idx >= 7)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 400.0f; // Excavator
@@ -705,13 +711,17 @@ public class DecorVars {
 					xsize = 500.0f; // UFO
 					scale = 273.0f/1234.0f;
 					break;
+				case 6:
+					xsize = 40.0f; // hubcap
+					scale = 1.0f;
+					break;
 				default:
 					break;
 			}
 		} else if (decorID == Misc) {
 			xsize = 10.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 4)) idx = 0;
+			if ((idx < 0) | (idx >= 5)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 30.0f; // Emerald
@@ -729,13 +739,17 @@ public class DecorVars {
 					xsize = 25.0f; // Log
 					scale = 1.0f;
 					break;
+				case 4:
+					xsize = 100.0f; // Sisyphus
+					scale = 553.0f/735.0f;
+					break;
 				default:
 					break;
 			}
 		} else if (decorID == Portrait) {
 			xsize = 400.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 10)) idx = 0;
+			if ((idx < 0) | (idx >= 9)) idx = 0;
 			switch (idx) {
 				case 0:
 					scale = 2364.0f/1920.0f;
@@ -763,9 +777,6 @@ public class DecorVars {
 					break;
 				case 8:
 					scale = 769.0f/567.0f;
-					break;
-				case 9:
-					scale = 5304.0f/7952.0f;
 					break;
 				default:
 					break;

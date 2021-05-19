@@ -19,9 +19,9 @@ public class BikeGameTextures {
     private static ArrayList<String> menuTextureNames;
     private static ArrayList<Texture> decorTextures;
     private static ArrayList<String> decorTextureNames;
-//    private static ArrayList<Texture> levelTextures;
-//    private static ArrayList<String> levelTextureNames;
-//    private static ArrayList<String> levelTexturesLoaded;
+//    private final static String[] textureNames = new String[] {};
+//    private final static String[] menuTextureNames = new String[] {};
+//    private final static String[] decorTextureNames = new String[] {};
 
     public static void InitiateTextures() {
         // Initiate the arrays
@@ -197,7 +197,6 @@ public class BikeGameTextures {
         GetTexture("background_stars",2);
         GetTexture("background_waterfall",2);
         GetTexture("bg_sunset", 2);
-        GetTexture("bg_sunset_mud", 2);
         GetTexture("bg_Astronaut", 2);
         GetTexture("bg_AuroraTrees", 2);
         GetTexture("bg_BubbleBlue", 2);
@@ -239,8 +238,6 @@ public class BikeGameTextures {
         GetTexture("bg_StarsRocksBluePink", 2);
         GetTexture("bg_StarsSparse", 2);
         GetTexture("bg_TreesStarsGreen", 2);
-        GetTexture("bg_Waterfall1", 2);
-        GetTexture("bg_Waterfall2", 2);
         GetTexture("bg_Waterfall3", 2);
         GetTexture("foreground_bushes",2);
         GetTexture("foreground_plants",2);
@@ -266,13 +263,14 @@ public class BikeGameTextures {
         for (int i=0; i<8; i++) GetTexture("rock_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tree_"+String.format("%02d", i), 2);
         for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
-        for (int i=0; i<6; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
-        for (int i=0; i<10; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
+        for (int i=0; i<7; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
+        for (int i=0; i<9; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
         for (int i=0; i<8; i++) GetTexture("text_"+String.format("%02d", i), 2);
         GetTexture("misc_emerald", 2);
         GetTexture("misc_diamond", 2);
         GetTexture("misc_diary", 2);
         GetTexture("misc_log", 2);
+        GetTexture("misc_sisyphus", 2);
         // Planets
         GetTexture("planet_sun",2);
         GetTexture("planet_mercury",2);
