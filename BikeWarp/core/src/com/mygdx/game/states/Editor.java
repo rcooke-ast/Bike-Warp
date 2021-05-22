@@ -93,7 +93,7 @@ public class Editor extends GameState {
 	private String[] timerColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust grey value",
 			"Set white", "Set off white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
 			"Set green", "Set blue", "Set purple"};
-	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust opacity",
+	private String[] platformColors = {"Adjust red value", "Adjust green value", "Adjust blue value", "Adjust grey value", "Adjust opacity",
 			"Set white", "Set off white", "Set light grey", "Set dark grey", "Set black", "Set red", "Set orange", "Set yellow",
 			"Set green", "Set blue", "Set purple", "Set invisible"};
 	private float[] platformColor;
@@ -3959,6 +3959,20 @@ public class Editor extends GameState {
 						if (changeValue < 0.0f) platformColor[2] = 0.0f;
 						else if (changeValue > 1.0f) platformColor[2] = 1.0f;
 						else platformColor[2] = changeValue;
+					} else if (modeChild.equals("Adjust grey value")) {
+						if (changeValue < 0.0f) {
+							platformColor[0] = 0.0f;
+							platformColor[1] = 0.0f;
+							platformColor[2] = 0.0f;
+						} else if (changeValue > 1.0f) {
+							platformColor[0] = 1.0f;
+							platformColor[1] = 1.0f;
+							platformColor[2] = 1.0f;
+						} else {
+							platformColor[0] = changeValue;
+							platformColor[1] = changeValue;
+							platformColor[2] = changeValue;
+						}
 					} else if (modeChild.equals("Adjust opacity")) {
 						if (changeValue < 0.0f) platformColor[3] = 0.0f;
 						else if (changeValue > 1.0f) platformColor[3] = 1.0f;

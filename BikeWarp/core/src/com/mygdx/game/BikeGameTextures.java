@@ -118,6 +118,7 @@ public class BikeGameTextures {
         GetTexture("planet_mercury",0);
         GetTexture("planet_venus",0);
         GetTexture("planet_earth",0);
+        GetTexture("planet_earthgrey",0);
         GetTexture("planet_mars",0);
         GetTexture("planet_jupiter",0);
         GetTexture("planet_saturn",0);
@@ -276,6 +277,7 @@ public class BikeGameTextures {
         GetTexture("planet_mercury",2);
         GetTexture("planet_venus",2);
         GetTexture("planet_earth",2);
+        GetTexture("planet_earthgrey",2);
         GetTexture("planet_mars",2);
         GetTexture("planet_jupiter",2);
         GetTexture("planet_saturn",2);

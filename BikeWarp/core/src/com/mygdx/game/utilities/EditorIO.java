@@ -541,6 +541,7 @@ public class EditorIO {
 		if (textName.equals("Default")) return defval;
 		else if (textName.startsWith("COLOR_")) return textName;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
+		else if (textName.equals("Asphalt (Blue)")) return "images/ground_asphaltblue.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bark (H)")) return "images/ground_treebarkH.png";
 		else if (textName.equals("Bark (Moss)")) return "images/ground_treebark_moss.png";
@@ -562,8 +563,10 @@ public class EditorIO {
 		else if (textName.equals("Lava (Dark)")) return "images/ground_lavadark.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
+		else if (textName.equals("Mars (old)")) return "images/ground_mars_old.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
 		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
+		else if (textName.equals("Metal (Dark Plate)")) return "images/ground_metaldarkplate.png";
 		else if (textName.equals("Metal (Rust/Yellow)")) return "images/ground_metalrust_yellow.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
 		else if (textName.equals("Reptile")) return "images/ground_reptile.png";
@@ -587,6 +590,7 @@ public class EditorIO {
 		if (textName.equals("Default")) return defval;
 		else if (textName.startsWith("COLOR_")) return textName;
 		else if (textName.equals("Asphalt")) return "images/ground_asphalt.png";
+		else if (textName.equals("Asphalt (Blue)")) return "images/ground_asphaltblue.png";
 		else if (textName.equals("Bark")) return "images/ground_treebark.png";
 		else if (textName.equals("Bark (H)")) return "images/ground_treebarkH.png";
 		else if (textName.equals("Bark (Moss)")) return "images/ground_treebark_moss.png";
@@ -608,8 +612,10 @@ public class EditorIO {
 		else if (textName.equals("Lava (Dark)")) return "images/ground_lavadark.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
+		else if (textName.equals("Mars (old)")) return "images/ground_mars_old.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
 		else if (textName.equals("Metal (Plate)")) return "images/ground_metalplate.png";
+		else if (textName.equals("Metal (Dark Plate)")) return "images/ground_metaldarkplate.png";
 		else if (textName.equals("Metal (Rust/Yellow)")) return "images/ground_metalrust_yellow.png";
 		else if (textName.equals("Moon")) return "images/ground_moon.png";
 		else if (textName.equals("Reptile")) return "images/ground_reptile.png";

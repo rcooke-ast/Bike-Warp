@@ -64,7 +64,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Mars", "Metal (Black)",  "Metal (Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Shade (Light)", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Asphalt (Blue)", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Mars", "Mars (old)", "Metal (Black)",  "Metal (Plate)", "Metal (Dark Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Shade (Light)", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -105,6 +105,9 @@ public class DecorVars {
 	public static final int textureGravelDark = 37;
 	public static final int textureLavaDark = 38;
 	public static final int textureShadeLight = 39;
+	public static final int textureMarsOld = 40;
+	public static final int textureMetalDarkPlate = 41;
+	public static final int textureAsphaltBlue = 42;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -196,6 +199,7 @@ public class DecorVars {
 			case -1: return "Grass";
 			case (textureDefault+100): return "Default";
 			case (textureAsphalt+100): return "Asphalt";
+			case (textureAsphaltBlue+100): return "Asphalt (Blue)";
 			case (textureBark+100): return "Bark";
 			case (textureBarkH+100): return "Bark (H)";
 			case (textureBricks+100): return "Bricks";
@@ -211,8 +215,10 @@ public class DecorVars {
 			case textureLavaDark+100: return "Lava (Dark)";
 			case textureLeaves+100: return "Leaves";
 			case textureMars+100: return "Mars";
+			case textureMarsOld+100: return "Mars (old)";
 			case textureMetalBlack+100: return "Metal (Black)";
 			case textureMetalPlate+100: return "Metal (Plate)";
+			case textureMetalDarkPlate+100: return "Metal (Dark Plate)";
 			case textureMoon+100: return "Moon";
 			case textureRoofTileGreen+100: return "Roof tile (green)";
 			case textureRoofTileRed+100: return "Roof tile (red)";
@@ -247,6 +253,7 @@ public class DecorVars {
 				else return Grass;
 			}
 			case "Asphalt": return textureAsphalt+offs;
+			case "Asphalt (Blue)": return textureAsphaltBlue+offs;
 			case "Bark": return textureBark+offs;
 			case "Bark (H)": return textureBarkH+offs;
 			case "Bricks": return textureBricks+offs;
@@ -262,8 +269,10 @@ public class DecorVars {
 			case "Lava (Dark)": return textureLavaDark+offs;
 			case "Leaves": return textureLeaves+offs;
 			case "Mars": return textureMars+offs;
+			case "Mars (old)": return textureMarsOld+offs;
 			case "Metal (Black)": return textureMetalBlack+offs;
 			case "Metal (Plate)": return textureMetalPlate+offs;
+			case "Metal (Dark Plate)": return textureMetalDarkPlate+offs;
 			case "Moon": return textureMoon+offs;
 			case "Roof tile (green)": return textureRoofTileGreen+offs;
 			case "Roof tile (red)": return textureRoofTileRed+offs;
@@ -445,6 +454,9 @@ public class DecorVars {
 				break;
 			case 14:
 				planetName = "dishbolt";
+				break;
+			case 15:
+				planetName = "earthgrey";
 				break;
 			default:
 				break;
@@ -628,7 +640,7 @@ public class DecorVars {
 		} else if (decorID == Planet) {
 			xsize = 628.41345f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 15)) idx = 0;
+			if ((idx < 0) | (idx >= 16)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 628.41345f; // Sun
@@ -679,6 +691,9 @@ public class DecorVars {
 				case 14:
 					xsize = 400.0f; // Radio dish bolt
 					scale = 194.0f/305.0f;
+				case 15:
+					xsize = 40.488487f; // Earth Grey
+					break;
 				default:
 					break;
 			}
