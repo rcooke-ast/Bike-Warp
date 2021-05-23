@@ -10,7 +10,7 @@ package com.mygdx.game.handlers;
  * @author rcooke
  */
 public class LevelsListGame {
-	public static final int NUMGAMELEVELS = 65; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
+	public static final int NUMGAMELEVELS = 66; // This is the number of levels (1 is added to the string arrays below for the "menu" option)
     public static String[] gameLevelNames = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelDescr = new String[1+NUMGAMELEVELS];
     public static String[] gameLevelFiles = new String[1+NUMGAMELEVELS];
@@ -165,8 +165,12 @@ public class LevelsListGame {
 		gameLevelFiles[lnum] = "data/gamelevels/GoldDigger.lvl";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Kumano Kodo";
-		gameLevelFiles[lnum] = "data/gamelevels/KumanoKodo.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Kumano Kodo (Summer Rain)";
+		gameLevelFiles[lnum] = "data/gamelevels/KumanoKodoSummerRain.lvl";
+
+		lnum += 1;
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Kumano Kodo (Winter Snow)";
+		gameLevelFiles[lnum] = "data/gamelevels/KumanoKodoWinterSnow.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". The Tale of the Purple Moon";

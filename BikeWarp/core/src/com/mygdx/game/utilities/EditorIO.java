@@ -562,6 +562,7 @@ public class EditorIO {
 		else if (textName.equals("Lava")) return "images/ground_lava.png";
 		else if (textName.equals("Lava (Dark)")) return "images/ground_lavadark.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
+		else if (textName.equals("Leaves (Green)")) return "images/ground_leavesgreen.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
 		else if (textName.equals("Mars (old)")) return "images/ground_mars_old.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";
@@ -611,6 +612,7 @@ public class EditorIO {
 		else if (textName.equals("Lava")) return "images/ground_lava.png";
 		else if (textName.equals("Lava (Dark)")) return "images/ground_lavadark.png";
 		else if (textName.equals("Leaves")) return "images/ground_leaves.png";
+		else if (textName.equals("Leaves (Green)")) return "images/ground_leavesgreen.png";
 		else if (textName.equals("Mars")) return "images/ground_mars.png";
 		else if (textName.equals("Mars (old)")) return "images/ground_mars_old.png";
 		else if (textName.equals("Metal (Black)")) return "images/ground_metalblack_small.png";

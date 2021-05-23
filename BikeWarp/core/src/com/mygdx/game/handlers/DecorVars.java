@@ -64,7 +64,7 @@ public class DecorVars {
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Asphalt (Blue)", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Mars", "Mars (old)", "Metal (Black)",  "Metal (Plate)", "Metal (Dark Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Shade (Light)", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Asphalt (Blue)", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Leaves (Green)", "Mars", "Mars (old)", "Metal (Black)",  "Metal (Plate)", "Metal (Dark Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Shade (Light)", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -108,6 +108,7 @@ public class DecorVars {
 	public static final int textureMarsOld = 40;
 	public static final int textureMetalDarkPlate = 41;
 	public static final int textureAsphaltBlue = 42;
+	public static final int textureLeavesGreen = 43;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -214,6 +215,7 @@ public class DecorVars {
 			case textureLava+100: return "Lava";
 			case textureLavaDark+100: return "Lava (Dark)";
 			case textureLeaves+100: return "Leaves";
+			case textureLeavesGreen+100: return "Leaves (Green)";
 			case textureMars+100: return "Mars";
 			case textureMarsOld+100: return "Mars (old)";
 			case textureMetalBlack+100: return "Metal (Black)";
@@ -268,6 +270,7 @@ public class DecorVars {
 			case "Lava": return textureLava+offs;
 			case "Lava (Dark)": return textureLavaDark+offs;
 			case "Leaves": return textureLeaves+offs;
+			case "Leaves (Green)": return textureLeavesGreen+offs;
 			case "Mars": return textureMars+offs;
 			case "Mars (old)": return textureMarsOld+offs;
 			case "Metal (Black)": return textureMetalBlack+offs;
