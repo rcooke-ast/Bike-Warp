@@ -82,7 +82,7 @@ public class Editor extends GameState {
 			"Astronaut", "Aurora (Trees)", "Blue Bubble", "Earth", "Earth At Night", "Galaxy (Andromeda)", "Galaxy (Dusty)", "Galaxy (Spiral)", "Galaxy (White)",
 			"Milky Way", "Milky Way (Blue Torch)", "Milky Way (Mountains)", "Milky Way (Rocks)", "Milky Way (Shooting Star)", "Milky Way (Tall Rocks)",
 			"Moon (Full)", "Moon (Gibbous)", "Moon (Rising)", "Mountain (Stars Blue)", "Mountain (Stars Yellow)",
-			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Red/Green)", "Planets (1)", "Shuttle Launch", "Star Circles", "Stargazer",
+			"Nebula (Blue)", "Nebula (Blue/Orange)", "Nebula (Orange)", "Nebula (Pink)", "Nebula (Red/Green)", "Planets (1)", "Shuttle Launch", "Star Circles", "Starfield", "Stargazer",
 			"Stars (Blue)", "Stars (Blue/Dust)", "Stars (Blue/Green)", "Stars (Blue/Purple)", "Stars (Dusty)", "Stars (Orange)",
 			"Stars (Purple)", "Stars (Purple/Dust)", "Stars (Purple/Orange)", "Stars (Red)", "Stars+Clouds (Blue/Orange)", "Stars+Rocks (Blue/Pink)", "Stars+Trees (Green)", "Stars Sparse"
 	};
@@ -165,7 +165,7 @@ public class Editor extends GameState {
 	private Stage stage;
 	private Skin skin;
 	private boolean hideToolbar = false;
-	private boolean hideText = false;
+	private boolean hideText = true;
 	private boolean setCursor = false;
 	private boolean engageDelete = false;
 	private boolean clearGrass = false, addGrass = false;
@@ -549,6 +549,34 @@ public class Editor extends GameState {
 //									allLevelTextures = (ArrayList<Texture>) loadedArray.get(13);
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+
+									// Temporary for Shoulders of Giants....
+//									int ndec = allDecors.size();
+//									for (int dd=0; dd<ndec; dd++) {
+//										if (allDecorTypes.get(dd)==DecorVars.Portrait) {
+//											allDecors.add(allDecors.get(dd).clone());
+//											allDecorTypes.add(allDecorTypes.get(dd));
+//											allDecorPolys.add(allDecorPolys.get(dd));
+//											allDecorImages.add(allDecorImages.get(dd));
+//										}
+//									}
+
+									// Temporary for Valles Mar....
+//									float[] tmparr = new float[DecorVars.decorShade.length];
+//									for (int dd=0; dd<allDecors.size(); dd++) {
+//										if (allDecorTypes.get(dd)==DecorVars.Shade) {
+//											tmparr[DecorVars.decorShade.length-1] = 1.0f;
+//											for (int di=0; di<8; di++) tmparr[di] = allDecors.get(dd)[di];
+//											allDecors.set(dd, tmparr.clone());
+//										}
+//									}
+
+									// Temporary for Anne Frank and then Canopy (twice!)
+//									for (int dd=0; dd<allDecors.size(); dd++) {
+//										if ((allDecorTypes.get(dd)==DecorVars.Grass) || (allDecorTypes.get(dd)>=100)) {
+//											allDecorPolys.set(dd, 64);
+//										}
+//									}
 
 									// Temporary for Battle of the Samurai
 //									float xcen = 0.0f, ycen=0.0f, crad=100.0f;
@@ -1387,6 +1415,7 @@ public class Editor extends GameState {
 											}
 											xcen /= convexPolygons.get(aa).length/2;
 											ycen /= convexPolygons.get(aa).length/2;
+											break;
 										}
 									}
 									MoveCameraTo(xcen, ycen, true);
@@ -2225,7 +2254,7 @@ public class Editor extends GameState {
 			else shapeRenderer.arc(polyPath[4], polyPath[5], 30, polyPath[0], 360-polyPath[0]);
 			shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[0], arrowArray[1]);
 			shapeRenderer.line(arrowArray[2], arrowArray[3], arrowArray[4], arrowArray[5]);
-		} else if (polyType <= 5) {
+		} else if ((polyType <= 5) && (polyType >= 4)) {
 			// Falling Polygons
 			if (polySelect == i) shapeRenderer.setColor(1, 0, 0, 1);
 			else shapeRenderer.setColor(1, 0, 0, 0.5f);
@@ -2247,7 +2276,7 @@ public class Editor extends GameState {
 			// Draw the damping arrow
 			shapeRenderer.line(poly[0], poly[1], poly[0], poly[1]+polyPath[1]/B2DVars.EPPM);
 			shapeRenderer.line(poly[0]-10, poly[1]+polyPath[1]/B2DVars.EPPM, poly[0]+10, poly[1]+polyPath[1]/B2DVars.EPPM);
-		} else if (polyType <= 7) {
+		} else if ((polyType <= 7) && (polyType >= 6)) {
 			// Trigger Polygons
 			if (polySelect == i) shapeRenderer.setColor(1, 0, 1, 1);
 			else shapeRenderer.setColor(1, 0, 1, 0.5f);
@@ -2719,7 +2748,8 @@ public class Editor extends GameState {
 			shapeRenderer.circle(decor[0], decor[1], decor[2]);
 		} else if (dTyp == DecorVars.Shade) {
 			shapeRenderer.setColor(0, 0.8f, 0.0f, opacity);
-			shapeRenderer.polygon(decor);
+			rCoord = Arrays.copyOfRange(decor, 0, 8);
+			shapeRenderer.polygon(rCoord);
 		}
 	}
 
@@ -2810,7 +2840,7 @@ public class Editor extends GameState {
 					shapeRenderer.polygon(updatePoly);
 				} else if (allDecorTypes.get(decorSelect) == DecorVars.Waterfall) {
 					shapeRenderer.polygon(updatePoly);
-				} else if (DecorVars.IsRect(allDecorTypes.get(decorSelect))) {
+				} else if ((DecorVars.IsRect(allDecorTypes.get(decorSelect))) || (allDecorTypes.get(decorSelect)==DecorVars.Shade)) {
 					float[] rectUpdPoly = new float[8];
 					for (int i = 0; i < 8; i++) rectUpdPoly[i] = updatePoly[i];
 					shapeRenderer.polygon(rectUpdPoly);
@@ -5621,12 +5651,13 @@ public class Editor extends GameState {
 				tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
 				if (modeParent.equals("Climate (Soft Edge)")) SelectDecor("up", DecorVars.Rain, false, false);
 				else if (modeParent.equals("Climate (Hard Edge)")) SelectDecor("up", DecorVars.Waterfall, false, false);
+				else if (modeParent.equals("Shade")) SelectDecor("up", DecorVars.Shade, false, false);
 				if (decorSelect != -1) {
 					newPoly = allDecors.get(decorSelect).clone();
 					newPoly[8] = 1-allDecors.get(decorSelect)[8];
 					allDecors.set(decorSelect, newPoly.clone());
-					if (allDecors.get(decorSelect)[8]<0.5f) Message("Climate moved to background", 0);
-					else Message("Climate moved to foreground", 0);
+					if (allDecors.get(decorSelect)[8]<0.5f) Message("Moved item to background", 0);
+					else Message("Moved item to foreground", 0);
 					decorSelect = -1;
 					newPoly = null;
 				}
@@ -6664,7 +6695,7 @@ public class Editor extends GameState {
 				} else if ((modeParent.equals("Planet")) || (modeParent.equals("Rock")) || (modeParent.equals("Tree")) || (modeParent.equals("Tyre Stack")) || (modeParent.equals("Vehicle")) || (modeParent.equals("Miscellaneous")) || (modeParent.equals("Portrait")) || (modeParent.equals("Text"))) {
 					listChild.setItems("Add", "Delete", "Move", "Next Item", "Rotate", "Scale");
 				} else if (modeParent.equals("Shade")) {
-					listChild.setItems("Add", "Delete", "Move", "Move Segment");
+					listChild.setItems("Add", "Delete", "Move", "Move Segment", "Toggle FG/BG");
 				} else if (modeParent.equals("Track")) {
 					listChild.setItems("Add", "Delete", "Move", "Extend", "Rotate");
 				} else listChild.setItems(itemsADMR);
@@ -9128,6 +9159,13 @@ public class Editor extends GameState {
 
 	public void AddDecor(int otype, float xcen, float ycen, float angle) {
 		changesMade = true;
+//		MakeGrass();
+//		allPolygons.add(newPoly);
+//		allPolygonTypes.add(10);
+//		allPolygonTextures.add("Ice");
+//		allPolygonSprites.add(null);
+//		allPolygonPaths.add(null);
+
 		if (((otype==DecorVars.Grass) | (otype>=100)) & (polyHover != -1) & (segmHover != -1)) {
 			MakeGrass();
 			allDecorPolys.add(polyHover);
@@ -9308,6 +9346,7 @@ public class Editor extends GameState {
 				newPoly[2 * i] = DecorVars.decorShade[2 * i] + xcen;
 				newPoly[2 * i + 1] = DecorVars.decorShade[2 * i + 1] + ycen;
 			}
+			newPoly[DecorVars.decorShade.length-1] = 1.0f;
 		}
 	}
 

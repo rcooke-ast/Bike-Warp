@@ -552,6 +552,7 @@ public class EditorIO {
 		else if (textName.equals("Dirt")) return "images/ground_dirt.png";
 		else if (textName.equals("Fog")) return "images/ground_fog.png";
 		else if (textName.equals("Fog Stain")) return "images/ground_fog_stain.png";
+		else if (textName.equals("Fog Stain (grey)")) return "images/ground_fog_stain_grey.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Grass (Daisy)")) return "images/ground_daisy.png";
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
@@ -602,6 +603,7 @@ public class EditorIO {
 		else if (textName.equals("Dirt")) return "images/ground_dirt.png";
 		else if (textName.equals("Fog")) return "images/ground_fog.png";
 		else if (textName.equals("Fog Stain")) return "images/ground_fog_stain.png";
+		else if (textName.equals("Fog Stain (grey)")) return "images/ground_fog_stain_grey.png";
 		else if (textName.equals("Grass")) return "images/grass_full.png";
 		else if (textName.equals("Grass (Daisy)")) return "images/ground_daisy.png";
 		else if (textName.equals("Grass (Short)")) return "images/grass_short.png";
@@ -687,8 +689,10 @@ public class EditorIO {
 		else if (textName.equals("Nebula (Blue/Orange)")) return "bg_NebulaBlueOrange";
 		else if (textName.equals("Nebula (Orange)")) return "bg_NebulaOrange";
 		else if (textName.equals("Nebula (Red/Green)")) return "bg_NebulaRedGreen";
+		else if (textName.equals("Nebula (Pink)")) return "bg_NebulaPink";
 		else if (textName.equals("Shuttle Launch")) return "bg_ShuttleLaunch";
 		else if (textName.equals("Star Circles")) return "bg_StarCircles";
+		else if (textName.equals("Starfield")) return "bg_Starfield";
 		else if (textName.equals("Stargazer")) return "bg_Stargazer";
 		else if (textName.equals("Stars (Blue)")) return "bg_StarsBlue";
 		else if (textName.equals("Stars (Blue/Dust)")) return "bg_StarsBlueDust";
@@ -862,9 +866,14 @@ public class EditorIO {
                 json.key("friction").value(friction);
                 json.key("restitution").value(restitution);
                 json.key("name").value("fixture8");
-	            json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
-	            json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
-                // Set the (background) ground texture
+				if (textPlatform.equalsIgnoreCase("images/ground_lava.png")) {
+					json.key("filter-categoryBits").value(B2DVars.BIT_SPIKE);
+					json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
+				} else {
+					json.key("filter-categoryBits").value(B2DVars.BIT_GROUND);
+					json.key("filter-maskBits").value(B2DVars.BIT_GROUND | B2DVars.BIT_HEAD | B2DVars.BIT_WHEEL | B2DVars.BIT_CHAIN | B2DVars.BIT_SPIKE);
+				}
+				// Set the (background) ground texture
                 json.key("customProperties");
                 json.array();
                 json.object();

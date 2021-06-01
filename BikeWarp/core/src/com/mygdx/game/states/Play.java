@@ -2397,6 +2397,7 @@ public class Play extends GameState {
             mPolyBatch.end();
     	}
 
+        renderSpatials(-1); // This is a hack for the portraits
         renderSpatials(1);
 
     	// Render the open (or opening) doors
@@ -2481,7 +2482,7 @@ public class Play extends GameState {
 	   		}
 	   		mBatch.end();
 	   	}
-	
+
         // Render the colour of the bike
         mBatch.begin();
         float bcx, bcy, angle;
@@ -2800,6 +2801,8 @@ public class Play extends GameState {
                 RubeDecor decor = decors.get(i);
                 fgbgIdx = 1;
                 if (decor.file.contains("shade.png")) fgbgIdx = 2;
+                else if (decor.file.contains("shadeback.png")) fgbgIdx = 0;
+                else if (decor.file.contains("portrait_")) fgbgIdx = -1;
                 mTmp.set(decor.width, decor.height);
                 String textureFileName = "data/" + decor.file;
                 mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2));

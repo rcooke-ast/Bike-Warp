@@ -213,8 +213,8 @@ public class LevelsListGame {
 		gameLevelFiles[lnum] = "data/gamelevels/Dinosaur.lvl";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Zig Zag";
-		gameLevelFiles[lnum] = "data/gamelevels/ZigZag.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Valles Marinerus";
+		gameLevelFiles[lnum] = "data/gamelevels/VallesMarinerus.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Lunar Digger";
@@ -250,7 +250,7 @@ public class LevelsListGame {
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". On the Shoulders of Giants";
-		gameLevelFiles[lnum] = "data/gamelevels/shoulders.lvl";
+		gameLevelFiles[lnum] = "data/gamelevels/Shoulders.lvl";
 
 		lnum += 1;
 		gameLevelNames[lnum] = String.valueOf(lnum)+". The Myth of Sisyphus (Part 1)";

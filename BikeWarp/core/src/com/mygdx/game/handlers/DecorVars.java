@@ -59,12 +59,12 @@ public class DecorVars {
     public static final float[] decorCircleRoadSign = {0.0f,0.0f,30.0f,0.0f};
     public static final float[] decorWaterfall = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundWaterfall,imageWaterfall};
 	public static final float[] decorRain = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f,soundRain,imageRain};
-	public static final float[] decorShade = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f};
+	public static final float[] decorShade = {0.0f,-1500.0f,1000.0f,-1500.0f,1000.0f,1500.0f,0.0f,1500.0f,1.0f};
 	public static final float trackLength = 30.0f;
 	public static final float[] decorTrack = {0.0f,0.0f,0.0f,10.0f}; // xpos, ypos, angle, number of segments
 
 	// Define the textures that can be applied to platforms
-    public static final String[] platformTextures = {"Default", "Asphalt", "Asphalt (Blue)", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Leaves (Green)", "Mars", "Mars (old)", "Metal (Black)",  "Metal (Plate)", "Metal (Dark Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Shade (Light)", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
+    public static final String[] platformTextures = {"Default", "Asphalt", "Asphalt (Blue)", "Bark", "Bark (H)", "Bark (Moss)", "Bark (Dark)", "Bricks", "Bubbles", "Cracked Mud", "Dirt", "Fog", "Fog Stain", "Fog Stain (grey)", "Grass", "Grass (Daisy)", "Grass (Short)", "Grass (Meadow)", "Gravel", "Gravel (Dark)", "Ice", "Lava", "Lava (Dark)", "Leaves", "Leaves (Green)", "Mars", "Mars (old)", "Metal (Black)",  "Metal (Plate)", "Metal (Dark Plate)", "Metal (Rust/Yellow)", "Moon", "Reptile", "Roof tile (green)", "Roof tile (red)", "Sand", "Shade", "Shade (Light)", "Snow", "Snow (light)", "Steel", "Water", "Wood", "Wood Plancks (D)", "Wood Plancks (H)", "Wood Plancks (V)"};
     public static final int textureDefault = 0;
 	public static final int textureAsphalt = 1;
 	public static final int textureBark = 2;
@@ -109,6 +109,7 @@ public class DecorVars {
 	public static final int textureMetalDarkPlate = 41;
 	public static final int textureAsphaltBlue = 42;
 	public static final int textureLeavesGreen = 43;
+	public static final int textureFogStainGrey = 44;
 	//public static final int texture = ;
 
 	public static boolean IsRoadSign(int dTyp) {
@@ -208,6 +209,7 @@ public class DecorVars {
 			case (textureCrackedMud+100): return "Cracked Mud";
 			case (textureFog+100): return "Fog";
 			case (textureFogStain+100): return "Fog Stain";
+			case (textureFogStainGrey+100): return "Fog Stain (grey)";
 			case (textureGrass+100): return "Grass";
 			case (textureGravel+100): return "Gravel";
 			case (textureGravelDark+100): return "Gravel (Dark)";
@@ -263,6 +265,7 @@ public class DecorVars {
 			case "Cracked Mud": return textureCrackedMud+offs;
 			case "Fog": return textureFog+offs;
 			case "Fog Stain": return textureFogStain+offs;
+			case "Fog Stain (grey)": return textureFogStainGrey+offs;
 			case "Grass": return textureGrass+offs;
 			case "Gravel": return textureGravel+offs;
 			case "Gravel (Dark)": return textureGravelDark+offs;
@@ -403,7 +406,10 @@ public class DecorVars {
 		else if (decorID == Planet) return "images/planet_" + GetPlanetFromNumber(idx) + ".png";
 		else if (decorID == Vehicle) return "images/vehicle_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Misc) return "images/misc_" + GetMiscFromNumber(idx) + ".png";
-		else if (decorID == Shade) return "images/shade.png";
+		else if (decorID == Shade) {
+			if (idx == 0) return "images/shadeback.png";
+			else return "images/shade.png";
+		}
 		else if (decorID == Portrait) return "images/portrait_" + String.format("%02d", idx) + ".png";
 		else if (decorID == Text) return "images/text_" + String.format("%02d", idx) + ".png";
 		// Make some default to stop errors
@@ -723,7 +729,7 @@ public class DecorVars {
 					break;
 				case 4:
 					xsize = 350.0f; // Van
-					scale = 732.0f/1506.0f;
+					scale = 606.0f/1520.0f;
 					break;
 				case 5:
 					xsize = 500.0f; // UFO

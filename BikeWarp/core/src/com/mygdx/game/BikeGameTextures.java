@@ -220,10 +220,12 @@ public class BikeGameTextures {
         GetTexture("bg_NebulaBlue", 2);
         GetTexture("bg_NebulaBlueOrange", 2);
         GetTexture("bg_NebulaOrange", 2);
+        GetTexture("bg_NebulaPink", 2);
         GetTexture("bg_NebulaRedGreen", 2);
         GetTexture("bg_ShuttleLaunch", 2);
         GetTexture("bg_planets_1", 2);
         GetTexture("bg_StarCircles", 2);
+        GetTexture("bg_Starfield", 2);
         GetTexture("bg_Stargazer", 2);
         GetTexture("bg_StarsBlue", 2);
         GetTexture("bg_StarsBlueDust", 2);
@@ -295,6 +297,7 @@ public class BikeGameTextures {
         // Add some additional textures
         GetTexture("track",2);
         GetTexture("shade",2);
+        GetTexture("shadeback",2);
         // Add grass
         texture = new Texture(Gdx.files.internal("data/images/grass_smooth.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
