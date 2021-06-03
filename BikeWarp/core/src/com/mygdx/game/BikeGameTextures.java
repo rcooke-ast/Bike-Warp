@@ -274,6 +274,7 @@ public class BikeGameTextures {
         GetTexture("misc_diary", 2);
         GetTexture("misc_log", 2);
         GetTexture("misc_sisyphus", 2);
+        GetTexture("misc_solarpanel", 2);
         // Planets
         GetTexture("planet_sun",2);
         GetTexture("planet_mercury",2);

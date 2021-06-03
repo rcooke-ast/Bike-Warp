@@ -550,6 +550,15 @@ public class Editor extends GameState {
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
+									// Temporary for Space Station...
+//									int ndec = allPolygons.size();
+//									float[] pathtmp = allPolygonPaths.get(25).clone();
+//									pathtmp[6] = 3.0f;
+//									pathtmp[7] = 18.0f;
+//									allPolygonPaths.set(25,pathtmp.clone());
+//									allPolygonPaths.set(26,pathtmp.clone());
+//									allPolygonPaths.set(27,pathtmp.clone());
+
 									// Temporary for Shoulders of Giants....
 //									int ndec = allDecors.size();
 //									for (int dd=0; dd<ndec; dd++) {

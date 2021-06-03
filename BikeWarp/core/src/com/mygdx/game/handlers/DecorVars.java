@@ -491,6 +491,9 @@ public class DecorVars {
 			case 4:
 				miscName = "sisyphus";
 				break;
+			case 5:
+				miscName = "solarpanel";
+				break;
 			default:
 				break;
 		}
@@ -745,7 +748,7 @@ public class DecorVars {
 		} else if (decorID == Misc) {
 			xsize = 10.0f;
 			scale = 1.0f;
-			if ((idx < 0) | (idx >= 5)) idx = 0;
+			if ((idx < 0) | (idx >= 6)) idx = 0;
 			switch (idx) {
 				case 0:
 					xsize = 30.0f; // Emerald
@@ -766,6 +769,10 @@ public class DecorVars {
 				case 4:
 					xsize = 100.0f; // Sisyphus
 					scale = 553.0f/735.0f;
+					break;
+				case 5:
+					xsize = 100.0f; // Solar panel
+					scale = 1024.0f/360.0f;
 					break;
 				default:
 					break;
