@@ -31,6 +31,9 @@ public class GameVars implements Serializable {
 	// How many level skips are allowed
 	public static final int skipsAllowed = 3; // Allow players to skip 3 levels
 	public static final int numStore = 10; // Store the top 10 times of each level
+	public static final int DISPLAY_OFF = 0;
+	public static final int DISPLAY_ON = 1;
+	public static final int DISPLAY_SMARTON = 2;
 	// Latest time
 	public static int timerTotal = -1;
 	// Player arrays
@@ -43,6 +46,7 @@ public class GameVars implements Serializable {
 	public static ArrayList<ArrayList<int[]>> plyrTimesTrain = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<ArrayList<int[]>> plyrTimesTrainDmnd = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<int[]> plyrControls = new ArrayList<int[]>();
+	public static ArrayList<int[]> plyrDisplay = new ArrayList<int[]>();
 	public static ArrayList<boolean[]> plyrColDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<boolean[]> plyrColTrainDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<int[]> plyrLevelComplete = new ArrayList<int[]>();
@@ -84,6 +88,7 @@ public class GameVars implements Serializable {
 	public static int GetPlayerTimesTrain(int lvl, int indx) {return plyrTimesTrain.get(currentPlayer).get(lvl)[indx];}
 	public static int GetPlayerTimesTrainDmnd(int lvl, int indx) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl)[indx];}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
+	public static int GetPlayerDisplay(int index) {return plyrDisplay.get(currentPlayer)[index];}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
 	public static boolean[] GetPlayerDiamondsTrain() {return plyrColTrainDmnd.get(currentPlayer);}
 	public static int[] GetPlayerSkipLevel() {return plyrLevelComplete.get(currentPlayer);}
@@ -97,6 +102,15 @@ public class GameVars implements Serializable {
 		}
 		newControls[index] = value;
 		plyrControls.set(currentPlayer, newControls.clone());
+		// Finally save the updates
+		SavePlayers();
+		return true;
+	}
+
+	public static boolean SetPlayerDisplay(int index, int value) {
+		int[] newDisplay = plyrDisplay.get(currentPlayer).clone();
+		newDisplay[index] = value;
+		plyrDisplay.set(currentPlayer, newDisplay.clone());
 		// Finally save the updates
 		SavePlayers();
 		return true;
@@ -425,6 +439,8 @@ public class GameVars implements Serializable {
 		plyrTimesTrain.add(GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS));
 		plyrTimesTrainDmnd.add(GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS));
 		// Add the player controls
+		plyrDisplay.add(GetDefaultDisplay());
+		// Add the player controls
 		plyrControls.add(GetDefaultControls());
 		// Add an empty diamonds array
 		plyrColDmnd.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
@@ -496,6 +512,17 @@ public class GameVars implements Serializable {
 		return controls.clone();
 	}
 
+	public static int[] GetDefaultDisplay() {
+		int[] controls = new int[6];
+		controls[0] = DISPLAY_ON; // Clock
+		controls[1] = DISPLAY_ON; // Personal Record
+		controls[2] = DISPLAY_ON; // World Record
+		controls[3] = DISPLAY_SMARTON; // Emerald Count
+		controls[4] = DISPLAY_SMARTON; // Key Count
+		controls[5] = DISPLAY_SMARTON; // Nitrous Count
+		return controls.clone();
+	}
+
 	@SuppressWarnings("unchecked")
 	public static void LoadPlayers() {
 		try {
@@ -513,6 +540,7 @@ public class GameVars implements Serializable {
 			plyrTotalTimesDmnd = (ArrayList<int[]>) oi.readObject();
 			plyrTotalTimesTrainDmnd = (ArrayList<int[]>) oi.readObject();
 			plyrControls = (ArrayList<int[]>) oi.readObject();
+			plyrDisplay = (ArrayList<int[]>) oi.readObject();
 			plyrColDmnd = (ArrayList<boolean[]>) oi.readObject();
 			plyrColTrainDmnd = (ArrayList<boolean[]>) oi.readObject();
 			plyrLevelComplete = (ArrayList<int[]>) oi.readObject();
@@ -547,6 +575,7 @@ public class GameVars implements Serializable {
 			o.writeObject(plyrTotalTimesDmnd);
 			o.writeObject(plyrTotalTimesTrainDmnd);
 			o.writeObject(plyrControls);
+			o.writeObject(plyrDisplay);
 			o.writeObject(plyrColDmnd);
 			o.writeObject(plyrColTrainDmnd);
 			o.writeObject(plyrLevelComplete);
@@ -764,6 +793,8 @@ public class GameVars implements Serializable {
 		plyrTimesDmnd.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
 		plyrTimesTrain.add(RandomTimes(LevelsListTraining.NUMTRAINLEVELS));
 		plyrTimesTrainDmnd.add(RandomTimes(LevelsListTraining.NUMTRAINLEVELS));
+		// Add the player display preferences
+		plyrDisplay.add(GetDefaultDisplay());
 		// Add the player controls
 		plyrControls.add(GetDefaultControls());
 		// Add an empty diamonds array

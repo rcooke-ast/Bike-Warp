@@ -44,8 +44,8 @@ public class MenuSelectPlayer extends GameState {
 		// Make sure the necessary game directories exist
 		File directory = new File(ReplayVars.replayDir);
 	    if (!directory.exists()) directory.mkdir();
-	    directory = new File(EditorIO.levelDir);
-		if (!directory.exists()) directory.mkdir();
+//	    directory = new File(EditorIO.levelDir);
+//		if (!directory.exists()) directory.mkdir();
 		// Create the canvas
         create();
 	}

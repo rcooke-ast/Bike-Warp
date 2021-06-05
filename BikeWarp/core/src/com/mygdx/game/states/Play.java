@@ -197,7 +197,9 @@ public class Play extends GameState {
     private int nullvar;
     private boolean forcequit, forceRestart, lrIsDown, paintBackdrop, paintForeground;
     private float backgroundLimit;
-    
+    private boolean showTimer, showPB, showWR;
+    private int showEmerald, showKeys, showNitrous;
+
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
@@ -365,6 +367,14 @@ public class Play extends GameState {
         switchGL = new Sprite(BikeGameTextures.LoadTexture("switch_greenL",0));
         switchRL = new Sprite(BikeGameTextures.LoadTexture("switch_redL",0));
         metalBar = new Sprite(BikeGameTextures.LoadTexture("metal_pole_1x16",0));
+
+        // Load the player preferences for the display
+        showTimer = GameVars.GetPlayerDisplay(0) != 0;
+        showPB = GameVars.GetPlayerDisplay(1) != 0;
+        showWR = GameVars.GetPlayerDisplay(2) != 0;
+        showEmerald = GameVars.GetPlayerDisplay(3);
+        showKeys = GameVars.GetPlayerDisplay(4);
+        showNitrous = GameVars.GetPlayerDisplay(5);
 
         // Load the transport overlay
         //Texture transTexture = new Texture(Gdx.files.internal("data/images/transport_overlay.png"));
@@ -2622,68 +2632,90 @@ public class Play extends GameState {
     	//panelContainer.draw(mBatch, BikeGame.V_WIDTH - timerWidth - jcntrWidth - 128.0f*0.2f - 30.0f, SCRHEIGHT-29, 128.0f*0.2f+jcntrWidth+10.0f, 28);
         float vshift = 0.0f;
         // Draw the timer
-        String timeStr = GameVars.getTimeString(0);
-        if (mState == GAME_STATE.RUNNING) {
-            timerCurrent = (int) (TimeUtils.millis()) - timerStart;
-            timeStr = GameVars.getTimeString(timerCurrent);
+        if (showTimer) {
+            String timeStr = GameVars.getTimeString(0);
+            if (mState == GAME_STATE.RUNNING) {
+                timerCurrent = (int) (TimeUtils.millis()) - timerStart;
+                timeStr = GameVars.getTimeString(timerCurrent);
+            }
+            timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f*HUDScaleFactor, SCRHEIGHT-(pThick-timerHeight)/2.0f);
+            vshift += timerHeight + 5*HUDScaleFactor;
         }
-    	timer.draw(mBatch, timeStr, SCRWIDTH-timerWidth-10.0f*HUDScaleFactor, SCRHEIGHT-(pThick-timerHeight)/2.0f);
     	// If this is a replay, don't display anything else on screen.
     	if (isReplay) {
     		mBatch.end();
     		return;
     	}
-    	vshift += timerHeight + 5*HUDScaleFactor;
     	// WR
-        if (collectDiamond) timerWR.draw(mBatch, "WR  " + worldRecordD, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
-        else timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
-        vshift += timerWRHeight + 5*HUDScaleFactor;
+        if (showWR) {
+            if (collectDiamond) timerWR.draw(mBatch, "WR  " + worldRecordD, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+            else timerWR.draw(mBatch, "WR  " + worldRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+            vshift += timerWRHeight + 5*HUDScaleFactor;
+        }
     	// PB
-        if (collectDiamond) timerPB.draw(mBatch, "PB  " + personalRecordD, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
-        else timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
-    	vshift += timerWRHeight + 8*HUDScaleFactor;
-    	if (collectJewel != 0) {
-	        // Draw the jewel and it's counter
-	        jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor,SCRHEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
-	        mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth + (-128.0f*0.15f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-128.0f*0.15f*HUDScaleFactor)/2.0f-128.0f*0.15f*HUDScaleFactor, 0, 0, 128.0f*HUDScaleFactor, 128.0f*HUDScaleFactor, 0.15f, 0.15f, 0);
-	        vshift += pThick;
-    	}
+        if (showPB) {
+            if (collectDiamond) timerPB.draw(mBatch, "PB  " + personalRecordD, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+            else timerPB.draw(mBatch, "PB  " + personalRecord, SCRWIDTH-timerWRWidth-10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-timerWRHeight)/2.0f);
+            vshift += timerWRHeight + 5*HUDScaleFactor;
+        }
+        // This must be applied
+        vshift += 3*HUDScaleFactor;
 
-    	// Draw the key counters
-    	if (collectKeyRed != 0) {
-            keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed),     SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-            vshift += 10*HUDScaleFactor;
-            mBatch.draw(keyRed,   SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
-            vshift += 5*HUDScaleFactor;
-    	}
-    	if (collectKeyGreen != 0) {
-    		keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-            vshift += 10*HUDScaleFactor;
-            mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
-            vshift += 5*HUDScaleFactor;
-    	}
-    	if (collectKeyBlue != 0) {
-    		keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-            vshift += 10*HUDScaleFactor;
-            mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
-            vshift += 5*HUDScaleFactor;
-    	}
-    	if (collectKeyRed+collectKeyGreen+collectKeyBlue != 0) vshift -= 5*HUDScaleFactor;
+        // Emeralds
+        if (showEmerald != 0) {
+            if ((showEmerald==1) | ((collectJewel != 0) & (showEmerald==2))) {
+                // Draw the jewel and it's counter
+                jewelCntr.draw(mBatch, String.format("%02d", collectJewel),SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor,SCRHEIGHT-vshift-(pThick-jcntrHeight)/2.0f);
+                mBatch.draw(jewelSprite, SCRWIDTH - jcntrWidth + (-128.0f*0.15f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick-128.0f*0.15f*HUDScaleFactor)/2.0f-128.0f*0.15f*HUDScaleFactor, 0, 0, 128.0f*HUDScaleFactor, 128.0f*HUDScaleFactor, 0.15f, 0.15f, 0);
+                vshift += 19.0f*HUDScaleFactor;
+            }
+        }
+        // 19.2f*HUDScaleFactor
+        //pThick = 30.0f*HUDScaleFactor
+        // This must be applied
+        vshift += 11.0f*HUDScaleFactor;
+
+//        showKeys = GameVars.GetPlayerDisplay(4);
+//        showNitrous = GameVars.GetPlayerDisplay(5);
+
+        // Draw the key counters
+        if (showKeys != 0) {
+            if ((showKeys==1) | ((collectKeyRed != 0) & (showKeys==2))) {
+                keyRedCntr.draw(mBatch, String.format("%02d", collectKeyRed), SCRWIDTH - jcntrWidth - 10.0f * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f);
+                vshift += 10 * HUDScaleFactor;
+                mBatch.draw(keyRed, SCRWIDTH - jcntrWidth + (-135.0f * 0.2f - 20.0f) * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f, 0, 0, 135.0f * HUDScaleFactor, 50.0f * HUDScaleFactor, 0.2f, 0.2f, 0);
+                vshift += 5 * HUDScaleFactor;
+            }
+            if ((showKeys==1) | ((collectKeyGreen != 0) & (showKeys==2))) {
+                keyGreenCntr.draw(mBatch, String.format("%02d", collectKeyGreen), SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+                vshift += 10*HUDScaleFactor;
+                mBatch.draw(keyGreen, SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
+                vshift += 5*HUDScaleFactor;
+            }
+            if ((showKeys==1) | ((collectKeyBlue != 0) & (showKeys==2))) {
+                keyBlueCntr.draw(mBatch, String.format("%02d", collectKeyBlue),   SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
+                vshift += 10*HUDScaleFactor;
+                mBatch.draw(keyBlue,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
+                vshift += 5*HUDScaleFactor;
+            }
+            if ((collectKeyRed+collectKeyGreen+collectKeyBlue != 0) | (showKeys==1)) vshift -= 5*HUDScaleFactor;
+        }
 
     	// Draw the nitrous counter
-    	vshift += 5*HUDScaleFactor;
-    	if ((collectNitrous != 0) | (nitrousLevel != 0.0f)) {
-	        nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f);
-	        vshift += 67.5f*0.2f*HUDScaleFactor;
-	        // Draw the nitrous image
-	        mBatch.draw(nitrous,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 67.5f*HUDScaleFactor, 0.2f, 0.2f, 0);
-	        // Draw nitrous tube and fluid
-	        vshift += 10*HUDScaleFactor;
-	        mBatch.draw(nitrousFluid,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, nitrousLevel*135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
-	        mBatch.draw(nitrousTube,  SCRWIDTH - jcntrWidth + (-135.0f*0.2f - 20.0f)*HUDScaleFactor, SCRHEIGHT-vshift-(pThick/4.0f-jcntrHeight)/2.0f, 0, 0, 135.0f*HUDScaleFactor, 50.0f*HUDScaleFactor, 0.2f, 0.2f, 0);
+        if (showNitrous != 0) {
+            vshift += 5 * HUDScaleFactor;
+            if ((showNitrous==1) | (((collectNitrous != 0) | (nitrousLevel != 0.0f)) & (showNitrous==2))) {
+                nitrousCntr.draw(mBatch, String.format("%02d", collectNitrous), SCRWIDTH - jcntrWidth - 10.0f * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f);
+                vshift += 67.5f * 0.2f * HUDScaleFactor;
+                // Draw the nitrous image
+                mBatch.draw(nitrous, SCRWIDTH - jcntrWidth + (-135.0f * 0.2f - 20.0f) * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f, 0, 0, 135.0f * HUDScaleFactor, 67.5f * HUDScaleFactor, 0.2f, 0.2f, 0);
+                // Draw nitrous tube and fluid
+                vshift += 10 * HUDScaleFactor;
+                mBatch.draw(nitrousFluid, SCRWIDTH - jcntrWidth + (-135.0f * 0.2f - 20.0f) * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f, 0, 0, nitrousLevel * 135.0f * HUDScaleFactor, 50.0f * HUDScaleFactor, 0.2f, 0.2f, 0);
+                mBatch.draw(nitrousTube, SCRWIDTH - jcntrWidth + (-135.0f * 0.2f - 20.0f) * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f, 0, 0, 135.0f * HUDScaleFactor, 50.0f * HUDScaleFactor, 0.2f, 0.2f, 0);
+            }
         }
         mBatch.end();
-
     }
     /**
      * Creates an array of SimpleSpatial objects from RubeImages.
