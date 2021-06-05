@@ -551,12 +551,12 @@ public class Editor extends GameState {
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
 
 									// Temporary for Space Station...
-									float[] pathtmp = allPolygonPaths.get(25).clone();
-									pathtmp[1] *= 1.3f;
-									pathtmp[6] = 0.0f;
-									pathtmp[7] = 18.0f;
-									allPolygonPaths.set(25,pathtmp.clone());
-									allPolygonPaths.set(26,pathtmp.clone());
+//									float[] pathtmp = allPolygonPaths.get(25).clone();
+//									pathtmp[1] *= 1.3f;
+//									pathtmp[6] = 0.0f;
+//									pathtmp[7] = 18.0f;
+//									allPolygonPaths.set(25,pathtmp.clone());
+//									allPolygonPaths.set(26,pathtmp.clone());
 
 									// Temporary for Shoulders of Giants....
 //									int ndec = allDecors.size();
