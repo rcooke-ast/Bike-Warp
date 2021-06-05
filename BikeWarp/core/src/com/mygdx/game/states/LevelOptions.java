@@ -195,6 +195,7 @@ public class LevelOptions extends GameState {
 	    	}
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
+    		LevelSelectGame.SetCurrentLevel(levelNumber+1);
     		gsm.setState(GameStateManager.PEEK, false, "none", levelNumber, modeValue);
     		checkLevels=0.0f;
     		if (goToNext) gsm.setState(GameStateManager.LEVELOPTIONS, true, "", levelNumber+1, modeValue);
