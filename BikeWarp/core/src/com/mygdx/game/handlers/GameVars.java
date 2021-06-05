@@ -479,7 +479,7 @@ public class GameVars implements Serializable {
 	    //mBatch.setColor(0.1f,0.5f,1.0f,1.0f); // Blue
 		//float[] color = new float[]{0.1f,0.5f,1.0f,1.0f};  // Blue
 		//float[] color = new float[]{0.1568627450980392f, 0.23529411764705882f, 0.5882352941176471f, 1.0f};  // Midnight blue
-		float[] color = new float[]{0.9f,0.9f,0.9f,1.0f};  // Off white
+		float[] color = new float[]{0.9f,0.9f,0.9f};  // Off white
 		return color.clone();
 	}
 

@@ -150,29 +150,32 @@ public class OptionColorSelect extends GameState {
 	public void handleInput() {
     	if (GameInput.isPressed(GameInput.KEY_LEFT)) {
         	currentOption -= 1;
-        	if (currentOption < 0) currentOption=3;
+        	if (currentOption < 0) currentOption=4;
     	} else if (GameInput.isPressed(GameInput.KEY_RIGHT)) {
         	currentOption += 1;
-        	if (currentOption > 3) currentOption=0;
+        	if (currentOption > 4) currentOption=0;
     	} else if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
     		shiftVal *= -1.0f;
     		bikeDirc *= -1.0f;
     		bikeScaleLev *= -1.0f;
     		bikeScale += bikeScaleLev;
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (currentOption==0) & (fadeOut==-1.0f)) {
-        	GameVars.SetPlayerBikeColor(ColorUtils.hsbToRgb(hsb[0], hsb[1], hsb[2]));
-        	GameVars.SavePlayers();
-        	fadeOut=1.0f;
+            GameVars.SetPlayerBikeColor(ColorUtils.hsbToRgb(hsb[0], hsb[1], hsb[2]));
+            GameVars.SavePlayers();
+            fadeOut=1.0f;
+        } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (currentOption==1) & (fadeOut==-1.0f)) {
+    	    float[] rgb = GameVars.GetDefaultBikeColor();
+    	    hsb = Color.RGBtoHSB((int)(255*rgb[0]), (int)(255*rgb[1]), (int)(255*rgb[2]), null);
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
     		fadeIn=0.0f;
         }
     	if (GameInput.isDown(GameInput.KEY_ACCEL)) {
-    		if (currentOption!=0) {
-    			hsb[currentOption-1] += shiftVal;
-    			if (hsb[currentOption-1] > 1.0f) hsb[currentOption-1] = 0.0f;
-    			else if (hsb[currentOption-1] < 0.0f) hsb[currentOption-1] = 1.0f;
+    		if (currentOption>=2) {
+    			hsb[currentOption-2] += shiftVal;
+    			if (hsb[currentOption-2] > 1.0f) hsb[currentOption-2] = 0.0f;
+    			else if (hsb[currentOption-2] < 0.0f) hsb[currentOption-2] = 1.0f;
     			spdFact = bikeDirc*3.0f;
     		}
     	} else spdFact = bikeDirc*1.0f;
@@ -287,15 +290,16 @@ public class OptionColorSelect extends GameState {
         sb.setColor(1, 1, 1, 1);
         sb.begin();
         String text = "";
-        if (currentOption==0) text = "Press enter to";
+        if (currentOption<=1) text = "Press enter to";
         else text = "Accelerate and switch direction to";
         glyphLayout.setText(menuText, text);
         mWidth = glyphLayout.width;
         menuText.draw(sb, text, (SCRWIDTH-mWidth)/2.0f,mPos+1.75f*mHeight+menuText.getXHeight());
         if (currentOption==0) text = "return to the options menu";
-        else if (currentOption==1) text = "change bike color";
-        else if (currentOption==2) text = "saturate bike color";
-        else if (currentOption==3) text = "change bike shade";
+        else if (currentOption==1) text = "set the default color";
+        else if (currentOption==2) text = "change bike color";
+        else if (currentOption==3) text = "saturate bike color";
+        else if (currentOption==4) text = "change bike shade";
         glyphLayout.setText(menuText, text);
         mWidth = glyphLayout.width;
         menuText.draw(sb, text, (SCRWIDTH-mWidth)/2.0f,mPos+0.5f*mHeight+menuText.getXHeight());

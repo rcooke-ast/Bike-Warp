@@ -185,8 +185,8 @@ public class LevelsListGame {
 		gameLevelFiles[lnum] = "data/gamelevels/Samurai.lvl";
 
 		lnum += 1;
-		gameLevelNames[lnum] = String.valueOf(lnum)+". Snowy Peaks";
-		gameLevelFiles[lnum] = "data/gamelevels/SnowyPeaks.lvl";
+		gameLevelNames[lnum] = String.valueOf(lnum)+". Surf'n'Ski";
+		gameLevelFiles[lnum] = "data/gamelevels/Surf'n'Ski.lvl";
 
 		lnum += 1;
     	gameLevelNames[lnum] = String.valueOf(lnum)+". Lunatic";
