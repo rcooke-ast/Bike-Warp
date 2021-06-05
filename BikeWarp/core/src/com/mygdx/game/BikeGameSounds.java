@@ -96,6 +96,37 @@ public class BikeGameSounds {
         sounds.get(index).stop();
     }
 
+    public static void StopAllSounds() {
+        //if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
+        if (waterfallSound != null) {
+            waterfallSound.setLooping(false);
+            waterfallSound.setVolume(0.0f);
+        }
+        if (rainSound != null) {
+            rainSound.setLooping(false);
+            rainSound.setVolume(0.0f);
+        }
+        if (windSound != null) {
+            windSound.setLooping(false);
+            windSound.setVolume(0.0f);
+        }
+    }
+
+    public static void StartAllSounds() {
+        // Start the waterfall music
+        waterfallSound.setLooping(true);
+        waterfallSound.setVolume(0.0f);
+        waterfallSound.play();
+        // Start the rain music
+        rainSound.setLooping(true);
+        rainSound.setVolume(0.0f);
+        rainSound.play();
+        // Start the wind music
+        windSound.setLooping(true);
+        windSound.setVolume(0.0f);
+        windSound.play();
+    }
+
     public static void dispose() {
         sound.dispose();
         for (int i=0; i<sounds.size(); i++) {

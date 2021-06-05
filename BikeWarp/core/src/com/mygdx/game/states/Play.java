@@ -201,7 +201,6 @@ public class Play extends GameState {
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
     private Sound soundBikeIdle, soundBikeMove;
-    private Music soundWaterfall, soundRain, soundWind;
     private float[] musicVolumes = new float[DecorVars.platformSounds.length-1];
     private boolean containsAnimatedBG, containsWaterfall, containsRain, containsWind;
     private Array<float[]> waterfallVerts, rainVerts, animBGVerts;
@@ -606,20 +605,7 @@ public class Play extends GameState {
 	            soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
 	            soundBikeMove.setLooping(soundIDBikeMove, true);
 	            // Load the waterfall music
-                soundWaterfall = BikeGameSounds.LoadWaterfall();
-                soundWaterfall.setLooping(true);
-                soundWaterfall.setVolume(0.0f);
-                soundWaterfall.play();
-                // Load the rain music
-                soundRain = BikeGameSounds.LoadRain();
-                soundRain.setLooping(true);
-                soundRain.setVolume(0.0f);
-                soundRain.play();
-                // Load the wind music
-                soundWind = BikeGameSounds.LoadWind();
-                soundWind.setLooping(true);
-                soundWind.setVolume(0.0f);
-                soundWind.play();
+                BikeGameSounds.StartAllSounds();
                 // Change the state
                 mNextState = GAME_STATE.RUNNING;
 	            // Start the timer
@@ -682,7 +668,7 @@ public class Play extends GameState {
 	     	   		} else cl.notFinished();
 	     	   } else if ((cl.isPlayerDead() && !isReplay) | (forcequit) | (forceRestart)) {
 	       		    BikeGameSounds.PlaySound(soundHit, bikeMaxVolume/2.0f);
-	       		    StopSounds();
+                    StopSounds();
     	   			if (!isReplay) {
 	     	   			if ((mode == 1) || (mode == 2)) storeReplay(dt);
     	   				GameVars.SetTimerTotal(-1);
@@ -766,9 +752,7 @@ public class Play extends GameState {
 
     private void StopSounds() {
 		if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
-		if (soundWaterfall != null) soundWaterfall.setLooping(false);
-        if (soundRain != null) soundRain.setLooping(false);
-        if (soundWind != null) soundWind.setLooping(false);
+		BikeGameSounds.StopAllSounds();
     }
     
     private void updateSounds(float dt) {
@@ -1784,9 +1768,9 @@ public class Play extends GameState {
     private void updateMusicVolumes() {
         for (int ss=0; ss<musicVolumes.length; ss++) {
             switch (ss+1) {
-                case DecorVars.soundRain: soundRain.setVolume(musicVolumes[ss]);
-                case DecorVars.soundWaterfall: soundWaterfall.setVolume(musicVolumes[ss]);
-                case DecorVars.soundWind: soundWind.setVolume(musicVolumes[ss]);
+                case DecorVars.soundRain: BikeGameSounds.rainSound.setVolume(musicVolumes[ss]);
+                case DecorVars.soundWaterfall: BikeGameSounds.waterfallSound.setVolume(musicVolumes[ss]);
+                case DecorVars.soundWind: BikeGameSounds.windSound.setVolume(musicVolumes[ss]);
             }
         }
     }
@@ -2335,9 +2319,6 @@ public class Play extends GameState {
     	if (mScene != null) mScene.clear();
     	if (soundBikeIdle != null) soundBikeIdle.dispose();
     	if (soundBikeMove != null) soundBikeMove.dispose();
-    	if (soundWaterfall != null) soundWaterfall.dispose();
-        if (soundRain != null) soundRain.dispose();
-        if (soundWind != null) soundWind.dispose();
     	mScene = null;
     }
 
