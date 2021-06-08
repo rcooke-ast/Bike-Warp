@@ -70,13 +70,13 @@ public class LevelOptions extends GameState {
         UpdateMenu();
         checkLevels = 0.0f;
         // Load the background metal grid
-        metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
+        metalmesh = BikeGameTextures.LoadTexture("metal_grid");
         float ratio = 4.0f;
         uRight = SCRWIDTH * ratio / metalmesh.getWidth();
         vTop= SCRHEIGHT * ratio / metalmesh.getHeight();
         // Load the black metal pole and the corner
-        metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black",1));
-        metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner",1));
+        metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black"));
+        metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner"));
         // Set the starting option
         currentOption = 1;
         fadeOut = -1.0f;

@@ -353,20 +353,20 @@ public class Play extends GameState {
 
         // Load the suspension textures
         bikeCol = GameVars.GetPlayerBikeColor();
-        bikeColour = new Sprite(BikeGameTextures.LoadTexture("bike_white",0));
-        bikeOverlay = new Sprite(BikeGameTextures.LoadTexture("bike_overlay",0));
-        suspensionRear = new Sprite(BikeGameTextures.LoadTexture("rear_suspension",0));
-        suspensionFront = new Sprite(BikeGameTextures.LoadTexture("front_suspension",0));
-        bikeWheel = new Sprite(BikeGameTextures.LoadTexture("bikewheel",0));
+        bikeColour = new Sprite(BikeGameTextures.LoadTexture("bike_white"));
+        bikeOverlay = new Sprite(BikeGameTextures.LoadTexture("bike_overlay"));
+        suspensionRear = new Sprite(BikeGameTextures.LoadTexture("rear_suspension"));
+        suspensionFront = new Sprite(BikeGameTextures.LoadTexture("front_suspension"));
+        bikeWheel = new Sprite(BikeGameTextures.LoadTexture("bikewheel"));
 
         // Load the finish ball textures
-        finishFG = new Sprite(BikeGameTextures.LoadTexture("finish_whirl",0));
+        finishFG = new Sprite(BikeGameTextures.LoadTexture("finish_whirl"));
 
         // Load the opening door, switch box, and metal bar textures
-        openDoor = new Sprite(BikeGameTextures.LoadTexture("gate",0));
-        switchGL = new Sprite(BikeGameTextures.LoadTexture("switch_greenL",0));
-        switchRL = new Sprite(BikeGameTextures.LoadTexture("switch_redL",0));
-        metalBar = new Sprite(BikeGameTextures.LoadTexture("metal_pole_1x16",0));
+        openDoor = new Sprite(BikeGameTextures.LoadTexture("gate"));
+        switchGL = new Sprite(BikeGameTextures.LoadTexture("switch_greenL"));
+        switchRL = new Sprite(BikeGameTextures.LoadTexture("switch_redL"));
+        metalBar = new Sprite(BikeGameTextures.LoadTexture("metal_pole_1x16"));
 
         // Load the player preferences for the display
         showTimer = GameVars.GetPlayerDisplay(0) != 0;
@@ -409,13 +409,13 @@ public class Play extends GameState {
         resetMusicVolumes();
 
         // Load the items to be displayed on the HUD
-        keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red",0));
-        keyBlue = new Sprite(BikeGameTextures.LoadTexture("key_blue",0));
-        keyGreen = new Sprite(BikeGameTextures.LoadTexture("key_green",0));
-        jewelSprite = new Sprite(BikeGameTextures.LoadTexture("gem_gold",0));
-        nitrous = new Sprite(BikeGameTextures.LoadTexture("nitrous",0));
-        nitrousTube = new Sprite(BikeGameTextures.LoadTexture("nitrous_tube",0));
-        nitrousFluid = new Sprite(BikeGameTextures.LoadTexture("nitrous_fluid",0));
+        keyRed = new Sprite(BikeGameTextures.LoadTexture("key_red"));
+        keyBlue = new Sprite(BikeGameTextures.LoadTexture("key_blue"));
+        keyGreen = new Sprite(BikeGameTextures.LoadTexture("key_green"));
+        jewelSprite = new Sprite(BikeGameTextures.LoadTexture("gem_gold"));
+        nitrous = new Sprite(BikeGameTextures.LoadTexture("nitrous"));
+        nitrousTube = new Sprite(BikeGameTextures.LoadTexture("nitrous_tube"));
+        nitrousFluid = new Sprite(BikeGameTextures.LoadTexture("nitrous_fluid"));
 
         // Timer for this run
         timer = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
@@ -1947,8 +1947,8 @@ public class Play extends GameState {
         timer.setColor(timerRed/255.0f, timerGreen/255.0f, timerBlue/255.0f, 1);
         // Load some sky properties
         String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
-        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName),2));
-        blackScreen = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("data/images/sky_moon.png"),2));
+        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName)));
+        blackScreen = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("data/images/sky_moon.png")));
         bikeDirc = startDirection; // 1=right, -1=left
         bikeScale = startDirection;
         bikeScaleLev *= startDirection;
@@ -1961,22 +1961,20 @@ public class Play extends GameState {
         backgroundLimit = BikeGameTextures.BackgroundLimit(bgTextName); // Must be less than 0.5 (0.0 means the texture will start in the vertical middle of the screen, 0.5 is the bottom, 0.3 means the texture will start 20% from the bottom of the screen);
         if ((fgTextName == null) || (fgTextName.equalsIgnoreCase("none"))) {
             paintForeground = false;
-        } else foreground = new Sprite(BikeGameTextures.LoadTexture(fgTextName,2));
+        } else foreground = new Sprite(BikeGameTextures.LoadTexture(fgTextName));
         if ((bgTextName == null) || (bgTextName.equalsIgnoreCase("none"))) {
             paintBackdrop = false;
         } else {
-            int loadID = 2;
-//            if (bgTextName.contains("LevText_")) loadID = 3;
 //            // TODO :: SERIOUS ERROR HERE!!!
 //            String temp_loadname = "tst_bg_"+bgTextName;
 //            System.out.println("PLAY: Loading file name: " + temp_loadname);
-            background = new Sprite(BikeGameTextures.LoadTexture(bgTextName, loadID));
+            background = new Sprite(BikeGameTextures.LoadTexture(bgTextName));
         }
-        diamondSN = new Sprite(BikeGameTextures.LoadTexture("planet_supernova",2));
-        diamondSNg = new Sprite(BikeGameTextures.LoadTexture("planet_supernova_green",2));
+        diamondSN = new Sprite(BikeGameTextures.LoadTexture("planet_supernova"));
+        diamondSNg = new Sprite(BikeGameTextures.LoadTexture("planet_supernova_green"));
         nitFire = new ArrayList<>();
-        nitFire.add(new Sprite(BikeGameTextures.LoadTexture("nitrous_fire_01",0)));
-        nitFire.add(new Sprite(BikeGameTextures.LoadTexture("nitrous_fire_02",0)));
+        nitFire.add(new Sprite(BikeGameTextures.LoadTexture("nitrous_fire_01")));
+        nitFire.add(new Sprite(BikeGameTextures.LoadTexture("nitrous_fire_02")));
         nitFireCntr = 0;
 
         // Get the two bike wheel motors
@@ -2745,11 +2743,11 @@ public class Play extends GameState {
     			//texture = mTextureMap.get(textureFileName);
 //    			if (texture == null)
 //    			{
-				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),0));
+				mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName)));
 //    			} else {
 //    				texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 //    			}
-    			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),0), image.flip, image.body, image.color, mTmp, image.center, image.angleInRads * MathUtils.radiansToDegrees);
+    			spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName)), image.flip, image.body, image.color, mTmp, image.center, image.angleInRads * MathUtils.radiansToDegrees);
 //             	if (image.name.startsWith("Jewel")) {
 //          	  	 spatial = new SimpleSpatial(jewelSprites[0], image.flip, image.body, image.color, mTmp, image.center,
 //         	   			 image.angleInRads * MathUtils.radiansToDegrees);
@@ -2818,7 +2816,7 @@ public class Play extends GameState {
                 else if (decor.file.contains("portrait_")) fgbgIdx = -1;
                 mTmp.set(decor.width, decor.height);
                 String textureFileName = "data/" + decor.file;
-                mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2));
+                mTextureMap.put(textureFileName, BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName)));
 //    			texture = mTextureMap.get(textureFileName);
 //    			if (texture == null)
 //    			{
@@ -2828,7 +2826,7 @@ public class Play extends GameState {
 //    			} else {
 //    				texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 //    			}
-                spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName),2), decor.flip, null, decor.color, mTmp, decor.center, decor.angleInRads * MathUtils.radiansToDegrees);
+                spatial = new SimpleSpatial(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textureFileName)), decor.flip, null, decor.color, mTmp, decor.center, decor.angleInRads * MathUtils.radiansToDegrees);
                 mSpatials.add(spatial);
                 mSpatialsFGBG.add(fgbgIdx);
             }

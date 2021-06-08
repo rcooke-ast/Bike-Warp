@@ -30,9 +30,9 @@ public class MenuExit extends GameState {
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
-        background = new Sprite(BikeGameTextures.LoadTexture("menu_black",1));
-		stars = new Sprite(BikeGameTextures.LoadTexture("background_stars",2));
-		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename",1));
+        background = new Sprite(BikeGameTextures.LoadTexture("menu_black"));
+		stars = new Sprite(BikeGameTextures.LoadTexture("background_stars"));
+		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
 		gn_width = SCRWIDTH;//SCRWIDTH*0.7f;
 		gn_height = SCRHEIGHT;//gn_width*gamename.getHeight()/gamename.getWidth();
         fadeOut = -1.0f;

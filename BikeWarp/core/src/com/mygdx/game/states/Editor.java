@@ -2796,7 +2796,7 @@ public class Editor extends GameState {
 		xlen = (float) Math.sqrt((decor[2]-decor[0])*(decor[2]-decor[0]) + (decor[3]-decor[1])*(decor[3]-decor[1]));
 		ylen = (float) Math.sqrt((decor[4]-decor[2])*(decor[4]-decor[2]) + (decor[5]-decor[3])*(decor[5]-decor[3]));
 		rotAngle = PolygonOperations.GetAngle(decor[0], decor[1], decor[2], decor[3]);
-		decorImage = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textName), 2));
+		decorImage = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(textName)));
 		mBatch.draw(decorImage, xcen-xlen/2, ycen-ylen/2, xlen/2, ylen/2, xlen, ylen, 1, 1, (float) Math.toDegrees(rotAngle));
 	}
 

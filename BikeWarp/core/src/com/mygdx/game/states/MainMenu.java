@@ -47,11 +47,11 @@ public class MainMenu extends GameState {
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
-		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_wheel"),1));
-        shaft = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_shaft"),1));
-        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky"),2));
-        grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep"),2));
-        dirt = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("cracked_dirt_linrep"),2));
+		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_wheel")));
+        shaft = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_shaft")));
+        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky")));
+        grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep")));
+        dirt = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("cracked_dirt_linrep")));
         groundTimer = 0.0f;
         fadeOut = -1.0f;
         fadeIn = 0.0f;
@@ -146,7 +146,7 @@ public class MainMenu extends GameState {
 			BikeGameSounds.PlayMenuSelect();
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
-    		gsm.setState(goToLevel, true, "none", -1, 0);
+    		gsm.setState(goToLevel, true, "none", -1, 1);
     		fadeIn=0.0f;
         }
     }

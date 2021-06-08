@@ -7,33 +7,19 @@ import java.io.File;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
 
 public class BikeGameTextures {
-    private static Texture texture;
-    private static ArrayList<Texture> textures;
-    private static ArrayList<String> textureNames;
-    private static ArrayList<Texture> menuTextures;
-    private static ArrayList<String> menuTextureNames;
-    private static ArrayList<Texture> decorTextures;
-    private static ArrayList<String> decorTextureNames;
-//    private final static String[] textureNames = new String[] {};
-//    private final static String[] menuTextureNames = new String[] {};
-//    private final static String[] decorTextureNames = new String[] {};
+    public static AssetManager textureManager;
 
     public static void InitiateTextures() {
         // Initiate the arrays
-        textures = new ArrayList<Texture>();
-        textureNames = new ArrayList<String>();
-        menuTextures = new ArrayList<Texture>();
-        menuTextureNames = new ArrayList<String>();
-        decorTextures = new ArrayList<Texture>();
-        decorTextureNames = new ArrayList<String>();
-//        levelTextures = new ArrayList<Texture>();
-//        levelTextureNames = new ArrayList<String>();
-//        levelTexturesLoaded = new ArrayList<String>();
+        textureManager = new AssetManager();
+        //textureManager.finishLoading();
         // Load all level textures
         GetLevelImages();
         // Load any remaining menu textures
@@ -48,323 +34,259 @@ public class BikeGameTextures {
         return 0.5f;
     }
 
-//    public static boolean IsLevelLoaded(String levelname) {
-//        for (int ll=0; ll<levelTexturesLoaded.size(); ll++) {
-//            if (levelname.equalsIgnoreCase(levelTexturesLoaded.get(ll))) return true;
-//        }
-//        return false;
-//    }
-//
-//    public static void AddLevelTexture(Texture texture, String levelname, String name) {
-//        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-//        levelTextures.add(texture);
-//        levelTextureNames.add(levelname+"_"+name);
-//        levelTexturesLoaded.add(levelname);
-//    }
-
-    private static void GetTexture(String file, int flag) {
+    public static String GetTextureName(String file) {
         String fext, fname = "data/images/"+file;
-        if (Gdx.files.internal(fname+".png").exists()) fext = fname + ".png";
+        if (file.equals("grass_smooth_linrep")) fext = "data/images/grass_smooth.png";
+        else if (file.equals("cracked_dirt_linrep")) fext = "data/images/cracked_dirt.png";
+        else if (Gdx.files.internal(fname+".png").exists()) fext = fname + ".png";
         else if (Gdx.files.internal(fname+".jpg").exists()) fext = fname + ".jpg";
         else fext = "data/images/error.png";
-        texture = new Texture(Gdx.files.internal(fext));
-        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        if (flag==0) {
-            textures.add(texture);
-            textureNames.add(file);
-        } else if (flag==1) {
-            menuTextures.add(texture);
-            menuTextureNames.add(file);
-        } else if (flag==2) {
-            decorTextures.add(texture);
-            decorTextureNames.add(file);
-        }
+        return fext;//Gdx.files.internal(fext).name();
+    }
+
+    private static void GetTexture(String file) {
+        TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
+        param.minFilter = TextureFilter.Linear;
+        param.magFilter = TextureFilter.Linear;
+        textureManager.load(GetTextureName(file), Texture.class, param);
     }
 
     private static void GetLevelImages() {
+        // Load the items required for the splash screen
+        GetTexture("bg_StarsBlueGreen");
+        GetTexture("menu_gamename");
+        GetTexture("nitrous_tube");
+        GetTexture("nitrous_fluid");
+        GetTexture("finish_whirl");
         // Load Bike
-        GetTexture("bike_white",0);
-        GetTexture("bike_overlay",0);
-        GetTexture("rear_suspension",0);
-        GetTexture("front_suspension",0);
-        GetTexture("bikewheel",0);
+        GetTexture("bike_white");
+        GetTexture("bike_overlay");
+        GetTexture("rear_suspension");
+        GetTexture("front_suspension");
+        GetTexture("bikewheel");
         // Load Level images
-        GetTexture("bolt",0);
-        GetTexture("boulder",0);
-        GetTexture("chain_link",0);
-        GetTexture("crate1",0);
-        GetTexture("crate2",0);
-        GetTexture("finish_whirl",0);
-        GetTexture("finish_ball",0);
-        GetTexture("gate",0);
-        GetTexture("gem_gold",0);
-        GetTexture("gem_diamond",0);
-        GetTexture("gravity",0);
-        GetTexture("key_red",0);
-        GetTexture("key_blue",0);
-        GetTexture("key_green",0);
-        GetTexture("log",0);
-        GetTexture("nitrous_fire_01",0);
-        GetTexture("nitrous_fire_02",0);
-        GetRoadSigns(0);
-        GetTexture("metalplate",0);
-        GetTexture("nitrous",0);
-        GetTexture("nitrous_tube",0);
-        GetTexture("nitrous_fluid",0);
-        GetTexture("padlock_blue",0);
-        GetTexture("padlock_green",0);
-        GetTexture("padlock_red",0);
-        GetTexture("planet_sun",0);
-        GetTexture("planet_mercury",0);
-        GetTexture("planet_venus",0);
-        GetTexture("planet_earth",0);
-        GetTexture("planet_earthgrey",0);
-        GetTexture("planet_mars",0);
-        GetTexture("planet_jupiter",0);
-        GetTexture("planet_saturn",0);
-        GetTexture("planet_uranus",0);
-        GetTexture("planet_neptune",0);
-        GetTexture("RS_exclamation",0);
-        GetTexture("spike",0);
-        GetTexture("switch_greenL",0);
-        GetTexture("switch_redL",0);
-        GetTexture("transport_spiral",0);
-        GetTexture("waterfall",0);
-        GetTexture("wood_link",0);
-        GetTexture("vehicle_05", 0);
-        GetTexture("lander", 0);
+        GetTexture("bolt");
+        GetTexture("boulder");
+        GetTexture("chain_link");
+        GetTexture("crate1");
+        GetTexture("crate2");
+        GetTexture("finish_whirl");
+        GetTexture("finish_ball");
+        GetTexture("gate");
+        GetTexture("gem_gold");
+        GetTexture("gem_diamond");
+        GetTexture("gravity");
+        GetTexture("key_red");
+        GetTexture("key_blue");
+        GetTexture("key_green");
+        GetTexture("log");
+        GetTexture("nitrous_fire_01");
+        GetTexture("nitrous_fire_02");
+        GetRoadSigns();
+        GetTexture("metalplate");
+        GetTexture("nitrous");
+        GetTexture("padlock_blue");
+        GetTexture("padlock_green");
+        GetTexture("padlock_red");
+        GetTexture("planet_sun");
+        GetTexture("planet_mercury");
+        GetTexture("planet_venus");
+        GetTexture("planet_earth");
+        GetTexture("planet_earthgrey");
+        GetTexture("planet_mars");
+        GetTexture("planet_jupiter");
+        GetTexture("planet_saturn");
+        GetTexture("planet_uranus");
+        GetTexture("planet_neptune");
+        GetTexture("RS_exclamation");
+        GetTexture("spike");
+        GetTexture("switch_greenL");
+        GetTexture("switch_redL");
+        GetTexture("transport_spiral");
+        GetTexture("waterfall");
+        GetTexture("wood_link");
+        GetTexture("vehicle_05");
+        GetTexture("lander");
     }
 
     private static void GetMenuImages() {
-        GetTexture("menu_arrow",1);
-        GetTexture("menu_ChangePlayer",1);
-        GetTexture("menu_DesignLevel",1);
-        GetTexture("menu_Exit",1);
-        GetTexture("menu_Multiplayer",1);
-        GetTexture("menu_Options",1);
-        GetTexture("menu_SinglePlayer",1);
-        GetTexture("menu_Training",1);
-        GetTexture("menu_WatchReplays",1);
-        GetTexture("menu_WorldRecords",1);
-        GetTexture("menu_shaft",1);
-        GetTexture("menu_wheel",1);
-        GetTexture("menu_black",1);
-        GetTexture("metalpole_black",1);
-        GetTexture("metalpole_blackcorner",1);
-        GetTexture("menu_gamename",1);
+        GetTexture("menu_arrow");
+        GetTexture("menu_ChangePlayer");
+        GetTexture("menu_DesignLevel");
+        GetTexture("menu_Exit");
+        GetTexture("menu_Multiplayer");
+        GetTexture("menu_Options");
+        GetTexture("menu_SinglePlayer");
+        GetTexture("menu_Training");
+        GetTexture("menu_WatchReplays");
+        GetTexture("menu_WorldRecords");
+        GetTexture("menu_shaft");
+        GetTexture("menu_wheel");
+        GetTexture("menu_black");
+        GetTexture("metalpole_black");
+        GetTexture("metalpole_blackcorner");
         // Add some additional textures
-        texture = new Texture(Gdx.files.internal("data/images/metal_grid.png"));
-        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
-        menuTextures.add(texture);
-        menuTextureNames.add("metal_grid");
+        GetRepeatedTextures();
     }
 
-    private static void GetRoadSigns(int flag) {
-        GetTexture("RS_bumps",flag);
-        GetTexture("RS_dash",flag);
-        GetTexture("RS_dot",flag);
-        GetTexture("RS_donotenter",flag);
-        GetTexture("RS_exclamation",flag);
-        GetTexture("RS_motorbike",flag);
-        GetTexture("RS_nomotorbike",flag);
-        GetTexture("RS_rampahead",flag);
-        GetTexture("RS_reducespeed",flag);
-        GetTexture("RS_speed_10",flag);
-        GetTexture("RS_speed_flag0",flag);
-        GetTexture("RS_speed_30",flag);
-        GetTexture("RS_speed_40",flag);
-        GetTexture("RS_speed_50",flag);
-        GetTexture("RS_speed_60",flag);
-        GetTexture("RS_speed_80",flag);
-        GetTexture("RS_speed_100",flag);
-        GetTexture("RS_stop",flag);
-        GetTexture("RS_noaliens",flag);
-        GetTexture("RS_toxic",flag);
-        GetTexture("metal_pole_1x16",flag);
+    private static void GetRepeatedTextures() {
+        // Metal grid
+        TextureLoader.TextureParameter param = new TextureLoader.TextureParameter();
+        param.minFilter = TextureFilter.Linear;
+        param.magFilter = TextureFilter.Linear;
+        param.wrapU = TextureWrap.Repeat;
+        param.wrapV = TextureWrap.Repeat;
+//        textureManager.load(Gdx.files.internal("data/images/metal_grid.png").name(), Texture.class, param);
+        textureManager.load("data/images/metal_grid.png", Texture.class, param);
+        // Grass
+        param = new TextureLoader.TextureParameter();
+        param.minFilter = TextureFilter.Linear;
+        param.magFilter = TextureFilter.Linear;
+        param.wrapU = TextureWrap.Repeat;
+        param.wrapV = TextureWrap.Repeat;
+        textureManager.load("data/images/grass_smooth.png", Texture.class, param);
+//        textureManager.load(Gdx.files.internal("data/images/grass_smooth.png").name(), Texture.class, param);
+        // The above is called ^^^ decorTextureNames.add("grass_smooth_linrep");
+        // Cracked dirt
+        param = new TextureLoader.TextureParameter();
+        param.minFilter = TextureFilter.Linear;
+        param.magFilter = TextureFilter.Linear;
+        param.wrapU = TextureWrap.Repeat;
+        param.wrapV = TextureWrap.ClampToEdge;
+        textureManager.load("data/images/cracked_dirt.png", Texture.class, param);
+//        textureManager.load(Gdx.files.internal("data/images/cracked_dirt.png").name(), Texture.class, param);
+        // The above is called ^^^ decorTextureNames.add("cracked_dirt_linrep");
+    }
+
+    private static void GetRoadSigns() {
+        GetTexture("RS_bumps");
+        GetTexture("RS_dash");
+        GetTexture("RS_dot");
+        GetTexture("RS_donotenter");
+        GetTexture("RS_exclamation");
+        GetTexture("RS_motorbike");
+        GetTexture("RS_nomotorbike");
+        GetTexture("RS_rampahead");
+        GetTexture("RS_reducespeed");
+        GetTexture("RS_speed_10");
+        GetTexture("RS_speed_flag0");
+        GetTexture("RS_speed_30");
+        GetTexture("RS_speed_40");
+        GetTexture("RS_speed_50");
+        GetTexture("RS_speed_60");
+        GetTexture("RS_speed_80");
+        GetTexture("RS_speed_100");
+        GetTexture("RS_stop");
+        GetTexture("RS_noaliens");
+        GetTexture("RS_toxic");
+        GetTexture("metal_pole_1x16");
     }
 
     private static void GetDecorations() {
-        GetTexture("grass_smooth",2);
-        GetTexture("ground_bubbles",2);
-        GetTexture("ground_cracked",2);
-        GetTexture("ground_gravel",2);
-        GetTexture("ground_mars",2);
-        GetTexture("ground_moon",2);
-        //GetTexture("background_aurora",2);
-        GetTexture("background_mountains",2);
-        GetTexture("background_milkyway",2);
-        GetTexture("background_shootingstar",2);
-        GetTexture("background_stars",2);
-        GetTexture("background_waterfall",2);
-        GetTexture("bg_sunset", 2);
-        GetTexture("bg_Astronaut", 2);
-        GetTexture("bg_AuroraTrees", 2);
-        GetTexture("bg_BubbleBlue", 2);
-        GetTexture("bg_EarthAtNight", 2);
-        GetTexture("bg_Earth", 2);
-        GetTexture("bg_GalaxyAndromeda", 2);
-        GetTexture("bg_GalaxyDusty", 2);
-        GetTexture("bg_GalaxySpiral", 2);
-        GetTexture("bg_GalaxyWhite", 2);
-        GetTexture("bg_MilkyWayMountains", 2);
-        GetTexture("bg_MilkyWayRocks", 2);
-        GetTexture("bg_MilkyWayTallRocks", 2);
-        GetTexture("bg_MilkyWay_BlueTorch", 2);
-        GetTexture("bg_MilkyWay_ShootingStar2", 2);
-        GetTexture("bg_MoonFull", 2);
-        GetTexture("bg_MoonGibbous", 2);
-        GetTexture("bg_MoonRising", 2);
-        GetTexture("bg_MountainStarsBlue", 2);
-        GetTexture("bg_MountainStarsYellow", 2);
-        GetTexture("bg_NebulaBlue", 2);
-        GetTexture("bg_NebulaBlueOrange", 2);
-        GetTexture("bg_NebulaOrange", 2);
-        GetTexture("bg_NebulaPink", 2);
-        GetTexture("bg_NebulaRedGreen", 2);
-        GetTexture("bg_ShuttleLaunch", 2);
-        GetTexture("bg_planets_1", 2);
-        GetTexture("bg_StarCircles", 2);
-        GetTexture("bg_Starfield", 2);
-        GetTexture("bg_Stargazer", 2);
-        GetTexture("bg_StarsBlue", 2);
-        GetTexture("bg_StarsBlueDust", 2);
-        GetTexture("bg_StarsBlueGreen", 2);
-        GetTexture("bg_StarsBluePurple", 2);
-        GetTexture("bg_StarsCloudsBlueOrange", 2);
-        GetTexture("bg_StarsDusty", 2);
-        GetTexture("bg_StarsOrange", 2);
-        GetTexture("bg_StarsPurple", 2);
-        GetTexture("bg_StarsPurpleDust", 2);
-        GetTexture("bg_StarsPurpleOrange", 2);
-        GetTexture("bg_StarsRed", 2);
-        GetTexture("bg_StarsRocksBluePink", 2);
-        GetTexture("bg_StarsSparse", 2);
-        GetTexture("bg_TreesStarsGreen", 2);
-        GetTexture("bg_Waterfall3", 2);
-        GetTexture("foreground_bushes",2);
-        GetTexture("foreground_plants",2);
-        GetTexture("foreground_trees",2);
-        GetTexture("sky_bluesky",2);
-        GetTexture("sky_dusk",2);
-        GetTexture("sky_evening",2);
-        GetTexture("sky_islands",2);
-        GetTexture("sky_mars",2);
-        GetTexture("sky_moon",2);
-        GetTexture("sky_sunrise",2);
-        //GetTexture("cracked_dirt");
-        //GetTexture("dirt");
-        //GetTexture("dirt_04_craziwolf");
-        //GetTexture("dirt_04_craziwolf_copy");
-        //GetTexture("dirt_dark");
+        GetTexture("grass_smooth");
+        GetTexture("ground_bubbles");
+        GetTexture("ground_cracked");
+        GetTexture("ground_gravel");
+        GetTexture("ground_mars");
+        GetTexture("ground_moon");
+        GetTexture("background_mountains");
+        GetTexture("background_milkyway");
+        GetTexture("background_shootingstar");
+        GetTexture("background_stars");
+        GetTexture("background_waterfall");
+        GetTexture("bg_sunset");
+        GetTexture("bg_Astronaut");
+        GetTexture("bg_AuroraTrees");
+        GetTexture("bg_BubbleBlue");
+        GetTexture("bg_EarthAtNight");
+        GetTexture("bg_Earth");
+        GetTexture("bg_GalaxyAndromeda");
+        GetTexture("bg_GalaxyDusty");
+        GetTexture("bg_GalaxySpiral");
+        GetTexture("bg_GalaxyWhite");
+        GetTexture("bg_MilkyWayMountains");
+        GetTexture("bg_MilkyWayRocks");
+        GetTexture("bg_MilkyWayTallRocks");
+        GetTexture("bg_MilkyWay_BlueTorch");
+        GetTexture("bg_MilkyWay_ShootingStar2");
+        GetTexture("bg_MoonFull");
+        GetTexture("bg_MoonGibbous");
+        GetTexture("bg_MoonRising");
+        GetTexture("bg_MountainStarsBlue");
+        GetTexture("bg_MountainStarsYellow");
+        GetTexture("bg_NebulaBlue");
+        GetTexture("bg_NebulaBlueOrange");
+        GetTexture("bg_NebulaOrange");
+        GetTexture("bg_NebulaPink");
+        GetTexture("bg_NebulaRedGreen");
+        GetTexture("bg_ShuttleLaunch");
+        GetTexture("bg_planets_1");
+        GetTexture("bg_StarCircles");
+        GetTexture("bg_Starfield");
+        GetTexture("bg_Stargazer");
+        GetTexture("bg_StarsBlue");
+        GetTexture("bg_StarsBlueDust");
+        GetTexture("bg_StarsBluePurple");
+        GetTexture("bg_StarsCloudsBlueOrange");
+        GetTexture("bg_StarsDusty");
+        GetTexture("bg_StarsOrange");
+        GetTexture("bg_StarsPurple");
+        GetTexture("bg_StarsPurpleDust");
+        GetTexture("bg_StarsPurpleOrange");
+        GetTexture("bg_StarsRed");
+        GetTexture("bg_StarsRocksBluePink");
+        GetTexture("bg_StarsSparse");
+        GetTexture("bg_TreesStarsGreen");
+        GetTexture("bg_Waterfall3");
+        GetTexture("foreground_bushes");
+        GetTexture("foreground_plants");
+        GetTexture("foreground_trees");
+        GetTexture("sky_bluesky");
+        GetTexture("sky_dusk");
+        GetTexture("sky_evening");
+        GetTexture("sky_islands");
+        GetTexture("sky_mars");
+        GetTexture("sky_moon");
+        GetTexture("sky_sunrise");
         // Now load the texture decorations that are used in the Editor
-        GetTexture("records_stone",2);
-        GetTexture("records_stone_dark",2);
-        GetTexture("records_stone_menu",2);
-        GetRoadSigns(2);
-        GetTexture("binbag",2);
-        for (int i=0; i<8; i++) GetTexture("rock_"+String.format("%02d", i), 2);
-        for (int i=0; i<12; i++) GetTexture("tree_"+String.format("%02d", i), 2);
-        for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i), 2);
-        for (int i=0; i<7; i++) GetTexture("vehicle_"+String.format("%02d", i), 2);
-        for (int i=0; i<9; i++) GetTexture("portrait_"+String.format("%02d", i), 2);
-        for (int i=0; i<8; i++) GetTexture("text_"+String.format("%02d", i), 2);
-        GetTexture("misc_emerald", 2);
-        GetTexture("misc_diamond", 2);
-        GetTexture("misc_diary", 2);
-        GetTexture("misc_log", 2);
-        GetTexture("misc_sisyphus", 2);
-        GetTexture("misc_solarpanel", 2);
+        GetTexture("records_stone");
+        GetTexture("records_stone_dark");
+        GetTexture("records_stone_menu");
+        GetTexture("binbag");
+        for (int i=0; i<8; i++) GetTexture("rock_"+String.format("%02d", i));
+        for (int i=0; i<12; i++) GetTexture("tree_"+String.format("%02d", i));
+        for (int i=0; i<12; i++) GetTexture("tyrestack_"+String.format("%02d", i));
+        for (int i=0; i<7; i++) GetTexture("vehicle_"+String.format("%02d", i));
+        for (int i=0; i<9; i++) GetTexture("portrait_"+String.format("%02d", i));
+        for (int i=0; i<8; i++) GetTexture("text_"+String.format("%02d", i));
+        GetTexture("misc_emerald");
+        GetTexture("misc_diamond");
+        GetTexture("misc_diary");
+        GetTexture("misc_log");
+        GetTexture("misc_sisyphus");
+        GetTexture("misc_solarpanel");
         // Planets
-        GetTexture("planet_sun",2);
-        GetTexture("planet_mercury",2);
-        GetTexture("planet_venus",2);
-        GetTexture("planet_earth",2);
-        GetTexture("planet_earthgrey",2);
-        GetTexture("planet_mars",2);
-        GetTexture("planet_jupiter",2);
-        GetTexture("planet_saturn",2);
-        GetTexture("planet_uranus",2);
-        GetTexture("planet_neptune",2);
-        GetTexture("planet_moon",2);
-        GetTexture("planet_supernova",2);
-        GetTexture("planet_supernova_green",2);
-        GetTexture("planet_radiodish",2);
-        GetTexture("planet_dish",2);
-        GetTexture("planet_dishbase",2);
-        GetTexture("planet_dishbolt",2);
+        GetTexture("planet_moon");
+        GetTexture("planet_supernova");
+        GetTexture("planet_supernova_green");
+        GetTexture("planet_radiodish");
+        GetTexture("planet_dish");
+        GetTexture("planet_dishbase");
+        GetTexture("planet_dishbolt");
         // Load an error image just in case something fails
-        GetTexture("error",2);
+        GetTexture("error");
         // Add some additional textures
-        GetTexture("track",2);
-        GetTexture("shade",2);
-        GetTexture("shadeback",2);
-        // Add grass
-        texture = new Texture(Gdx.files.internal("data/images/grass_smooth.png"));
-        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        texture.setWrap(TextureWrap.Repeat, TextureWrap.Repeat);
-        decorTextures.add(texture);
-        decorTextureNames.add("grass_smooth_linrep");
-        // Add cracked dirt
-        texture = new Texture(Gdx.files.internal("data/images/cracked_dirt.png"));
-        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        texture.setWrap(TextureWrap.Repeat, TextureWrap.ClampToEdge);
-        decorTextures.add(texture);
-        decorTextureNames.add("cracked_dirt_linrep");
+        GetTexture("track");
+        GetTexture("shade");
+        GetTexture("shadeback");
     }
 
-    public static Texture LoadTexture(String file, int flag) {
-        // flag = 0 loads all textures needed by the levels
-        // flag = 1 loads menu textures
-        // flag = 2 loads decoration textures
-        // flag = 3 loads level textures
-        if (flag==0) {
-            for (int i=0; i<textures.size(); i++) {
-                if (file.equals(textureNames.get(i))) return textures.get(i);
-            }
-        } else if (flag==1) {
-            for (int i=0; i<menuTextures.size(); i++) {
-                if (file.equals(menuTextureNames.get(i))) return menuTextures.get(i);
-            }
-        } else if (flag==2) {
-            for (int i=0; i<decorTextures.size(); i++) {
-                if (file.equals(decorTextureNames.get(i))) return decorTextures.get(i);
-            }
-//        } else if (flag==3) {
-//            for (int i=0; i<levelTextures.size(); i++) {
-//                System.out.println("BLAH "+levelTextureNames.get(i));
-//                if (file.equals(levelTextureNames.get(i))) return levelTextures.get(i);
-//            }
-        }
-        return null;
+    public static Texture LoadTexture(String file) {
+        return textureManager.get(GetTextureName(file), Texture.class);
     }
 
     public static void dispose () {
-        // Clear game textures
-        for (int i=0; i<textures.size(); i++) {
-            textures.get(i).dispose();
-        }
-        textures.clear();
-        textureNames.clear();
-        // Clear menu textures
-        for (int i=0; i<menuTextures.size(); i++) {
-            menuTextures.get(i).dispose();
-        }
-        menuTextures.clear();
-        menuTextureNames.clear();
-        // Clear decoration images
-        for (int i=0; i<decorTextures.size(); i++) {
-            decorTextures.get(i).dispose();
-        }
-        decorTextures.clear();
-        decorTextureNames.clear();
-        // Clear level images
-//        for (int i=0; i<levelTextures.size(); i++) {
-//            levelTextures.get(i).dispose();
-//        }
-//        levelTextures.clear();
-//        levelTextureNames.clear();
-//        levelTexturesLoaded.clear();
+        textureManager.dispose();
     }
 
 }

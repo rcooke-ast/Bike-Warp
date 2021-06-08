@@ -65,7 +65,7 @@ public class GameStateManager {
     }
 
     private GameState getState(int state, String editorScene, int levelID, int modeValue) {
-        if (state == MENUPLAYER) return new MenuSelectPlayer(this);
+        if (state == MENUPLAYER) return new MenuSelectPlayer(this, modeValue);
         else if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
         else if (state == MENURECORDS) return new MenuRecords(this);

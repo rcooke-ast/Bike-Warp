@@ -45,7 +45,7 @@ public class MenuReplay extends GameState {
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.7f*SCRHEIGHT;
-        background = new Sprite(BikeGameTextures.LoadTexture("sky_mars",2));
+        background = new Sprite(BikeGameTextures.LoadTexture("sky_mars"));
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);

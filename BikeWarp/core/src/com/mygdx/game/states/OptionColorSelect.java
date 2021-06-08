@@ -43,16 +43,16 @@ public class OptionColorSelect extends GameState {
         SCRWIDTH = BikeGame.viewport.width;
         SCRHEIGHT = BikeGame.viewport.height;
 		// Prepare the Sprites to be used on this screen
-		arrow = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_arrow"),1));
-		black = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_black"),1));
-		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bikewheel"),0));
-        fsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("front_suspension"),0));
-        rsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("rear_suspension"),0));
-        bwite = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_white"),0));
-        bolay = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_overlay"),0));
-        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky"),2));
-        grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep"),2));
-        dirt = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("cracked_dirt_linrep"),2));
+		arrow = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_arrow")));
+		black = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_black")));
+		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bikewheel")));
+        fsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("front_suspension")));
+        rsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("rear_suspension")));
+        bwite = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_white")));
+        bolay = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_overlay")));
+        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky")));
+        grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep")));
+        dirt = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("cracked_dirt_linrep")));
         groundTimer = 0.0f;
         fadeOut = -1.0f;
         fadeIn = 0.0f;

@@ -91,15 +91,15 @@ public class MenuRecords extends GameState {
         textcarveglow.getData().setScale(numScale);
         textcarveglow.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         // Load the grass
-        grass = new Sprite(BikeGameTextures.LoadTexture("grass_smooth_linrep",2));
-        dirt = new Sprite(BikeGameTextures.LoadTexture("cracked_dirt_linrep",2));
-        sky = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
-        stone = new Sprite(BikeGameTextures.LoadTexture("records_stone",2));
-        menu = new Sprite(BikeGameTextures.LoadTexture("records_stone_menu",2));
+        grass = new Sprite(BikeGameTextures.LoadTexture("grass_smooth_linrep"));
+        dirt = new Sprite(BikeGameTextures.LoadTexture("cracked_dirt_linrep"));
+        sky = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky"));
+        stone = new Sprite(BikeGameTextures.LoadTexture("records_stone"));
+        menu = new Sprite(BikeGameTextures.LoadTexture("records_stone_menu"));
         fadeOut = -1.0f;
         fadeIn = 0.0f;
         // Get the highlight/diamond/training textures
-        diamond = new Sprite(BikeGameTextures.LoadTexture("gem_diamond",0));
+        diamond = new Sprite(BikeGameTextures.LoadTexture("gem_diamond"));
         dispOptVal = 0;
         // Set the widths and heights of the textures
         wheight = 0.6f*SCRHEIGHT;

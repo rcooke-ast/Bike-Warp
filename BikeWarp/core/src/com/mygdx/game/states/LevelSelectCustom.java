@@ -71,13 +71,13 @@ public class LevelSelectCustom extends GameState {
         numLevShow = (int) Math.floor(sheight/(1.5f*menuHeight));
         if (numLevShow > totalItems) numLevShow = totalItems;
         // Load the background metal grid
-        metalmesh = BikeGameTextures.LoadTexture("metal_grid",1);
+        metalmesh = BikeGameTextures.LoadTexture("metal_grid");
         float ratio = 4.0f;
         uRight = SCRWIDTH * ratio / metalmesh.getWidth();
         vTop= SCRHEIGHT * ratio / metalmesh.getHeight();
         // Load the black metal pole and the corner
-        metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black",1));
-        metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner",1));
+        metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black"));
+        metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner"));
         // Set the starting option
         currentOption = 0;
         numMin = 0;

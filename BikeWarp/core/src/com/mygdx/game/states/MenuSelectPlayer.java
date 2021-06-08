@@ -30,8 +30,9 @@ public class MenuSelectPlayer extends GameState {
     private final String header = "Select your player name, or create a new one";
     private String newName = "";
     private boolean createPlayer = false;
+    private boolean doFade;
    
-	public MenuSelectPlayer(GameStateManager gsm) {
+	public MenuSelectPlayer(GameStateManager gsm, int inFading) {
 		super(gsm);
 		// If we have no information on the players, load it
 		if (GameVars.currentPlayer == -1) {
@@ -46,6 +47,8 @@ public class MenuSelectPlayer extends GameState {
 	    if (!directory.exists()) directory.mkdir();
 //	    directory = new File(EditorIO.levelDir);
 //		if (!directory.exists()) directory.mkdir();
+		doFade = false;
+		if (inFading==1) doFade = true;
 		// Create the canvas
         create();
 	}
@@ -56,10 +59,10 @@ public class MenuSelectPlayer extends GameState {
         SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.4f*BikeGame.viewport.height;
-		//background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky",2));
-		background = new Sprite(BikeGameTextures.LoadTexture("menu_black",1));
-		stars = new Sprite(BikeGameTextures.LoadTexture("background_stars",2));
-		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename",1));
+		//background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky"));
+		//background = new Sprite(BikeGameTextures.LoadTexture("menu_black"));
+		stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
+		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
 		gn_width = SCRWIDTH;
 		gn_height = SCRHEIGHT;
 //		gn_width = SCRWIDTH*0.7f;
@@ -97,7 +100,8 @@ public class MenuSelectPlayer extends GameState {
         SetNumPlyrShow();
         // Set the fading variables
         fadeOut = -1.0f;
-        fadeIn = 0.0f;
+        if (doFade) fadeIn = 0.0f;
+        else fadeIn = 2.0f;
     }
 
     public void SetNumPlyrShow() {
@@ -198,7 +202,7 @@ public class MenuSelectPlayer extends GameState {
     		sb.setColor(1, 1, 1, 1);
 	        sb.begin();
 	        // Draw Sky
-			sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+			//sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
 			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y-gn_height/2, 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
@@ -232,9 +236,9 @@ public class MenuSelectPlayer extends GameState {
 	    	else sb.setColor(1, 1, 1, 1); 
 	        sb.begin();
 	        // Draw Sky
-	        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+	        //sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+			//sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
 			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y-gn_height/2, 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 //			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
