@@ -269,7 +269,8 @@ public class Play extends GameState {
     }
     
     public void create() {
-    	
+
+        SteamVars.prepareLeaderboards(levelID);
     	forcequit = false;
     	forceRestart = false;
         // Set the contact listener
@@ -658,12 +659,16 @@ public class Play extends GameState {
 	     	   					// Check the time
 	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
 	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
-	     	   				}
+	     	   					boolean blah = SteamVars.uploadTime(timerTotal, false);
+	     	   					System.out.println(blah);
+                            }
 	     	   			} else {
 		     	   			// Check the records without the diamond
 	     	   				if (mode == 2) {
 	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
 	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
+                                boolean blah = SteamVars.uploadTime(timerTotal, true);
+                                System.out.println(blah);
 	     	   				}	     	   				
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));

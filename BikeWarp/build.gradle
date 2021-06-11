@@ -42,7 +42,6 @@ allprojects {
 project(":desktop") {
     apply plugin: "java-library"
 
-
     dependencies {
         implementation project(":core")
         api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
@@ -51,20 +50,19 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"
-        
     }
 }
 
 project(":core") {
     apply plugin: "java-library"
 
-
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
-        
+        compile 'com.code-disaster.steamworks4j:steamworks4j:1.8.0'
+        compile 'com.code-disaster.steamworks4j:steamworks4j-server:1.8.0'
     }
 }
 

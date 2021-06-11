@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.codedisaster.steamworks.SteamAPI;
+import com.codedisaster.steamworks.SteamException;
 import com.mygdx.game.handlers.*;
 
 public class BikeGame implements ApplicationListener {
@@ -49,6 +51,9 @@ public class BikeGame implements ApplicationListener {
 		finAngle = 0.0f;
 		progress = 0.0f;
 
+		// Initialise Steam connection
+		SteamVars.initAndConnect();
+
 		// Load the textures and sounds
 		BikeGameTextures.InitiateTextures();
 		BikeGameSounds.InitiateSounds();
@@ -83,6 +88,10 @@ public class BikeGame implements ApplicationListener {
 				gsm.update(STEP);
 				gsm.render();
 				GameInput.update();
+				// Make sure Steam is getting callbacks
+				if (SteamAPI.isSteamRunning()) {
+					SteamAPI.runCallbacks();
+				}
 			}
 		} else {
 			progress = BikeGameTextures.textureManager.getProgress();
