@@ -343,7 +343,7 @@ public class GameVars implements Serializable {
 		SavePlayers();
 	}
 
-	public static void StoreReplay(int lvl, boolean diamond) throws CloneNotSupportedException {
+	public static void StoreReplay(int lvl, boolean diamond) {
 		Replay[] allReplays;
 		if (diamond) {
 			allReplays = plyrReplaysDmnd.get(currentPlayer).clone();

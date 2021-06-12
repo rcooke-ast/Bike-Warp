@@ -20,6 +20,7 @@ public class SteamVars implements Serializable {
 	public static boolean isOnline=false;
 	private static SteamLeaderboardHandle currentLeaderboardEmerald;
 	private static SteamLeaderboardHandle currentLeaderboardDiamond;
+	public static int currentEmeraldPlayerRank, currentDiamondPlayerRank, currentEmeraldRankNumber, currentDiamondRankNumber, currentLevel;
 
 	private static SteamUserStatsCallback steamUserStatsCallbackEmerald = new SteamUserStatsCallback() {
 
@@ -62,12 +63,17 @@ public class SteamVars implements Serializable {
 		public void onLeaderboardScoresDownloaded(
 				SteamLeaderboardHandle leaderboard,
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
+			currentEmeraldRankNumber = numEntries;
 		}
 
 		@Override
 		public void onLeaderboardScoreUploaded(boolean success,
 											   SteamLeaderboardHandle leaderboard, int score,
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
+			if (scoreChanged) {
+				currentEmeraldPlayerRank = globalRankNew;
+				GameVars.StoreReplay(currentLevel, false);
+			}
 		}
 
 		@Override
@@ -117,12 +123,17 @@ public class SteamVars implements Serializable {
 		public void onLeaderboardScoresDownloaded(
 				SteamLeaderboardHandle leaderboard,
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
+			currentDiamondRankNumber = numEntries;
 		}
 
 		@Override
 		public void onLeaderboardScoreUploaded(boolean success,
 											   SteamLeaderboardHandle leaderboard, int score,
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
+			if (scoreChanged) {
+				currentDiamondPlayerRank = globalRankNew;
+				GameVars.StoreReplay(currentLevel, true);
+			}
 		}
 
 		@Override
@@ -154,8 +165,10 @@ public class SteamVars implements Serializable {
 	};
 
 	public static void prepareLeaderboards(int levelID) {
+		currentEmeraldPlayerRank = -1; // TODO :: NEED TO FIX THIS
 		userStatsEmerald.findLeaderboard(String.format("Level%02d_Emerald", levelID+1));
 		userStatsDiamond.findLeaderboard(String.format("Level%02d_Diamond", levelID+1));
+		currentLevel = levelID;
 	}
 
 	public static boolean uploadTime(int millis, boolean emerald) {

@@ -269,7 +269,7 @@ public class Play extends GameState {
     }
     
     public void create() {
-
+        System.out.print(String.format("Rank: %d, Total: %d", SteamVars.currentEmeraldPlayerRank, SteamVars.currentEmeraldRankNumber));
     	forcequit = false;
     	forceRestart = false;
         // Set the contact listener
