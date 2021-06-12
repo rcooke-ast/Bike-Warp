@@ -16,9 +16,7 @@ import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.LevelsListGame;
-import com.mygdx.game.handlers.LevelsListTraining;
 import com.mygdx.game.handlers.ReplayVars;
-import com.mygdx.game.utilities.EditorIO;
 
 public class MenuSelectPlayer extends GameState {
     private int currentOption, numPlyrShow, numMin, numOptions;
@@ -161,7 +159,6 @@ public class MenuSelectPlayer extends GameState {
         	// Go to the main menu
     		fadeOut=-1.0f;
     		LevelsListGame.initialise();
-    		LevelsListTraining.initialise();
     		GameVars.UpdateTotalTimes();
     		gsm.setState(GameStateManager.MAINMENU, false, "none", -1, 0);
         }

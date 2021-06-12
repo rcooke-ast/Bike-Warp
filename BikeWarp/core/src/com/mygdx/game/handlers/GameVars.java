@@ -41,32 +41,25 @@ public class GameVars implements Serializable {
 	public static boolean personalBest = false;
 	public static boolean worldRecord = false;
 	public static String[] plyrNames = new String[0];
+	public static ArrayList<Replay[]> plyrReplays = new ArrayList<Replay[]>();
+	public static ArrayList<Replay[]> plyrReplaysDmnd = new ArrayList<Replay[]>();
 	public static ArrayList<ArrayList<int[]>> plyrTimes = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<ArrayList<int[]>> plyrTimesDmnd = new ArrayList<ArrayList<int[]>>();
-	public static ArrayList<ArrayList<int[]>> plyrTimesTrain = new ArrayList<ArrayList<int[]>>();
-	public static ArrayList<ArrayList<int[]>> plyrTimesTrainDmnd = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<int[]> plyrControls = new ArrayList<int[]>();
 	public static ArrayList<int[]> plyrDisplay = new ArrayList<int[]>();
 	public static ArrayList<boolean[]> plyrColDmnd = new ArrayList<boolean[]>();
-	public static ArrayList<boolean[]> plyrColTrainDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<int[]> plyrLevelComplete = new ArrayList<int[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
 	public static ArrayList<int[]> plyrTotalTimes = new ArrayList<int[]>();
-	public static ArrayList<int[]> plyrTotalTimesTrain = new ArrayList<int[]>();
 	public static ArrayList<int[]> plyrTotalTimesDmnd = new ArrayList<int[]>();
-	public static ArrayList<int[]> plyrTotalTimesTrainDmnd = new ArrayList<int[]>();
 	// World records
 	public static ArrayList<String[]> worldNames = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimes = new ArrayList<int[]>();
 	public static ArrayList<String[]> worldNamesDmnd = new ArrayList<String[]>();
 	public static ArrayList<int[]> worldTimesDmnd = new ArrayList<int[]>();
-	public static ArrayList<String[]> worldNamesTrain = new ArrayList<String[]>();
-	public static ArrayList<int[]> worldTimesTrain = new ArrayList<int[]>();
-	public static ArrayList<String[]> worldNamesTrainDmnd = new ArrayList<String[]>();
-	public static ArrayList<int[]> worldTimesTrainDmnd = new ArrayList<int[]>();
 	// World Total Times
-	public static int[] worldTotalTimes, worldTotalTimesTrain, worldTotalTimesDmnd, worldTotalTimesTrainDmnd;
-	public static String[] worldTotalNames, worldTotalNamesTrain, worldTotalNamesDmnd, worldTotalNamesTrainDmnd;
+	public static int[] worldTotalTimes, worldTotalTimesDmnd;
+	public static String[] worldTotalNames, worldTotalNamesDmnd;
 
 	// Get and Set options
 	public static void SetCurrentPlayer(int i) {
@@ -85,12 +78,9 @@ public class GameVars implements Serializable {
 	public static String GetPlayerName() {return plyrNames[currentPlayer];}
 	public static int GetPlayerTimes(int lvl, int indx) {return plyrTimes.get(currentPlayer).get(lvl)[indx];}
 	public static int GetPlayerTimesDmnd(int lvl, int indx) {return plyrTimesDmnd.get(currentPlayer).get(lvl)[indx];}
-	public static int GetPlayerTimesTrain(int lvl, int indx) {return plyrTimesTrain.get(currentPlayer).get(lvl)[indx];}
-	public static int GetPlayerTimesTrainDmnd(int lvl, int indx) {return plyrTimesTrainDmnd.get(currentPlayer).get(lvl)[indx];}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static int GetPlayerDisplay(int index) {return plyrDisplay.get(currentPlayer)[index];}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
-	public static boolean[] GetPlayerDiamondsTrain() {return plyrColTrainDmnd.get(currentPlayer);}
 	public static int[] GetPlayerSkipLevel() {return plyrLevelComplete.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
 	public static void SetPlayerBikeColor(float[] rgb) {plyrBikeColor.set(currentPlayer, rgb.clone());}
@@ -119,25 +109,17 @@ public class GameVars implements Serializable {
 	// Get the world record times and aliases
 	public static int GetWorldTimes(int lvl, int indx) {return worldTimes.get(lvl)[indx];}
 	public static int GetWorldTimesDmnd(int lvl, int indx) {return worldTimesDmnd.get(lvl)[indx];}
-	public static int GetWorldTimesTrain(int lvl, int indx) {return worldTimesTrain.get(lvl)[indx];}
-	public static int GetWorldTimesTrainDmnd(int lvl, int indx) {return worldTimesTrainDmnd.get(lvl)[indx];}
 	public static String GetWorldNames(int lvl, int indx) {return worldNames.get(lvl)[indx];}
 	public static String GetWorldNamesDmnd(int lvl, int indx) {return worldNamesDmnd.get(lvl)[indx];}
-	public static String GetWorldNamesTrain(int lvl, int indx) {return worldNamesTrain.get(lvl)[indx];}
-	public static String GetWorldNamesTrainDmnd(int lvl, int indx) {return worldNamesTrainDmnd.get(lvl)[indx];}
 
 	public static void UpdateTotalTimes() {
 		// Do the Player total times first
-		plyrTotalTimes.set(currentPlayer, GetTotalTimes(false, false, false));
-		plyrTotalTimesTrain.set(currentPlayer, GetTotalTimes(true, false, false));
-		plyrTotalTimesDmnd.set(currentPlayer, GetTotalTimes(false, false, true));
-		plyrTotalTimesTrainDmnd.set(currentPlayer, GetTotalTimes(true, false, true));
+		plyrTotalTimes.set(currentPlayer, GetTotalTimes(false, false));
+		plyrTotalTimesDmnd.set(currentPlayer, GetTotalTimes(false, true));
 		// Check if every player's best total time beats any of the world total times
 		for (int pp=0; pp<plyrNames.length; pp++) {
 			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimes.clone(), 0, plyrTotalTimes.get(pp)[0]);
 			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesDmnd.clone(), 1, plyrTotalTimesDmnd.get(pp)[0]);
-			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrain.clone(), 2, plyrTotalTimesTrain.get(pp)[0]);
-			CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrainDmnd.clone(), 3, plyrTotalTimesTrainDmnd.get(pp)[0]);
 		}
 		SavePlayers();
 		SaveWorldRecords();
@@ -147,38 +129,29 @@ public class GameVars implements Serializable {
 		// Check if every player's best total time beats any of the world total times
 		for (int pp=0; pp<plyrNames.length; pp++) {
 			// Do the Player total times first
-			plyrTotalTimes.set(pp, GetTotalTimesPlayer(pp, false, false, false));
-			plyrTotalTimesTrain.set(pp, GetTotalTimesPlayer(pp, true, false, false));
-			plyrTotalTimesDmnd.set(pp, GetTotalTimesPlayer(pp, false, false, true));
-			plyrTotalTimesTrainDmnd.set(pp, GetTotalTimesPlayer(pp, true, false, true));
+			plyrTotalTimes.set(pp, GetTotalTimesPlayer(pp, false, false));
+			plyrTotalTimesDmnd.set(pp, GetTotalTimesPlayer(pp, false, true));
 			if (world) {
 				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimes.clone(), 0, plyrTotalTimes.get(pp)[0]);
 				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesDmnd.clone(), 1, plyrTotalTimesDmnd.get(pp)[0]);
-				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrain.clone(), 2, plyrTotalTimesTrain.get(pp)[0]);
-				CheckWorldTotalTimes(plyrNames[pp], worldTotalTimesTrainDmnd.clone(), 3, plyrTotalTimesTrainDmnd.get(pp)[0]);
 			}
 		}
 		SavePlayers();
 		if (world) SaveWorldRecords();
 	}
 
-	public static int[] GetTotalTimes(boolean train, boolean world, boolean diamond) {
+	public static int[] GetTotalTimes(boolean world, boolean diamond) {
 		int[] totalTimes = new int[numStore];
 		int timeVal;
 		int numLevels = LevelsListGame.NUMGAMELEVELS;
-		if (train) numLevels = LevelsListTraining.NUMTRAINLEVELS;
 		for (int nn=0; nn<numStore; nn++) {
 			for (int ll=0; ll<numLevels; ll++) {
 				// First get the relevant time
 				timeVal = -1;
-				if (world && train && diamond) timeVal = GetWorldTimesTrainDmnd(ll, nn);
-				else if (world && train && !diamond) timeVal = GetWorldTimesTrain(ll, nn);
-				else if (world && !train && diamond) timeVal = GetWorldTimesDmnd(ll, nn);
-				else if (world && !train && !diamond) timeVal = GetWorldTimes(ll, nn);
-				else if (!world && train && diamond) timeVal = GetPlayerTimesTrainDmnd(ll, nn);
-				else if (!world && train && !diamond) timeVal = GetPlayerTimesTrain(ll, nn);
-				else if (!world && !train && diamond) timeVal = GetPlayerTimesDmnd(ll, nn);
-				else if (!world && !train && !diamond) timeVal = GetPlayerTimes(ll, nn);
+				if (world && diamond) timeVal = GetWorldTimesDmnd(ll, nn);
+				else if (world && !diamond) timeVal = GetWorldTimes(ll, nn);
+				else if (!world && diamond) timeVal = GetPlayerTimesDmnd(ll, nn);
+				else if (!world && !diamond) timeVal = GetPlayerTimes(ll, nn);
 				// Check the time is valid
 				if (timeVal != -1) totalTimes[nn] += timeVal;
 				else {
@@ -190,23 +163,18 @@ public class GameVars implements Serializable {
 		return totalTimes.clone();
 	}
 
-	public static int[] GetTotalTimesPlayer(int plyr, boolean train, boolean world, boolean diamond) {
+	public static int[] GetTotalTimesPlayer(int plyr, boolean world, boolean diamond) {
 		int[] totalTimes = new int[numStore];
 		int timeVal;
 		int numLevels = LevelsListGame.NUMGAMELEVELS;
-		if (train) numLevels = LevelsListTraining.NUMTRAINLEVELS;
 		for (int nn=0; nn<numStore; nn++) {
 			for (int ll=0; ll<numLevels; ll++) {
 				// First get the relevant time
 				timeVal = -1;
-				if (world && train && diamond) timeVal = GetWorldTimesTrainDmnd(ll, nn);
-				else if (world && train && !diamond) timeVal = GetWorldTimesTrain(ll, nn);
-				else if (world && !train && diamond) timeVal = GetWorldTimesDmnd(ll, nn);
-				else if (world && !train && !diamond) timeVal = GetWorldTimes(ll, nn);
-				else if (!world && train && diamond) timeVal = plyrTimesTrainDmnd.get(plyr).get(ll)[nn];
-				else if (!world && train && !diamond) timeVal = plyrTimesTrain.get(plyr).get(ll)[nn];
-				else if (!world && !train && diamond) timeVal = plyrTimesDmnd.get(plyr).get(ll)[nn];
-				else if (!world && !train && !diamond) timeVal = plyrTimes.get(plyr).get(ll)[nn];
+				if (world && diamond) timeVal = GetWorldTimesDmnd(ll, nn);
+				else if (world && !diamond) timeVal = GetWorldTimes(ll, nn);
+				else if (!world && diamond) timeVal = plyrTimesDmnd.get(plyr).get(ll)[nn];
+				else if (!world && !diamond) timeVal = plyrTimes.get(plyr).get(ll)[nn];
 				// Check the time is valid
 				if (timeVal != -1) totalTimes[nn] += timeVal;
 				else {
@@ -240,8 +208,6 @@ public class GameVars implements Serializable {
 		if (world) {
 			if (indx == 0) names = worldNames.get(lvl).clone();
 			else if (indx == 1) names = worldNamesDmnd.get(lvl).clone();
-			else if (indx == 2) names = worldNamesTrain.get(lvl).clone();
-			else if (indx == 3) names = worldNamesTrainDmnd.get(lvl).clone();
 		}
 		boolean saveTimes = false;
 		int[] tempTime = times.clone();
@@ -258,14 +224,6 @@ public class GameVars implements Serializable {
 						names[i] = worldNamesDmnd.get(lvl).clone()[i-1];
 						if (plyrName.compareTo(worldNamesDmnd.get(lvl)[i])==0) break;
 					}
-					else if (indx == 2) {
-						names[i] = worldNamesTrain.get(lvl).clone()[i-1];
-						if (plyrName.compareTo(worldNamesTrain.get(lvl)[i])==0) break;						
-					}
-					else if (indx == 3) {
-						names[i] = worldNamesTrainDmnd.get(lvl).clone()[i-1];
-						if (plyrName.compareTo(worldNamesTrainDmnd.get(lvl)[i])==0) break;
-					}
 				}
 			} else if ((timerTotal < times[i]) | (times[i] == -1)) {
 				if (i==0) SetPersonalBest(true);
@@ -280,8 +238,6 @@ public class GameVars implements Serializable {
 			if (world) {
 				if ((indx == 0) && (plyrName.compareTo(worldNames.get(lvl)[i])==0)) break;
 				else if ((indx == 1) && (plyrName.compareTo(worldNamesDmnd.get(lvl)[i])==0)) break;
-				else if ((indx == 2) && (plyrName.compareTo(worldNamesTrain.get(lvl)[i])==0)) break;
-				else if ((indx == 3) && (plyrName.compareTo(worldNamesTrainDmnd.get(lvl)[i])==0)) break;
 			}
 
 		}
@@ -294,12 +250,6 @@ public class GameVars implements Serializable {
 				} else if (indx == 1) {
 					worldNamesDmnd.set(lvl, names);
 					worldTimesDmnd.set(lvl, tempTime);
-				} else if (indx == 2) {
-					worldNamesTrain.set(lvl, names);
-					worldTimesTrain.set(lvl, tempTime);
-				} else if (indx == 3) {
-					worldNamesTrainDmnd.set(lvl, names);
-					worldTimesTrainDmnd.set(lvl, tempTime);
 				}
 				SaveWorldRecords();
 			} else {
@@ -312,14 +262,6 @@ public class GameVars implements Serializable {
 					ArrayList<int[]> copyTimes = plyrTimesDmnd.get(currentPlayer);
 					copyTimes.set(lvl, tempTime);
 					plyrTimesDmnd.set(currentPlayer, copyTimes);				
-				} else if (indx == 2) {
-					ArrayList<int[]> copyTimes = plyrTimesTrain.get(currentPlayer);
-					copyTimes.set(lvl, tempTime);
-					plyrTimesTrain.set(currentPlayer, copyTimes);
-				} else if (indx == 3) {
-					ArrayList<int[]> copyTimes = plyrTimesTrainDmnd.get(currentPlayer);
-					copyTimes.set(lvl, tempTime);
-					plyrTimesTrainDmnd.set(currentPlayer, copyTimes);
 				}
 				SavePlayers();
 			}
@@ -335,8 +277,6 @@ public class GameVars implements Serializable {
 		String[] names = new String[numStore];
 		if (indx == 0) names = worldTotalNames.clone();
 		else if (indx == 1) names = worldTotalNamesDmnd.clone();
-		else if (indx == 2) names = worldTotalNamesTrain.clone();
-		else if (indx == 3) names = worldTotalNamesTrainDmnd.clone();
 		boolean saveTimes = false;
 		int[] tempTime = times.clone();
 		for (int i=0; i<numStore; i++) {
@@ -351,14 +291,6 @@ public class GameVars implements Serializable {
 					names[i] = worldTotalNamesDmnd.clone()[i-1];
 					if (plyrName.compareTo(worldTotalNamesDmnd[i])==0) break;
 				}
-				else if (indx == 2) {
-					names[i] = worldTotalNamesTrain.clone()[i-1];
-					if (plyrName.compareTo(worldTotalNamesTrain[i])==0) break;						
-				}
-				else if (indx == 3) {
-					names[i] = worldTotalNamesTrainDmnd.clone()[i-1];
-					if (plyrName.compareTo(worldTotalNamesTrainDmnd[i])==0) break;
-				}
 			} else if ((timerTotal < times[i]) | (times[i] == -1)) {
 				tempTime[i] = timerTotal;
 				saveTimes = true;
@@ -367,8 +299,6 @@ public class GameVars implements Serializable {
 			// If the current Player has a previous record that's faster, don't add their name to the list
 			if ((indx == 0) && (plyrName.compareTo(worldTotalNames[i])==0)) break;
 			else if ((indx == 1) && (plyrName.compareTo(worldTotalNamesDmnd[i])==0)) break;
-			else if ((indx == 2) && (plyrName.compareTo(worldTotalNamesTrain[i])==0)) break;
-			else if ((indx == 3) && (plyrName.compareTo(worldTotalNamesTrainDmnd[i])==0)) break;
 		}
 		if (saveTimes) {
 			// First update the arrays
@@ -378,19 +308,12 @@ public class GameVars implements Serializable {
 			} else if (indx == 1) {
 				worldTotalNamesDmnd = names.clone();
 				worldTotalTimesDmnd = tempTime.clone();
-			} else if (indx == 2) {
-				worldTotalNamesTrain = names.clone();
-				worldTotalTimesTrain = tempTime.clone();
-			} else if (indx == 3) {
-				worldTotalNamesTrainDmnd = names.clone();
-				worldTotalTimesTrainDmnd = tempTime.clone();
 			}
 		}
 	}
 
 	// Is options
 	public static boolean IsDiamondCollected(int lvl) {return plyrColDmnd.get(currentPlayer)[lvl];}
-	public static boolean IsDiamondCollectedTrain(int lvl) {return plyrColTrainDmnd.get(currentPlayer)[lvl];}
 	public static boolean IsSkipLevel(int lvl) {
 		if (plyrLevelComplete.get(currentPlayer)[lvl] == 2) return true;
 		else return false;
@@ -404,13 +327,6 @@ public class GameVars implements Serializable {
 		SavePlayers();
 	}
 
-	public static void SetDiamondTrain(int lvl) {
-		boolean[] copyDmnd = plyrColTrainDmnd.get(currentPlayer);
-		copyDmnd[lvl] = true;
-		plyrColTrainDmnd.set(currentPlayer, copyDmnd);
-		SavePlayers();
-	}
-	
 	public static void SetSkipLevel(int lvl) {
 		if (CanSkip() && (lvl < LevelsListGame.NUMGAMELEVELS-1)) {
 			int[] copyLevComp = plyrLevelComplete.get(currentPlayer);
@@ -419,10 +335,25 @@ public class GameVars implements Serializable {
 			SavePlayers();
 		}
 	}
+
 	public static void SetLevelComplete(int lvl) {
 		int[] copyLevComp = plyrLevelComplete.get(currentPlayer);
 		copyLevComp[lvl] = 1;
 		plyrLevelComplete.set(currentPlayer, copyLevComp);
+		SavePlayers();
+	}
+
+	public static void StoreReplay(int lvl, boolean diamond) throws CloneNotSupportedException {
+		Replay[] allReplays;
+		if (diamond) {
+			allReplays = plyrReplaysDmnd.get(currentPlayer).clone();
+			allReplays[lvl] = ReplayVars.CopyOfCurrentReplay();
+			plyrReplaysDmnd.set(currentPlayer, allReplays.clone());
+		} else {
+			allReplays = plyrReplays.get(currentPlayer).clone();
+			allReplays[lvl] = ReplayVars.CopyOfCurrentReplay();
+			plyrReplays.set(currentPlayer, allReplays.clone());
+		}
 		SavePlayers();
 	}
 
@@ -436,25 +367,22 @@ public class GameVars implements Serializable {
 		// Add the player times
 		plyrTimes.add(GetEmptyTimes(LevelsListGame.NUMGAMELEVELS));
 		plyrTimesDmnd.add(GetEmptyTimes(LevelsListGame.NUMGAMELEVELS));
-		plyrTimesTrain.add(GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS));
-		plyrTimesTrainDmnd.add(GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS));
 		// Add the player controls
 		plyrDisplay.add(GetDefaultDisplay());
 		// Add the player controls
 		plyrControls.add(GetDefaultControls());
 		// Add an empty diamonds array
 		plyrColDmnd.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
-		// Add an empty diamonds training array
-		plyrColTrainDmnd.add(FalseBoolean(LevelsListTraining.NUMTRAINLEVELS));
 		// Add an empty level skip array
 		plyrLevelComplete.add(ZeroInt(LevelsListGame.NUMGAMELEVELS));
 		// Add a default Bike color
 		plyrBikeColor.add(GetDefaultBikeColor());
 		// Add the total times
 		plyrTotalTimes.add(ValueInt(numStore, -1));
-		plyrTotalTimesTrain.add(ValueInt(numStore, -1));
 		plyrTotalTimesDmnd.add(ValueInt(numStore, -1));
-		plyrTotalTimesTrainDmnd.add(ValueInt(numStore, -1));
+		// Add the Replays
+		plyrReplays.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
+		plyrReplaysDmnd.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
 	}
 
 	// Methods
@@ -533,19 +461,15 @@ public class GameVars implements Serializable {
 			plyrNames = (String[]) oi.readObject();
 			plyrTimes = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrTimesDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
-			plyrTimesTrain = (ArrayList<ArrayList<int[]>>) oi.readObject();
-			plyrTimesTrainDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrTotalTimes = (ArrayList<int[]>) oi.readObject();
-			plyrTotalTimesTrain = (ArrayList<int[]>) oi.readObject();
 			plyrTotalTimesDmnd = (ArrayList<int[]>) oi.readObject();
-			plyrTotalTimesTrainDmnd = (ArrayList<int[]>) oi.readObject();
 			plyrControls = (ArrayList<int[]>) oi.readObject();
 			plyrDisplay = (ArrayList<int[]>) oi.readObject();
 			plyrColDmnd = (ArrayList<boolean[]>) oi.readObject();
-			plyrColTrainDmnd = (ArrayList<boolean[]>) oi.readObject();
 			plyrLevelComplete = (ArrayList<int[]>) oi.readObject();
 			plyrBikeColor = (ArrayList<float[]>) oi.readObject();
-
+			plyrReplays = (ArrayList<Replay[]>) oi.readObject();
+			plyrReplaysDmnd = (ArrayList<Replay[]>) oi.readObject();
 			// Close files
 			oi.close();
 			fi.close();
@@ -568,18 +492,15 @@ public class GameVars implements Serializable {
 			o.writeObject(plyrNames);
 			o.writeObject(plyrTimes);
 			o.writeObject(plyrTimesDmnd);
-			o.writeObject(plyrTimesTrain);
-			o.writeObject(plyrTimesTrainDmnd);
 			o.writeObject(plyrTotalTimes);
-			o.writeObject(plyrTotalTimesTrain);
 			o.writeObject(plyrTotalTimesDmnd);
-			o.writeObject(plyrTotalTimesTrainDmnd);
 			o.writeObject(plyrControls);
 			o.writeObject(plyrDisplay);
 			o.writeObject(plyrColDmnd);
-			o.writeObject(plyrColTrainDmnd);
 			o.writeObject(plyrLevelComplete);
 			o.writeObject(plyrBikeColor);
+			o.writeObject(plyrReplays);
+			o.writeObject(plyrReplaysDmnd);
 
 			// Close the file
 			o.close();
@@ -603,19 +524,11 @@ public class GameVars implements Serializable {
 			worldTimes = (ArrayList<int[]>) oi.readObject();
 			worldNamesDmnd = (ArrayList<String[]>) oi.readObject();
 			worldTimesDmnd = (ArrayList<int[]>) oi.readObject();
-			worldNamesTrain = (ArrayList<String[]>) oi.readObject();
-			worldTimesTrain = (ArrayList<int[]>) oi.readObject();
-			worldNamesTrainDmnd = (ArrayList<String[]>) oi.readObject();
-			worldTimesTrainDmnd = (ArrayList<int[]>) oi.readObject();
 			// Write the total times
 			worldTotalNames = (String[]) oi.readObject();
 			worldTotalTimes = (int[]) oi.readObject();
 			worldTotalNamesDmnd = (String[]) oi.readObject();
 			worldTotalTimesDmnd = (int[]) oi.readObject();
-			worldTotalNamesTrain = (String[]) oi.readObject();
-			worldTotalTimesTrain = (int[]) oi.readObject();
-			worldTotalNamesTrainDmnd = (String[]) oi.readObject();
-			worldTotalTimesTrainDmnd = (int[]) oi.readObject();
 
 			// Close files
 			oi.close();
@@ -635,19 +548,11 @@ public class GameVars implements Serializable {
 			worldTimes = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
 			worldNamesDmnd = GetEmptyNames(LevelsListGame.NUMGAMELEVELS);
 			worldTimesDmnd = GetEmptyTimes(LevelsListGame.NUMGAMELEVELS);
-			worldNamesTrain = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-			worldTimesTrain = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
-			worldNamesTrainDmnd = GetEmptyNames(LevelsListTraining.NUMTRAINLEVELS);
-			worldTimesTrainDmnd = GetEmptyTimes(LevelsListTraining.NUMTRAINLEVELS);
 //			 Now the total times
 			worldTotalNames = GetEmptyStringArray(numStore);
 			worldTotalTimes = GetEmptyIntArray(numStore);
 			worldTotalNamesDmnd = GetEmptyStringArray(numStore);
 			worldTotalTimesDmnd = GetEmptyIntArray(numStore);
-			worldTotalNamesTrain = GetEmptyStringArray(numStore);
-			worldTotalTimesTrain = GetEmptyIntArray(numStore);
-			worldTotalNamesTrainDmnd = GetEmptyStringArray(numStore);
-			worldTotalTimesTrainDmnd = GetEmptyIntArray(numStore);
 		}
 	}
 
@@ -662,19 +567,11 @@ public class GameVars implements Serializable {
 			o.writeObject(worldTimes);
 			o.writeObject(worldNamesDmnd);
 			o.writeObject(worldTimesDmnd);
-			o.writeObject(worldNamesTrain);
-			o.writeObject(worldTimesTrain);
-			o.writeObject(worldNamesTrainDmnd);
-			o.writeObject(worldTimesTrainDmnd);
 			// Write the total times
 			o.writeObject(worldTotalNames);
 			o.writeObject(worldTotalTimes);
 			o.writeObject(worldTotalNamesDmnd);
 			o.writeObject(worldTotalTimesDmnd);
-			o.writeObject(worldTotalNamesTrain);
-			o.writeObject(worldTotalTimesTrain);
-			o.writeObject(worldTotalNamesTrainDmnd);
-			o.writeObject(worldTotalTimesTrainDmnd);
 
 			// Close the file
 			o.close();
@@ -749,21 +646,13 @@ public class GameVars implements Serializable {
 		worldTimes = RandomTimes(LevelsListGame.NUMGAMELEVELS);
 		worldNamesDmnd = RandomNames(LevelsListGame.NUMGAMELEVELS);
 		worldTimesDmnd = RandomTimes(LevelsListGame.NUMGAMELEVELS);
-		worldNamesTrain = RandomNames(LevelsListTraining.NUMTRAINLEVELS);
-		worldTimesTrain = RandomTimes(LevelsListTraining.NUMTRAINLEVELS);
-		worldNamesTrainDmnd = RandomNames(LevelsListTraining.NUMTRAINLEVELS);
-		worldTimesTrainDmnd = RandomTimes(LevelsListTraining.NUMTRAINLEVELS);
 		//GetTotalTimes(boolean train, boolean world, boolean diamond)
 		// Now generate all of the total times
 		UpdateTotalTimesAllPlayers(false);
 		worldTotalNames = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-		worldTotalTimes = GetTotalTimes(false, true, false);
+		worldTotalTimes = GetTotalTimes(true, false);
 		worldTotalNamesDmnd = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-		worldTotalTimesDmnd = GetTotalTimes(false, true, true);
-		worldTotalNamesTrain = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-		worldTotalTimesTrain = GetTotalTimes(true, true, false);
-		worldTotalNamesTrainDmnd = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-		worldTotalTimesTrainDmnd = GetTotalTimes(true, true, true);
+		worldTotalTimesDmnd = GetTotalTimes(true, true);
 //
 //		CheckTimes(int[] times, int indx, int lvl, int timerTotal, boolean world) {
 //		times = plyrTimes.get(currentPlayer).get(lvl)
@@ -791,25 +680,19 @@ public class GameVars implements Serializable {
 		// Add the player times
 		plyrTimes.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
 		plyrTimesDmnd.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
-		plyrTimesTrain.add(RandomTimes(LevelsListTraining.NUMTRAINLEVELS));
-		plyrTimesTrainDmnd.add(RandomTimes(LevelsListTraining.NUMTRAINLEVELS));
 		// Add the player display preferences
 		plyrDisplay.add(GetDefaultDisplay());
 		// Add the player controls
 		plyrControls.add(GetDefaultControls());
 		// Add an empty diamonds array
 		plyrColDmnd.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
-		// Add an empty diamonds training array
-		plyrColTrainDmnd.add(FalseBoolean(LevelsListTraining.NUMTRAINLEVELS));
 		// Add a completed levels array
 		plyrLevelComplete.add(ValueInt(LevelsListGame.NUMGAMELEVELS, 1));
 		// Add a default Bike color
 		plyrBikeColor.add(GetDefaultBikeColor());
 		// Add the total times
 		plyrTotalTimes.add(ValueInt(numStore, -1));
-		plyrTotalTimesTrain.add(ValueInt(numStore, -1));
 		plyrTotalTimesDmnd.add(ValueInt(numStore, -1));
-		plyrTotalTimesTrainDmnd.add(ValueInt(numStore, -1));
 	}
 	
 	@SuppressWarnings("unchecked")

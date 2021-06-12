@@ -68,7 +68,7 @@ public class GameStateManager {
         if (state == MENUPLAYER) return new MenuSelectPlayer(this, modeValue);
         else if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
-        else if (state == MENURECORDS) return new MenuRecords(this);
+//        else if (state == MENURECORDS) return new MenuRecords(this);
         else if (state == MENUOPTIONS) return new MenuOptions(this);
         else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
         else if (state == MENUOPTIONSCONTROLS) return new OptionChangeControls(this);

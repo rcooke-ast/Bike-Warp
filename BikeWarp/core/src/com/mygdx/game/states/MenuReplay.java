@@ -1,6 +1,6 @@
 package com.mygdx.game.states;
 
-import java.util.ArrayList;
+import java.io.File;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,18 +8,17 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.GameVars;
-import com.mygdx.game.handlers.LevelsListGame;
-import com.mygdx.game.handlers.LevelsListTraining;
 import com.mygdx.game.handlers.ReplayVars;
-import com.mygdx.game.utilities.EditorIO;
 
 public class MenuReplay extends GameState {
+	private static final String option1 = "Return to Main Menu";
+	private static final String option2 = "Personal Best Times";
     private int currentOption, numReplayShow, numMin, numOptions;
     private Sprite background;
     private BitmapFont question, replayList;
@@ -38,14 +37,12 @@ public class MenuReplay extends GameState {
 	}
 
     public void create() {
-    	// First load the list of replays
-    	replayFiles = ReplayVars.GetReplayList();
     	// Setup the canvas
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.7f*SCRHEIGHT;
-        background = new Sprite(BikeGameTextures.LoadTexture("sky_mars"));
+        background = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -54,7 +51,7 @@ public class MenuReplay extends GameState {
         question.getData().setScale(scaleVal);
 		glyphLayout.setText(question, header);
         qWidth = glyphLayout.width;
-        if (qWidth > 0.5f*SCRWIDTH) scaleVal = 0.5f*SCRWIDTH/qWidth;
+        if (qWidth > 0.25f*SCRWIDTH) scaleVal = 0.25f*SCRWIDTH/qWidth;
         question.getData().setScale(scaleVal);
         glyphLayout.setText(question, header);
         qWidth = glyphLayout.width;
@@ -62,56 +59,77 @@ public class MenuReplay extends GameState {
         // Now grab the fonts for the player names
         replayList = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        scaleVal = 1.0f;
-        replayList.getData().setScale(scaleVal);
-        glyphLayout.setText(replayList, "Return to Main Menu");
-        replayWidth = glyphLayout.width;
-        float tstReplayWidth;
-        numOptions = 1 + replayFiles.length;
-        for (int i=0; i<replayFiles.length; i++) {
-        	glyphLayout.setText(replayList, replayFiles[i]);
-        	tstReplayWidth = glyphLayout.width;
-        	if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
-        }
-        scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/replayWidth;
-        replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        replayList.getData().setScale(scaleVal);
-        SetNumReplayShow();
+        SetupMenuFont();
         // Set the fading variables
         fadeOut = -1.0f;
         fadeIn = 0.0f;
     }
 
-    public void SetNumReplayShow() {
+    private void SetNumReplayShow() {
 		glyphLayout.setText(replayList, "My");
         replayHeight = glyphLayout.height;
         numReplayShow = (int) Math.floor(sheight/(1.5f*replayHeight));
         if (numReplayShow > numOptions) numReplayShow = numOptions;    	
     }
 
+    private void SetupMenuFont() {
+		float scaleVal = 1.0f;
+		// First load the list of replays
+		replayFiles = ReplayVars.GetReplayList();
+		replayList.getData().setScale(scaleVal);
+		glyphLayout.setText(replayList, option1);
+		replayWidth = glyphLayout.width;
+		float tstReplayWidth;
+		glyphLayout.setText(replayList, option2);
+		tstReplayWidth = glyphLayout.width;
+		if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
+		numOptions = 2 + replayFiles.length;
+		for (int i=0; i<replayFiles.length; i++) {
+			glyphLayout.setText(replayList, replayFiles[i]);
+			tstReplayWidth = glyphLayout.width;
+			if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
+		}
+		scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/replayWidth;
+		replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		replayList.getData().setScale(scaleVal);
+		SetNumReplayShow();
+	}
+
     @Override
 	public void handleInput() {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
     		if (currentOption < 0) currentOption = numOptions - 1;
+			if (currentOption >= 2) ReplayVars.LoadReplay(replayFiles[currentOption-2]);
 			BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentOption++;
     		if (currentOption >= numOptions) currentOption = 0;
-			BikeGameSounds.PlayMenuSwitch();
-        } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
-    		fadeOut=1.0f;
+			if (currentOption >= 2) ReplayVars.LoadReplay(replayFiles[currentOption-2]);
+    		BikeGameSounds.PlayMenuSwitch();
+		} else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut==-1.0f)) {
+			fadeOut=1.0f;
 			BikeGameSounds.PlayMenuSelect();
+		} else if ((GameInput.isPressed(GameInput.KEY_D)) & (fadeOut==-1.0f) & (currentOption>=2)) {
+    		// Get the name of the file to be deleted
+			String delfile = replayFiles[currentOption-2];
+			// Check if we need to change the current option
+			if (currentOption == numOptions-1) currentOption--;
+			// Delete the file
+			File file = new File(Gdx.files.internal("replays/"+delfile).toString());
+			file.delete();
+			// Finally, check the fonts
+			SetupMenuFont();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentOption == 0) {
         		fadeOut=1.0f;
 				BikeGameSounds.PlayMenuSelect();
         	} else {
         		// Load the replay
-        		ReplayVars.LoadReplay(replayFiles[currentOption-1]);
-        		int mode = ReplayVars.replayMode; // Determine if it's a training or game level
+        		//ReplayVars.LoadReplay(replayFiles[currentOption-1]);
+        		int mode = ReplayVars.currentReplay.replayMode; // Determine if it's a training or game level
         		// Now execute the replay
-        		gsm.setState(GameStateManager.PLAY, true, ReplayVars.levelName, ReplayVars.levelNumber, mode);
+        		gsm.setState(GameStateManager.PLAY, true, ReplayVars.currentReplay.levelName, ReplayVars.currentReplay.levelNumber, mode);
         	}
         } else if (fadeOut==0.0f) {
         	// Go to the main menu
@@ -141,7 +159,7 @@ public class MenuReplay extends GameState {
 
 	@Override
 	public void render() {
-		String dispText;
+		String dispText = "";
     	// clear screen
     	Gdx.gl.glClearColor(0, 0, 0, 1);
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -163,7 +181,7 @@ public class MenuReplay extends GameState {
     	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
     	else question.setColor(1, 1, 1, 1);
-        question.draw(sb, header, (SCRWIDTH-qWidth)/2.0f, cam.position.y + (1.5f*replayHeight*numReplayShow)/2 + 1.5f*qHeight);
+        question.draw(sb, header, (0.5f*SCRWIDTH-qWidth)/2.0f, cam.position.y + (1.5f*replayHeight*numReplayShow)/2 + 1.5f*qHeight);
         // Draw Player Names
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;
@@ -173,14 +191,22 @@ public class MenuReplay extends GameState {
         	if (currentOption == i) replayList.setColor(1, 1, 1, alpha);
         	else replayList.setColor(1, 1, 1, alpha/2);
         	// Grab the text to display
-        	if (i == 0) dispText = "Return to Main Menu";
-        	else dispText = replayFiles[i-1];
+        	if (i == 0) dispText = option1;
+        	else if (i == 1) dispText = option2;
+        	else dispText = replayFiles[i-2];
         	// Render the text
 			glyphLayout.setText(replayList, dispText);
         	optWidth = glyphLayout.width;
-        	replayList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*replayHeight*numReplayShow)/2 - 1.5f*(i-numMin)*replayHeight);
+        	replayList.draw(sb, dispText, (0.5f*SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*replayHeight*numReplayShow)/2 - 1.5f*(i-numMin)*replayHeight);
         }
-        sb.end();
+        if (currentOption >= 2) {
+			replayList.setColor(1, 1, 1, alpha);
+			dispText = ReplayVars.ReplayString();
+			glyphLayout.setText(replayList, dispText);
+			float lvlWidth = glyphLayout.height;
+			replayList.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
+		}
+		sb.end();
 	}
 
 	@Override

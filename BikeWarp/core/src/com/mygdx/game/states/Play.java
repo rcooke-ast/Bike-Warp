@@ -270,7 +270,6 @@ public class Play extends GameState {
     
     public void create() {
 
-        SteamVars.prepareLeaderboards(levelID);
     	forcequit = false;
     	forceRestart = false;
         // Set the contact listener
@@ -353,7 +352,8 @@ public class Play extends GameState {
         rightRopeR = new RopeJointDef();
 
         // Load the suspension textures
-        bikeCol = GameVars.GetPlayerBikeColor();
+        if (isReplay) bikeCol = ReplayVars.currentReplay.bikeColour.clone();
+        else bikeCol = GameVars.GetPlayerBikeColor();
         bikeColour = new Sprite(BikeGameTextures.LoadTexture("bike_white"));
         bikeOverlay = new Sprite(BikeGameTextures.LoadTexture("bike_overlay"));
         suspensionRear = new Sprite(BikeGameTextures.LoadTexture("rear_suspension"));
@@ -533,7 +533,7 @@ public class Play extends GameState {
             }
             // Change Direction
             if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
-            	if ((mode != 0) && (!isReplay)) ReplayVars.replayChangeDir.add(replayTime);
+            	if ((mode != 0) && (!isReplay)) ReplayVars.currentReplay.replayChangeDir.add(replayTime);
             	switchBikeDirection();
             }
             //playerTorque = 0.0f;
@@ -646,7 +646,7 @@ public class Play extends GameState {
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;
-	     	   			if ((!isReplay) && (mode != 0)) ReplayVars.replayTimer = timerTotal;
+	     	   			if ((!isReplay) && (mode != 0)) ReplayVars.currentReplay.replayTimer = timerTotal;
                         if ((mode == 1) || (mode == 2)) storeReplay(dt);
 	     	   			StopSounds();
 	     	   			BikeGameSounds.PlaySound(soundFinish, 1.0f);
@@ -659,17 +659,17 @@ public class Play extends GameState {
 	     	   					// Check the time
 	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
 	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
-	     	   					boolean blah = SteamVars.uploadTime(timerTotal, false);
-	     	   					System.out.println(blah);
+	     	   					SteamVars.uploadTime(timerTotal, false);
+	     	   					ReplayVars.currentReplay.replayStatus = ReplayVars.statusDiamond;
                             }
 	     	   			} else {
 		     	   			// Check the records without the diamond
 	     	   				if (mode == 2) {
 	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
 	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
-                                boolean blah = SteamVars.uploadTime(timerTotal, true);
-                                System.out.println(blah);
-	     	   				}	     	   				
+                                SteamVars.uploadTime(timerTotal, true);
+                                ReplayVars.currentReplay.replayStatus = ReplayVars.statusEmerald;
+	     	   				}
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 	     	   			if (mode == 1) LevelsListCustom.updateRecords();
@@ -687,7 +687,7 @@ public class Play extends GameState {
     	   			if (!isReplay) {
 	     	   			if ((mode == 1) || (mode == 2)) storeReplay(dt);
     	   				GameVars.SetTimerTotal(-1);
-    	     		    ReplayVars.replayTimer = (int) (TimeUtils.millis()) - timerStart;
+    	     		    ReplayVars.currentReplay.replayTimer = (int) (TimeUtils.millis()) - timerStart;
     	   			}
     	   			if (forcequit) {
     	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
@@ -883,22 +883,22 @@ public class Play extends GameState {
 		Vector2 temppos;
 		replayTime += dt;
 		int rIndex = ReplayVars.GetIndex(replayTime);		
-		float time1 = ReplayVars.replayTime.get(rIndex);
-		float time2 = ReplayVars.replayTime.get(rIndex+1);
+		float time1 = ReplayVars.currentReplay.replayTime.get(rIndex);
+		float time2 = ReplayVars.currentReplay.replayTime.get(rIndex+1);
 		float mid = (replayTime-time1)/(time2-time1);
 		// Transform LW
-		float lw_x = Interpolation.linear.apply(ReplayVars.replayLW_X.get(rIndex), ReplayVars.replayLW_X.get(rIndex+1), mid);
-		float lw_y = Interpolation.linear.apply(ReplayVars.replayLW_Y.get(rIndex), ReplayVars.replayLW_Y.get(rIndex+1), mid);
-		float lw_a = Interpolation.linear.apply(ReplayVars.replayLW_A.get(rIndex), ReplayVars.replayLW_A.get(rIndex+1), mid);
-		float lw_v = Interpolation.linear.apply(ReplayVars.replayLW_V.get(rIndex), ReplayVars.replayLW_V.get(rIndex+1), mid);
+		float lw_x = Interpolation.linear.apply(ReplayVars.currentReplay.replayLW_X.get(rIndex), ReplayVars.currentReplay.replayLW_X.get(rIndex+1), mid);
+		float lw_y = Interpolation.linear.apply(ReplayVars.currentReplay.replayLW_Y.get(rIndex), ReplayVars.currentReplay.replayLW_Y.get(rIndex+1), mid);
+		float lw_a = Interpolation.linear.apply(ReplayVars.currentReplay.replayLW_A.get(rIndex), ReplayVars.currentReplay.replayLW_A.get(rIndex+1), mid);
+		float lw_v = Interpolation.linear.apply(ReplayVars.currentReplay.replayLW_V.get(rIndex), ReplayVars.currentReplay.replayLW_V.get(rIndex+1), mid);
 		temppos = new Vector2(lw_x, lw_y);
 		bikeBodyLW.setTransform(temppos.cpy(), lw_a);
 		bikeBodyLW.setAngularVelocity(lw_v);
 		// Transform RW
-		float rw_x = Interpolation.linear.apply(ReplayVars.replayRW_X.get(rIndex), ReplayVars.replayRW_X.get(rIndex+1), mid);
-		float rw_y = Interpolation.linear.apply(ReplayVars.replayRW_Y.get(rIndex), ReplayVars.replayRW_Y.get(rIndex+1), mid);
-		float rw_a = Interpolation.linear.apply(ReplayVars.replayRW_A.get(rIndex), ReplayVars.replayRW_A.get(rIndex+1), mid);
-		float rw_v = Interpolation.linear.apply(ReplayVars.replayRW_V.get(rIndex), ReplayVars.replayRW_V.get(rIndex+1), mid);
+		float rw_x = Interpolation.linear.apply(ReplayVars.currentReplay.replayRW_X.get(rIndex), ReplayVars.currentReplay.replayRW_X.get(rIndex+1), mid);
+		float rw_y = Interpolation.linear.apply(ReplayVars.currentReplay.replayRW_Y.get(rIndex), ReplayVars.currentReplay.replayRW_Y.get(rIndex+1), mid);
+		float rw_a = Interpolation.linear.apply(ReplayVars.currentReplay.replayRW_A.get(rIndex), ReplayVars.currentReplay.replayRW_A.get(rIndex+1), mid);
+		float rw_v = Interpolation.linear.apply(ReplayVars.currentReplay.replayRW_V.get(rIndex), ReplayVars.currentReplay.replayRW_V.get(rIndex+1), mid);
 //	    float[] cCoord = PolygonOperations.RotateCoordinate(rw_x, rw_y, rw_a, 0.0f, 0.0f);
 //	    temppos = new Vector2(cCoord[0],cCoord[1]);
 //	    bikeBodyRW.setTransform(temppos.add(bikeBodyRW.getWorldCenter()), rw_a);
@@ -907,21 +907,21 @@ public class Play extends GameState {
 		//bikeBodyRW.setTransform(bikeBodyLW.getPosition().sub(bikeBodyRW.getPosition());)
 		bikeBodyRW.setAngularVelocity(rw_v);
 		// Transform Chassis
-		float bike_a = Interpolation.linear.apply(ReplayVars.replayBike_A.get(rIndex), ReplayVars.replayBike_A.get(rIndex+1), mid);
-		float bike_x = Interpolation.linear.apply(ReplayVars.replayBike_X.get(rIndex), ReplayVars.replayBike_X.get(rIndex+1), mid);
-		float bike_y = Interpolation.linear.apply(ReplayVars.replayBike_Y.get(rIndex), ReplayVars.replayBike_Y.get(rIndex+1), mid);
+		float bike_a = Interpolation.linear.apply(ReplayVars.currentReplay.replayBike_A.get(rIndex), ReplayVars.currentReplay.replayBike_A.get(rIndex+1), mid);
+		float bike_x = Interpolation.linear.apply(ReplayVars.currentReplay.replayBike_X.get(rIndex), ReplayVars.currentReplay.replayBike_X.get(rIndex+1), mid);
+		float bike_y = Interpolation.linear.apply(ReplayVars.currentReplay.replayBike_Y.get(rIndex), ReplayVars.currentReplay.replayBike_Y.get(rIndex+1), mid);
 		temppos = new Vector2(bike_x, bike_y);
         //bikeBodyC.setTransform(temppos.add(bikeBodyC.getWorldCenter().cpy()), bike_a);
         bikeBodyC.setTransform(temppos, bike_a);
 		// Transform Head
-		bike_x = Interpolation.linear.apply(ReplayVars.replayHead_X.get(rIndex), ReplayVars.replayHead_X.get(rIndex+1), mid);
-		bike_y = Interpolation.linear.apply(ReplayVars.replayHead_Y.get(rIndex), ReplayVars.replayHead_Y.get(rIndex+1), mid);
+		bike_x = Interpolation.linear.apply(ReplayVars.currentReplay.replayHead_X.get(rIndex), ReplayVars.currentReplay.replayHead_X.get(rIndex+1), mid);
+		bike_y = Interpolation.linear.apply(ReplayVars.currentReplay.replayHead_Y.get(rIndex), ReplayVars.currentReplay.replayHead_Y.get(rIndex+1), mid);
 		temppos = new Vector2(bike_x, bike_y);
         bikeBodyH.setTransform(temppos, bike_a);
 		// Transform Rider body
-		bike_a = Interpolation.linear.apply(ReplayVars.replayRider_A.get(rIndex), ReplayVars.replayRider_A.get(rIndex+1), mid);
-		bike_x = Interpolation.linear.apply(ReplayVars.replayRider_X.get(rIndex), ReplayVars.replayRider_X.get(rIndex+1), mid);
-		bike_y = Interpolation.linear.apply(ReplayVars.replayRider_Y.get(rIndex), ReplayVars.replayRider_Y.get(rIndex+1), mid);
+		bike_a = Interpolation.linear.apply(ReplayVars.currentReplay.replayRider_A.get(rIndex), ReplayVars.currentReplay.replayRider_A.get(rIndex+1), mid);
+		bike_x = Interpolation.linear.apply(ReplayVars.currentReplay.replayRider_X.get(rIndex), ReplayVars.currentReplay.replayRider_X.get(rIndex+1), mid);
+		bike_y = Interpolation.linear.apply(ReplayVars.currentReplay.replayRider_Y.get(rIndex), ReplayVars.currentReplay.replayRider_Y.get(rIndex+1), mid);
 		temppos = new Vector2(bike_x, bike_y);
         bikeBodyR.setTransform(temppos, bike_a);
 
@@ -931,10 +931,10 @@ public class Play extends GameState {
 		// Update the details of every dynamic body
         float dyn_x, dyn_y, dyn_a, dyn_v;
         for (int dd=0; dd<allDynamicBodies.size(); dd++) {
-            dyn_a = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_A.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_A.get(dd).get(rIndex+1), mid);
-            dyn_x = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_X.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_X.get(dd).get(rIndex+1), mid);
-            dyn_y = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_Y.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_Y.get(dd).get(rIndex+1), mid);
-            dyn_v = Interpolation.linear.apply(ReplayVars.replayDynamicBodies_V.get(dd).get(rIndex), ReplayVars.replayDynamicBodies_V.get(dd).get(rIndex+1), mid);
+            dyn_a = Interpolation.linear.apply(ReplayVars.currentReplay.replayDynamicBodies_A.get(dd).get(rIndex), ReplayVars.currentReplay.replayDynamicBodies_A.get(dd).get(rIndex+1), mid);
+            dyn_x = Interpolation.linear.apply(ReplayVars.currentReplay.replayDynamicBodies_X.get(dd).get(rIndex), ReplayVars.currentReplay.replayDynamicBodies_X.get(dd).get(rIndex+1), mid);
+            dyn_y = Interpolation.linear.apply(ReplayVars.currentReplay.replayDynamicBodies_Y.get(dd).get(rIndex), ReplayVars.currentReplay.replayDynamicBodies_Y.get(dd).get(rIndex+1), mid);
+            dyn_v = Interpolation.linear.apply(ReplayVars.currentReplay.replayDynamicBodies_V.get(dd).get(rIndex), ReplayVars.currentReplay.replayDynamicBodies_V.get(dd).get(rIndex+1), mid);
             temppos = new Vector2(dyn_x, dyn_y);
             allDynamicBodies.get(dd).setTransform(temppos, dyn_a);
             allDynamicBodies.get(dd).setAngularVelocity(dyn_v);
@@ -954,7 +954,7 @@ public class Play extends GameState {
 		updateCameraPostion();
 		
 		// Check if escape was pressed - if so, end the replay
-		if (1000.0f*replayTime > ReplayVars.replayTimer) {
+		if (1000.0f*replayTime > ReplayVars.currentReplay.replayTimer) {
 			forcequit = true;
 		}
 	}
@@ -967,34 +967,34 @@ public class Play extends GameState {
 		Vector2 LWCen = bikeBodyLW.getPosition();
 		Vector2 RWCen = bikeBodyRW.getPosition();
 		// Store all of the information
-		ReplayVars.replayTime.add(replayTime);
+		ReplayVars.currentReplay.replayTime.add(replayTime);
 		// Head
-		ReplayVars.replayHead_X.add(headCen.x);
-		ReplayVars.replayHead_Y.add(headCen.y);
+		ReplayVars.currentReplay.replayHead_X.add(headCen.x);
+		ReplayVars.currentReplay.replayHead_Y.add(headCen.y);
 		// Torso
-		ReplayVars.replayRider_X.add(riderCen.x);
-		ReplayVars.replayRider_Y.add(riderCen.y);
-		ReplayVars.replayRider_A.add(bikeBodyR.getAngle());
+		ReplayVars.currentReplay.replayRider_X.add(riderCen.x);
+		ReplayVars.currentReplay.replayRider_Y.add(riderCen.y);
+		ReplayVars.currentReplay.replayRider_A.add(bikeBodyR.getAngle());
 		// Bike
-		ReplayVars.replayBike_X.add(bikeCen.x);
-		ReplayVars.replayBike_Y.add(bikeCen.y);
-		ReplayVars.replayBike_A.add(bikeBodyC.getAngle());
+		ReplayVars.currentReplay.replayBike_X.add(bikeCen.x);
+		ReplayVars.currentReplay.replayBike_Y.add(bikeCen.y);
+		ReplayVars.currentReplay.replayBike_A.add(bikeBodyC.getAngle());
 		// Left Wheel
-		ReplayVars.replayLW_X.add(LWCen.x);
-		ReplayVars.replayLW_Y.add(LWCen.y);
-		ReplayVars.replayLW_A.add(bikeBodyLW.getAngle());
-		ReplayVars.replayLW_V.add(bikeBodyLW.getAngularVelocity());
+		ReplayVars.currentReplay.replayLW_X.add(LWCen.x);
+		ReplayVars.currentReplay.replayLW_Y.add(LWCen.y);
+		ReplayVars.currentReplay.replayLW_A.add(bikeBodyLW.getAngle());
+		ReplayVars.currentReplay.replayLW_V.add(bikeBodyLW.getAngularVelocity());
 		// Right Wheel
-		ReplayVars.replayRW_X.add(RWCen.x);
-		ReplayVars.replayRW_Y.add(RWCen.y);
-		ReplayVars.replayRW_A.add(bikeBodyRW.getAngle());
-		ReplayVars.replayRW_V.add(bikeBodyRW.getAngularVelocity());
+		ReplayVars.currentReplay.replayRW_X.add(RWCen.x);
+		ReplayVars.currentReplay.replayRW_Y.add(RWCen.y);
+		ReplayVars.currentReplay.replayRW_A.add(bikeBodyRW.getAngle());
+		ReplayVars.currentReplay.replayRW_V.add(bikeBodyRW.getAngularVelocity());
 		// All other dynamic bodies in the level
-        for (int dd=0; dd<ReplayVars.replayDynamicBodies_X.size(); dd++) {
-            ReplayVars.replayDynamicBodies_X.get(dd).add(allDynamicBodies.get(dd).getPosition().x);
-            ReplayVars.replayDynamicBodies_Y.get(dd).add(allDynamicBodies.get(dd).getPosition().y);
-            ReplayVars.replayDynamicBodies_A.get(dd).add(allDynamicBodies.get(dd).getAngle());
-            ReplayVars.replayDynamicBodies_V.get(dd).add(allDynamicBodies.get(dd).getAngularVelocity());
+        for (int dd=0; dd<ReplayVars.currentReplay.replayDynamicBodies_X.size(); dd++) {
+            ReplayVars.currentReplay.replayDynamicBodies_X.get(dd).add(allDynamicBodies.get(dd).getPosition().x);
+            ReplayVars.currentReplay.replayDynamicBodies_Y.get(dd).add(allDynamicBodies.get(dd).getPosition().y);
+            ReplayVars.currentReplay.replayDynamicBodies_A.get(dd).add(allDynamicBodies.get(dd).getAngle());
+            ReplayVars.currentReplay.replayDynamicBodies_V.get(dd).add(allDynamicBodies.get(dd).getAngularVelocity());
         }
 	}
 	

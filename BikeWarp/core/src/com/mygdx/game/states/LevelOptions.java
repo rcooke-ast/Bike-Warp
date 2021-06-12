@@ -17,12 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
-import com.mygdx.game.handlers.GameInput;
-import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.GameVars;
-import com.mygdx.game.handlers.LevelsListCustom;
-import com.mygdx.game.handlers.LevelsListGame;
-import com.mygdx.game.handlers.ReplayVars;
+import com.mygdx.game.handlers.*;
 import com.mygdx.game.utilities.EditorIO;
 
 /**
@@ -53,7 +48,10 @@ public class LevelOptions extends GameState {
     }
     
     public void create() {
-    	firstPlay = true;
+		// First, prepare the leaderboards
+		SteamVars.prepareLeaderboards(levelNumber);
+		// Now set the initial variables to start the screen
+		firstPlay = true;
     	goToNext = false;
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
@@ -118,7 +116,7 @@ public class LevelOptions extends GameState {
     		allOptions = tmp.clone();
     	}
     	// Watch or Save replay
-    	if (ReplayVars.replayTime.size() != 0) {
+    	if (ReplayVars.currentReplay.replayTime.size() != 0) {
     		tmp = new String[allOptions.length+2];
     		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
     		tmp[allOptions.length] = "Watch Replay";
