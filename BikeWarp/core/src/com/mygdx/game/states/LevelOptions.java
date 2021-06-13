@@ -82,8 +82,8 @@ public class LevelOptions extends GameState {
     }
 
     public void SetTotalOptions() {
-    	if (modeValue == 1) allOptions = new String[] {LevelsListCustom.customLevelNames[levelNumber+1], ""};
-    	else if (modeValue == 2) allOptions = new String[] {LevelsListGame.gameLevelNames[levelNumber+1], ""};
+//    	if (modeValue == 1) allOptions = new String[] {LevelsListCustom.customLevelNames[levelNumber+1], ""};
+    	if (modeValue == 2) allOptions = new String[] {LevelsListGame.gameLevelNames[levelNumber+1], ""};
     	String[] tmp;
     	// If the level has just been played, use "Replay Level" instead of "Play Level"
     	if (firstPlay) allOptions[1] = "Play Level";
@@ -97,11 +97,11 @@ public class LevelOptions extends GameState {
 	    		tmp[allOptions.length] = "Next Level";
 	    		allOptions = tmp.clone();
     		}
-    	} else if ((modeValue == 1) && (levelNumber+1 != LevelsListCustom.NUMCUSTOMLEVELS)) {
-    		tmp = new String[allOptions.length+1];
-    		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
-    		tmp[allOptions.length] = "Next Level";
-    		allOptions = tmp.clone();
+//    	} else if ((modeValue == 1) && (levelNumber+1 != LevelsListCustom.NUMCUSTOMLEVELS)) {
+//    		tmp = new String[allOptions.length+1];
+//    		for (int ii=0; ii<allOptions.length; ii++) tmp[ii] = allOptions[ii];
+//    		tmp[allOptions.length] = "Next Level";
+//    		allOptions = tmp.clone();
     	}
     	// Go back to level selector
 		tmp = new String[allOptions.length+1];
@@ -168,8 +168,9 @@ public class LevelOptions extends GameState {
         		firstPlay = false;
         		// Load the level
         		String levelName;
-        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
-        		else levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.getLevelFile(levelNumber+1)));
+//        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
+//        		else
+        		levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.getLevelFile(levelNumber+1)));
         		ReplayVars.Reset(levelName, levelNumber, modeValue);
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue);
         	} else if (allOptions[currentOption].equalsIgnoreCase("Level Select")) fadeOut=1.0f; // Return to level selector
@@ -181,7 +182,7 @@ public class LevelOptions extends GameState {
         	} else if (allOptions[currentOption].equalsIgnoreCase("Watch Replay")){
         		// Load the replay
         		String levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListGame.getLevelFile(levelNumber+1)));
-        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
+//        		if (modeValue==1) levelName = EditorIO.loadLevelPlay(Gdx.files.internal(LevelsListCustom.customLevelFiles[levelNumber+1]));
         		ReplayVars.replayCntr = 0;
         		ReplayVars.replayCDCntr = 0;
         		gsm.setState(GameStateManager.PLAY, true, levelName, levelNumber, modeValue+2);
@@ -283,8 +284,8 @@ public class LevelOptions extends GameState {
 	        	// Apend the time
 	        	dispText += GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
 	        }
-	        if (modeValue == 1) dispText += LevelsListCustom.customLevelTimes[levelNumber+1];
-	        else if (modeValue == 2) dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
+//	        if (modeValue == 1) dispText += LevelsListCustom.customLevelTimes[levelNumber+1];
+	        if (modeValue == 2) dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
         }
 		//  lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
 		glyphLayout.setText(menuText, dispText);

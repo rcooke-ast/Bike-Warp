@@ -28,7 +28,7 @@ public class ReplayVars implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	public static final String replayDir = "replays/";
-	private static final String replayExt = ".rpl";
+	public static final String replayExt = ".rpl";
 	public static final int statusDNF = 0;
 	public static final int statusEmerald = 1;
 	public static final int statusDiamond = 2;
@@ -50,7 +50,7 @@ public class ReplayVars implements Serializable {
 		Array<String> files = new Array<String>();
 		for (int ff=0; ff<fils.length; ff++) {
 			if (fils[ff].endsWith(replayExt)) {
-				files.add(fils[ff]);
+				files.add(fils[ff].substring(0,fils[ff].length()-4));
 			}
 		}
 		// Put the files in a string list
@@ -181,7 +181,7 @@ public class ReplayVars implements Serializable {
 		ClearCurrentReplay();
 		currentReplay = new Replay("null", -1, -1, -1);
 		try {
-			FileInputStream fi = new FileInputStream(new File(replayDir+filename));
+			FileInputStream fi = new FileInputStream(new File(replayDir+filename+replayExt));
 			ObjectInputStream oi = new ObjectInputStream(fi);
 
 			// Read objects
@@ -291,7 +291,7 @@ public class ReplayVars implements Serializable {
 			default:
 				break;
 		}
-		retstr += "\n\n'D' = Delete, 'R' = Rename";
+		retstr += "\n\nD - Delete\nR - Rename";
     	return retstr;
 	}
 

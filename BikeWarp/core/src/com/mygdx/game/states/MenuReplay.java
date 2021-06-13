@@ -1,6 +1,11 @@
 package com.mygdx.game.states;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -29,6 +34,8 @@ public class MenuReplay extends GameState {
     private String newName = "";
     private boolean createPlayer = false;
     private String[] replayFiles;
+    private boolean renaming, fileExists;
+	private String renameFilename;
 
 	public MenuReplay(GameStateManager gsm) {
 		super(gsm);
@@ -60,6 +67,8 @@ public class MenuReplay extends GameState {
         replayList = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         SetupMenuFont();
+		renaming = false;
+		fileExists = true;
         // Set the fading variables
         fadeOut = -1.0f;
         fadeIn = 0.0f;
@@ -97,48 +106,74 @@ public class MenuReplay extends GameState {
 
     @Override
 	public void handleInput() {
-    	if (GameInput.isPressed(GameInput.KEY_UP)) {
-    		currentOption--;
-    		if (currentOption < 0) currentOption = numOptions - 1;
-			if (currentOption >= 2) ReplayVars.LoadReplay(replayFiles[currentOption-2]);
-			BikeGameSounds.PlayMenuSwitch();
-        } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
-    		currentOption++;
-    		if (currentOption >= numOptions) currentOption = 0;
-			if (currentOption >= 2) ReplayVars.LoadReplay(replayFiles[currentOption-2]);
-    		BikeGameSounds.PlayMenuSwitch();
-		} else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut==-1.0f)) {
-			fadeOut=1.0f;
-			BikeGameSounds.PlayMenuSelect();
-		} else if ((GameInput.isPressed(GameInput.KEY_D)) & (fadeOut==-1.0f) & (currentOption>=2)) {
-    		// Get the name of the file to be deleted
-			String delfile = replayFiles[currentOption-2];
-			// Check if we need to change the current option
-			if (currentOption == numOptions-1) currentOption--;
-			// Delete the file
-			File file = new File(Gdx.files.internal("replays/"+delfile).toString());
-			file.delete();
-			// Finally, check the fonts
-			SetupMenuFont();
-        } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
-        	if (currentOption == 0) {
-        		fadeOut=1.0f;
+		if (renaming) {
+			if (GameInput.isPressed(GameInput.KEY_ESC)) {
+				renaming = false;
+				renameFilename = "";
+				fileExists = true;
+			}
+			else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (!fileExists)) {
+				// Rename the file
+				Path src = Paths.get(ReplayVars.replayDir+replayFiles[currentOption-2]+ReplayVars.replayExt);
+				Path dst = Paths.get(ReplayVars.replayDir+renameFilename+ReplayVars.replayExt);
+				try {
+					Files.move(src, dst, StandardCopyOption.REPLACE_EXISTING);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				SetupMenuFont();
+				renaming = false;
+			}
+		} else {
+			if (GameInput.isPressed(GameInput.KEY_UP)) {
+				currentOption--;
+				if (currentOption < 0) currentOption = numOptions - 1;
+				if (currentOption >= 2) ReplayVars.LoadReplay(replayFiles[currentOption - 2]);
+				BikeGameSounds.PlayMenuSwitch();
+			} else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
+				currentOption++;
+				if (currentOption >= numOptions) currentOption = 0;
+				if (currentOption >= 2) ReplayVars.LoadReplay(replayFiles[currentOption - 2]);
+				BikeGameSounds.PlayMenuSwitch();
+			} else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut == -1.0f)) {
+				fadeOut = 1.0f;
 				BikeGameSounds.PlayMenuSelect();
-        	} else {
-        		// Load the replay
-        		//ReplayVars.LoadReplay(replayFiles[currentOption-1]);
-        		int mode = ReplayVars.currentReplay.replayMode; // Determine if it's a training or game level
-        		// Now execute the replay
-        		gsm.setState(GameStateManager.PLAY, true, ReplayVars.currentReplay.levelName, ReplayVars.currentReplay.levelNumber, mode);
-        	}
-        } else if (fadeOut==0.0f) {
-        	// Go to the main menu
-    		fadeOut=-1.0f;
-    		gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
-        }
-    	if ((currentOption>numReplayShow/2) & (currentOption<numOptions-numReplayShow/2)) numMin = currentOption-numReplayShow/2;
-    	else if (currentOption<=numReplayShow/2) numMin = 0;
-    	else if (currentOption>=numOptions-numReplayShow/2) numMin = numOptions-numReplayShow;
+			} else if ((GameInput.isPressed(GameInput.KEY_D)) & (fadeOut == -1.0f) & (currentOption >= 2)) {
+				// Get the name of the file to be deleted
+				String delfile = replayFiles[currentOption - 2];
+				// Check if we need to change the current option
+				if (currentOption == numOptions - 1) currentOption--;
+				// Delete the file
+				File file = new File(Gdx.files.internal("replays/" + delfile + ReplayVars.replayExt).toString());
+				file.delete();
+				// Finally, check the fonts
+				SetupMenuFont();
+			} else if ((GameInput.isPressed(GameInput.KEY_R)) & (fadeOut == -1.0f)  & (currentOption >= 2) & (!renaming)) {
+				// Renaming a file
+				GameInput.setCharacter("");
+				renaming = true;
+				renameFilename = replayFiles[currentOption - 2];
+			} else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut == -1.0f)) {
+				if (currentOption == 0) {
+					fadeOut = 1.0f;
+					BikeGameSounds.PlayMenuSelect();
+				} else {
+					// Load the replay
+					//ReplayVars.LoadReplay(replayFiles[currentOption-1]);
+					int mode = ReplayVars.currentReplay.replayMode; // Determine if it's a training or game level
+					// Now execute the replay
+					gsm.setState(GameStateManager.PLAY, true, ReplayVars.currentReplay.levelName, ReplayVars.currentReplay.levelNumber, mode);
+				}
+			} else if (fadeOut == 0.0f) {
+				// Go to the main menu
+				fadeOut = -1.0f;
+				gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
+			}
+			if ((currentOption > numReplayShow / 2) & (currentOption < numOptions - numReplayShow / 2))
+				numMin = currentOption - numReplayShow / 2;
+			else if (currentOption <= numReplayShow / 2) numMin = 0;
+			else if (currentOption >= numOptions - numReplayShow / 2) numMin = numOptions - numReplayShow;
+		}
 	}
 
 	@Override
@@ -168,8 +203,6 @@ public class MenuReplay extends GameState {
 		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
 		//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
-    	// Create player or display current list of players
-
     	// Render QUESTION
     	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, fadeIn);
@@ -194,6 +227,15 @@ public class MenuReplay extends GameState {
         	if (i == 0) dispText = option1;
         	else if (i == 1) dispText = option2;
         	else dispText = replayFiles[i-2];
+        	if ((renaming) & (currentOption == i)) {
+				if (GameInput.currChar != "") {
+					if ((renameFilename.length() > 0) & (GameInput.currChar == "\b")) renameFilename = renameFilename.substring(0, renameFilename.length() - 1);
+					else if (renameFilename.length() <= 20) renameFilename += GameInput.currChar;
+					GameInput.setCharacter("");
+					fileExists = ReplayVars.CheckExists(renameFilename);
+				}
+				dispText = renameFilename;
+			}
         	// Render the text
 			glyphLayout.setText(replayList, dispText);
         	optWidth = glyphLayout.width;
@@ -201,7 +243,11 @@ public class MenuReplay extends GameState {
         }
         if (currentOption >= 2) {
 			replayList.setColor(1, 1, 1, alpha);
-			dispText = ReplayVars.ReplayString();
+			if (renaming) {
+				dispText = "Renaming Replay\n\nPress ESC to cancel\nPress Enter to confirm";
+				if (fileExists) dispText += "\n\nFile exists!";
+				else dispText += "\n\n";
+			} else dispText = ReplayVars.ReplayString();
 			glyphLayout.setText(replayList, dispText);
 			float lvlWidth = glyphLayout.height;
 			replayList.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
