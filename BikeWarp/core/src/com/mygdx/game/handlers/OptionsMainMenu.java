@@ -16,17 +16,15 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
  */
 public class OptionsMainMenu {
 	public static int currentOption;
-	public static final int ChangePlayer = 0;
-    public static final int SinglePlayer = 1;
-    public static final int Expansions = 2;
-    public static final int Replays = 3;
-    public static final int Options = 4;
-    public static final int Exit = 5;
+    public static final int SinglePlayer = 0;
+    public static final int Replays = 1;
+    public static final int Options = 2;
+    public static final int Exit = 3;
 	// The following string array *must* match the order of loaded graphics in the loadoptions routine below
-    public static final int[] menuStrings = {ChangePlayer,SinglePlayer,Expansions,Replays,Options,Exit};
+    public static final int[] menuStrings = {SinglePlayer,Replays,Options,Exit};
     public static Sprite[] menuOptions;
     static {
-        currentOption = 1;
+        currentOption = 0;
     }
 
     public static void raise() {
@@ -61,27 +59,22 @@ public class OptionsMainMenu {
     public static Sprite getCurrentName() { return menuOptions[currentOption]; }
 
     public static void loadOptions() {
-    	menuOptions = new Sprite[6];
-        Texture texture = new Texture(Gdx.files.internal("data/images/menu_ChangePlayer.png"));
+    	menuOptions = new Sprite[4];
+        Texture texture = new Texture(Gdx.files.internal("data/images/menu_SinglePlayer.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[0] = new Sprite(texture);
-        texture = new Texture(Gdx.files.internal("data/images/menu_SinglePlayer.png"));
-        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuOptions[1] = new Sprite(texture);
-        texture = new Texture(Gdx.files.internal("data/images/menu_Expansions.png"));
-        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuOptions[2] = new Sprite(texture);
         texture = new Texture(Gdx.files.internal("data/images/menu_Replays.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuOptions[3] = new Sprite(texture);
+        menuOptions[1] = new Sprite(texture);
         texture = new Texture(Gdx.files.internal("data/images/menu_Options.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuOptions[4] = new Sprite(texture);
+        menuOptions[2] = new Sprite(texture);
         texture = new Texture(Gdx.files.internal("data/images/menu_Exit.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuOptions[5] = new Sprite(texture);
-        // Once the texture is no longer needed, make it null
-        texture = null;
+        menuOptions[3] = new Sprite(texture);
+        // Once the texture is no longer needed - need to change it to something else, and then dispose it
+        texture = new Texture(Gdx.files.internal("data/images/menu_SinglePlayer.png"));
+        texture.dispose();
     }
 
 }

@@ -8,9 +8,7 @@ package com.mygdx.game.states;
 
 import static com.mygdx.game.handlers.B2DVars.PPM;
 
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.logging.Level;
@@ -39,15 +37,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
-import com.mygdx.game.handlers.B2DVars;
+import com.mygdx.game.handlers.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.mygdx.game.handlers.DecorVars;
-import com.mygdx.game.handlers.GameInput;
-import com.mygdx.game.handlers.GameInputProcessor;
-import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.LevelVars;
-import com.mygdx.game.handlers.ObjectVars;
 import com.mygdx.game.utilities.*;
 import com.mygdx.game.utilities.json.JSONException;
 import com.mygdx.game.utilities.json.JSONObject;
@@ -549,6 +541,29 @@ public class Editor extends GameState {
 //									allLevelTextures = (ArrayList<Texture>) loadedArray.get(13);
 //									allLevelTextureNames = (ArrayList<String>) loadedArray.get(14);
 									for (int i=0; i<setLVs.length; i++) LevelVars.set(i, setLVs[i]);
+
+									// Temporary for Logging...
+//									ArrayList<Float> loggx=null, loggy=null;
+//									try {
+//										FileInputStream fi = new FileInputStream(new File(ReplayVars.replayDir+"logging_temp.dat"));
+//										ObjectInputStream oi = new ObjectInputStream(fi);
+//
+//										// Read objects
+//										loggx = (ArrayList<Float>) oi.readObject();
+//										loggy = (ArrayList<Float>) oi.readObject();
+//										// Close files
+//										oi.close();
+//										fi.close();
+//									} catch (FileNotFoundException e) {
+//										System.out.println("Replay file not found");
+//									} catch (IOException e) {
+//										System.out.println("Error initializing stream for replay file");
+//									} catch (ClassNotFoundException e) {
+//										e.printStackTrace();
+//									}
+//									for (int ll=0; ll<loggx.size(); ll++) {
+//										AddDecor(DecorVars.Misc, loggx.get(ll)/B2DVars.EPPM, loggy.get(ll)/B2DVars.EPPM, 0.0f);
+//									}
 
 									// Temporary for Space Station...
 //									float[] pathtmp = allPolygonPaths.get(25).clone();
@@ -9347,7 +9362,7 @@ public class Editor extends GameState {
 		} else if (otype == DecorVars.Vehicle) {
 			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
 		} else if (otype == DecorVars.Misc) {
-			newPoly = DecorVars.GetRectMultiple(otype, 0, xcen, ycen);
+			newPoly = DecorVars.GetRectMultiple(otype, 3, xcen, ycen);
 		} else if (otype == DecorVars.Shade) {
 			newPoly = new float[DecorVars.decorShade.length];
 			for (int i = 0; i < 4; i++) {

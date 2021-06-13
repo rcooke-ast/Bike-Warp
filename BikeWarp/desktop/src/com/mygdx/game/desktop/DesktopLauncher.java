@@ -20,7 +20,7 @@ public class DesktopLauncher {
 			config.fullscreen = true;
 		} else {
 			System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-			config.width = (int) (LwjglApplicationConfiguration.getDesktopDisplayMode().width);
+			config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width;
 			config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height;
 		}
 

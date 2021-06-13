@@ -313,11 +313,11 @@ public class LevelsListGame {
     		pb = "Level skipped!";
     		pbd = "\n\n";
     	} else {
-        	pb  = String.format("Personal Best\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimes(levid-1, 0)));
-        	pbd = String.format("Personal Best (diamond)\n%s\n\n", GameVars.getTimeString(GameVars.GetPlayerTimesDmnd(levid-1, 0)));    		
+        	pb  = String.format("Personal Best\n%s\n\n", GameVars.getTimeString(0));
+        	pbd = String.format("Personal Best (diamond)\n%s\n\n", GameVars.getTimeString(0));
     	}
-    	String wr  = String.format("World Record\n%s\n\n", GameVars.getTimeString(GameVars.GetWorldTimes(levid-1, 0)));
-    	String wrd = String.format("World Record (diamond)\n%s", GameVars.getTimeString(GameVars.GetWorldTimesDmnd(levid-1, 0)));
+    	String wr  = String.format("World Record\n%s\n\n", GameVars.getTimeString(0));
+    	String wrd = String.format("World Record (diamond)\n%s", GameVars.getTimeString(0));
     	return pb+pbd+wr+wrd;
     }
     
@@ -331,7 +331,7 @@ public class LevelsListGame {
 
     public static void updateRecords() {
     	for (int i=0; i<NUMGAMELEVELS; i++) {
-    		gameLevelDescr[i+1] = GetRecordTimes(i+1);
+    		gameLevelDescr[i+1] = "TODO THIS";//GetRecordTimes(i+1);
     	}
     }
 

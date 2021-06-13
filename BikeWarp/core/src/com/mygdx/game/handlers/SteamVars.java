@@ -6,6 +6,7 @@
 
 package com.mygdx.game.handlers;
 
+import com.badlogic.gdx.Game;
 import com.codedisaster.steamworks.*;
 
 import java.io.*;
@@ -20,7 +21,10 @@ public class SteamVars implements Serializable {
 	public static boolean isOnline=false;
 	private static SteamLeaderboardHandle currentLeaderboardEmerald;
 	private static SteamLeaderboardHandle currentLeaderboardDiamond;
+	public static SteamID steamPlayerID;
 	public static int currentEmeraldPlayerRank, currentDiamondPlayerRank, currentEmeraldRankNumber, currentDiamondRankNumber, currentLevel;
+	public static int worldRecordDiamond, worldRecordEmerald;
+	public static int personalBestEmerald, personalBestDiamond;
 
 	private static SteamUserStatsCallback steamUserStatsCallbackEmerald = new SteamUserStatsCallback() {
 
@@ -28,6 +32,10 @@ public class SteamVars implements Serializable {
 		public void onUserStatsReceived(long gameId, SteamID steamIDUser,
 										SteamResult result)
 		{
+			steamPlayerID = steamIDUser;
+			if (GameVars.currentPlayer == -1) {
+				GameVars.SetCurrentPlayer(steamIDUser.getAccountID());
+			}
 		}
 
 		@Override
@@ -36,7 +44,6 @@ public class SteamVars implements Serializable {
 
 		@Override
 		public void onUserStatsUnloaded(SteamID steamIDUser) {
-
 		}
 
 		@Override
@@ -63,7 +70,16 @@ public class SteamVars implements Serializable {
 		public void onLeaderboardScoresDownloaded(
 				SteamLeaderboardHandle leaderboard,
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
-			currentEmeraldRankNumber = numEntries;
+			// Grab the number of entries
+			//currentEmeraldRankNumber = numEntries;
+			// Get the world record value
+			SteamLeaderboardEntry entry = new SteamLeaderboardEntry();
+			int[] details = new int[16];
+			if (userStatsEmerald.getDownloadedLeaderboardEntry(entries, 0, entry, details)) {
+				personalBestEmerald = entry.getScore();
+			}
+			System.out.println(String.format("%d %d", entry.getGlobalRank(), personalBestEmerald));
+
 		}
 
 		@Override
@@ -123,7 +139,15 @@ public class SteamVars implements Serializable {
 		public void onLeaderboardScoresDownloaded(
 				SteamLeaderboardHandle leaderboard,
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
+			// Grab the number of entries
 			currentDiamondRankNumber = numEntries;
+			// Get the world record value
+			SteamLeaderboardEntry entry = new SteamLeaderboardEntry();
+			int[] details = new int[16];
+			if (userStatsEmerald.getDownloadedLeaderboardEntry(entries, 0, entry, details)) {
+				worldRecordDiamond = entry.getScore();
+			}
+			System.out.println(String.format("diamond %d %d", entry.getGlobalRank(), worldRecordDiamond));
 		}
 
 		@Override
@@ -169,6 +193,17 @@ public class SteamVars implements Serializable {
 		userStatsEmerald.findLeaderboard(String.format("Level%02d_Emerald", levelID+1));
 		userStatsDiamond.findLeaderboard(String.format("Level%02d_Diamond", levelID+1));
 		currentLevel = levelID;
+	}
+
+	public static int GetWorldRecord(boolean diamond) {
+		System.out.println(currentLeaderboardDiamond);
+		return 0;
+	}
+
+	public static int GetPlayerRank() {
+		SteamID[] Users = { steamPlayerID }; // Local user steam id
+		userStatsEmerald.downloadLeaderboardEntriesForUsers(currentLeaderboardEmerald, Users);
+		return currentEmeraldPlayerRank;
 	}
 
 	public static boolean uploadTime(int millis, boolean emerald) {

@@ -14,10 +14,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
-import com.mygdx.game.handlers.GameInput;
-import com.mygdx.game.handlers.GameInputProcessor;
-import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.OptionsMainMenu;
+import com.mygdx.game.handlers.*;
 import com.mygdx.game.utilities.FileUtils;
 
 /**
@@ -75,6 +72,7 @@ public class MainMenu extends GameState {
         dnwrapy = 1 + (int) ((cam.position.y-wheight/2.0f-0.75f*(dscale*wheight))/(dscale*wwidth*4.0f));
         // Prepare the font for the menu option
         OptionsMainMenu.loadOptions();
+		LevelsListGame.initialise();
     }
 
     public void handleInput() {
@@ -114,20 +112,14 @@ public class MainMenu extends GameState {
         	sGoal++;
 //        	else lastStationary = (Math.abs(lastStationary + scrollLevel)%OptionsMainMenu.menuOptions.length);
 //        	scrollGoal -= scrollLevel;
-        } else if ((GameInput.isPressed(GameInput.KEY_E)) & (fadeOut==-1.0f)) {
-			fadeOut=1.0f;
-			goToLevel = GameStateManager.EDITOR;
+//        } else if ((GameInput.isPressed(GameInput.KEY_E)) & (fadeOut==-1.0f)) {
+//			fadeOut=1.0f;
+//			goToLevel = GameStateManager.EDITOR;
 		} else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (sGoal==0) & (fadeOut==-1.0f)) {
         	fadeOut=1.0f;
         	switch (OptionsMainMenu.menuStrings[OptionsMainMenu.getCurrent()]) {
-				case OptionsMainMenu.ChangePlayer:
-					goToLevel = GameStateManager.MENUPLAYER;
-					break;
 				case OptionsMainMenu.SinglePlayer:
 					goToLevel = GameStateManager.MENULEVELS;
-					break;
-				case OptionsMainMenu.Expansions:
-					goToLevel = GameStateManager.MENUCUSTOM;
 					break;
 				case OptionsMainMenu.Replays:
 					goToLevel = GameStateManager.MENUREPLAY;
@@ -218,7 +210,7 @@ public class MainMenu extends GameState {
         	sb.begin();
         	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
         	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, fadeIn);
-        	else sb.setColor(1, 1, 1, 1); 
+        	else sb.setColor(1, 1, 1, 1);
             sb.draw(OptionsMainMenu.getDisplaySprites(OptionsMainMenu.currentOption), cam.position.x+mxcen-mwidth/2+mshift, cam.position.y+mycen-mheight/2, mwidth/2, mheight/2, mwidth, mheight, 1.0f, 1.0f, 15.0f);
             sb.end();
             xshift = mheight*(float)Math.cos(105.0*MathUtils.degreesToRadians) + mshift;

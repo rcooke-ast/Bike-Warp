@@ -9,6 +9,7 @@ package com.mygdx.game.handlers;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.states.*;
 
+import java.io.File;
 import java.util.Stack;
 
 /**
@@ -23,11 +24,11 @@ public class GameStateManager {
     
     public static final int MAINMENU = 100000;
     public static final int MENUEXIT = 100001;
-    public static final int MENURECORDS = 100002;
+//    public static final int MENURECORDS = 100002;
     public static final int MENUOPTIONS = 100003;
-    public static final int MENUCUSTOM = 100004;
+//    public static final int MENUCUSTOM = 100004;
     public static final int MENULEVELS = 100005;
-    public static final int MENUPLAYER = 100006;
+//    public static final int MENUPLAYER = 100006;
     public static final int MENUREPLAY = 100007;
     public static final int MENUOPTIONSCOLOR = 110008;
     public static final int MENUOPTIONSCONTROLS = 110009;
@@ -41,7 +42,11 @@ public class GameStateManager {
     public GameStateManager(BikeGame game) {
         this.game = game;
         gameStates = new Stack<GameState>();
-        pushState(MENUPLAYER, null, -1, 0); // Set the starting State
+//        if (GameVars.currentPlayer == -1) GameVars.LoadPlayers();
+		File directory = new File(ReplayVars.replayDir);
+	    if (!directory.exists()) directory.mkdir();
+        // Set the starting State
+        pushState(MAINMENU, null, -1, 0);
     }
     
     public BikeGame game() { return game; }
@@ -65,15 +70,15 @@ public class GameStateManager {
     }
 
     private GameState getState(int state, String editorScene, int levelID, int modeValue) {
-        if (state == MENUPLAYER) return new MenuSelectPlayer(this, modeValue);
-        else if (state == MAINMENU) return new MainMenu(this);
+//        if (state == MENUPLAYER) return new MenuSelectPlayer(this, modeValue);
+        if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
 //        else if (state == MENURECORDS) return new MenuRecords(this);
         else if (state == MENUOPTIONS) return new MenuOptions(this);
         else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
         else if (state == MENUOPTIONSCONTROLS) return new OptionChangeControls(this);
         else if (state == MENUOPTIONSHUDDISP) return new OptionChangeHUDDisplay(this);
-        else if (state == MENUCUSTOM) return new LevelSelectCustom(this);
+//        else if (state == MENUCUSTOM) return new LevelSelectCustom(this);
         else if (state == MENULEVELS) return new LevelSelectGame(this);
         else if (state == LEVELOPTIONS) return new LevelOptions(this, levelID, modeValue);
         else if (state == MENUREPLAY) return new MenuReplay(this);

@@ -7,6 +7,7 @@
 
 package com.mygdx.game.states;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -317,9 +318,9 @@ public class Play extends GameState {
             worldRecordD = GameVars.getTimeString(-1);
             personalRecordD = GameVars.getTimeString(-1);
         } else if ((mode == 2) | (mode==4)) {
-            worldRecord = GameVars.getTimeString(GameVars.worldTimes.get(levelID)[0]);
+            worldRecord = GameVars.getTimeString(SteamVars.GetWorldRecord(false));
             personalRecord = GameVars.getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
-            worldRecordD = GameVars.getTimeString(GameVars.worldTimesDmnd.get(levelID)[0]);
+            worldRecordD = GameVars.getTimeString(SteamVars.GetWorldRecord(true));
             personalRecordD = GameVars.getTimeString(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID)[0]);
         } else {
         	worldRecord = GameVars.getTimeString(-1);
@@ -559,6 +560,32 @@ public class Play extends GameState {
             if ((GameInput.isPressed(GameInput.KEY_BUNNY)) & (cl.isBikeOnGround()) & (applyJump<0.0f) & (applyTorque<0.0f)) {
             	playerJump = 0;
             	applyJump = 0.0f;
+                // TODO :: Temporary for Logging
+                ArrayList<Float> savex = new ArrayList<Float>();
+                ArrayList<Float> savey = new ArrayList<Float>();
+                for (int dd=0; dd<ReplayVars.currentReplay.replayDynamicBodies_X.size(); dd++) {
+                    savex.add(allDynamicBodies.get(dd).getPosition().x);
+                    savey.add(allDynamicBodies.get(dd).getPosition().y);
+                }
+                File directory = new File(ReplayVars.replayDir);
+                if (!directory.exists()) directory.mkdir();
+                // Now write out the file
+                FileOutputStream f;
+                try {
+                    f = new FileOutputStream(new File(ReplayVars.replayDir+"logging_temp.dat"));
+                    ObjectOutputStream o = new ObjectOutputStream(f);
+                    // Write objects to file
+                    o.writeObject(savex);
+                    o.writeObject(savey);
+                    // Close the file
+                    o.close();
+                    f.close();
+                } catch (FileNotFoundException e) {
+                    System.out.println("Replay file not found");
+                } catch (IOException e) {
+                    System.out.println("Error initializing stream for replay file");
+                }
+                // TODO :: delete the above.
             }
             if (GameInput.isDown(GameInput.KEY_NITROUS)) {
             	if ((collectNitrous > 0) | (nitrousLevel > 0.0f)) {
@@ -657,16 +684,16 @@ public class Play extends GameState {
 	     	   					// Set the Diamond
 	     	   					GameVars.SetDiamond(levelID);
 	     	   					// Check the time
-	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
-	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
+//	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
+//	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
 	     	   					SteamVars.uploadTime(timerTotal, false);
 	     	   					ReplayVars.currentReplay.replayStatus = ReplayVars.statusDiamond;
                             }
 	     	   			} else {
 		     	   			// Check the records without the diamond
 	     	   				if (mode == 2) {
-	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
-	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
+//	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
+//	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
                                 SteamVars.uploadTime(timerTotal, true);
                                 ReplayVars.currentReplay.replayStatus = ReplayVars.statusEmerald;
 	     	   				}

@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -10,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.codedisaster.steamworks.SteamAPI;
-import com.codedisaster.steamworks.SteamException;
 import com.mygdx.game.handlers.*;
 
 public class BikeGame implements ApplicationListener {
@@ -81,7 +79,9 @@ public class BikeGame implements ApplicationListener {
 	public void render () {
 		if (BikeGameTextures.textureManager.update()) {
 			// we are done loading, let's move to another screen!
-			if (gsm == null) gsm = new GameStateManager(this);
+			if (gsm == null) {
+				gsm = new GameStateManager(this);
+			}
 			accum += Gdx.graphics.getDeltaTime();
 			while (accum >= STEP) {
 				accum -= STEP;
@@ -96,7 +96,7 @@ public class BikeGame implements ApplicationListener {
 		} else {
 			progress = BikeGameTextures.textureManager.getProgress();
 			// clear screen
-			Gdx.gl.glClearColor(1, 1, 1, 1);  // Black
+			Gdx.gl.glClearColor(1, 1, 1, 0);  // Black
 			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			Gdx.gl.glViewport((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
 			// Check if everything is loaded
