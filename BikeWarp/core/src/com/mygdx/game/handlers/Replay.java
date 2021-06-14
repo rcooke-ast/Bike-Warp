@@ -1,8 +1,9 @@
 package com.mygdx.game.handlers;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Replay {
+public class Replay implements Serializable {
     public ArrayList<Float> replayTime;
     public ArrayList<Float> replayBike_X, replayBike_Y, replayBike_A;
     public ArrayList<Float> replayHead_X, replayHead_Y;

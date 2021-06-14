@@ -28,7 +28,7 @@ public class GameStateManager {
     public static final int MENUOPTIONS = 100003;
 //    public static final int MENUCUSTOM = 100004;
     public static final int MENULEVELS = 100005;
-//    public static final int MENUPLAYER = 100006;
+    public static final int MENUREPLAYPB = 100006;
     public static final int MENUREPLAY = 100007;
     public static final int MENUOPTIONSCOLOR = 110008;
     public static final int MENUOPTIONSCONTROLS = 110009;
@@ -82,6 +82,7 @@ public class GameStateManager {
         else if (state == MENULEVELS) return new LevelSelectGame(this);
         else if (state == LEVELOPTIONS) return new LevelOptions(this, levelID, modeValue);
         else if (state == MENUREPLAY) return new MenuReplay(this);
+        else if (state == MENUREPLAYPB) return new MenuReplayPB(this, modeValue);
         else if (state == PLAY) return new Play(this, editorScene, levelID, modeValue);
         else if (state == EDITOR) return new Editor(this);
         //else if (state == LEVELSELECT) return new LevelSelect(this);

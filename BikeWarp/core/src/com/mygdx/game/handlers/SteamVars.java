@@ -34,6 +34,7 @@ public class SteamVars implements Serializable {
 		{
 			steamPlayerID = steamIDUser;
 			if (GameVars.currentPlayer == -1) {
+				GameVars.LoadPlayers();
 				GameVars.SetCurrentPlayer(steamIDUser.getAccountID());
 			}
 		}
@@ -87,6 +88,8 @@ public class SteamVars implements Serializable {
 											   SteamLeaderboardHandle leaderboard, int score,
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
 			if (scoreChanged) {
+				System.out.println("The score has changed:");
+				System.out.println(score);
 				currentEmeraldPlayerRank = globalRankNew;
 				GameVars.StoreReplay(currentLevel, false);
 			}

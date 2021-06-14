@@ -39,6 +39,7 @@ public class ReplayVars implements Serializable {
 	// Reset the variables, ready for a new replay
     public static void Reset(String name, int lvlnmbr, int mode) {
 		ClearCurrentReplay();
+		ResetReplayCounter(); // TODO :: Does this need to be here?
     	currentReplay = new Replay(name, lvlnmbr, mode, statusDNF);
     }
 
@@ -106,7 +107,7 @@ public class ReplayVars implements Serializable {
 		GameInput.setKey(GameInput.KEY_CHDIR, false);
 	}
 
-	private static void ClearCurrentReplay() {
+	public static void ClearCurrentReplay() {
     	if (currentReplay != null) {
 			currentReplay.replayTime.clear();
 			currentReplay.replayBike_X.clear();
@@ -139,6 +140,49 @@ public class ReplayVars implements Serializable {
 		}
 	}
 
+	public static void SetCurrentReplay(int levnum) {
+		// First clear the replay
+		ResetReplayCounter();
+		ClearCurrentReplay();
+		// Generate a new instance
+		currentReplay = new Replay("null", -1, -1, -1);
+		// Insert all of the relevant values
+		currentReplay.replayMode = GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayMode;
+		currentReplay.levelName = GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].levelName;
+		currentReplay.levelNumber = GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].levelNumber;
+		currentReplay.replayTimer = GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayTimer;
+		currentReplay.replayStatus = GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayStatus;
+		currentReplay.bikeColour = GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].bikeColour.clone();
+		System.out.println("Hello");
+		System.out.println(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayTime.size());
+		for (int rr=0; rr<GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayTime.size(); rr++) {
+			currentReplay.replayTime.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayTime.get(rr));
+			currentReplay.replayBike_X.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayBike_X.get(rr));
+			currentReplay.replayBike_Y.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayBike_Y.get(rr));
+			currentReplay.replayBike_A.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayBike_A.get(rr));
+			currentReplay.replayRider_X.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayRider_X.get(rr));
+			currentReplay.replayRider_Y.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayRider_Y.get(rr));
+			currentReplay.replayRider_A.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayRider_A.get(rr));
+			currentReplay.replayHead_X.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayHead_X.get(rr));
+			currentReplay.replayHead_Y.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayHead_Y.get(rr));
+			currentReplay.replayLW_X.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayLW_X.get(rr));
+			currentReplay.replayLW_Y.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayLW_Y.get(rr));
+			currentReplay.replayLW_A.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayLW_A.get(rr));
+			currentReplay.replayLW_V.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayLW_V.get(rr));
+			currentReplay.replayRW_X.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayRW_X.get(rr));
+			currentReplay.replayRW_Y.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayRW_Y.get(rr));
+			currentReplay.replayRW_A.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayRW_A.get(rr));
+			currentReplay.replayRW_V.add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayRW_V.get(rr));
+			for (int bb=0; bb < GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayDynamicBodies_X.size(); bb++) {
+				currentReplay.replayDynamicBodies_X.get(bb).add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayDynamicBodies_X.get(bb).get(rr));
+				currentReplay.replayDynamicBodies_Y.get(bb).add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayDynamicBodies_Y.get(bb).get(rr));
+				currentReplay.replayDynamicBodies_A.get(bb).add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayDynamicBodies_A.get(bb).get(rr));
+				currentReplay.replayDynamicBodies_V.get(bb).add(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayDynamicBodies_V.get(bb).get(rr));
+			}
+		}
+		currentReplay.replayChangeDir.addAll(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayChangeDir);
+	}
+
 	public static Replay CopyOfCurrentReplay() {
 		Replay currentReplayCopy = new Replay("null", -1, -1, -1);
 		currentReplayCopy.replayMode = currentReplay.replayMode;
@@ -147,73 +191,44 @@ public class ReplayVars implements Serializable {
 		currentReplayCopy.replayTimer = currentReplay.replayTimer;
 		currentReplayCopy.replayStatus = currentReplay.replayStatus;
 		currentReplayCopy.bikeColour = currentReplay.bikeColour.clone();
-		currentReplayCopy.replayTime = (ArrayList<Float>) currentReplay.replayTime.clone();
-		currentReplayCopy.replayBike_X = (ArrayList<Float>) currentReplay.replayBike_X.clone();
-		currentReplayCopy.replayBike_Y = (ArrayList<Float>) currentReplay.replayBike_Y.clone();
-		currentReplayCopy.replayBike_A = (ArrayList<Float>) currentReplay.replayBike_A.clone();
-		currentReplayCopy.replayRider_X = (ArrayList<Float>) currentReplay.replayRider_X.clone();
-		currentReplayCopy.replayRider_Y = (ArrayList<Float>) currentReplay.replayRider_Y.clone();
-		currentReplayCopy.replayRider_A = (ArrayList<Float>) currentReplay.replayRider_A.clone();
-		currentReplayCopy.replayHead_X = (ArrayList<Float>) currentReplay.replayHead_X.clone();
-		currentReplayCopy.replayHead_Y = (ArrayList<Float>) currentReplay.replayHead_Y.clone();
-		currentReplayCopy.replayLW_X = (ArrayList<Float>) currentReplay.replayLW_X.clone();
-		currentReplayCopy.replayLW_Y = (ArrayList<Float>) currentReplay.replayLW_Y.clone();
-		currentReplayCopy.replayLW_A = (ArrayList<Float>) currentReplay.replayLW_A.clone();
-		currentReplayCopy.replayLW_V = (ArrayList<Float>) currentReplay.replayLW_V.clone();
-		currentReplayCopy.replayRW_X = (ArrayList<Float>) currentReplay.replayRW_X.clone();
-		currentReplayCopy.replayRW_Y = (ArrayList<Float>) currentReplay.replayRW_Y.clone();
-		currentReplayCopy.replayRW_A = (ArrayList<Float>) currentReplay.replayRW_A.clone();
-		currentReplayCopy.replayRW_V = (ArrayList<Float>) currentReplay.replayRW_V.clone();
-		currentReplayCopy.replayChangeDir = (ArrayList<Float>) currentReplay.replayChangeDir.clone();
-		for (int bb=0; bb < currentReplay.replayDynamicBodies_X.size(); bb++) {
-			currentReplayCopy.replayDynamicBodies_X.add((ArrayList<Float>) currentReplay.replayDynamicBodies_X.get(bb).clone());
-			currentReplayCopy.replayDynamicBodies_Y.add((ArrayList<Float>) currentReplay.replayDynamicBodies_Y.get(bb).clone());
-			currentReplayCopy.replayDynamicBodies_A.add((ArrayList<Float>) currentReplay.replayDynamicBodies_A.get(bb).clone());
-			currentReplayCopy.replayDynamicBodies_V.add((ArrayList<Float>) currentReplay.replayDynamicBodies_V.get(bb).clone());
+		for (int rr=0; rr<currentReplay.replayTime.size(); rr++) {
+			currentReplayCopy.replayTime.add(currentReplay.replayTime.get(rr));
+			currentReplayCopy.replayBike_X.add(currentReplay.replayBike_X.get(rr));
+			currentReplayCopy.replayBike_Y.add(currentReplay.replayBike_Y.get(rr));
+			currentReplayCopy.replayBike_A.add(currentReplay.replayBike_A.get(rr));
+			currentReplayCopy.replayRider_X.add(currentReplay.replayRider_X.get(rr));
+			currentReplayCopy.replayRider_Y.add(currentReplay.replayRider_Y.get(rr));
+			currentReplayCopy.replayRider_A.add(currentReplay.replayRider_A.get(rr));
+			currentReplayCopy.replayHead_X.add(currentReplay.replayHead_X.get(rr));
+			currentReplayCopy.replayHead_Y.add(currentReplay.replayHead_Y.get(rr));
+			currentReplayCopy.replayLW_X.add(currentReplay.replayLW_X.get(rr));
+			currentReplayCopy.replayLW_Y.add(currentReplay.replayLW_Y.get(rr));
+			currentReplayCopy.replayLW_A.add(currentReplay.replayLW_A.get(rr));
+			currentReplayCopy.replayLW_V.add(currentReplay.replayLW_V.get(rr));
+			currentReplayCopy.replayRW_X.add(currentReplay.replayRW_X.get(rr));
+			currentReplayCopy.replayRW_Y.add(currentReplay.replayRW_Y.get(rr));
+			currentReplayCopy.replayRW_A.add(currentReplay.replayRW_A.get(rr));
+			currentReplayCopy.replayRW_V.add(currentReplay.replayRW_V.get(rr));
+			for (int bb=0; bb < currentReplay.replayDynamicBodies_X.size(); bb++) {
+				currentReplayCopy.replayDynamicBodies_X.get(bb).add(currentReplay.replayDynamicBodies_X.get(bb).get(rr));
+				currentReplayCopy.replayDynamicBodies_Y.get(bb).add(currentReplay.replayDynamicBodies_Y.get(bb).get(rr));
+				currentReplayCopy.replayDynamicBodies_A.get(bb).add(currentReplay.replayDynamicBodies_A.get(bb).get(rr));
+				currentReplayCopy.replayDynamicBodies_V.get(bb).add(currentReplay.replayDynamicBodies_V.get(bb).get(rr));
+			}
 		}
+		currentReplayCopy.replayChangeDir.addAll(currentReplay.replayChangeDir);
     	return currentReplayCopy;
 	}
 
 	@SuppressWarnings("unchecked")
 	public static void LoadReplay(String filename) {
-		replayCntr = 0;
-		replayCDCntr = 0;
+		ResetReplayCounter();
 		ClearCurrentReplay();
-		currentReplay = new Replay("null", -1, -1, -1);
 		try {
 			FileInputStream fi = new FileInputStream(new File(replayDir+filename+replayExt));
 			ObjectInputStream oi = new ObjectInputStream(fi);
-
 			// Read objects
-			currentReplay.replayMode = (int) oi.readObject();
-			currentReplay.levelName = (String) oi.readObject();
-			currentReplay.levelNumber = (int) oi.readObject();
-			currentReplay.replayTime = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayBike_X = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayBike_Y = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayBike_A = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayRider_X = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayRider_Y = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayRider_A = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayHead_X = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayHead_Y = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayLW_X = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayLW_Y = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayLW_A = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayLW_V = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayRW_X = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayRW_Y = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayRW_A = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayRW_V = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayChangeDir = (ArrayList<Float>) oi.readObject();
-			currentReplay.replayDynamicBodies_X = (ArrayList<ArrayList<Float>>) oi.readObject();
-			currentReplay.replayDynamicBodies_Y = (ArrayList<ArrayList<Float>>) oi.readObject();
-			currentReplay.replayDynamicBodies_A = (ArrayList<ArrayList<Float>>) oi.readObject();
-			currentReplay.replayDynamicBodies_V = (ArrayList<ArrayList<Float>>) oi.readObject();
-			currentReplay.replayTimer = (int) oi.readObject();
-			currentReplay.replayStatus = (int) oi.readObject();
-			currentReplay.bikeColour = (float[]) oi.readObject();
-
+			currentReplay = (Replay) oi.readObject();
 			// Close files
 			oi.close();
 			fi.close();
@@ -236,35 +251,7 @@ public class ReplayVars implements Serializable {
 			f = new FileOutputStream(new File(replayDir+filename+replayExt));
 			ObjectOutputStream o = new ObjectOutputStream(f);
 			// Write objects to file
-			o.writeObject(currentReplay.replayMode);
-			o.writeObject(currentReplay.levelName);
-			o.writeObject(currentReplay.levelNumber);
-			o.writeObject(currentReplay.replayTime);
-			o.writeObject(currentReplay.replayBike_X);
-			o.writeObject(currentReplay.replayBike_Y);
-			o.writeObject(currentReplay.replayBike_A);
-			o.writeObject(currentReplay.replayRider_X);
-			o.writeObject(currentReplay.replayRider_Y);
-			o.writeObject(currentReplay.replayRider_A);
-			o.writeObject(currentReplay.replayHead_X);
-			o.writeObject(currentReplay.replayHead_Y);
-			o.writeObject(currentReplay.replayLW_X);
-			o.writeObject(currentReplay.replayLW_Y);
-			o.writeObject(currentReplay.replayLW_A);
-			o.writeObject(currentReplay.replayLW_V);
-			o.writeObject(currentReplay.replayRW_X);
-			o.writeObject(currentReplay.replayRW_Y);
-			o.writeObject(currentReplay.replayRW_A);
-			o.writeObject(currentReplay.replayRW_V);
-			o.writeObject(currentReplay.replayChangeDir);
-			o.writeObject(currentReplay.replayDynamicBodies_X);
-			o.writeObject(currentReplay.replayDynamicBodies_Y);
-			o.writeObject(currentReplay.replayDynamicBodies_A);
-			o.writeObject(currentReplay.replayDynamicBodies_V);
-			o.writeObject(currentReplay.replayTimer);
-			o.writeObject(currentReplay.replayStatus);
-			o.writeObject(currentReplay.bikeColour);
-
+			o.writeObject(currentReplay);
 			// Close the file
 			o.close();
 			f.close();
@@ -275,7 +262,9 @@ public class ReplayVars implements Serializable {
 		}
 	}
 
-	public static String ReplayString() {
+	public static String ReplayString(boolean addDR) {
+		// TODO :: We can probably remove the following early return
+		if (currentReplay == null) return "Loading replay";
     	String retstr = String.format("Level Name:\n%s\n\n", LevelsListGame.gameLevelNames[currentReplay.levelNumber+1]);
 		retstr += String.format("Duration:\n%s\n\n", GameVars.getTimeString(currentReplay.replayTimer));
 		switch (currentReplay.replayStatus) {
@@ -291,7 +280,7 @@ public class ReplayVars implements Serializable {
 			default:
 				break;
 		}
-		retstr += "\n\nD - Delete\nR - Rename";
+		if (addDR) retstr += "\n\nD - Delete\nR - Rename";
     	return retstr;
 	}
 

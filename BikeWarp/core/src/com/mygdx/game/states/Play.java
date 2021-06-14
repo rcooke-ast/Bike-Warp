@@ -203,12 +203,12 @@ public class Play extends GameState {
 
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
-    private Sound soundBikeIdle, soundBikeMove;
+    private Sound soundBikeIdle, soundBikeMove;//, soundNitrousApply;
     private float[] musicVolumes = new float[DecorVars.platformSounds.length-1];
     private boolean containsAnimatedBG, containsWaterfall, containsRain, containsWind;
     private Array<float[]> waterfallVerts, rainVerts, animBGVerts;
     private Array<Integer> waterfallSounds, rainSounds, rainVertsIdx, rainVertsFGBG;
-    private long soundIDBikeIdle, soundIDBikeMove;
+    private long soundIDBikeIdle, soundIDBikeMove, soundIDNitrousApply;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
     private float bikeShadeScl = 1.0f;
@@ -270,7 +270,7 @@ public class Play extends GameState {
     }
     
     public void create() {
-        System.out.print(String.format("Rank: %d, Total: %d", SteamVars.currentEmeraldPlayerRank, SteamVars.currentEmeraldRankNumber));
+        System.out.print(String.format("In play - Rank: %d, Total: %d", SteamVars.currentEmeraldPlayerRank, SteamVars.currentEmeraldRankNumber));
     	forcequit = false;
     	forceRestart = false;
         // Set the contact listener
@@ -508,7 +508,7 @@ public class Play extends GameState {
         	}
         	mNextState = GAME_STATE.RUNNING;  // Ensure that forcequit can be applied
         	forcequit = true;
-        } else if (GameInput.isPressed(GameInput.KEY_RESTART)) {
+        } else if ((GameInput.isPressed(GameInput.KEY_RESTART)) && (!isReplay)) {
         	mNextState = GAME_STATE.RUNNING;  // Ensure that forceRestart can be applied
         	forceRestart = true;
         }
@@ -611,11 +611,15 @@ public class Play extends GameState {
 	            soundIDBikeIdle = soundBikeIdle.play(bikeMaxVolume);
 	            soundBikeIdle.setLooping(soundIDBikeIdle, true);
 	            soundBikeIdle.setPitch(soundIDBikeIdle, 1.0f);
-	            // sound of the bike moving
-	            soundBikeMove = BikeGameSounds.LoadBikeMove();
-	            soundIDBikeMove = soundBikeIdle.play(0.0f);
-	            soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
-	            soundBikeMove.setLooping(soundIDBikeMove, true);
+                // sound of the bike moving
+                soundBikeMove = BikeGameSounds.LoadBikeMove();
+                soundIDBikeMove = soundBikeIdle.play(0.0f);
+                soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
+                soundBikeMove.setLooping(soundIDBikeMove, true);
+                // sound of the nitrous being applied
+//                soundNitrousApply = BikeGameSounds.LoadNitrousApply();
+//                soundIDNitrousApply = soundNitrousApply.play(0.0f);
+//                soundNitrousApply.setLooping(soundIDBikeMove, true);
 	            // Load the waterfall music
                 BikeGameSounds.StartAllSounds();
                 // Change the state
@@ -660,16 +664,16 @@ public class Play extends GameState {
 	     	   					// Check the time
 //	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
 //	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
-	     	   					SteamVars.uploadTime(timerTotal, false);
 	     	   					ReplayVars.currentReplay.replayStatus = ReplayVars.statusDiamond;
+                                SteamVars.uploadTime(timerTotal, false);
                             }
 	     	   			} else {
 		     	   			// Check the records without the diamond
 	     	   				if (mode == 2) {
 //	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
 //	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
-                                SteamVars.uploadTime(timerTotal, true);
                                 ReplayVars.currentReplay.replayStatus = ReplayVars.statusEmerald;
+                                SteamVars.uploadTime(timerTotal, true);
 	     	   				}
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
@@ -702,7 +706,7 @@ public class Play extends GameState {
     	            	gsm.SetPlaying(false);
     	            	// Start it again
     	            	if (mode != 0) {
-                            //if ((mode == 3) || (mode == 4)) ResetReplay();
+                            if ((mode == 3) || (mode == 4)) ResetReplay();
     	            		gsm.setState(GameStateManager.PLAY, true, editorString, levelID, mode);
     	            		gsm.SetPlaying(true);
     	            	}
@@ -768,6 +772,10 @@ public class Play extends GameState {
 
     private void StopSounds() {
 		if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
+//        if (soundNitrousApply != null) {
+//            soundNitrousApply.setLooping(soundIDNitrousApply, false);
+//            soundNitrousApply.setVolume(soundIDNitrousApply, 0.0f);
+//        }
 		BikeGameSounds.StopAllSounds();
     }
     

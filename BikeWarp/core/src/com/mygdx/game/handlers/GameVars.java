@@ -6,17 +6,10 @@
 
 package com.mygdx.game.handlers;
 
+import java.io.*;
 import java.util.ArrayList;
-import java.io.Serializable;
-import com.badlogic.gdx.Input.Keys;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import com.badlogic.gdx.Input.Keys;
 
 /**
  *
@@ -89,6 +82,7 @@ public class GameVars implements Serializable {
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static int GetPlayerDisplay(int index) {return plyrDisplay.get(currentPlayer)[index];}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
+	public static boolean GetPlayerDiamond(int level) {return plyrColDmnd.get(currentPlayer)[level];}
 	public static int[] GetPlayerSkipLevel() {return plyrLevelComplete.get(currentPlayer);}
 	public static float[] GetPlayerBikeColor() {return plyrBikeColor.get(currentPlayer);}
 	public static void SetPlayerBikeColor(float[] rgb) {plyrBikeColor.set(currentPlayer, rgb.clone());}
@@ -347,16 +341,41 @@ public class GameVars implements Serializable {
 		SavePlayers();
 	}
 
+	public static Object deepClone(Object object) {
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			oos.writeObject(object);
+			ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+			ObjectInputStream ois = new ObjectInputStream(bais);
+			return ois.readObject();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static Replay GetReplay(int lvl, boolean diamond) {
+		ReplayVars.ResetReplayCounter();
+		if (diamond) {
+			return (Replay) deepClone(plyrReplaysDmnd.get(currentPlayer)[lvl]);
+		} else {
+			return (Replay) deepClone(plyrReplays.get(currentPlayer)[lvl]);
+		}
+
+	}
+
 	public static void StoreReplay(int lvl, boolean diamond) {
 		Replay[] allReplays;
 		if (diamond) {
 			allReplays = plyrReplaysDmnd.get(currentPlayer).clone();
 			allReplays[lvl] = ReplayVars.CopyOfCurrentReplay();
-			plyrReplaysDmnd.set(currentPlayer, allReplays.clone());
+			plyrReplaysDmnd.set(currentPlayer, allReplays);
 		} else {
 			allReplays = plyrReplays.get(currentPlayer).clone();
 			allReplays[lvl] = ReplayVars.CopyOfCurrentReplay();
-			plyrReplays.set(currentPlayer, allReplays.clone());
+			plyrReplays.set(currentPlayer, allReplays);
 		}
 		SavePlayers();
 	}
@@ -414,6 +433,16 @@ public class GameVars implements Serializable {
 		}
 		// Reduce by one if all levels are complete
 		if (numLevels==2+LevelsListGame.NUMGAMELEVELS) numLevels--; 
+		return numLevels;
+	}
+
+	public static int GetNumLevelsDiamond() {
+		int numLevels=2;
+		for (int i=0; i<plyrLevelComplete.get(currentPlayer).length; i++) {
+			if (plyrLevelComplete.get(currentPlayer)[i]>0) numLevels += 1;
+		}
+		// Reduce by one if all levels are complete
+		if (numLevels==2+LevelsListGame.NUMGAMELEVELS) numLevels--;
 		return numLevels;
 	}
 
@@ -510,9 +539,9 @@ public class GameVars implements Serializable {
 			o.close();
 			f.close();
 		} catch (FileNotFoundException e) {
-			System.out.println("World records file not found");
+			System.out.println("Players file not found!");
 		} catch (IOException e) {
-			System.out.println("Error initializing stream for world records");
+			System.out.println("IO error");
 		}
 	}
 

@@ -35,6 +35,10 @@ public class BikeGameSounds {
         return Gdx.audio.newSound(Gdx.files.internal("data/sounds/bike_move.wav"));
     }
 
+    public static Sound LoadNitrousApply() {
+        return Gdx.audio.newSound(Gdx.files.internal("data/sounds/nitrous_apply.wav"));
+    }
+
     public static Music LoadWaterfall() { return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/waterfall.wav")); }
 
     public static Music LoadRain() {
