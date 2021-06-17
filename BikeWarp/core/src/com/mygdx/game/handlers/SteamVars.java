@@ -33,7 +33,7 @@ public class SteamVars implements Serializable {
 										SteamResult result)
 		{
 			steamPlayerID = steamIDUser;
-			if (GameVars.currentPlayer == -1) {
+			if (GameVars.GetCurrentPlayer() == -1) {
 				GameVars.LoadPlayers();
 				GameVars.SetCurrentPlayer(steamIDUser.getAccountID());
 			}

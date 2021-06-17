@@ -6,10 +6,7 @@
 
 package com.mygdx.game.states;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -30,20 +27,17 @@ import com.mygdx.game.handlers.LevelsListGame;
  * @author rcooke
  */
 public class MenuOptions extends GameState {
-    private static final String[] options = {"Main Menu", "Change Bike Colour", "Change Controls", "Change HUD"};
+    private static final String[] options = {"Main Menu", "Change Bike Colour", "Change Controls", "Change HUD", "Change Display"};
 	private float SCRWIDTH, SCRHEIGHT;
 	private BitmapFont menuText;
     private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite metalpole, metalcorner;
-    private Texture texture, metalmesh;
+    private Texture metalmesh;
     private float uRight, vTop;
     private float menuHeight, menuWidth, lvlWidth;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f;
-    private int currentOption, numMin, totalOptions;
-    private float checkLevels = 0.0f, keyNotAllowedTimer = 0.0f;
-    private boolean changeKey;
-    private int keyNotAllowed;
-    private String displayText = "";
+    private int currentOption, totalOptions;
+    private String displayText = "", fsText="";
 
     public MenuOptions(GameStateManager gsm) {
         super(gsm);
@@ -72,7 +66,6 @@ public class MenuOptions extends GameState {
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         glyphLayout.setText(menuText, "My");
         menuHeight = glyphLayout.height;
-        checkLevels = 0.0f;
         // Load the background metal grid
         metalmesh = BikeGameTextures.LoadTexture("metal_grid");
         float ratio = 4.0f;
@@ -86,30 +79,9 @@ public class MenuOptions extends GameState {
         fadeOut = -1.0f;
         fadeIn = 0.0f;
         totalOptions = options.length;
-        changeKey = false;
-        keyNotAllowed = 0;
-        keyNotAllowedTimer = 0.0f;
     }
 
     public void handleInput() {
-        if (changeKey) {
-            // Check if a new character is available
-            int currKey = GameInput.GetKeyPress();
-            if (GameInput.isPressed(GameInput.KEY_ESC)) {
-                fadeOut=1.0f; // Return to Main Menu
-                BikeGameSounds.PlayMenuSelect();
-            } else if (currKey != -1) {
-                if ((currKey >= 0) && (currKey <= 255)) {
-                    boolean allowed = GameVars.SetPlayerControls(currentOption-2, currKey);
-                    if (!allowed) keyNotAllowed = 2;
-                } else {
-                    keyNotAllowed = 1;
-                }
-                changeKey = false;
-            }
-            // No need to check the rest if we're entering a new character.
-            return;
-        }
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentOption--;
     		if (currentOption < 0) currentOption = totalOptions -1;
@@ -132,16 +104,16 @@ public class MenuOptions extends GameState {
                 gsm.setState(GameStateManager.MENUOPTIONSCONTROLS, true, "", currentOption-1, 2);
                 BikeGameSounds.PlayMenuSelect();
             } else if (currentOption==3) {
-                gsm.setState(GameStateManager.MENUOPTIONSHUDDISP, true, "", currentOption-1, 2);
+                gsm.setState(GameStateManager.MENUOPTIONSHUDDISP, true, "", currentOption - 1, 2);
                 BikeGameSounds.PlayMenuSelect();
-            } else {
-        		// Changing the key
-                changeKey = true;
-        	}
+            } else if (currentOption==4) {
+                GameVars.SetPlayerFullscreen(!GameVars.GetPlayerFullscreen());
+                BikeGame.UpdateDisplay();
+                sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            }
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(GameStateManager.PEEK, false, "none", currentOption-1, 2);
-    		checkLevels=0.0f;
         }
     }
     
@@ -161,14 +133,6 @@ public class MenuOptions extends GameState {
     			fadeIn = 2.0f;
     		}
     	}
-    	// Show key not allowed message
-        if (keyNotAllowed != 0) {
-            keyNotAllowedTimer += dt;
-            if (keyNotAllowedTimer > 1.0f) {
-                keyNotAllowedTimer = 0.0f;
-                keyNotAllowed = 0;
-            }
-        }
     }
     
     public void render() {
@@ -207,19 +171,14 @@ public class MenuOptions extends GameState {
         }
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
-        if (keyNotAllowed == 1) {
-            displayText = "That key is not allowed";
-        } else if (keyNotAllowed == 2) {
-            displayText = "That key is already in use";
-        } else if (changeKey) {
-            displayText = "Press any key to set the " + options[currentOption].replace("Change ", "").toLowerCase() + " key";
-        } else {
-            if (currentOption == 0) displayText = "Press enter to return to the main menu";
-            else if (currentOption == 1) displayText = "Press enter to set the bike colour";
-            else if (currentOption == 2) displayText = "Press enter to set the controls";
-            else if (currentOption == 3) displayText = "Press enter to change the display";
-            else displayText = "Press enter to change the " + options[currentOption].replace("Change ", "").toLowerCase() + " key.\n\nThe current key is:\n" + Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[currentOption-2]);
-        }
+        if (GameVars.GetPlayerFullscreen()) fsText = "Fullscreen";
+        else fsText = "Windowed";
+        if (currentOption == 0) displayText = "Press enter to return to the main menu";
+        else if (currentOption == 1) displayText = "Press enter to set the bike colour";
+        else if (currentOption == 2) displayText = "Press enter to set the controls";
+        else if (currentOption == 3) displayText = "Press enter to change the HUD display";
+        else if (currentOption == 4) displayText = "Press enter to toggle fullscreen/windowed:\nCurrent mode: "+fsText;
+        else displayText = "Press enter to change the " + options[currentOption].replace("Change ", "").toLowerCase() + " key.\n\nThe current key is:\n" + Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[currentOption-2]);
         glyphLayout.setText(menuText, displayText);
         lvlWidth = glyphLayout.height;
         menuText.draw(sb, displayText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
@@ -228,7 +187,6 @@ public class MenuOptions extends GameState {
     
     public void dispose() {
     	if (metalmesh != null) metalmesh = null;
-    	if (texture != null) texture.dispose();
     	if (menuText != null) menuText.dispose();
     }
 

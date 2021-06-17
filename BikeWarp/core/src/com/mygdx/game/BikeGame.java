@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -12,7 +13,7 @@ import com.codedisaster.steamworks.SteamAPI;
 import com.mygdx.game.handlers.*;
 
 public class BikeGame implements ApplicationListener {
-	public static final String TITLE = "Bike Warp";
+	public static final String TITLE = "AstroBike";
 //	public static final int V_WIDTH = 683;
 //	public static final int V_HEIGHT = 384;
 	public static final int V_WIDTH = 512;
@@ -81,6 +82,9 @@ public class BikeGame implements ApplicationListener {
 			// we are done loading, let's move to another screen!
 			if (gsm == null) {
 				gsm = new GameStateManager(this);
+				// Set the display preference for the user
+				UpdateDisplay();
+				sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 			}
 			accum += Gdx.graphics.getDeltaTime();
 			while (accum >= STEP) {
@@ -132,9 +136,9 @@ public class BikeGame implements ApplicationListener {
 //				finAngle += 5.0f;
 //				if (finAngle >= 360.0f) finAngle -= 360.0f;
 				// Draw Fluid
-				sb.draw(fluid, hudCam.position.x-tube_length/2, hudCam.position.y-0.45f*viewport.height, 0, 0, tube_length*progress, tube_height, 1.0f, 1.0f, 0.0f);
+				sb.draw(fluid, hudCam.position.x-tube_length/2, hudCam.position.y-0.4f*viewport.height, 0, 0, tube_length*progress, tube_height, 1.0f, 1.0f, 0.0f);
 				// Draw Tube
-				sb.draw(tube, hudCam.position.x-tube_length/2, hudCam.position.y-0.45f*viewport.height, 0, 0, tube_length, tube_height, 1.0f, 1.0f, 0.0f);
+				sb.draw(tube, hudCam.position.x-tube_length/2, hudCam.position.y-0.4f*viewport.height, 0, 0, tube_length, tube_height, 1.0f, 1.0f, 0.0f);
 				sb.end();
 			}
 		}
@@ -165,6 +169,29 @@ public class BikeGame implements ApplicationListener {
 		float wid = (float)V_WIDTH*scale;
 		float hei = (float)V_HEIGHT*scale;
 		viewport = new Rectangle(crop.x, crop.y, wid, hei);
+	}
+
+	public static void UpdateDisplay() {
+		// WARNING :: If this function is called, you must add a line after this call:
+		// sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		if (!GameVars.GetPlayerFullscreen()) {
+			Gdx.graphics.setWindowedMode((int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+		} else {
+			Graphics.DisplayMode m = null;
+			for(Graphics.DisplayMode mode: Gdx.graphics.getDisplayModes()) {
+				if(m == null) {
+					m = mode;
+				} else {
+					if(m.width < mode.width) {
+						m = mode;
+					}
+				}
+			}
+
+			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+		}
 	}
 
 	@Override

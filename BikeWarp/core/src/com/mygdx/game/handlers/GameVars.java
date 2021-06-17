@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Input.Keys;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 /**
  *
@@ -39,6 +40,7 @@ public class GameVars implements Serializable {
 	public static ArrayList<ArrayList<int[]>> plyrTimesDmnd = new ArrayList<ArrayList<int[]>>();
 	public static ArrayList<int[]> plyrControls = new ArrayList<int[]>();
 	public static ArrayList<int[]> plyrDisplay = new ArrayList<int[]>();
+	public static ArrayList<Boolean> plyrFullscreen = new ArrayList<Boolean>();
 	public static ArrayList<boolean[]> plyrColDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<int[]> plyrLevelComplete = new ArrayList<int[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
@@ -58,9 +60,6 @@ public class GameVars implements Serializable {
 		for (int ii=0; ii < plyrID.length; ii++) {
 			if (id==plyrID[ii]) {
 				currentPlayer = ii;
-				// Set the keys of this user
-				// TODO:: SETUP THE KEYS FOR THIS USER??
-				int[] controls = GetPlayerControls();
 				return;
 			}
 		}
@@ -77,6 +76,11 @@ public class GameVars implements Serializable {
 	public static int GetCurrentPlayer() {return currentPlayer;}
 
 	// Get Player properties
+	public static boolean GetPlayerFullscreen() {return plyrFullscreen.get(currentPlayer);}
+	public static void SetPlayerFullscreen(boolean value) {
+		plyrFullscreen.set(currentPlayer, value);
+		SavePlayers();
+	}
 	public static int GetPlayerTimes(int lvl, int indx) {return plyrTimes.get(currentPlayer).get(lvl)[indx];}
 	public static int GetPlayerTimesDmnd(int lvl, int indx) {return plyrTimesDmnd.get(currentPlayer).get(lvl)[indx];}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
@@ -183,7 +187,39 @@ public class GameVars implements Serializable {
 		}
 		return totalTimes.clone();
 	}
-	
+
+	public static int[] GetEmeraldComplete() {
+		int nlev = 0;
+		for (int i=0; i<LevelsListGame.NUMGAMELEVELS; i++) {
+			if (plyrLevelComplete.get(currentPlayer)[i]==1) nlev++;
+		}
+		int[] emeraldList = new int[nlev];
+		int cntr = 0;
+		for (int i=0; i<LevelsListGame.NUMGAMELEVELS; i++) {
+			if (plyrLevelComplete.get(currentPlayer)[i]==1) {
+				emeraldList[cntr] = i;
+				cntr++;
+			};
+		}
+		return emeraldList;
+	}
+
+	public static int[] GetDiamondComplete() {
+		int nlev = 0;
+		for (int i=0; i<LevelsListGame.NUMGAMELEVELS; i++) {
+			if (IsDiamondCollected(i)) nlev++;
+		}
+		int[] diamondList = new int[nlev];
+		int cntr = 0;
+		for (int i=0; i<LevelsListGame.NUMGAMELEVELS; i++) {
+			if (IsDiamondCollected(i)) {
+				diamondList[cntr] = i;
+				cntr++;
+			};
+		}
+		return diamondList;
+	}
+
     public static String getTimeString(int time) {
     	String retval = "--:--:---";
     	if (time > 0) {
@@ -319,7 +355,7 @@ public class GameVars implements Serializable {
 	
 	// Set options
 	public static void SetDiamond(int lvl) {
-		boolean[] copyDmnd = plyrColDmnd.get(currentPlayer);
+		boolean[] copyDmnd = plyrColDmnd.get(currentPlayer).clone();
 		copyDmnd[lvl] = true;
 		plyrColDmnd.set(currentPlayer, copyDmnd);
 		SavePlayers();
@@ -327,7 +363,7 @@ public class GameVars implements Serializable {
 
 	public static void SetSkipLevel(int lvl) {
 		if (CanSkip() && (lvl < LevelsListGame.NUMGAMELEVELS-1)) {
-			int[] copyLevComp = plyrLevelComplete.get(currentPlayer);
+			int[] copyLevComp = plyrLevelComplete.get(currentPlayer).clone();
 			copyLevComp[lvl] = 2;
 			plyrLevelComplete.set(currentPlayer, copyLevComp);
 			SavePlayers();
@@ -406,6 +442,7 @@ public class GameVars implements Serializable {
 		// Add the Replays
 		plyrReplays.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
 		plyrReplaysDmnd.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
+		plyrFullscreen.add(true);
 	}
 
 	// Methods
@@ -492,6 +529,7 @@ public class GameVars implements Serializable {
 
 			// Read objects
 			plyrID = (int[]) oi.readObject();
+			plyrFullscreen = (ArrayList<Boolean>) oi.readObject();
 			plyrTimes = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrTimesDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrTotalTimes = (ArrayList<int[]>) oi.readObject();
@@ -523,6 +561,7 @@ public class GameVars implements Serializable {
 
 			// Write objects to file
 			o.writeObject(plyrID);
+			o.writeObject(plyrFullscreen);
 			o.writeObject(plyrTimes);
 			o.writeObject(plyrTimesDmnd);
 			o.writeObject(plyrTotalTimes);

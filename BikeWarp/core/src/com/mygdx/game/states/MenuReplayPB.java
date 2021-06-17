@@ -31,19 +31,20 @@ public class MenuReplayPB extends GameState {
     private final String header = "Select a replay to watch";
     private String newName = "";
     private boolean createPlayer = false;
-    private String[] replayFiles;
+    private int[] completedLevels;
     private boolean renaming, fileExists;
 	private String renameFilename;
 	private static final int numExtra = 1;
 	private static int totalLevels;
 	private static boolean diamond;
+	public static boolean redoList;
 
 	public MenuReplayPB(GameStateManager gsm, int mode) {
 		super(gsm);
 		// Create the canvas
         create();
-		if (mode==0) diamond = false;
-		else diamond = true;
+		diamond = mode != 0;
+		redoList = true;
 	}
 
     public void create() {
@@ -85,11 +86,10 @@ public class MenuReplayPB extends GameState {
     }
 
     private void SetupMenuFont() {
+		if (diamond) completedLevels = GameVars.GetDiamondComplete();
+		else completedLevels = GameVars.GetEmeraldComplete();
 		float scaleVal = 1.0f;
-		// First load the list of replays
-		// TODO :: Need to only show the levels that a time is available
-		replayFiles = Arrays.copyOfRange(LevelsListGame.gameLevelNames, 1, LevelsListGame.gameLevelNames.length);
-		totalLevels = GameVars.GetNumLevels()-2; // -1 for "Main Menu" and another -1 for the level that is not yet complete
+		totalLevels = completedLevels.length;
 		replayList.getData().setScale(scaleVal);
 		glyphLayout.setText(replayList, option1);
 		replayWidth = glyphLayout.width;
@@ -97,7 +97,7 @@ public class MenuReplayPB extends GameState {
 		float tstReplayWidth;
 		numOptions = numExtra + totalLevels;
 		for (int i=0; i<totalLevels; i++) {
-			glyphLayout.setText(replayList, replayFiles[i]);
+			glyphLayout.setText(replayList, LevelsListGame.getLevelName(completedLevels[i]+1)); // +1 for Main Menu
 			tstReplayWidth = glyphLayout.width;
 			if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
 		}
@@ -113,13 +113,11 @@ public class MenuReplayPB extends GameState {
 			currentOption--;
 			if (currentOption < 0) currentOption = numOptions - 1;
 			if (currentOption >= numExtra) ReplayVars.currentReplay = GameVars.GetReplay(currentOption-1,diamond);
-//			if (currentOption >= numExtra) GameVars.SetReplay(currentOption-1, diamond);
 			BikeGameSounds.PlayMenuSwitch();
 		} else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
 			currentOption++;
 			if (currentOption >= numOptions) currentOption = 0;
 			if (currentOption >= numExtra) ReplayVars.currentReplay = GameVars.GetReplay(currentOption-1,diamond);
-//			if (currentOption >= numExtra) GameVars.SetReplay(currentOption-1, diamond);
 			BikeGameSounds.PlayMenuSwitch();
 		} else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut == -1.0f)) {
 			fadeOut = 1.0f;
@@ -136,7 +134,7 @@ public class MenuReplayPB extends GameState {
 				gsm.setState(GameStateManager.PLAY, true, ReplayVars.currentReplay.levelName, ReplayVars.currentReplay.levelNumber, mode);
 			}
 		} else if (fadeOut == 0.0f) {
-			// Go to the main menu
+			// Go to the replay menu
 			fadeOut = -1.0f;
 			gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
 		}
@@ -148,6 +146,10 @@ public class MenuReplayPB extends GameState {
 
 	@Override
 	public void update(float dt) {
+		if (redoList) {
+			SetupMenuFont();
+			redoList = false;
+		}
     	// Always make sure the camera is in the correct location and zoom for this screen
 		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 		cam.zoom = 1.0f;
@@ -195,7 +197,7 @@ public class MenuReplayPB extends GameState {
         	else replayList.setColor(1, 1, 1, alpha/2);
         	// Grab the text to display
         	if (i == 0) dispText = option1;
-        	else dispText = replayFiles[i-numExtra];
+        	else dispText = LevelsListGame.getLevelName(completedLevels[i-numExtra]+1);
         	// Render the text
 			glyphLayout.setText(replayList, dispText);
         	optWidth = glyphLayout.width;

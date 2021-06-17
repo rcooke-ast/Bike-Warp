@@ -134,7 +134,8 @@ public class MainMenu extends GameState {
 			BikeGameSounds.PlayMenuSelect();
         } else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (sGoal==0) & (fadeOut==-1.0f)) {
         	fadeOut=1.0f;
-        	goToLevel = GameStateManager.MENUEXIT;
+//			goToLevel = GameStateManager.EDITOR;
+			goToLevel = GameStateManager.MENUEXIT;
 			BikeGameSounds.PlayMenuSelect();
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
