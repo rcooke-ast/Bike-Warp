@@ -270,7 +270,7 @@ public class Play extends GameState {
     }
     
     public void create() {
-        System.out.print(String.format("In play - Rank: %d, Total: %d", SteamVars.currentEmeraldPlayerRank, SteamVars.currentEmeraldRankNumber));
+//        System.out.print(String.format("In play - Rank: %d, Total: %d", SteamVars.currentEmeraldPlayerRank, SteamVars.currentEmeraldRankNumber));
     	forcequit = false;
     	forceRestart = false;
         // Set the contact listener
@@ -318,9 +318,9 @@ public class Play extends GameState {
             worldRecordD = GameVars.getTimeString(-1);
             personalRecordD = GameVars.getTimeString(-1);
         } else if ((mode == 2) | (mode==4)) {
-            worldRecord = GameVars.getTimeString(SteamVars.GetWorldRecord(false));
+            worldRecord = GameVars.getTimeString(SteamVars.worldRecordEmerald);
             personalRecord = GameVars.getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
-            worldRecordD = GameVars.getTimeString(SteamVars.GetWorldRecord(true));
+            worldRecordD = GameVars.getTimeString(SteamVars.worldRecordDiamond);
             personalRecordD = GameVars.getTimeString(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID)[0]);
         } else {
         	worldRecord = GameVars.getTimeString(-1);

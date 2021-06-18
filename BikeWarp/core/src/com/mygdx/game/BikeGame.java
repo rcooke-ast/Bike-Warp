@@ -52,16 +52,27 @@ public class BikeGame implements ApplicationListener {
 
 		// Initialise Steam connection
 		SteamVars.initAndConnect();
-
+/*
+		SteamVars.PrepareLeaderboards();
+		// Parse the leaderboards -- this seems to need the callbacks running in order to work
+		if (SteamVars.GetProgress() < 0.7) {
+			SteamVars.ParseLeaderboards();
+			totalTime += dt;
+		} else if (totalTime != -1.0) {
+			System.out.println(totalTime);
+			totalTime = -1.0f;
+		}
+ */
 		// Load the textures and sounds
-		BikeGameTextures.InitiateTextures();
 		BikeGameSounds.InitiateSounds();
+		BikeGameTextures.InitiateTextures();
 
 		// Set the Input Processor to the key input I've written
 		Gdx.input.setInputProcessor(new GameInputProcessor());
 		Gdx.input.setCursorCatched(true);
 
 		sb = new SpriteBatch();
+		sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam = new OrthographicCamera();
 		//cam.setToOrtho(false);
 		cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
@@ -82,9 +93,6 @@ public class BikeGame implements ApplicationListener {
 			// we are done loading, let's move to another screen!
 			if (gsm == null) {
 				gsm = new GameStateManager(this);
-				// Set the display preference for the user
-				UpdateDisplay();
-				sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 			}
 			accum += Gdx.graphics.getDeltaTime();
 			while (accum >= STEP) {
@@ -104,27 +112,7 @@ public class BikeGame implements ApplicationListener {
 			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			Gdx.gl.glViewport((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
 			// Check if everything is loaded
-			if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("bg_StarsBlueGreen"))) {
-				// texture is available, let's fetch it and do something interesting
-				stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
-				load_stars = true;
-			}
-			if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("menu_gamename"))) {
-				// texture is available, let's fetch it and do something interesting
-				logo = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
-				load_logo = true;
-			}
-			if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("nitrous_tube"))) {
-				// texture is available, let's fetch it and do something interesting
-				tube = new Sprite(BikeGameTextures.LoadTexture("nitrous_tube"));
-				load_tube = true;
-			}
-			if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("nitrous_fluid"))) {
-				// texture is available, let's fetch it and do something interesting
-				fluid = new Sprite(BikeGameTextures.LoadTexture("nitrous_fluid"));
-				load_fluid = true;
-			}
-			if (load_stars & load_logo & load_tube & load_fluid) {
+			if (load_stars && load_logo && load_tube && load_fluid) {
 				sb.setProjectionMatrix(hudCam.combined);
 				sb.begin();
 				// Draw stars
@@ -140,6 +128,27 @@ public class BikeGame implements ApplicationListener {
 				// Draw Tube
 				sb.draw(tube, hudCam.position.x-tube_length/2, hudCam.position.y-0.4f*viewport.height, 0, 0, tube_length, tube_height, 1.0f, 1.0f, 0.0f);
 				sb.end();
+			} else {
+				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("bg_StarsBlueGreen"))) {
+					// texture is available, let's fetch it and do something interesting
+					stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
+					load_stars = true;
+				}
+				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("menu_gamename"))) {
+					// texture is available, let's fetch it and do something interesting
+					logo = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
+					load_logo = true;
+				}
+				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("nitrous_tube"))) {
+					// texture is available, let's fetch it and do something interesting
+					tube = new Sprite(BikeGameTextures.LoadTexture("nitrous_tube"));
+					load_tube = true;
+				}
+				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("nitrous_fluid"))) {
+					// texture is available, let's fetch it and do something interesting
+					fluid = new Sprite(BikeGameTextures.LoadTexture("nitrous_fluid"));
+					load_fluid = true;
+				}
 			}
 		}
 	}
@@ -172,8 +181,6 @@ public class BikeGame implements ApplicationListener {
 	}
 
 	public static void UpdateDisplay() {
-		// WARNING :: If this function is called, you must add a line after this call:
-		// sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		if (!GameVars.GetPlayerFullscreen()) {
 			Gdx.graphics.setWindowedMode((int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());

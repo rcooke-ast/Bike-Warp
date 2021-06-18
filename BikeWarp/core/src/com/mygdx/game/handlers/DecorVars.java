@@ -851,7 +851,6 @@ public class DecorVars {
 	}
 
 	public static float[] MakeMoveableRect(int decorID, int idx, float shiftX, float shiftY) {
-		// TODO :: Need to convert input decorID and idx to the corresponding value in GetRectMultiple()
-		return GetRectMultiple(Vehicle, 5, shiftX, shiftY); // This is the UFO
+		return GetRectMultiple(decorID, idx, shiftX, shiftY); // This is the UFO
 	}
 }

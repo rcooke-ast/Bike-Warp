@@ -6,6 +6,7 @@
 
 package com.mygdx.game.handlers;
 
+import com.badlogic.gdx.Game;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.states.*;
 
@@ -24,9 +25,9 @@ public class GameStateManager {
     
     public static final int MAINMENU = 100000;
     public static final int MENUEXIT = 100001;
-//    public static final int MENURECORDS = 100002;
+    public static final int MENURECORDS = 100002;
     public static final int MENUOPTIONS = 100003;
-//    public static final int MENUCUSTOM = 100004;
+    public static final int MENURECORDSDISPLAY = 100004;
     public static final int MENULEVELS = 100005;
     public static final int MENUREPLAYPB = 100006;
     public static final int MENUREPLAY = 100007;
@@ -46,6 +47,7 @@ public class GameStateManager {
 		File directory = new File(ReplayVars.replayDir);
 	    if (!directory.exists()) directory.mkdir();
         // Set the starting State
+        if GameVars.GetCurrentPlayer()
         pushState(MAINMENU, null, -1, 0);
     }
     
@@ -73,7 +75,8 @@ public class GameStateManager {
 //        if (state == MENUPLAYER) return new MenuSelectPlayer(this, modeValue);
         if (state == MAINMENU) return new MainMenu(this);
         else if (state == MENUEXIT) return new MenuExit(this);
-//        else if (state == MENURECORDS) return new MenuRecords(this);
+        else if (state == MENURECORDS) return new MenuRecords(this);
+        else if (state == MENURECORDSDISPLAY) return new MenuRecordsDisplay(this, modeValue);
         else if (state == MENUOPTIONS) return new MenuOptions(this);
         else if (state == MENUOPTIONSCOLOR) return new OptionColorSelect(this);
         else if (state == MENUOPTIONSCONTROLS) return new OptionChangeControls(this);

@@ -32,6 +32,7 @@ public class ReplayVars implements Serializable {
 	public static final int statusDNF = 0;
 	public static final int statusEmerald = 1;
 	public static final int statusDiamond = 2;
+	public static final String ReplayNotFound = "Replay not found";
 
 	public static Replay currentReplay;
 	public static int replayCntr = 0, replayCDCntr = 0;
@@ -263,8 +264,7 @@ public class ReplayVars implements Serializable {
 	}
 
 	public static String ReplayString(boolean addDR) {
-		// TODO :: We can probably remove the following early return
-		if (currentReplay == null) return "Loading replay";
+		if (currentReplay == null) return ReplayNotFound;
     	String retstr = String.format("Level Name:\n%s\n\n", LevelsListGame.gameLevelNames[currentReplay.levelNumber+1]);
 		retstr += String.format("Duration:\n%s\n\n", GameVars.getTimeString(currentReplay.replayTimer));
 		switch (currentReplay.replayStatus) {

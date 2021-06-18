@@ -49,7 +49,7 @@ public class LevelOptions extends GameState {
     
     public void create() {
 		// First, prepare the leaderboards
-		SteamVars.prepareLeaderboards(levelNumber);
+//		SteamVars.prepareLeaderboards(levelNumber);
 		// Now set the initial variables to start the screen
 		firstPlay = true;
     	goToNext = false;

@@ -4270,6 +4270,7 @@ public class Editor extends GameState {
 				if (GameInput.MBJUSTPRESSED) {
 					tempx = cam.position.x + cam.zoom*(GameInput.MBUPX/BikeGame.SCALE - 0.5f*SCRWIDTH);
 					tempy = cam.position.y - cam.zoom*(GameInput.MBUPY/BikeGame.SCALE - 0.5f*SCRHEIGHT);
+					// TODO :: Need to convert decorID and idx to the corresponding value in GetRectMultiple() - probably don't need to bother generalising this.
 					newPoly = DecorVars.MakeMoveableRect(DecorVars.Vehicle, 5, tempx, tempy);
 					AddPolygon(newPoly, 100, 8);
 					newPoly = null;

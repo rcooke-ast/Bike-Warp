@@ -23,7 +23,6 @@ import com.mygdx.game.utilities.FileUtils;
  */
 public class MainMenu extends GameState {
 	private float SCRWIDTH, SCRHEIGHT;
-	//private Texture texture;
     private Sprite wheel, shaft, grass, dirt, sky;
     private float wwidth, wheight, mwidth, mheight, mxcen, mycen, swidth, angle;
     private float gscale, gspeed, dscale;
@@ -145,7 +144,7 @@ public class MainMenu extends GameState {
     }
     
     public void update(float dt) {
-    	// Always make sure the camera is in the correct location and zoom for this screen
+		// Always make sure the camera is in the correct location and zoom for this screen
 		cam.setToOrtho(false, SCRWIDTH, SCRHEIGHT);
 //		cam.position.set(SCRWIDTH/2, BikeGame.V_HEIGHT/2, 0);
 		cam.zoom = 1.0f;

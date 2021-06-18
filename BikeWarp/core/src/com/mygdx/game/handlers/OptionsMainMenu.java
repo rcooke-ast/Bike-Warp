@@ -18,10 +18,11 @@ public class OptionsMainMenu {
 	public static int currentOption;
     public static final int SinglePlayer = 0;
     public static final int Replays = 1;
-    public static final int Options = 2;
-    public static final int Exit = 3;
+    public static final int Records = 2;
+    public static final int Options = 3;
+    public static final int Exit = 4;
 	// The following string array *must* match the order of loaded graphics in the loadoptions routine below
-    public static final int[] menuStrings = {SinglePlayer,Replays,Options,Exit};
+    public static final int[] menuStrings = {SinglePlayer,Replays,Records,Options,Exit};
     public static Sprite[] menuOptions;
     static {
         currentOption = 0;
@@ -59,19 +60,22 @@ public class OptionsMainMenu {
     public static Sprite getCurrentName() { return menuOptions[currentOption]; }
 
     public static void loadOptions() {
-    	menuOptions = new Sprite[4];
+    	menuOptions = new Sprite[5];
         Texture texture = new Texture(Gdx.files.internal("data/images/menu_SinglePlayer.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[0] = new Sprite(texture);
         texture = new Texture(Gdx.files.internal("data/images/menu_Replays.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[1] = new Sprite(texture);
-        texture = new Texture(Gdx.files.internal("data/images/menu_Options.png"));
+        texture = new Texture(Gdx.files.internal("data/images/menu_WorldRecords.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[2] = new Sprite(texture);
-        texture = new Texture(Gdx.files.internal("data/images/menu_Exit.png"));
+        texture = new Texture(Gdx.files.internal("data/images/menu_Options.png"));
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         menuOptions[3] = new Sprite(texture);
+        texture = new Texture(Gdx.files.internal("data/images/menu_Exit.png"));
+        texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+        menuOptions[4] = new Sprite(texture);
         // Once the texture is no longer needed - need to change it to something else, and then dispose it
         texture = new Texture(Gdx.files.internal("data/images/menu_SinglePlayer.png"));
         texture.dispose();

@@ -17,10 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
-import com.mygdx.game.handlers.GameInput;
-import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.GameVars;
-import com.mygdx.game.handlers.ReplayVars;
+import com.mygdx.game.handlers.*;
 
 public class MenuReplay extends GameState {
 	private static final String option1 = "Return to Main Menu";
@@ -33,12 +30,11 @@ public class MenuReplay extends GameState {
 	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sheight, replayWidth, replayHeight, optWidth;
     private float fadeIn, fadeOut, alpha, fadeTime = 0.5f;
     private final String header = "Select a replay to watch";
-    private String newName = "";
-    private boolean createPlayer = false;
     private String[] replayFiles;
     private boolean renaming, fileExists;
 	private String renameFilename;
 	private static final int numExtra = 3;
+	private static String dispText = "";
 
 	public MenuReplay(GameStateManager gsm) {
 		super(gsm);
@@ -172,7 +168,7 @@ public class MenuReplay extends GameState {
 				} else if (currentOption == 2) {
 					// Display Replay Menu for PB times (Diamond)
 					gsm.setState(GameStateManager.MENUREPLAYPB, true, "", -1, 1);
-				} else {
+				} else if (dispText.compareTo(ReplayVars.ReplayNotFound)!=0) {
 					// Load the replay
 					ReplayVars.ResetReplayCounter();
 					int mode = ReplayVars.currentReplay.replayMode; // Determine if it's a training or game level
@@ -209,7 +205,6 @@ public class MenuReplay extends GameState {
 
 	@Override
 	public void render() {
-		String dispText = "";
     	// clear screen
     	Gdx.gl.glClearColor(0, 0, 0, 1);
     	Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
