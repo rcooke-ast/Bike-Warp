@@ -43,6 +43,7 @@ import com.badlogic.gdx.physics.box2d.joints.RopeJoint;
 import com.badlogic.gdx.physics.box2d.joints.RopeJointDef;
 import com.badlogic.gdx.physics.box2d.joints.WheelJoint;
 import com.badlogic.gdx.physics.box2d.joints.WheelJointDef;
+import com.codedisaster.steamworks.SteamAPI;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
@@ -665,7 +666,11 @@ public class Play extends GameState {
 //	     	   					GameVars.CheckTimes(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID).clone(), 1, levelID, timerTotal, false);
 //	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
 	     	   					ReplayVars.currentReplay.replayStatus = ReplayVars.statusDiamond;
-                                SteamVars.uploadTime(timerTotal, false);
+                                if (SteamAPI.isSteamRunning()) SteamVars.uploadTime(timerTotal, true);
+                                else {
+                                    // TODO :: Need to figure out what to do when player is not online
+                                    System.out.println("Not online!");
+                                }
                             }
 	     	   			} else {
 		     	   			// Check the records without the diamond
@@ -673,14 +678,18 @@ public class Play extends GameState {
 //	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
 //	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
                                 ReplayVars.currentReplay.replayStatus = ReplayVars.statusEmerald;
-                                SteamVars.uploadTime(timerTotal, true);
+                                if (SteamAPI.isSteamRunning()) SteamVars.uploadTime(timerTotal, false);
+                                else {
+                                    // TODO :: Need to figure out what to do when player is not online
+                                    System.out.println("Not online!");
+                                }
 	     	   				}
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 //	     	   			if (mode == 1) LevelsListCustom.updateRecords();
 	     	   			if (mode == 2) {
 		     	   			GameVars.SetLevelComplete(levelID);
-		     	   			LevelsListGame.updateRecords();
+		     	   			SteamVars.LoadPBWR(levelID+1);
 	     	   			}
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			gsm.SetPlaying(false);
@@ -695,7 +704,8 @@ public class Play extends GameState {
     	     		    ReplayVars.currentReplay.replayTimer = (int) (TimeUtils.millis()) - timerStart;
     	   			}
     	   			if (forcequit) {
-    	            	gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
+                        SteamVars.LoadPBWR(levelID+1);
+                        gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
     	            	gsm.SetPlaying(false);
     	   			} else {
     	   				// forceRestart is true, or the player died in the level

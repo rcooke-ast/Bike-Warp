@@ -123,6 +123,9 @@ public class MainMenu extends GameState {
 				case OptionsMainMenu.Replays:
 					goToLevel = GameStateManager.MENUREPLAY;
 					break;
+				case OptionsMainMenu.Records:
+					goToLevel = GameStateManager.MENURECORDS;
+					break;
 				case OptionsMainMenu.Options:
 					goToLevel = GameStateManager.MENUOPTIONS;
 					break;

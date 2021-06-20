@@ -331,6 +331,7 @@ public class LevelsListGame {
 
     public static void updateRecords() {
     	for (int i=0; i<NUMGAMELEVELS; i++) {
+    		// TODO :: Really???
     		gameLevelDescr[i+1] = "TODO THIS";//GetRecordTimes(i+1);
     	}
     }

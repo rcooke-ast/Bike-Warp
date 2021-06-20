@@ -14,62 +14,123 @@ import com.mygdx.game.BikeGame;
  * @author rcooke
  */
 public class SteamVars {
-
+	private static final int NUMWRSHOW = 10;
 	private static SteamUserStats userStatsEmerald, userStatsDiamond;
+	private static SteamUserStats worldStatsEmerald, worldStatsDiamond;
 	public static boolean isOnline=false;
+	// variables for total times
+	private static boolean loadingTotalTimes = false;
 	private static SteamLeaderboardHandle[] leaderboardEmerald;
 	private static SteamLeaderboardHandle[] leaderboardDiamond;
 	private static String[] leaderboardNameEmerald;
 	private static String[] leaderboardNameDiamond;
 	private static int[] leaderboardNumberEmerald;
 	private static int[] leaderboardNumberDiamond;
-	public static SteamID steamPlayerID;
 	private static boolean readyForNextLeaderboard;
+	// Variables for current leaderboard
+	private static SteamLeaderboardHandle currentLeaderboardEmerald;
+	private static SteamLeaderboardHandle currentLeaderboardDiamond;
+	private static int currentLeaderboardEmeraldNumber;
+	private static int currentLeaderboardDiamondNumber;
+	private static int statsLoadedEmerald = 0, statsLoadedDiamond = 0;
+	public static String currentDisplayString;
+	public static String recordMenuStringRanks, recordMenuStringNames, recordMenuStringTimes;
+	// Variables for world records
+	public static String[] worldRecordNamesEmerald = new String[NUMWRSHOW];
+	public static int[] worldRecordTimesEmerald = new int[NUMWRSHOW];
+	public static String[] worldRecordNamesDiamond = new String[NUMWRSHOW];
+	public static int[] worldRecordTimesDiamond = new int[NUMWRSHOW];
+	// Variables for current player
+	public static SteamID playerID;
+	public static String playerName = "[unknown]";
+	private static SteamFriends plyrFriends;
 	public static int loadingLevel, currentLevel;
 	public static int worldRecordDiamond, worldRecordEmerald;
-	public static int personalBestEmerald, personalBestDiamond;
-	private static boolean emeraldComplete, diamondComplete;
+	public static int playerBestEmerald, playerBestDiamond;
+	public static int playerRankEmerald, playerRankDiamond;
+
+	/*
+	****************************************************
+	Friend Callbacks
+	****************************************************
+	*/
+
+	private static SteamFriendsCallback friendsCallback = new SteamFriendsCallback() {
+		@Override
+		public void onSetPersonaNameResponse(boolean success, boolean localSuccess, SteamResult result) {}
+
+		@Override
+		public void onPersonaStateChange(SteamID steamID, SteamFriends.PersonaChange change) {}
+
+		@Override
+		public void onGameOverlayActivated(boolean active) {}
+
+		@Override
+		public void onGameLobbyJoinRequested(SteamID steamIDLobby, SteamID steamIDFriend) {}
+
+		@Override
+		public void onAvatarImageLoaded(SteamID steamID, int image, int width, int height) {}
+
+		@Override
+		public void onFriendRichPresenceUpdate(SteamID steamIDFriend, int appID) {}
+
+		@Override
+		public void onGameRichPresenceJoinRequested(SteamID steamIDFriend, String connect) {}
+
+		@Override
+		public void onGameServerChangeRequested(String server, String password) {}
+	};
+
+	/*
+	****************************************************
+	Emerald Callbacks
+	****************************************************
+	*/
+
 	private static SteamUserStatsCallback steamUserStatsCallbackEmerald = new SteamUserStatsCallback() {
 
 		@Override
 		public void onUserStatsReceived(long gameId, SteamID steamIDUser,
 										SteamResult result)
 		{
-			steamPlayerID = steamIDUser;
+			playerID = steamIDUser;
+			playerName = plyrFriends.getPersonaName();
 			if (GameVars.GetCurrentPlayer() == -1) {
 				GameVars.LoadPlayers();
-				GameVars.SetCurrentPlayer(steamIDUser.getAccountID());
+				GameVars.SetCurrentPlayer(steamIDUser.getAccountID(), playerName);
 				// Set the display preference for the user
 				BikeGame.UpdateDisplay();
 			}
 		}
 
 		@Override
-		public void onUserStatsStored(long gameId, SteamResult result) {
-		}
+		public void onUserStatsStored(long gameId, SteamResult result) {}
 
 		@Override
-		public void onUserStatsUnloaded(SteamID steamIDUser) {
-		}
+		public void onUserStatsUnloaded(SteamID steamIDUser) {}
 
 		@Override
 		public void onUserAchievementStored(long gameId,
 											boolean isGroupAchievement, String achievementName,
-											int curProgress, int maxProgress) {
-		}
+											int curProgress, int maxProgress) {}
 
 		@Override
 		public void onLeaderboardFindResult(SteamLeaderboardHandle leaderboard,
 											boolean found) {
-			System.out.println("Leaderboard find result: handle=" + leaderboard.toString() +
-					", found=" + (found ? "yes" : "no"));
 			if (found) {
-				leaderboardEmerald[loadingLevel] = leaderboard;
-				leaderboardNumberEmerald[loadingLevel] = userStatsEmerald.getLeaderboardEntryCount(leaderboard);
-				System.out.println("Leaderboard: name=" + userStatsEmerald.getLeaderboardName(leaderboardEmerald[loadingLevel]) +
-						", entries=" + leaderboardNumberEmerald[loadingLevel]);
-				loadingLevel += 1;
-				readyForNextLeaderboard = true;
+				if (loadingTotalTimes) {
+					leaderboardEmerald[loadingLevel] = leaderboard;
+					leaderboardNumberEmerald[loadingLevel] = userStatsEmerald.getLeaderboardEntryCount(leaderboard);
+					loadingLevel += 1;
+					readyForNextLeaderboard = true;
+				} else {
+					currentLeaderboardEmerald = leaderboard;
+					// Download user's score
+					userStatsEmerald.downloadLeaderboardEntriesForUsers(currentLeaderboardEmerald, new SteamID[] {playerID});
+					// Download top 10
+					worldStatsEmerald.downloadLeaderboardEntries(currentLeaderboardEmerald,
+							SteamUserStats.LeaderboardDataRequest.Global, 0, 10);
+				}
 			} else {
 				System.out.println("Leaderboard not found: " + userStatsEmerald.getLeaderboardName(leaderboard));
 			}
@@ -79,68 +140,124 @@ public class SteamVars {
 		public void onLeaderboardScoresDownloaded(
 				SteamLeaderboardHandle leaderboard,
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
-			// Get the world record value
-//			SteamLeaderboardEntry entry = new SteamLeaderboardEntry();
-//			if (userStatsEmerald.getDownloadedLeaderboardEntry(entries, 0, entry, null)) {
-//				personalBestEmerald = entry.getScore();
-//				System.out.println(String.format("%d %d", entry.getGlobalRank(), personalBestEmerald));
-//			}
+
+			SteamLeaderboardEntry entry;
+			for (int i = 0; i < numEntries; i++) {
+				entry = new SteamLeaderboardEntry();
+				if (userStatsEmerald.getDownloadedLeaderboardEntry(entries, i, entry, null)) {
+					if (entry.getSteamIDUser().getAccountID() == playerID.getAccountID()) {
+						playerBestEmerald = entry.getScore();
+						playerRankEmerald = entry.getGlobalRank();
+					}
+				}
+			}
+			statsLoadedEmerald++;
 		}
 
 		@Override
 		public void onLeaderboardScoreUploaded(boolean success,
 											   SteamLeaderboardHandle leaderboard, int score,
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
-//			if (scoreChanged) {
-//				System.out.println("The score has changed:");
-//				System.out.println(score);
-//				personalBestEmerald = score;
-//				currentEmeraldPlayerRank = globalRankNew;
-//				GameVars.StoreReplay(currentLevel, false);
-//			}
+			if (scoreChanged) {
+				GameVars.StoreReplay(currentLevel-1, false);
+				if (globalRankNew == 1) GameVars.SetWorldRecord(true);
+				else GameVars.SetPersonalBest(true);
+			}
 		}
 
 		@Override
-		public void onGlobalStatsReceived(long gameId, SteamResult result) {
+		public void onGlobalStatsReceived(long gameId, SteamResult result) {}
+	};
+
+	private static SteamUserStatsCallback steamWorldStatsCallbackEmerald = new SteamUserStatsCallback() {
+
+		@Override
+		public void onUserStatsReceived(long gameId, SteamID steamIDUser,
+										SteamResult result) {}
+
+		@Override
+		public void onUserStatsStored(long gameId, SteamResult result) {}
+
+		@Override
+		public void onUserStatsUnloaded(SteamID steamIDUser) {}
+
+		@Override
+		public void onUserAchievementStored(long gameId,
+											boolean isGroupAchievement, String achievementName,
+											int curProgress, int maxProgress) {}
+
+		@Override
+		public void onLeaderboardFindResult(SteamLeaderboardHandle leaderboard,
+											boolean found) {}
+
+		@Override
+		public void onLeaderboardScoresDownloaded(
+				SteamLeaderboardHandle leaderboard,
+				SteamLeaderboardEntriesHandle entries, int numEntries) {
+
+			SteamLeaderboardEntry entry;
+			for (int i = 0; i < numEntries; i++) {
+				entry = new SteamLeaderboardEntry();
+				if (worldStatsEmerald.getDownloadedLeaderboardEntry(entries, i, entry, null)) {
+					if (entry.getGlobalRank() < NUMWRSHOW) {
+						worldRecordNamesEmerald[entry.getGlobalRank()-1] = plyrFriends.getFriendPersonaName(entry.getSteamIDUser());
+						worldRecordTimesEmerald[entry.getGlobalRank()-1] = entry.getScore();
+					}
+				}
+			}
+			currentLeaderboardEmeraldNumber = worldStatsEmerald.getLeaderboardEntryCount(leaderboard);
+			statsLoadedEmerald++;
 		}
 
+		@Override
+		public void onLeaderboardScoreUploaded(boolean success,
+											   SteamLeaderboardHandle leaderboard, int score,
+											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {}
+
+		@Override
+		public void onGlobalStatsReceived(long gameId, SteamResult result) {}
 	};
+
+	/*
+	****************************************************
+	Diamond Callbacks
+	****************************************************
+	*/
 
 	private static SteamUserStatsCallback steamUserStatsCallbackDiamond = new SteamUserStatsCallback() {
 
 		@Override
 		public void onUserStatsReceived(long gameId, SteamID steamIDUser,
-										SteamResult result)
-		{
-		}
+										SteamResult result) {}
 
 		@Override
-		public void onUserStatsStored(long gameId, SteamResult result) {
-		}
+		public void onUserStatsStored(long gameId, SteamResult result) {}
 
 		@Override
-		public void onUserStatsUnloaded(SteamID steamIDUser) {
-
-		}
+		public void onUserStatsUnloaded(SteamID steamIDUser) {}
 
 		@Override
 		public void onUserAchievementStored(long gameId,
 											boolean isGroupAchievement, String achievementName,
-											int curProgress, int maxProgress) {
-		}
+											int curProgress, int maxProgress) {}
 
 		@Override
 		public void onLeaderboardFindResult(SteamLeaderboardHandle leaderboard,
 											boolean found) {
-//			System.out.println("Leaderboard find result: handle=" + leaderboard.toString() +
-//					", found=" + (found ? "yes" : "no"));
 			if (found) {
-				leaderboardDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS-1] = leaderboard;
-				leaderboardNumberDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS-1] = userStatsDiamond.getLeaderboardEntryCount(leaderboard);
-				System.out.println("Leaderboard: name=" + userStatsDiamond.getLeaderboardName(leaderboardDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS-1]) +
-						", entries=" + leaderboardNumberDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS-1]);
-				loadingLevel += 1;
-				readyForNextLeaderboard = true;
+				if (loadingTotalTimes) {
+					leaderboardDiamond[loadingLevel] = leaderboard;
+					leaderboardNumberDiamond[loadingLevel] = userStatsDiamond.getLeaderboardEntryCount(leaderboard);
+					loadingLevel += 1;
+					readyForNextLeaderboard = true;
+				} else {
+					currentLeaderboardDiamond = leaderboard;
+					// Download user's score
+					userStatsDiamond.downloadLeaderboardEntriesForUsers(currentLeaderboardDiamond, new SteamID[] {playerID});
+					// Download top 10
+					worldStatsDiamond.downloadLeaderboardEntries(currentLeaderboardDiamond,
+							SteamUserStats.LeaderboardDataRequest.Global, 0, 10);
+				}
 			} else {
 				System.out.println("Leaderboard not found: " + userStatsDiamond.getLeaderboardName(leaderboard));
 			}
@@ -150,30 +267,89 @@ public class SteamVars {
 		public void onLeaderboardScoresDownloaded(
 				SteamLeaderboardHandle leaderboard,
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
-			// Get the world record value
-//			SteamLeaderboardEntry entry = new SteamLeaderboardEntry();
-//			if (userStatsDiamond.getDownloadedLeaderboardEntry(entries, 0, entry, null)) {
-//				worldRecordDiamond = entry.getScore();
-//				System.out.println(String.format("diamond %d %d", entry.getGlobalRank(), worldRecordDiamond));
-//			}
+
+			SteamLeaderboardEntry entry;
+			for (int i = 0; i < numEntries; i++) {
+				entry = new SteamLeaderboardEntry();
+				if (userStatsDiamond.getDownloadedLeaderboardEntry(entries, i, entry, null)) {
+					if (entry.getSteamIDUser().getAccountID() == playerID.getAccountID()) {
+						playerBestDiamond = entry.getScore();
+						playerRankDiamond = entry.getGlobalRank();
+					}
+				}
+			}
+			statsLoadedDiamond++;
 		}
 
 		@Override
 		public void onLeaderboardScoreUploaded(boolean success,
 											   SteamLeaderboardHandle leaderboard, int score,
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
-//			if (scoreChanged) {
-//				currentDiamondPlayerRank = globalRankNew;
-//				personalBestDiamond = score;
-//				GameVars.StoreReplay(loadingLevel, true);
-//			}
+			if (scoreChanged) {
+				GameVars.StoreReplay(currentLevel-1, true);
+				if (globalRankNew == 1) GameVars.SetWorldRecord(true);
+				else GameVars.SetPersonalBest(true);
+			}
 		}
 
 		@Override
-		public void onGlobalStatsReceived(long gameId, SteamResult result) {
+		public void onGlobalStatsReceived(long gameId, SteamResult result) {}
+	};
+
+	private static SteamUserStatsCallback steamWorldStatsCallbackDiamond = new SteamUserStatsCallback() {
+
+		@Override
+		public void onUserStatsReceived(long gameId, SteamID steamIDUser,
+										SteamResult result) {}
+
+		@Override
+		public void onUserStatsStored(long gameId, SteamResult result) {}
+
+		@Override
+		public void onUserStatsUnloaded(SteamID steamIDUser) {}
+
+		@Override
+		public void onUserAchievementStored(long gameId,
+											boolean isGroupAchievement, String achievementName,
+											int curProgress, int maxProgress) {}
+
+		@Override
+		public void onLeaderboardFindResult(SteamLeaderboardHandle leaderboard,
+											boolean found) {}
+
+		@Override
+		public void onLeaderboardScoresDownloaded(
+				SteamLeaderboardHandle leaderboard,
+				SteamLeaderboardEntriesHandle entries, int numEntries) {
+
+			SteamLeaderboardEntry entry;
+			for (int i = 0; i < numEntries; i++) {
+				entry = new SteamLeaderboardEntry();
+				if (worldStatsDiamond.getDownloadedLeaderboardEntry(entries, i, entry, null)) {
+					if (entry.getGlobalRank() < NUMWRSHOW) {
+						worldRecordNamesDiamond[entry.getGlobalRank()-1] = plyrFriends.getFriendPersonaName(entry.getSteamIDUser());
+						worldRecordTimesDiamond[entry.getGlobalRank()-1] = entry.getScore();
+					}
+				}
+			}
+			currentLeaderboardDiamondNumber = worldStatsDiamond.getLeaderboardEntryCount(leaderboard);
+			statsLoadedDiamond++;
 		}
 
+		@Override
+		public void onLeaderboardScoreUploaded(boolean success,
+											   SteamLeaderboardHandle leaderboard, int score,
+											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {}
+
+		@Override
+		public void onGlobalStatsReceived(long gameId, SteamResult result) {}
 	};
+
+	/*
+	****************************************************
+	Initialise Steam Connection
+	****************************************************
+	*/
 
 	public static boolean initAndConnect(){
 		try {
@@ -189,89 +365,247 @@ public class SteamVars {
 		//Get stat object
 		userStatsEmerald = new SteamUserStats(steamUserStatsCallbackEmerald);
 		userStatsDiamond = new SteamUserStats(steamUserStatsCallbackDiamond);
+		worldStatsEmerald = new SteamUserStats(steamWorldStatsCallbackEmerald);
+		worldStatsDiamond = new SteamUserStats(steamWorldStatsCallbackDiamond);
 		//A must before setting achievements
 		userStatsEmerald.requestCurrentStats();
 		userStatsDiamond.requestCurrentStats();
+		worldStatsEmerald.requestCurrentStats();
+		worldStatsDiamond.requestCurrentStats();
+		// Setup the friends in order to get the names
+		plyrFriends = new SteamFriends(friendsCallback);
+		currentDisplayString = "";
+		recordMenuStringNames = "";
+		recordMenuStringRanks = "";
+		recordMenuStringTimes = "";
 		isOnline=true;
 		// Initialise the leaderboard handles
 		return true;
 	};
 
-	public static float GetProgress() {
-		// Return the progress on loading the leaderboards
-		return ((float) loadingLevel)/((float) 2*LevelsListGame.NUMGAMELEVELS+3);
-	}
+	/*
+	****************************************************
+	The next routines are for the current leaderboard
+	****************************************************
+	*/
 
-	public static void ParseLeaderboards() {
-		// Must call prepareLeaderboards before calling this function
-		if (readyForNextLeaderboard) {
-			if (loadingLevel < LevelsListGame.NUMGAMELEVELS+1) {
-				userStatsEmerald.findLeaderboard(leaderboardNameEmerald[loadingLevel]);
-			} else if (loadingLevel < 2*(LevelsListGame.NUMGAMELEVELS+1)) {
-				userStatsDiamond.findLeaderboard(leaderboardNameDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS-1]);
-			} else if (loadingLevel == 2*(LevelsListGame.NUMGAMELEVELS+1)) {
-				System.out.println("TODO :: NEED TO DOWNLOAD THE TOTAL TOTAL TIME");
-			} else {
-				System.out.println("All leaderboards loaded");
-			}
-			readyForNextLeaderboard = false;
-//			} else if (false) {
-//				// Get stats now
-//				// TODO :: Need to actually get the scores/records/ranks...
-//				SteamID[] Users = {steamPlayerID}; // Local user steam id
-//				userStatsEmerald.downloadLeaderboardEntriesForUsers(currentLeaderboardEmerald, Users);
-//			}
+	private static void ResetTimes() {
+		currentDisplayString = "Loading Records";
+		recordMenuStringNames = "Loading Records";
+		recordMenuStringRanks = "";
+		recordMenuStringTimes = "";
+		playerBestEmerald = -1;
+		playerBestDiamond = -1;
+		playerRankEmerald = -1;
+		playerRankDiamond = -1;
+		statsLoadedEmerald = 0;
+		statsLoadedDiamond = 0;
+		for (int ii=0; ii<NUMWRSHOW; ii++) {
+			worldRecordTimesEmerald[ii] = -1;
+			worldRecordNamesEmerald[ii] = "";
+			worldRecordTimesDiamond[ii] = -1;
+			worldRecordNamesDiamond[ii] = "";
 		}
 	}
 
-	public static void PrepareLeaderboards() {
-		// Generate a list of all available leaderboards
+	public static void LoadPBWR(int level) {
+		ResetTimes();
+		userStatsEmerald.findLeaderboard(String.format("Level%02d_Emerald", level));
+		userStatsDiamond.findLeaderboard(String.format("Level%02d_Diamond", level));
+		currentLevel = level;
+	}
+
+	/*
+	****************************************************
+	The next routines are for the total times
+	****************************************************
+	*/
+
+	public static float GetProgress() {
+		// Return the progress on loading the leaderboards
+		return ((float) loadingLevel)/((float) 2*LevelsListGame.NUMGAMELEVELS+1);
+	}
+
+	public static void ParseAllLeaderboards() {
+		// Must call prepareLeaderboards before calling this function
+		if (readyForNextLeaderboard) {
+			if (loadingLevel < LevelsListGame.NUMGAMELEVELS) {
+				userStatsEmerald.findLeaderboard(leaderboardNameEmerald[loadingLevel]);
+			} else if (loadingLevel < 2*LevelsListGame.NUMGAMELEVELS) {
+				userStatsDiamond.findLeaderboard(leaderboardNameDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS]);
+			} else {
+				System.out.println("All leaderboards loaded");
+				loadingTotalTimes = false;
+			}
+			readyForNextLeaderboard = false;
+		}
+	}
+
+	public static void PrepareAllLeaderboards() {
+		// Generate a list of all available leaderboards for the total time
+		loadingTotalTimes = true;
 		// A handle to each of the leaderboards
-		leaderboardEmerald = new SteamLeaderboardHandle[LevelsListGame.NUMGAMELEVELS+1];
-		leaderboardDiamond = new SteamLeaderboardHandle[LevelsListGame.NUMGAMELEVELS+1];
+		leaderboardEmerald = new SteamLeaderboardHandle[LevelsListGame.NUMGAMELEVELS];
+		leaderboardDiamond = new SteamLeaderboardHandle[LevelsListGame.NUMGAMELEVELS];
 		// The name of each leaderboard
-		leaderboardNameEmerald = new String[LevelsListGame.NUMGAMELEVELS+1];
-		leaderboardNameDiamond = new String[LevelsListGame.NUMGAMELEVELS+1];
-		// The number of players that have completed these levels
-		leaderboardNumberEmerald = new int[LevelsListGame.NUMGAMELEVELS+1];
-		leaderboardNumberDiamond = new int[LevelsListGame.NUMGAMELEVELS+1];
+		leaderboardNameEmerald = new String[LevelsListGame.NUMGAMELEVELS];
+		leaderboardNameDiamond = new String[LevelsListGame.NUMGAMELEVELS];
 		// TODO :: Need to include the total (emerald+diamond) leaderboard handle here too
 		for (int ll=0; ll<LevelsListGame.NUMGAMELEVELS; ll++) {
 			leaderboardNameEmerald[ll] = String.format("Level%02d_Emerald", ll+1);
 			leaderboardNameDiamond[ll] = String.format("Level%02d_Diamond", ll+1);
 		}
-		leaderboardNameEmerald[LevelsListGame.NUMGAMELEVELS] = "TotalTime_Emerald";
-		leaderboardNameDiamond[LevelsListGame.NUMGAMELEVELS] = "TotalTime_Diamond";
 		// Initialise the variables - get ready for connecting to Steam leaderboards
 		readyForNextLeaderboard = true;
 		loadingLevel = 0;
 	}
 
-	public static boolean uploadTime(int millis, boolean emerald) {
+	public static boolean uploadTime(int millis, boolean diamond) {
 		boolean result = false;
-//		try {
-//			if (emerald) {
-//				if (currentLeaderboardEmerald != null) {
-//					userStatsEmerald.uploadLeaderboardScore(currentLeaderboardEmerald, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, null);
-//				}
-//				//save
-//				result = userStatsEmerald.storeStats();
-//			} else {
-//				if (currentLeaderboardDiamond != null) {
-//					userStatsDiamond.uploadLeaderboardScore(currentLeaderboardDiamond, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, null);
-//				}
+		try {
+			if (diamond) {
+				if (currentLeaderboardDiamond != null) {
+					userStatsDiamond.uploadLeaderboardScore(currentLeaderboardDiamond, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, null);
+				}
 //				//save
 //				result = userStatsDiamond.storeStats();
-//			}
-//		} catch (Exception e) {
-//			isOnline = false;
-//			result = false;
-//		}
+			} else {
+				if (currentLeaderboardEmerald != null) {
+					userStatsEmerald.uploadLeaderboardScore(currentLeaderboardEmerald, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, null);
+				}
+//				//save
+//				result = userStatsEmerald.storeStats();
+			}
+		} catch (Exception e) {
+			isOnline = false;
+			result = false;
+		}
 		return result;
 	}
 
-	public static String RecordString() {
-		return "NEED TO DO THIS IN STEAM VARS";
+	public static void RecordString() {
+		if ((statsLoadedEmerald==2) & (statsLoadedDiamond==2)) {
+			String pb, pbd, rnk, rnkd;
+			if (GameVars.GetLevelStatus(currentLevel-1)==0) {
+				pb = "Level not yet complete!\n";
+				if (currentLevel == LevelsListGame.NUMGAMELEVELS) pbd = "\n";
+				else if (GameVars.CanSkip()) pbd = "Press 's' to skip this level\n\n";
+				else pbd = "No skips left!\n\n";
+			} else if (GameVars.GetLevelStatus(currentLevel-1)==2) {
+				pb = "Level skipped!";
+				pbd = "\n\n";
+			} else {
+				if (playerRankEmerald == -1) rnk = String.format("Unranked", currentLeaderboardEmeraldNumber);
+				else rnk = String.format("World Ranking: %d/%d", playerRankEmerald, currentLeaderboardEmeraldNumber);
+				if (playerRankDiamond == -1) rnkd = String.format("Unranked", currentLeaderboardDiamondNumber);
+				else rnkd = String.format("World Ranking: %d/%d", playerRankDiamond, currentLeaderboardDiamondNumber);
+				pb  = String.format("Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestEmerald), rnk);
+				pbd = String.format("Diamond Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestDiamond), rnkd);
+			}
+			String wr, wrd;
+			if (worldRecordTimesEmerald[0] == -1) wr  = "No World Record\n\n";
+			else wr  = String.format("World Record held by:\n%s\n%s\n\n", worldRecordNamesEmerald[0], GameVars.getTimeString(worldRecordTimesEmerald[0]));
+			if (worldRecordTimesDiamond[0] == -1) wrd  = "No Diamond World Record";
+			else wrd = String.format("Diamond World Record held by:\n%s\n%s", worldRecordNamesDiamond[0], GameVars.getTimeString(worldRecordTimesDiamond[0]));
+			// Put it all together for the current string to display
+			currentDisplayString = pb+pbd+wr+wrd;
+		} else if (statsLoadedEmerald > 2) {
+			statsLoadedEmerald = 2;
+		} else if (statsLoadedDiamond > 2) {
+			statsLoadedDiamond = 2;
+		} else currentDisplayString = "Loading Records";
+		return;
+	}
+
+	public static void RecordStringMenu(boolean diamond) {
+		if (diamond) {
+			if (statsLoadedDiamond==2) {
+				recordMenuStringNames = "";
+				recordMenuStringRanks = "";
+				recordMenuStringTimes = "";
+				for (int ww=0; ww < worldRecordNamesDiamond.length; ww++) {
+					recordMenuStringRanks += String.format("%d\n", ww+1);
+					recordMenuStringNames += String.format("%s\n", worldRecordNamesDiamond[ww]);
+					if (worldRecordNamesDiamond[ww].compareTo("")==0) recordMenuStringTimes += "\n";
+					else recordMenuStringTimes += String.format("%s\n", GameVars.getTimeString(worldRecordTimesDiamond[ww]));
+				}
+				if (playerRankDiamond == 11) {
+					recordMenuStringRanks += String.format("%s", playerRankDiamond);
+					recordMenuStringNames += String.format("%s", playerName);
+					recordMenuStringTimes += String.format("%s", playerBestDiamond);
+				} else if (playerRankDiamond > 11) {
+					recordMenuStringRanks += String.format(":\n%s\n", playerRankDiamond);
+					recordMenuStringNames += String.format(":\n%s\n", playerName);
+					recordMenuStringTimes += String.format(":\n%s\n", playerBestDiamond);
+				}
+			} else if (statsLoadedDiamond>2) {
+				statsLoadedDiamond = 2;
+			} else {
+				recordMenuStringNames = "Loading Records";
+				recordMenuStringRanks = "";
+				recordMenuStringTimes = "";
+				return;
+			}
+		} else {
+			if (statsLoadedEmerald==2) {
+				recordMenuStringNames = "";
+				recordMenuStringRanks = "";
+				recordMenuStringTimes = "";
+				for (int ww=0; ww < worldRecordNamesEmerald.length; ww++) {
+					recordMenuStringRanks += String.format("%d\n", ww+1);
+					recordMenuStringNames += String.format("%s\n", worldRecordNamesEmerald[ww]);
+					if (worldRecordNamesEmerald[ww].compareTo("")==0) recordMenuStringTimes += "\n";
+					else recordMenuStringTimes += String.format("%s\n", GameVars.getTimeString(worldRecordTimesEmerald[ww]));
+				}
+				if (playerRankEmerald == 11) {
+					recordMenuStringRanks += String.format("%s", playerRankEmerald);
+					recordMenuStringNames += String.format("%s", playerName);
+					recordMenuStringTimes += String.format("%s", GameVars.getTimeString(playerBestEmerald));
+				} else if (playerRankEmerald > 11) {
+					recordMenuStringRanks += String.format(":\n%s\n", playerRankEmerald);
+					recordMenuStringNames += String.format(":\n%s\n", playerName);
+					recordMenuStringTimes += String.format(":\n%s\n", GameVars.getTimeString(playerBestEmerald));
+				}
+			} else if (statsLoadedEmerald>2) {
+				statsLoadedEmerald = 2;
+			} else {
+				recordMenuStringNames = "Loading Records";
+				recordMenuStringRanks = "";
+				recordMenuStringTimes = "";
+				return;
+			}
+		}
+		if (statsLoadedEmerald==2) {
+			String pb, pbd, rnk, rnkd;
+			if (GameVars.GetLevelStatus(currentLevel-1)==0) {
+				pb = "Level not yet complete!\n";
+				if (currentLevel == LevelsListGame.NUMGAMELEVELS) pbd = "\n";
+				else if (GameVars.CanSkip()) pbd = "Press 's' to skip this level\n\n";
+				else pbd = "No skips left!\n\n";
+			} else if (GameVars.GetLevelStatus(currentLevel-1)==2) {
+				pb = "Level skipped!";
+				pbd = "\n\n";
+			} else {
+				if (playerRankEmerald == -1) rnk = String.format("Unranked", currentLeaderboardEmeraldNumber);
+				else rnk = String.format("World Ranking: %d/%d", playerRankEmerald, currentLeaderboardEmeraldNumber);
+				if (playerRankDiamond == -1) rnkd = String.format("Unranked", currentLeaderboardDiamondNumber);
+				else rnkd = String.format("World Ranking: %d/%d", playerRankDiamond, currentLeaderboardDiamondNumber);
+				pb  = String.format("Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestEmerald), rnk);
+				pbd = String.format("Diamond Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestDiamond), rnkd);
+			}
+			String wr, wrd;
+			if (worldRecordTimesEmerald[0] == -1) wr  = "No World Record\n\n";
+			else wr  = String.format("World Record held by:\n%s\n%s\n\n", worldRecordNamesEmerald[0], GameVars.getTimeString(worldRecordTimesEmerald[0]));
+			if (worldRecordTimesDiamond[0] == -1) wrd  = "No Diamond World Record";
+			else wrd = String.format("Diamond World Record held by:\n%s\n%s", worldRecordNamesDiamond[0], GameVars.getTimeString(worldRecordTimesDiamond[0]));
+			// Put it all together for the current string to display
+			currentDisplayString = pb+pbd+wr+wrd;
+		} else if (statsLoadedEmerald > 2) {
+			statsLoadedEmerald = 2;
+		} else if (statsLoadedDiamond > 2) {
+			statsLoadedDiamond = 2;
+		} else currentDisplayString = "Loading Records";
+		return;
 	}
 
 	public void disconnect() {

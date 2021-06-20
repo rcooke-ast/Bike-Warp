@@ -48,8 +48,6 @@ public class LevelOptions extends GameState {
     }
     
     public void create() {
-		// First, prepare the leaderboards
-//		SteamVars.prepareLeaderboards(levelNumber);
 		// Now set the initial variables to start the screen
 		firstPlay = true;
     	goToNext = false;
@@ -197,8 +195,15 @@ public class LevelOptions extends GameState {
     		LevelSelectGame.SetCurrentLevel(levelNumber+1);
     		gsm.setState(GameStateManager.PEEK, false, "none", levelNumber, modeValue);
     		checkLevels=0.0f;
-    		if (goToNext) gsm.setState(GameStateManager.LEVELOPTIONS, true, "", levelNumber+1, modeValue);
-        }
+    		if (goToNext) {
+				SteamVars.LoadPBWR(levelNumber+2); // levelNumber is 0 for level 1
+    			gsm.setState(GameStateManager.LEVELOPTIONS, true, "", levelNumber+1, modeValue);
+			} else {
+    			// Going back to the Level select menu, so redo the stats
+    			SteamVars.LoadPBWR(levelNumber+1); // levelNumber is 0 for level 1
+			}
+
+		}
     }
     
     public void update(float dt) {
@@ -220,6 +225,7 @@ public class LevelOptions extends GameState {
     		// Update how many levels should be shown
 			SetTotalOptions();
 	    	UpdateMenu();
+			SteamVars.RecordString();
     	}
     }
     
@@ -285,7 +291,7 @@ public class LevelOptions extends GameState {
 	        	dispText += GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
 	        }
 //	        if (modeValue == 1) dispText += LevelsListCustom.customLevelTimes[levelNumber+1];
-	        if (modeValue == 2) dispText += LevelsListGame.gameLevelDescr[levelNumber+1];
+	        if (modeValue == 2) dispText += SteamVars.currentDisplayString;
         }
 		//  lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
 		glyphLayout.setText(menuText, dispText);

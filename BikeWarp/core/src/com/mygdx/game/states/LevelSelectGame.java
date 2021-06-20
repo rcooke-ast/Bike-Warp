@@ -17,10 +17,7 @@ import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
-import com.mygdx.game.handlers.GameInput;
-import com.mygdx.game.handlers.GameStateManager;
-import com.mygdx.game.handlers.GameVars;
-import com.mygdx.game.handlers.LevelsListGame;
+import com.mygdx.game.handlers.*;
 import com.mygdx.game.utilities.EditorIO;
 
 /**
@@ -32,13 +29,13 @@ public class LevelSelectGame extends GameState {
 	private BitmapFont menuText;
     private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite metalpole, metalcorner;
-    private Texture texture, metalmesh;
+    private Texture metalmesh;
     private float uRight, vTop, sheight;
     private float menuHeight, menuWidth, lvlWidth;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f;
     private int numMin, numLevShow, totalLevels;
     private static int currentLevel;
-    private float checkLevels = 0.0f;
+    private String dispText = "";
 
     public LevelSelectGame(GameStateManager gsm) {
         super(gsm);
@@ -54,7 +51,6 @@ public class LevelSelectGame extends GameState {
         menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         // Update the menu
         UpdateMenu();
-        checkLevels = 0.0f;
         // Load the background metal grid
         metalmesh = BikeGameTextures.LoadTexture("metal_grid");
         float ratio = 4.0f;
@@ -90,6 +86,8 @@ public class LevelSelectGame extends GameState {
         glyphLayout.setText(menuText, "My");
         menuHeight = glyphLayout.height;
         SetNumLevShow();
+        // TODO :: Need to load replay string here
+        SteamVars.RecordString();
     }
     
     private void SetNumLevShow() {
@@ -101,6 +99,7 @@ public class LevelSelectGame extends GameState {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentLevel--;
     		if (currentLevel < 0) currentLevel = totalLevels-1;
+    		if (currentLevel>=1) SteamVars.LoadPBWR(currentLevel);
             BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_B)) {
         	int[] tmpval = GameVars.ValueInt(LevelsListGame.NUMGAMELEVELS, 1);
@@ -109,6 +108,7 @@ public class LevelSelectGame extends GameState {
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentLevel++;
     		if (currentLevel >= totalLevels) currentLevel = 0;
+            if (currentLevel >= 1) SteamVars.LoadPBWR(currentLevel);
             BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu
@@ -133,7 +133,6 @@ public class LevelSelectGame extends GameState {
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(GameStateManager.PEEK, false, "none", currentLevel-1, 2);
-    		checkLevels=0.0f;
         }
     	//if (currentOption == 1) currentLevelTxt = "";
     	if ((currentLevel>numLevShow/2) & (currentLevel<totalLevels-numLevShow/2)) numMin = currentLevel-numLevShow/2;
@@ -198,15 +197,16 @@ public class LevelSelectGame extends GameState {
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
         //lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[currentOption], 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
-        glyphLayout.setText(menuText, LevelsListGame.gameLevelDescr[currentLevel]);
+        if (currentLevel == 0) dispText = "Return to the Main Menu (or press Esc).";
+        else dispText = SteamVars.currentDisplayString;
+        glyphLayout.setText(menuText, dispText);
         lvlWidth = glyphLayout.height;
-        menuText.draw(sb, LevelsListGame.gameLevelDescr[currentLevel], cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
+        menuText.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
         sb.end();
     }
     
     public void dispose() {
     	if (metalmesh != null) metalmesh = null;
-    	if (texture != null) texture.dispose();
     	if (menuText != null) menuText.dispose();
     }
 

@@ -95,12 +95,12 @@ public class MenuRecordsDisplay extends GameState {
 		if (GameInput.isPressed(GameInput.KEY_UP)) {
 			currentOption--;
 			if (currentOption < 0) currentOption = numOptions - 1;
-			if (currentOption >= numExtra) SteamVars.GetSingleLeaderboard(currentOption, diamond);
+			if (currentOption >= numExtra) SteamVars.LoadPBWR(currentOption);
 			BikeGameSounds.PlayMenuSwitch();
 		} else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
 			currentOption++;
 			if (currentOption >= numOptions) currentOption = 0;
-			if (currentOption >= numExtra) SteamVars.GetSingleLeaderboard(currentOption, diamond);
+			if (currentOption >= numExtra) SteamVars.LoadPBWR(currentOption);
 			BikeGameSounds.PlayMenuSwitch();
 		} else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut == -1.0f)) {
 			fadeOut = 1.0f;
@@ -111,7 +111,7 @@ public class MenuRecordsDisplay extends GameState {
 				BikeGameSounds.PlayMenuSelect();
 			}  else {
 				// Refresh the leaderboard (again!)
-				SteamVars.GetSingleLeaderboard(currentOption, diamond);
+				SteamVars.LoadPBWR(currentOption);
 			}
 		} else if (fadeOut == 0.0f) {
 			// Go to the replay menu
@@ -148,7 +148,6 @@ public class MenuRecordsDisplay extends GameState {
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Gdx.gl.glViewport((int) BikeGame.viewport.x, (int) BikeGame.viewport.y, (int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
-		//Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     	sb.setProjectionMatrix(cam.combined);
     	// Render QUESTION
     	if (fadeOut >= 0.0f) sb.setColor(1, 1, 1, fadeOut);
@@ -180,10 +179,26 @@ public class MenuRecordsDisplay extends GameState {
         }
         if (currentOption >= numExtra) {
 			levelFont.setColor(1, 1, 1, alpha);
-			dispText = SteamVars.RecordString();
+			SteamVars.RecordStringMenu(diamond);
+			float lvlHeight, width;
+			// (1) draw ranks
+			dispText = SteamVars.recordMenuStringRanks;
 			glyphLayout.setText(levelFont, dispText);
-			float lvlWidth = glyphLayout.height;
-			levelFont.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
+			lvlHeight = glyphLayout.height;
+			width = glyphLayout.width;
+			levelFont.draw(sb, dispText, cam.position.x, cam.position.y+lvlHeight/2, 1.1f*width, Align.right, true);
+			// (2) draw names
+			dispText = SteamVars.recordMenuStringNames;
+			glyphLayout.setText(levelFont, dispText);
+			lvlHeight = glyphLayout.height;
+			levelFont.draw(sb, dispText, cam.position.x+1.5f*width, cam.position.y+lvlHeight/2, 1.1f*glyphLayout.width, Align.left, true);
+			width *= 1.5f;
+			width += 1.1f*glyphLayout.width;
+			// (3) draw times
+			dispText = SteamVars.recordMenuStringTimes;
+			glyphLayout.setText(levelFont, dispText);
+			lvlHeight = glyphLayout.height;
+			levelFont.draw(sb, dispText, cam.position.x+width, cam.position.y+lvlHeight/2, 1.1f*glyphLayout.width, Align.right, true);
 		}
 		sb.end();
 	}

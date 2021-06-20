@@ -86,6 +86,8 @@ public class MenuRecords extends GameState {
 		scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/ recordWidth;
 		recordList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		recordList.getData().setScale(scaleVal);
+		glyphLayout.setText(recordList, "My");
+		recordHeight = glyphLayout.height;
 	}
 
     @Override
@@ -159,7 +161,7 @@ public class MenuRecords extends GameState {
     	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
     	else question.setColor(1, 1, 1, 1);
-        question.draw(sb, header, (0.5f*SCRWIDTH-qWidth)/2.0f, cam.position.y + (1.5f* recordHeight *numReplayShow)/2 + 1.5f*qHeight);
+        question.draw(sb, header, (0.5f*SCRWIDTH-qWidth)/2.0f, cam.position.y + (1.5f* recordHeight * numOptions)/2 + 1.5f*qHeight);
         // Draw Player Names
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;

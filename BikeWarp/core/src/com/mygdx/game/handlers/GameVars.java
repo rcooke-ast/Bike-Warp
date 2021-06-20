@@ -34,6 +34,7 @@ public class GameVars implements Serializable {
 	public static boolean personalBest = false;
 	public static boolean worldRecord = false;
 	public static int[] plyrID = new int[0];
+	public static String[] plyrName = new String[0];
 	public static ArrayList<Replay[]> plyrReplays = new ArrayList<Replay[]>();
 	public static ArrayList<Replay[]> plyrReplaysDmnd = new ArrayList<Replay[]>();
 	public static ArrayList<ArrayList<int[]>> plyrTimes = new ArrayList<ArrayList<int[]>>();
@@ -56,15 +57,26 @@ public class GameVars implements Serializable {
 	public static int[] worldTotalNames, worldTotalNamesDmnd;
 
 	// Get and Set options
-	public static void SetCurrentPlayer(int id) {
+	public static void SetCurrentPlayerOffline(int id) {
+		currentPlayer = id-1;
+	}
+
+	// Get and Set options
+	public static void SetCurrentPlayer(int id, String name) {
 		for (int ii=0; ii < plyrID.length; ii++) {
 			if (id==plyrID[ii]) {
 				currentPlayer = ii;
+				if (plyrName[currentPlayer].compareTo(name) != 0) {
+					// Player has updated their name online - update it here too
+					plyrName[currentPlayer] = name;
+					SavePlayers();
+				}
 				return;
 			}
 		}
 		// If we get to here and no player ID has been found, then we need to add it here
-		AddPlayer(id);
+		AddPlayer(id, name);
+		currentPlayer = plyrID.length-1;
 		SavePlayers();
 	}
 
@@ -76,6 +88,7 @@ public class GameVars implements Serializable {
 	public static int GetCurrentPlayer() {return currentPlayer;}
 
 	// Get Player properties
+	public static String GetPlayerName() {return plyrName[currentPlayer];}
 	public static boolean GetPlayerFullscreen() {return plyrFullscreen.get(currentPlayer);}
 	public static void SetPlayerFullscreen(boolean value) {
 		plyrFullscreen.set(currentPlayer, value);
@@ -417,12 +430,17 @@ public class GameVars implements Serializable {
 	}
 
 	// Add Player
-	public static void AddPlayer(int steamID) {
+	public static void AddPlayer(int steamID, String name) {
+		// Add the player Account ID
+		int[] oldIDs = plyrID.clone();
+		plyrID = new int[1+oldIDs.length];
+		for (int i=0;i<oldIDs.length;i++) plyrID[i] = oldIDs[i];
+		plyrID[oldIDs.length] = steamID;
 		// Add the player name
-		int[] oldNames = plyrID.clone();
-		plyrID = new int[1+oldNames.length];
-		for (int i=0;i<oldNames.length;i++) plyrID[i] = oldNames[i];
-		plyrID[oldNames.length] = steamID;
+		String[] oldNames = plyrName.clone();
+		plyrName = new String[1+oldNames.length];
+		for (int i=0;i<oldNames.length;i++) plyrName[i] = oldNames[i];
+		plyrName[oldNames.length] = name;
 		// Add the player times
 		plyrTimes.add(GetEmptyTimes(LevelsListGame.NUMGAMELEVELS));
 		plyrTimesDmnd.add(GetEmptyTimes(LevelsListGame.NUMGAMELEVELS));
@@ -529,6 +547,7 @@ public class GameVars implements Serializable {
 
 			// Read objects
 			plyrID = (int[]) oi.readObject();
+			plyrName = (String[]) oi.readObject();
 			plyrFullscreen = (ArrayList<Boolean>) oi.readObject();
 			plyrTimes = (ArrayList<ArrayList<int[]>>) oi.readObject();
 			plyrTimesDmnd = (ArrayList<ArrayList<int[]>>) oi.readObject();
@@ -561,6 +580,7 @@ public class GameVars implements Serializable {
 
 			// Write objects to file
 			o.writeObject(plyrID);
+			o.writeObject(plyrName);
 			o.writeObject(plyrFullscreen);
 			o.writeObject(plyrTimes);
 			o.writeObject(plyrTimesDmnd);
