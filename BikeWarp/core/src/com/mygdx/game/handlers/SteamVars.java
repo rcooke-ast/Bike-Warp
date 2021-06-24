@@ -160,6 +160,7 @@ public class SteamVars {
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
 			if (scoreChanged) {
 				GameVars.StoreReplay(currentLevel-1, false);
+				GameVars.CheckTimes(currentLevel-1, false, score);
 				if (globalRankNew == 1) GameVars.SetWorldRecord(true);
 				else GameVars.SetPersonalBest(true);
 			}
@@ -287,6 +288,7 @@ public class SteamVars {
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
 			if (scoreChanged) {
 				GameVars.StoreReplay(currentLevel-1, true);
+				GameVars.CheckTimes(currentLevel-1, true, score);
 				if (globalRankNew == 1) GameVars.SetWorldRecord(true);
 				else GameVars.SetPersonalBest(true);
 			}
@@ -484,6 +486,11 @@ public class SteamVars {
 	}
 
 	public static void RecordString() {
+		if (!SteamAPI.isSteamRunning()) {
+			// TODO :: Need to deal with offline records
+			currentDisplayString = "Loading Records";
+			return;
+		}
 		if ((statsLoadedEmerald==2) & (statsLoadedDiamond==2)) {
 			String pb, pbd, rnk, rnkd;
 			if (GameVars.GetLevelStatus(currentLevel-1)==0) {
@@ -495,18 +502,18 @@ public class SteamVars {
 				pb = "Level skipped!";
 				pbd = "\n\n";
 			} else {
-				if (playerRankEmerald == -1) rnk = String.format("Unranked", currentLeaderboardEmeraldNumber);
-				else rnk = String.format("World Ranking: %d/%d", playerRankEmerald, currentLeaderboardEmeraldNumber);
-				if (playerRankDiamond == -1) rnkd = String.format("Unranked", currentLeaderboardDiamondNumber);
-				else rnkd = String.format("World Ranking: %d/%d", playerRankDiamond, currentLeaderboardDiamondNumber);
-				pb  = String.format("Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestEmerald), rnk);
-				pbd = String.format("Diamond Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestDiamond), rnkd);
+				if (playerRankEmerald == -1) rnk = "Unranked";
+				else rnk = String.format("World Ranking: %d", playerRankEmerald);
+				if (playerRankDiamond == -1) rnkd = "Unranked";
+				else rnkd = String.format("World Ranking: %d", playerRankDiamond);
+				pb  = String.format("Emerald PB\n%s\n%s\n\n", GameVars.getTimeString(playerBestEmerald), rnk);
+				pbd = String.format("Diamond PB\n%s\n%s\n\n", GameVars.getTimeString(playerBestDiamond), rnkd);
 			}
 			String wr, wrd;
-			if (worldRecordTimesEmerald[0] == -1) wr  = "No World Record\n\n";
-			else wr  = String.format("World Record held by:\n%s\n%s\n\n", worldRecordNamesEmerald[0], GameVars.getTimeString(worldRecordTimesEmerald[0]));
-			if (worldRecordTimesDiamond[0] == -1) wrd  = "No Diamond World Record";
-			else wrd = String.format("Diamond World Record held by:\n%s\n%s", worldRecordNamesDiamond[0], GameVars.getTimeString(worldRecordTimesDiamond[0]));
+			if (worldRecordTimesEmerald[0] == -1) wr  = "No Emerald WR\n\n";
+			else wr  = String.format("Emerald WR\n%s  -  %s\n\n", worldRecordNamesEmerald[0], GameVars.getTimeString(worldRecordTimesEmerald[0]));
+			if (worldRecordTimesDiamond[0] == -1) wrd  = "No Diamond WR";
+			else wrd = String.format("Diamond WR\n%s  -  %s", worldRecordNamesDiamond[0], GameVars.getTimeString(worldRecordTimesDiamond[0]));
 			// Put it all together for the current string to display
 			currentDisplayString = pb+pbd+wr+wrd;
 		} else if (statsLoadedEmerald > 2) {
@@ -518,6 +525,15 @@ public class SteamVars {
 	}
 
 	public static void RecordStringMenu(boolean diamond) {
+		if (!SteamAPI.isSteamRunning()) {
+			// TODO :: Need to deal with offline records
+			// Probably can just set the variables below
+			currentDisplayString = "Steam offline";
+			playerName = "";
+			playerBestEmerald = 0;
+			playerBestDiamond = 0;
+			return;
+		}
 		if (diamond) {
 			if (statsLoadedDiamond==2) {
 				recordMenuStringNames = "";
@@ -537,6 +553,10 @@ public class SteamVars {
 					recordMenuStringRanks += String.format(":\n%s\n", playerRankDiamond);
 					recordMenuStringNames += String.format(":\n%s\n", playerName);
 					recordMenuStringTimes += String.format(":\n%s\n", playerBestDiamond);
+				} else if (playerRankDiamond == -1) {
+					recordMenuStringRanks += String.format(":\n%s\n", " ");
+					recordMenuStringNames += String.format(":\n%s - unranked\n", playerName);
+					recordMenuStringTimes += String.format(":\n%s\n", " ");
 				}
 			} else if (statsLoadedDiamond>2) {
 				statsLoadedDiamond = 2;
@@ -565,6 +585,10 @@ public class SteamVars {
 					recordMenuStringRanks += String.format(":\n%s\n", playerRankEmerald);
 					recordMenuStringNames += String.format(":\n%s\n", playerName);
 					recordMenuStringTimes += String.format(":\n%s\n", GameVars.getTimeString(playerBestEmerald));
+				} else if (playerRankEmerald == -1) {
+					recordMenuStringRanks += String.format(":\n%s\n", " ");
+					recordMenuStringNames += String.format(":\n%s\n", playerName);
+					recordMenuStringTimes += String.format(":\n%s\n", GameVars.getTimeString(playerBestEmerald));
 				}
 			} else if (statsLoadedEmerald>2) {
 				statsLoadedEmerald = 2;
@@ -575,37 +599,36 @@ public class SteamVars {
 				return;
 			}
 		}
-		if (statsLoadedEmerald==2) {
-			String pb, pbd, rnk, rnkd;
-			if (GameVars.GetLevelStatus(currentLevel-1)==0) {
-				pb = "Level not yet complete!\n";
-				if (currentLevel == LevelsListGame.NUMGAMELEVELS) pbd = "\n";
-				else if (GameVars.CanSkip()) pbd = "Press 's' to skip this level\n\n";
-				else pbd = "No skips left!\n\n";
-			} else if (GameVars.GetLevelStatus(currentLevel-1)==2) {
-				pb = "Level skipped!";
-				pbd = "\n\n";
-			} else {
-				if (playerRankEmerald == -1) rnk = String.format("Unranked", currentLeaderboardEmeraldNumber);
-				else rnk = String.format("World Ranking: %d/%d", playerRankEmerald, currentLeaderboardEmeraldNumber);
-				if (playerRankDiamond == -1) rnkd = String.format("Unranked", currentLeaderboardDiamondNumber);
-				else rnkd = String.format("World Ranking: %d/%d", playerRankDiamond, currentLeaderboardDiamondNumber);
-				pb  = String.format("Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestEmerald), rnk);
-				pbd = String.format("Diamond Personal Best:\n%s\n%s\n\n", GameVars.getTimeString(playerBestDiamond), rnkd);
-			}
-			String wr, wrd;
-			if (worldRecordTimesEmerald[0] == -1) wr  = "No World Record\n\n";
-			else wr  = String.format("World Record held by:\n%s\n%s\n\n", worldRecordNamesEmerald[0], GameVars.getTimeString(worldRecordTimesEmerald[0]));
-			if (worldRecordTimesDiamond[0] == -1) wrd  = "No Diamond World Record";
-			else wrd = String.format("Diamond World Record held by:\n%s\n%s", worldRecordNamesDiamond[0], GameVars.getTimeString(worldRecordTimesDiamond[0]));
-			// Put it all together for the current string to display
-			currentDisplayString = pb+pbd+wr+wrd;
-		} else if (statsLoadedEmerald > 2) {
-			statsLoadedEmerald = 2;
-		} else if (statsLoadedDiamond > 2) {
-			statsLoadedDiamond = 2;
-		} else currentDisplayString = "Loading Records";
-		return;
+//		if (statsLoadedEmerald==2) {
+//			String pb, pbd, rnk, rnkd;
+//			if (GameVars.GetLevelStatus(currentLevel-1)==0) {
+//				pb = "Level not yet complete!\n";
+//				if (currentLevel == LevelsListGame.NUMGAMELEVELS) pbd = "\n";
+//				else if (GameVars.CanSkip()) pbd = "Press 's' to skip this level\n\n";
+//				else pbd = "No skips left!\n\n";
+//			} else if (GameVars.GetLevelStatus(currentLevel-1)==2) {
+//				pb = "Level skipped!";
+//				pbd = "\n\n";
+//			} else {
+//				if (playerRankEmerald == -1) rnk = String.format("Unranked", currentLeaderboardEmeraldNumber);
+//				else rnk = String.format("World Ranking: %d", playerRankEmerald);
+//				if (playerRankDiamond == -1) rnkd = String.format("Unranked", currentLeaderboardDiamondNumber);
+//				else rnkd = String.format("World Ranking: %d", playerRankDiamond);
+//				pb  = String.format("Emerald PB\n%s\n%s\n\n", GameVars.getTimeString(playerBestEmerald), rnk);
+//				pbd = String.format("Diamond PB\n%s\n%s\n\n", GameVars.getTimeString(playerBestDiamond), rnkd);
+//			}
+//			String wr, wrd;
+//			if (worldRecordTimesEmerald[0] == -1) wr  = "No Emerald World Record\n\n";
+//			else wr  = String.format("Emerald World Record\n%s\n%s\n\n", worldRecordNamesEmerald[0], GameVars.getTimeString(worldRecordTimesEmerald[0]));
+//			if (worldRecordTimesDiamond[0] == -1) wrd  = "No Diamond World Record";
+//			else wrd = String.format("Diamond World Record\n%s\n%s", worldRecordNamesDiamond[0], GameVars.getTimeString(worldRecordTimesDiamond[0]));
+//			// Put it all together for the current string to display
+//			currentDisplayString = pb+pbd+wr+wrd;
+//		} else if (statsLoadedEmerald > 2) {
+//			statsLoadedEmerald = 2;
+//		} else if (statsLoadedDiamond > 2) {
+//			statsLoadedDiamond = 2;
+//		} else currentDisplayString = "Loading Records";
 	}
 
 	public void disconnect() {

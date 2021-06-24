@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
+import com.codedisaster.steamworks.SteamAPI;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
@@ -99,16 +100,12 @@ public class LevelSelectGame extends GameState {
     	if (GameInput.isPressed(GameInput.KEY_UP)) {
     		currentLevel--;
     		if (currentLevel < 0) currentLevel = totalLevels-1;
-    		if (currentLevel>=1) SteamVars.LoadPBWR(currentLevel);
+    		if ((currentLevel>=1) & (SteamAPI.isSteamRunning())) SteamVars.LoadPBWR(currentLevel);
             BikeGameSounds.PlayMenuSwitch();
-        } else if (GameInput.isPressed(GameInput.KEY_B)) {
-        	int[] tmpval = GameVars.ValueInt(LevelsListGame.NUMGAMELEVELS, 1);
-        	GameVars.plyrLevelComplete.set(GameVars.currentPlayer, tmpval.clone());
-        	UpdateMenu();
         } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
     		currentLevel++;
     		if (currentLevel >= totalLevels) currentLevel = 0;
-            if (currentLevel >= 1) SteamVars.LoadPBWR(currentLevel);
+            if ((currentLevel >= 1) & (SteamAPI.isSteamRunning())) SteamVars.LoadPBWR(currentLevel);
             BikeGameSounds.PlayMenuSwitch();
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu

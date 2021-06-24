@@ -20,7 +20,7 @@ import com.mygdx.game.handlers.ReplayVars;
 
 public class MenuSelectPlayer extends GameState {
     private int currentOption, numPlyrShow, numMin, numOptions;
-    private Sprite background, stars, gamename;
+    private Sprite stars, gamename;
     private BitmapFont question, playerList;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
 	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sheight, plyrWidth, plyrHeight, optWidth, gn_height, gn_width;
@@ -60,10 +60,10 @@ public class MenuSelectPlayer extends GameState {
 		//background = new Sprite(BikeGameTextures.LoadTexture("menu_black"));
 		stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
 		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
-		gn_width = SCRWIDTH;
-		gn_height = SCRHEIGHT;
-//		gn_width = SCRWIDTH*0.7f;
-//		gn_height = gn_width*gamename.getHeight()/gamename.getWidth();
+//		gn_width = SCRWIDTH;
+//		gn_height = SCRHEIGHT;
+		gn_width = SCRWIDTH*0.7f;
+		gn_height = gn_width*gamename.getHeight()/gamename.getWidth();
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -200,7 +200,7 @@ public class MenuSelectPlayer extends GameState {
 	        // Draw Sky
 			//sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+//			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
 			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y-gn_height/2, 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 //			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
@@ -232,11 +232,9 @@ public class MenuSelectPlayer extends GameState {
 	    	else sb.setColor(1, 1, 1, 1);
 	        sb.begin();
 	        // Draw Sky
-	        //sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-			//sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
-			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y-gn_height/2, 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
-//			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
+//			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y-gn_height/2, 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
+			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
@@ -258,7 +256,11 @@ public class MenuSelectPlayer extends GameState {
 	        	optWidth = glyphLayout.width;
 	        	playerList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(i-numMin)*plyrHeight - 2*plyrHeight, optWidth, Align.center, false);
 	        }
-			playerList.draw(sb, "Warning: You are not connected to Steam\nRecords will not be posted", (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(numPlyrShow+2)*plyrHeight - 2*plyrHeight, optWidth, Align.center, true);
+			playerList.setColor(1, 1, 1, alpha);
+	        dispText = "Warning: You are not connected to Steam.\nRecords will not be posted";
+			glyphLayout.setText(playerList, dispText);
+			optWidth = glyphLayout.width;
+			playerList.draw(sb, dispText, (SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*plyrHeight*numPlyrShow)/2 - 1.5f*(numPlyrShow+2)*plyrHeight - 2*plyrHeight, 1.05f*optWidth, Align.center, true);
 	        sb.end();
 		}
 	}

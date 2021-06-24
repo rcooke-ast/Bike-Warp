@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
+import com.codedisaster.steamworks.SteamAPI;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
@@ -196,11 +197,11 @@ public class LevelOptions extends GameState {
     		gsm.setState(GameStateManager.PEEK, false, "none", levelNumber, modeValue);
     		checkLevels=0.0f;
     		if (goToNext) {
-				SteamVars.LoadPBWR(levelNumber+2); // levelNumber is 0 for level 1
+				if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelNumber+2); // levelNumber is 0 for level 1
     			gsm.setState(GameStateManager.LEVELOPTIONS, true, "", levelNumber+1, modeValue);
 			} else {
     			// Going back to the Level select menu, so redo the stats
-    			SteamVars.LoadPBWR(levelNumber+1); // levelNumber is 0 for level 1
+				if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelNumber+1); // levelNumber is 0 for level 1
 			}
 
 		}

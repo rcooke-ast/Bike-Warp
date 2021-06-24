@@ -319,10 +319,10 @@ public class Play extends GameState {
             worldRecordD = GameVars.getTimeString(-1);
             personalRecordD = GameVars.getTimeString(-1);
         } else if ((mode == 2) | (mode==4)) {
-            worldRecord = GameVars.getTimeString(SteamVars.worldRecordEmerald);
-            personalRecord = GameVars.getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID)[0]);
-            worldRecordD = GameVars.getTimeString(SteamVars.worldRecordDiamond);
-            personalRecordD = GameVars.getTimeString(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID)[0]);
+            worldRecord = GameVars.getTimeString(SteamVars.worldRecordTimesEmerald[0]);
+            personalRecord = GameVars.getTimeString(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID));
+            worldRecordD = GameVars.getTimeString(SteamVars.worldRecordTimesDiamond[0]);
+            personalRecordD = GameVars.getTimeString(GameVars.plyrTimesDmnd.get(GameVars.currentPlayer).get(levelID));
         } else {
         	worldRecord = GameVars.getTimeString(-1);
             personalRecord = GameVars.getTimeString(-1);
@@ -667,10 +667,7 @@ public class Play extends GameState {
 //	     	   					GameVars.CheckTimes(GameVars.worldTimesDmnd.get(levelID).clone(), 1, levelID, timerTotal, true);
 	     	   					ReplayVars.currentReplay.replayStatus = ReplayVars.statusDiamond;
                                 if (SteamAPI.isSteamRunning()) SteamVars.uploadTime(timerTotal, true);
-                                else {
-                                    // TODO :: Need to figure out what to do when player is not online
-                                    System.out.println("Not online!");
-                                }
+                                else GameVars.CheckTimes(levelID, true, timerTotal);
                             }
 	     	   			} else {
 		     	   			// Check the records without the diamond
@@ -679,17 +676,14 @@ public class Play extends GameState {
 //	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
                                 ReplayVars.currentReplay.replayStatus = ReplayVars.statusEmerald;
                                 if (SteamAPI.isSteamRunning()) SteamVars.uploadTime(timerTotal, false);
-                                else {
-                                    // TODO :: Need to figure out what to do when player is not online
-                                    System.out.println("Not online!");
-                                }
+                                else { GameVars.CheckTimes(levelID, false, timerTotal);}
 	     	   				}
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 //	     	   			if (mode == 1) LevelsListCustom.updateRecords();
 	     	   			if (mode == 2) {
 		     	   			GameVars.SetLevelComplete(levelID);
-		     	   			SteamVars.LoadPBWR(levelID+1);
+                            if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelID+1);
 	     	   			}
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			gsm.SetPlaying(false);
@@ -704,7 +698,7 @@ public class Play extends GameState {
     	     		    ReplayVars.currentReplay.replayTimer = (int) (TimeUtils.millis()) - timerStart;
     	   			}
     	   			if (forcequit) {
-                        SteamVars.LoadPBWR(levelID+1);
+                        if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelID+1);
                         gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
     	            	gsm.SetPlaying(false);
     	   			} else {

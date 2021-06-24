@@ -25,6 +25,7 @@ public class BikeGame implements ApplicationListener {
 
 	public static final float STEP = 1 / 100f;
 	public float accum;
+	private float gn_width, gn_height;
 
 	private SpriteBatch sb;
 	private OrthographicCamera cam;
@@ -118,7 +119,8 @@ public class BikeGame implements ApplicationListener {
 				// Draw stars
 				sb.draw(stars, hudCam.position.x-viewport.width/2, hudCam.position.y-viewport.height/2, 0, 0, viewport.width, viewport.height, 1.0f, 1.0f, 0.0f);
 				// Draw logo
-				sb.draw(logo, hudCam.position.x-viewport.width/2, hudCam.position.y-viewport.height/2, 0, 0, viewport.width, viewport.height, 1.0f, 1.0f, 0.0f);
+//				sb.draw(logo, hudCam.position.x-viewport.width/2, hudCam.position.y-viewport.height/2, 0, 0, viewport.width, viewport.height, 1.0f, 1.0f, 0.0f);
+				sb.draw(logo, hudCam.position.x-gn_width/2, hudCam.position.y+(viewport.height/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 				// Draw whirl
 //				sb.draw(warp, hudCam.position.x-finishRad, hudCam.position.y-finishRad, finishRad, finishRad, 2.0f*finishRad, 2.0f*finishRad, 1.0f, 1.0f, finAngle);
 //				finAngle += 5.0f;
@@ -137,6 +139,8 @@ public class BikeGame implements ApplicationListener {
 				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("menu_gamename"))) {
 					// texture is available, let's fetch it and do something interesting
 					logo = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
+					gn_width = viewport.width*0.7f;
+					gn_height = gn_width*logo.getHeight()/logo.getWidth();
 					load_logo = true;
 				}
 				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("nitrous_tube"))) {

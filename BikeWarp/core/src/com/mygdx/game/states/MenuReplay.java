@@ -1,19 +1,12 @@
 package com.mygdx.game.states;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
@@ -23,17 +16,17 @@ public class MenuReplay extends GameState {
 	private static final String option1 = "Return to Main Menu";
 	private static final String option2 = "Personal Best Times (Emerald)";
 	private static final String option3 = "Personal Best Times (Diamond)";
+	private static final String option4 = "Custom Replays";
     private int currentOption, numReplayShow, numMin, numOptions;
-    private Sprite background;
+	private Sprite metalpole, metalcorner;
+	private Texture metalmesh;
+	private float uRight, vTop;
     private BitmapFont question, replayList;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
 	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sheight, replayWidth, replayHeight, optWidth;
     private float fadeIn, fadeOut, alpha, fadeTime = 0.5f;
-    private final String header = "Select a replay to watch";
-    private String[] replayFiles;
-    private boolean renaming, fileExists;
-	private String renameFilename;
-	private static final int numExtra = 3;
+    private final String header = "Select a replay option";
+	private static final int numExtra = 4;
 	private static String dispText = "";
 
 	public MenuReplay(GameStateManager gsm) {
@@ -48,8 +41,17 @@ public class MenuReplay extends GameState {
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
 		sheight = 0.7f*SCRHEIGHT;
-        background = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
-        // Grab the bitmap fonts
+
+		// Load the background metal grid
+		metalmesh = BikeGameTextures.LoadTexture("metal_grid");
+		float ratio = 4.0f;
+		uRight = SCRWIDTH * ratio / metalmesh.getWidth();
+		vTop= SCRHEIGHT * ratio / metalmesh.getHeight();
+		// Load the black metal pole and the corner
+		metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black"));
+		metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner"));
+
+		// Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         question.setColor(1, 1, 1, 1);
@@ -65,9 +67,8 @@ public class MenuReplay extends GameState {
         // Now grab the fonts for the player names
         replayList = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
         replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		numOptions = numExtra;
         SetupMenuFont();
-		renaming = false;
-		fileExists = true;
         // Set the fading variables
         fadeOut = -1.0f;
         fadeIn = 0.0f;
@@ -83,7 +84,6 @@ public class MenuReplay extends GameState {
     private void SetupMenuFont() {
 		float scaleVal = 1.0f;
 		// First load the list of replays
-		replayFiles = ReplayVars.GetReplayList();
 		replayList.getData().setScale(scaleVal);
 		glyphLayout.setText(replayList, option1);
 		replayWidth = glyphLayout.width;
@@ -96,13 +96,11 @@ public class MenuReplay extends GameState {
 		glyphLayout.setText(replayList, option3);
 		tstReplayWidth = glyphLayout.width;
 		if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
-		// Remaining options
-		numOptions = numExtra + replayFiles.length;
-		for (int i=0; i<replayFiles.length; i++) {
-			glyphLayout.setText(replayList, replayFiles[i]);
-			tstReplayWidth = glyphLayout.width;
-			if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
-		}
+		// Option 4
+		glyphLayout.setText(replayList, option4);
+		tstReplayWidth = glyphLayout.width;
+		if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
+		// Set it up
 		scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/replayWidth;
 		replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		replayList.getData().setScale(scaleVal);
@@ -111,80 +109,39 @@ public class MenuReplay extends GameState {
 
     @Override
 	public void handleInput() {
-		if (renaming) {
-			if (GameInput.isPressed(GameInput.KEY_ESC)) {
-				renaming = false;
-				renameFilename = "";
-				fileExists = true;
-			}
-			else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (!fileExists)) {
-				// Rename the file
-				Path src = Paths.get(ReplayVars.replayDir+replayFiles[currentOption-numExtra]+ReplayVars.replayExt);
-				Path dst = Paths.get(ReplayVars.replayDir+renameFilename+ReplayVars.replayExt);
-				try {
-					Files.move(src, dst, StandardCopyOption.REPLACE_EXISTING);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				SetupMenuFont();
-				renaming = false;
-			}
-		} else {
-			if (GameInput.isPressed(GameInput.KEY_UP)) {
-				currentOption--;
-				if (currentOption < 0) currentOption = numOptions - 1;
-				if (currentOption >= numExtra) ReplayVars.LoadReplay(replayFiles[currentOption - numExtra]);
-				BikeGameSounds.PlayMenuSwitch();
-			} else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
-				currentOption++;
-				if (currentOption >= numOptions) currentOption = 0;
-				if (currentOption >= numExtra) ReplayVars.LoadReplay(replayFiles[currentOption - numExtra]);
-				BikeGameSounds.PlayMenuSwitch();
-			} else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut == -1.0f)) {
+		if (GameInput.isPressed(GameInput.KEY_UP)) {
+			currentOption--;
+			if (currentOption < 0) currentOption = numOptions - 1;
+			BikeGameSounds.PlayMenuSwitch();
+		} else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
+			currentOption++;
+			if (currentOption >= numOptions) currentOption = 0;
+			BikeGameSounds.PlayMenuSwitch();
+		} else if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut == -1.0f)) {
+			fadeOut = 1.0f;
+			BikeGameSounds.PlayMenuSelect();
+		} else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut == -1.0f)) {
+			if (currentOption == 0) {
 				fadeOut = 1.0f;
 				BikeGameSounds.PlayMenuSelect();
-			} else if ((GameInput.isPressed(GameInput.KEY_D)) & (fadeOut == -1.0f) & (currentOption >= numExtra)) {
-				// Get the name of the file to be deleted
-				String delfile = replayFiles[currentOption - numExtra];
-				// Check if we need to change the current option
-				if (currentOption == numOptions - 1) currentOption--;
-				// Delete the file
-				File file = new File(Gdx.files.internal("replays/" + delfile + ReplayVars.replayExt).toString());
-				file.delete();
-				// Finally, check the fonts
-				SetupMenuFont();
-			} else if ((GameInput.isPressed(GameInput.KEY_R)) & (fadeOut == -1.0f)  & (currentOption >= numExtra) & (!renaming)) {
-				// Renaming a file
-				GameInput.setCharacter("");
-				renaming = true;
-				renameFilename = replayFiles[currentOption - numExtra];
-			} else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut == -1.0f)) {
-				if (currentOption == 0) {
-					fadeOut = 1.0f;
-					BikeGameSounds.PlayMenuSelect();
-				} else if (currentOption == 1) {
-					// Display Replay Menu for PB times (Emerald)
-					gsm.setState(GameStateManager.MENUREPLAYPB, true, "", -1, 0);
-				} else if (currentOption == 2) {
-					// Display Replay Menu for PB times (Diamond)
-					gsm.setState(GameStateManager.MENUREPLAYPB, true, "", -1, 1);
-				} else if (dispText.compareTo(ReplayVars.ReplayNotFound)!=0) {
-					// Load the replay
-					ReplayVars.ResetReplayCounter();
-					int mode = ReplayVars.currentReplay.replayMode; // Determine if it's a training or game level
-					// Now execute the replay
-					gsm.setState(GameStateManager.PLAY, true, ReplayVars.currentReplay.levelName, ReplayVars.currentReplay.levelNumber, mode);
-				}
-			} else if (fadeOut == 0.0f) {
-				// Go to the main menu
-				fadeOut = -1.0f;
-				gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
+			} else if (currentOption == 1) {
+				// Display Replay Menu for PB times (Emerald)
+				gsm.setState(GameStateManager.MENUREPLAYPB, true, "", -1, 0);
+			} else if (currentOption == 2) {
+				// Display Replay Menu for PB times (Diamond)
+				gsm.setState(GameStateManager.MENUREPLAYPB, true, "", -1, 1);
+			} else if (currentOption == 3) {
+				gsm.setState(GameStateManager.MENUREPLAYCUSTOM, true, "", -1, 1);
 			}
-			if ((currentOption > numReplayShow / 2) & (currentOption < numOptions - numReplayShow / 2))
-				numMin = currentOption - numReplayShow / 2;
-			else if (currentOption <= numReplayShow / 2) numMin = 0;
-			else if (currentOption >= numOptions - numReplayShow / 2) numMin = numOptions - numReplayShow;
+		} else if (fadeOut == 0.0f) {
+			// Go to the main menu
+			fadeOut = -1.0f;
+			gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
 		}
+		if ((currentOption > numReplayShow / 2) & (currentOption < numOptions - numReplayShow / 2))
+			numMin = currentOption - numReplayShow / 2;
+		else if (currentOption <= numReplayShow / 2) numMin = 0;
+		else if (currentOption >= numOptions - numReplayShow / 2) numMin = numOptions - numReplayShow;
 	}
 
 	@Override
@@ -218,8 +175,16 @@ public class MenuReplay extends GameState {
     	else if (fadeIn < 1.0f) sb.setColor(1, 1, 1, fadeIn);
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
-        // Draw Sky
-        sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		// Draw metal mesh, pole, and corners
+		sb.draw(metalmesh, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH, (float) SCRHEIGHT, 0.0f, 0.0f, uRight, vTop);
+		sb.draw(metalpole, cam.position.x-SCRWIDTH/2+0.075f*SCRHEIGHT, cam.position.y+0.425f*SCRHEIGHT, 0, 0, SCRWIDTH-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		sb.draw(metalpole, cam.position.x-SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, 0.0375f*SCRHEIGHT, SCRWIDTH-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+		sb.draw(metalpole, cam.position.x-SCRWIDTH/2-SCRHEIGHT/2+0.0375f*SCRHEIGHT, cam.position.y-0.0375f*SCRHEIGHT+0.075f*SCRHEIGHT, SCRHEIGHT/2, 0.0375f*SCRHEIGHT, SCRHEIGHT-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
+		sb.draw(metalpole, cam.position.x+SCRWIDTH/2-SCRHEIGHT/2-0.0375f*SCRHEIGHT, cam.position.y-0.0375f*SCRHEIGHT-0.075f*SCRHEIGHT, SCRHEIGHT/2, 0.0375f*SCRHEIGHT, SCRHEIGHT-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
+		sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y+0.425f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+		sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y+0.425f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
+		sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
         // Draw the text
     	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
     	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
@@ -237,32 +202,12 @@ public class MenuReplay extends GameState {
         	if (i == 0) dispText = option1;
         	else if (i == 1) dispText = option2;
         	else if (i == 2) dispText = option3;
-        	else dispText = replayFiles[i-numExtra];
-        	if ((renaming) & (currentOption == i)) {
-				if (GameInput.currChar != "") {
-					if ((renameFilename.length() > 0) & (GameInput.currChar == "\b")) renameFilename = renameFilename.substring(0, renameFilename.length() - 1);
-					else if (renameFilename.length() <= 20) renameFilename += GameInput.currChar;
-					GameInput.setCharacter("");
-					fileExists = ReplayVars.CheckExists(renameFilename);
-				}
-				dispText = renameFilename;
-			}
+			else if (i == 3) dispText = option4;
         	// Render the text
 			glyphLayout.setText(replayList, dispText);
         	optWidth = glyphLayout.width;
         	replayList.draw(sb, dispText, (0.5f*SCRWIDTH-optWidth)/2.0f, cam.position.y + (1.5f*replayHeight*numReplayShow)/2 - 1.5f*(i-numMin)*replayHeight);
         }
-        if (currentOption >= numExtra) {
-			replayList.setColor(1, 1, 1, alpha);
-			if (renaming) {
-				dispText = "Renaming Replay\n\nPress ESC to cancel\nPress Enter to confirm";
-				if (fileExists) dispText += "\n\nFile exists!";
-				else dispText += "\n\n";
-			} else dispText = ReplayVars.ReplayString(true);
-			glyphLayout.setText(replayList, dispText);
-			float lvlWidth = glyphLayout.height;
-			replayList.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
-		}
 		sb.end();
 	}
 
