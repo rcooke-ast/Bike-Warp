@@ -111,9 +111,9 @@ public class MainMenu extends GameState {
         	sGoal++;
 //        	else lastStationary = (Math.abs(lastStationary + scrollLevel)%OptionsMainMenu.menuOptions.length);
 //        	scrollGoal -= scrollLevel;
-//        } else if ((GameInput.isPressed(GameInput.KEY_E)) & (fadeOut==-1.0f)) {
-//			fadeOut=1.0f;
-//			goToLevel = GameStateManager.EDITOR;
+        } else if ((GameInput.isPressed(GameInput.KEY_E)) & (fadeOut==-1.0f)) {
+			fadeOut=1.0f;
+			goToLevel = GameStateManager.EDITOR;
 		} else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (sGoal==0) & (fadeOut==-1.0f)) {
         	fadeOut=1.0f;
         	switch (OptionsMainMenu.menuStrings[OptionsMainMenu.getCurrent()]) {

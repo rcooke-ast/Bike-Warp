@@ -105,6 +105,9 @@ public class GameVars implements Serializable {
 		for (int ii=0; ii<newControls.length; ii++) {
 			if (newControls[ii] == value) return false;
 		}
+		// Not allowed to use ESC
+		if (value == Keys.ESCAPE) return false;
+		// Assign the new value
 		newControls[index] = value;
 		plyrControls.set(currentPlayer, newControls.clone());
 		// Finally save the updates
@@ -388,7 +391,7 @@ public class GameVars implements Serializable {
 	}
 
 	public static int[] GetDefaultControls() {
-		int[] controls = new int[8];
+		int[] controls = new int[9];
 		controls[0] = Keys.UP;
 		controls[1] = Keys.DOWN;
 		controls[2] = Keys.RIGHT;
@@ -397,6 +400,7 @@ public class GameVars implements Serializable {
 		controls[5] = Keys.B;
 		controls[6] = Keys.N;
 		controls[7] = Keys.R;
+		controls[8] = Keys.Q;
 		return controls.clone();
 	}
 

@@ -53,7 +53,7 @@ public class BikeGameTextures {
 
     private static void GetLevelImages() {
         // Load the items required for the splash screen
-        GetTexture("bg_StarsBlueGreen");
+        GetTexture("bg_StarsSparse");
         GetTexture("menu_gamename");
         GetTexture("nitrous_tube");
         GetTexture("nitrous_fluid");
@@ -64,6 +64,7 @@ public class BikeGameTextures {
         GetTexture("rear_suspension");
         GetTexture("front_suspension");
         GetTexture("bikewheel");
+        GetTexture("bike_colortile");
         // Load Level images
         GetTexture("bolt");
         GetTexture("boulder");
@@ -226,6 +227,7 @@ public class BikeGameTextures {
         GetTexture("bg_Stargazer");
         GetTexture("bg_StarsBlue");
         GetTexture("bg_StarsBlueDust");
+        GetTexture("bg_StarsBlueGreen");
         GetTexture("bg_StarsBluePurple");
         GetTexture("bg_StarsCloudsBlueOrange");
         GetTexture("bg_StarsDusty");
@@ -235,7 +237,6 @@ public class BikeGameTextures {
         GetTexture("bg_StarsPurpleOrange");
         GetTexture("bg_StarsRed");
         GetTexture("bg_StarsRocksBluePink");
-        GetTexture("bg_StarsSparse");
         GetTexture("bg_TreesStarsGreen");
         GetTexture("bg_Waterfall3");
         GetTexture("foreground_bushes");

@@ -30,9 +30,14 @@ public class GameInputProcessor extends InputMultiplexer {
 
 	public boolean keyDown(int k) {
     	// Check the escape/restart key first (we always need escape/restart)
-        if ((k == Keys.ESCAPE) | (k == Keys.Q)) {
+        if (k == Keys.ESCAPE) {
         	GameInput.setKey(GameInput.KEY_ESC, true);
         	if (disable_keys) return true;
+        } else if (GameVars.currentPlayer != -1) {
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[8]) {
+                GameInput.setKey(GameInput.KEY_ESC, true);
+                if (disable_keys) return true;
+            }
         }
         // Check is keys are disabled
     	if (disable_keys) return false;
@@ -83,9 +88,14 @@ public class GameInputProcessor extends InputMultiplexer {
 
     public boolean keyUp(int k) {
     	// Check the escape key first (we always need escape)
-        if ((k == Keys.ESCAPE) | (k == Keys.Q)) {
-        	GameInput.setKey(GameInput.KEY_ESC, false);
-        	if (disable_keys) return true;
+        if (k == Keys.ESCAPE) {
+            GameInput.setKey(GameInput.KEY_ESC, false);
+            if (disable_keys) return true;
+        } else if (GameVars.currentPlayer != -1) {
+            if (k == GameVars.plyrControls.get(GameVars.currentPlayer)[8]) {
+                GameInput.setKey(GameInput.KEY_ESC, false);
+                if (disable_keys) return true;
+            }
         }
         if (disable_keys) return false;
     	// Game keys

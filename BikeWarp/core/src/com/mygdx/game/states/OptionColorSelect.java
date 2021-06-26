@@ -2,13 +2,16 @@ package com.mygdx.game.states;
 
 import java.awt.Color;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
@@ -19,19 +22,90 @@ import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 
 public class OptionColorSelect extends GameState {
+    private static final float[][][] allBikeColors = {
+            {{100.0f/255.0f, 30.0f/255.0f, 22.0f/255.0f},
+                    {146.0f/255.0f, 43.0f/255.0f, 33/255.0f},
+                    {192.0f/255.0f, 57.0f/255.0f, 43/255.0f},
+                    {217.0f/255.0f, 136.0f/255.0f, 128/255.0f},
+                    {242.0f/255.0f, 215.0f/255.0f, 213/255.0f}},
+            {{120.0f/255.0f, 40.0f/255.0f, 31.0f/255.0f},
+                    {176.0f/255.0f, 58.0f/255.0f, 46.0f/255.0f},
+                    {231.0f/255.0f, 76.0f/255.0f, 60.0f/255.0f},
+                    {241.0f/255.0f, 148.0f/255.0f, 138.0f/255.0f},
+                    {250.0f/255.0f, 219.0f/255.0f, 216.0f/255.0f}},
+            {{110.0f/255.0f, 44.0f/255.0f, 0.0f/255.0f},
+                    {160.0f/255.0f, 64.0f/255.0f, 0.0f/255.0f},
+                    {211.0f/255.0f, 84.0f/255.0f, 0.0f/255.0f},
+                    {229.0f/255.0f, 152.0f/255.0f, 102.0f/255.0f},
+                    {246.0f/255.0f, 221.0f/255.0f, 204.0f/255.0f}},
+            {{126.0f/255.0f, 81.0f/255.0f, 9.0f/255.0f},
+                    {185.0f/255.0f, 119.0f/255.0f, 14.0f/255.0f},
+                    {243.0f/255.0f, 156.0f/255.0f, 18.0f/255.0f},
+                    {248.0f/255.0f, 196.0f/255.0f, 113.0f/255.0f},
+                    {253.0f/255.0f, 235.0f/255.0f, 208.0f/255.0f}},
+            {{125.0f/255.0f, 102.0f/255.0f, 8.0f/255.0f},
+                    {183.0f/255.0f, 149.0f/255.0f, 11.0f/255.0f},
+                    {241.0f/255.0f, 196.0f/255.0f, 15.0f/255.0f},
+                    {247.0f/255.0f, 220.0f/255.0f, 111.0f/255.0f},
+                    {252.0f/255.0f, 243.0f/255.0f, 207.0f/255.0f}},
+            {{20.0f/255.0f, 90.0f/255.0f, 50.0f/255.0f},
+                    {30.0f/255.0f, 132.0f/255.0f, 73.0f/255.0f},
+                    {39.0f/255.0f, 174.0f/255.0f, 96.0f/255.0f},
+                    {125.0f/255.0f, 206.0f/255.0f, 160.0f/255.0f},
+                    {212.0f/255.0f, 239.0f/255.0f, 223.0f/255.0f}},
+            {{11.0f/255.0f, 83.0f/255.0f, 69.0f/255.0f},
+                    {17.0f/255.0f, 122.0f/255.0f, 101.0f/255.0f},
+                    {22.0f/255.0f, 160.0f/255.0f, 133.0f/255.0f},
+                    {115.0f/255.0f, 198.0f/255.0f, 182.0f/255.0f},
+                    {208.0f/255.0f, 236.0f/255.0f, 231.0f/255.0f}},
+            {{14.0f/255.0f, 98.0f/255.0f, 81.0f/255.0f},
+                    {20.0f/255.0f, 143.0f/255.0f, 119.0f/255.0f},
+                    {26.0f/255.0f, 188.0f/255.0f, 156.0f/255.0f},
+                    {118.0f/255.0f, 215.0f/255.0f, 196.0f/255.0f},
+                    {209.0f/255.0f, 242.0f/255.0f, 235.0f/255.0f}},
+            {{27.0f/255.0f, 79.0f/255.0f, 114.0f/255.0f},
+                    {40.0f/255.0f, 116.0f/255.0f, 166.0f/255.0f},
+                    {52.0f/255.0f, 152.0f/255.0f, 219.0f/255.0f},
+                    {133.0f/255.0f, 193.0f/255.0f, 233.0f/255.0f},
+                    {214.0f/255.0f, 234.0f/255.0f, 248.0f/255.0f}},
+            {{21.0f/255.0f, 67.0f/255.0f, 96.0f/255.0f},
+                    {31.0f/255.0f, 97.0f/255.0f, 141.0f/255.0f},
+                    {41.0f/255.0f, 128.0f/255.0f, 185.0f/255.0f},
+                    {127.0f/255.0f, 179.0f/255.0f, 213.0f/255.0f},
+                    {212.0f/255.0f, 230.0f/255.0f, 241.0f/255.0f}},
+            {{81.0f/255.0f, 46.0f/255.0f, 95.0f/255.0f},
+                    {118.0f/255.0f, 68.0f/255.0f, 138.0f/255.0f},
+                    {155.0f/255.0f, 89.0f/255.0f, 182.0f/255.0f},
+                    {195.0f/255.0f, 155.0f/255.0f, 211.0f/255.0f},
+                    {235.0f/255.0f, 222.0f/255.0f, 240.0f/255.0f}},
+            {{27.0f/255.0f, 38.0f/255.0f, 49.0f/255.0f},
+                    {40.0f/255.0f, 55.0f/255.0f, 71.0f/255.0f},
+                    {52.0f/255.0f, 73.0f/255.0f, 94.0f/255.0f},
+                    {133.0f/255.0f, 146.0f/255.0f, 158.0f/255.0f},
+                    {214.0f/255.0f, 219.0f/255.0f, 223.0f/255.0f}},
+            {{25.0f/255.0f, 25.0f/255.0f, 25.0f/255.0f},
+                    {76.0f/255.0f, 76.0f/255.0f, 76.0f/255.0f},
+                    {127.0f/255.0f, 127.0f/255.0f, 127.0f/255.0f},
+                    {178.0f/255.0f, 178.0f/255.0f, 178.0f/255.0f},
+                    {229.0f/255.0f, 229.0f/255.0f, 229.0f/255.0f}},
+    };
+
 	private float SCRWIDTH, SCRHEIGHT;
 	private BitmapFont menuText;
+	private String menuString;
     private static GlyphLayout glyphLayout = new GlyphLayout();
-    private Sprite arrow, grass, dirt, sky, wheel, fsusp, rsusp, bwite, bolay, black;
+    private Sprite chart, grass, dirt, sky, wheel, fsusp, rsusp, bwite, bolay, black;
     private float rSuspXL, rSuspYL, rSuspAngL, rSuspWidthL, rSuspHeightL, rSuspXR, rSuspYR, rSuspAngR, rSuspWidthR, rSuspHeightR;
     private float fSuspXL, fSuspYL, fSuspAngL, fSuspWidthL, fSuspHeightL, fSuspXR, fSuspYR, fSuspAngR, fSuspWidthR, fSuspHeightR;
-    private float wwidth, wheight, owidth, oheight, mWidth, mHeight, mPos, angle;
+    private float wwidth, wheight, owidth, oheight, mWidth, mHeight, angle;
     private float gscale, gspeed, dscale, bikeScale=1.0f, bikeScaleLev=0.05f, bikeDirc=1.0f;
     private float[] hsb, rgb;
     private float shiftVal = 0.002f;
     private int gnwrap, dnwrapx, dnwrapy;
     private float groundTimer, fadeOut, fadeIn, fadeTime = 0.5f, spdFact;
-    private int currentOption;
+    private int xOption, yOption;
+    // Setup params for the color selection
+    private float x_bot, sqrsz, y_bot;
 
 	public OptionColorSelect(GameStateManager gsm) {
         super(gsm);
@@ -43,21 +117,20 @@ public class OptionColorSelect extends GameState {
         SCRWIDTH = BikeGame.viewport.width;
         SCRHEIGHT = BikeGame.viewport.height;
 		// Prepare the Sprites to be used on this screen
-		arrow = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_arrow")));
 		black = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("menu_black")));
 		wheel = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bikewheel")));
         fsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("front_suspension")));
         rsusp = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("rear_suspension")));
         bwite = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_white")));
         bolay = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bike_overlay")));
-        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("sky_bluesky")));
+        sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("bg_StarsSparse")));
         grass = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("grass_smooth_linrep")));
         dirt = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName("cracked_dirt_linrep")));
         groundTimer = 0.0f;
         fadeOut = -1.0f;
         fadeIn = 0.0f;
         // Set the widths and heights of the textures
-        oheight = SCRHEIGHT*(1.0f - 0.5f*(446.0f/1090.0f))*(2.0f/3.0f);
+        oheight = SCRHEIGHT*(1.0f - 0.5f*(446.0f/1090.0f))*(1.0f/3.0f);
         owidth  = oheight*(1413.0f/1090.0f);
         wheight = oheight*(446.0f/1090.0f);
         wwidth  = wheight;
@@ -70,11 +143,7 @@ public class OptionColorSelect extends GameState {
         gnwrap = 1 + (int) (Gdx.graphics.getWidth()/(gscale*dscale*wwidth*8.0f));
         dnwrapx = 1 + (int) (Gdx.graphics.getWidth()/(dscale*wwidth*4.0f));
         dnwrapy = 1 + (int) ((cam.position.y-wheight/2.0f-0.75f*(dscale*wheight))/(dscale*wwidth*4.0f));
-        currentOption=0;
-        // Get current user Bike color
-        hsb = new float[3];
-        rgb = GameVars.GetPlayerBikeColor().clone();
-        Color.RGBtoHSB((int)(rgb[0]*255.0f), (int)(rgb[1]*255.0f), (int)(rgb[2]*255.0f), hsb);
+        SetStartingColor();
         // Calculate the coordinates for the Rear Suspension
         float bcx, bcy, wcx, wcy, mtopix = wwidth*(968.0f/446.0f);
         // Prepare the rear suspension (Left wheel)
@@ -125,60 +194,69 @@ public class OptionColorSelect extends GameState {
         fSuspXL = wcx-fSuspWidthL*15.0f/512.0f;
         fSuspYL = wcy+fSuspHeightL*15.0f/64.0f;
 		// Prepare the bitmap fonts
-        menuText = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
+        menuText = new BitmapFont(Gdx.files.internal("data/recordsmenu.fnt"), false);
+//        menuText = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        menuText.setColor(1, 1, 1, 1);
-        float scaleVal = 0.5f;
+        menuText.setColor(0.9f, 0.9f, 0.9f, 1);
+        float scaleVal = 1.0f;
         menuText.getData().setScale(scaleVal);
-        glyphLayout.setText(menuText, "Accelerate and switch direction to");
+        menuString = String.format("Use the arrow keys to change the bike color\n" +
+                "Press ENTER to set bike color,\nPress '%s' to cancel", Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[8]));
+        glyphLayout.setText(menuText, menuString);
         mWidth = glyphLayout.width;
-        if ((mWidth/0.5f) > SCRWIDTH) scaleVal = 0.25f*SCRWIDTH/mWidth;
+        scaleVal = 0.35f*SCRWIDTH/mWidth;
         menuText.getData().setScale(scaleVal);
-        glyphLayout.setText(menuText, "Accelerate and switch direction to");
-        mWidth = glyphLayout.width;
-        mHeight = glyphLayout.height;
-        float topgap = SCRHEIGHT*(11.0f/12.0f) - (0.5f*wheight + oheight);
-        if (topgap < 3.0f*mHeight) scaleVal *= (topgap/(3.0f*mHeight)); 
-        menuText.getData().setScale(scaleVal);
-        glyphLayout.setText(menuText, "Accelerate and switch direction to");
-        mHeight = glyphLayout.height;
-        mPos  = cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight + oheight; // This position marks the top of the player
-        mPos += 0.75f*mHeight; // add half the menu height
+
+        // Prepare the color chart
+        float fullwidth = 0.4f;
+        sqrsz = SCRWIDTH*fullwidth/allBikeColors.length;
+        x_bot = cam.position.x - 0.5f*SCRWIDTH*fullwidth;
+        y_bot = cam.position.y + SCRHEIGHT/2 - sqrsz*allBikeColors[0].length - 0.2f*SCRHEIGHT;
+        chart = new Sprite(BikeGameTextures.LoadTexture("bike_colortile"));
+    }
+
+    private void SetStartingColor() {
+	    float xDist, yDist, bst, tmp;
+	    float[] rgbCurr = GameVars.GetPlayerBikeColor();
+	    bst = 4*255;
+        for (int xx=0; xx<allBikeColors.length; xx++) {
+            for (int yy=0; yy<allBikeColors[xx].length; yy++) {
+                tmp = 0.0f;
+                for (int ii=0; ii<3; ii++) tmp += Math.abs(rgbCurr[ii]-allBikeColors[xx][yy][ii]);
+                if (tmp < bst) {
+                    xOption = xx;
+                    yOption = yy;
+                    bst = tmp;
+                }
+            }
+        }
     }
 
 	@Override
 	public void handleInput() {
-    	if (GameInput.isPressed(GameInput.KEY_LEFT)) {
-        	currentOption -= 1;
-        	if (currentOption < 0) currentOption=4;
-    	} else if (GameInput.isPressed(GameInput.KEY_RIGHT)) {
-        	currentOption += 1;
-        	if (currentOption > 4) currentOption=0;
-    	} else if (GameInput.isPressed(GameInput.KEY_CHDIR)) {
-    		shiftVal *= -1.0f;
-    		bikeDirc *= -1.0f;
-    		bikeScaleLev *= -1.0f;
-    		bikeScale += bikeScaleLev;
-        } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (currentOption==0) & (fadeOut==-1.0f)) {
-            GameVars.SetPlayerBikeColor(ColorUtils.hsbToRgb(hsb[0], hsb[1], hsb[2]));
+        if ((GameInput.isPressed(GameInput.KEY_ESC)) & (fadeOut==-1.0f)) {
+            fadeOut=1.0f;
+        } else if (GameInput.isPressed(GameInput.KEY_LEFT)) {
+            xOption -= 1;
+            if (xOption < 0) xOption = allBikeColors.length-1;
+        } else if (GameInput.isPressed(GameInput.KEY_RIGHT)) {
+            xOption += 1;
+            if (xOption > allBikeColors.length-1) xOption=0;
+        } else if (GameInput.isPressed(GameInput.KEY_UP)) {
+            yOption += 1;
+            if (yOption > allBikeColors[0].length-1) yOption=0;
+        } else if (GameInput.isPressed(GameInput.KEY_DOWN)) {
+            yOption -= 1;
+            if (yOption < 0) yOption= allBikeColors[0].length-1;
+        } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
+            GameVars.SetPlayerBikeColor(allBikeColors[xOption][yOption].clone());
             GameVars.SavePlayers();
             fadeOut=1.0f;
-        } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (currentOption==1) & (fadeOut==-1.0f)) {
-    	    float[] rgb = GameVars.GetDefaultBikeColor();
-    	    hsb = Color.RGBtoHSB((int)(255*rgb[0]), (int)(255*rgb[1]), (int)(255*rgb[2]), null);
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
     		gsm.setState(GameStateManager.PEEK, false, "none", -1, 0);
     		fadeIn=0.0f;
         }
-    	if (GameInput.isDown(GameInput.KEY_ACCEL)) {
-    		if (currentOption>=2) {
-    			hsb[currentOption-2] += shiftVal;
-    			if (hsb[currentOption-2] > 1.0f) hsb[currentOption-2] = 0.0f;
-    			else if (hsb[currentOption-2] < 0.0f) hsb[currentOption-2] = 1.0f;
-    			spdFact = bikeDirc*3.0f;
-    		}
-    	} else spdFact = bikeDirc*1.0f;
 	}
 
 	@Override
@@ -234,8 +312,7 @@ public class OptionColorSelect extends GameState {
         sb.draw(wheel, cam.position.x-0.5f*wwidth*(1.0f-(968.0f/446.0f)), cam.position.y - SCRHEIGHT*(5.0f/12.0f), wwidth/2.0f, wheight/2.0f, wwidth, wheight, 1.0f, 1.0f, angle);
         sb.end();
         // Draw colored part of the bike
-        Color rgbcol = Color.getHSBColor(hsb[0], hsb[1], hsb[2]);
-    	sb.setColor(rgbcol.getRed()/255.0f, rgbcol.getGreen()/255.0f, rgbcol.getBlue()/255.0f, 1);
+    	sb.setColor(allBikeColors[xOption][yOption][0], allBikeColors[xOption][yOption][1], allBikeColors[xOption][yOption][2], 1);
     	float bscale = (float)Math.sin(bikeScale*Math.PI/2);
         sb.begin();
         sb.draw(bwite, cam.position.x-0.5f*wwidth*bscale*(1.0f+(968.0f/446.0f)), cam.position.y - SCRHEIGHT*(5.0f/12.0f) + 0.5f*wheight, bscale*owidth/2.0f, oheight/2.0f, bscale*owidth, oheight, 1.0f, 1.0f, 0);
@@ -289,23 +366,16 @@ public class OptionColorSelect extends GameState {
         // Draw menu text
         sb.setColor(1, 1, 1, 1);
         sb.begin();
-        String text = "";
-        if (currentOption<=1) text = "Press enter to";
-        else text = "Accelerate and switch direction to";
-        glyphLayout.setText(menuText, text);
-        mWidth = glyphLayout.width;
-        menuText.draw(sb, text, (SCRWIDTH-mWidth)/2.0f,mPos+1.75f*mHeight+menuText.getXHeight());
-        if (currentOption==0) text = "return to the options menu";
-        else if (currentOption==1) text = "set the default color";
-        else if (currentOption==2) text = "change bike color";
-        else if (currentOption==3) text = "saturate bike color";
-        else if (currentOption==4) text = "change bike shade";
-        glyphLayout.setText(menuText, text);
-        mWidth = glyphLayout.width;
-        menuText.draw(sb, text, (SCRWIDTH-mWidth)/2.0f,mPos+0.5f*mHeight+menuText.getXHeight());
-        // Draw menu arrows
-        sb.draw(arrow, (SCRWIDTH-mWidth)/2.0f - mHeight, mPos, 0.5f*mHeight/1.55f, 0.5f*mHeight, mHeight/1.55f, mHeight, 1.0f, 1.0f, 0.0f);
-        sb.draw(arrow, (SCRWIDTH+mWidth)/2.0f + mHeight, mPos, -0.5f*mHeight/1.55f, 0.5f*mHeight, -mHeight/1.55f, mHeight, 1.0f, 1.0f, 0.0f);
+        menuText.draw(sb, menuString, (SCRWIDTH-1.05f*mWidth)/2.0f,y_bot+(allBikeColors[0].length+2.5f)*sqrsz, 1.05f*mWidth, Align.center, true);
+        // Draw the colour chart
+        for (int xx=0; xx<allBikeColors.length; xx++) {
+            for (int yy=0; yy<allBikeColors[xx].length; yy++) {
+                sb.setColor(allBikeColors[xx][yy][0], allBikeColors[xx][yy][1], allBikeColors[xx][yy][2], 1);
+                sb.draw(chart, x_bot+xx*sqrsz, y_bot+yy*sqrsz, sqrsz/2, sqrsz/2,sqrsz,sqrsz,1,1,0);
+            }
+        }
+        sb.setColor(allBikeColors[xOption][yOption][0], allBikeColors[xOption][yOption][1], allBikeColors[xOption][yOption][2], 1);
+        sb.draw(chart, x_bot+xOption*sqrsz, y_bot+yOption*sqrsz, sqrsz/2, sqrsz/2,sqrsz,sqrsz,1.5f,1.5f,0);
         sb.end();
         // Draw fade in/out
         if ((fadeOut >= 0.0f) | (fadeIn < 1.0f)) {

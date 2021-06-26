@@ -14,10 +14,19 @@ import com.mygdx.game.handlers.*;
 
 public class BikeGame implements ApplicationListener {
 	public static final String TITLE = "AstroBike";
-//	public static final int V_WIDTH = 683;
-//	public static final int V_HEIGHT = 384;
-	public static final int V_WIDTH = 512;
-	public static final int V_HEIGHT = 320;
+	// 1920 x 1080 = 1.77777R  # STEVE
+	// 1440 x 900 = 1.6   # RYAN
+	// 512 x 320 = 1.6
+	// 512 x 288 = 1.77777R
+	// 768 x 432 = 1.77777R
+	public static final int V_WIDTH = 768;
+	public static final int V_HEIGHT = 432;
+//	public static final int V_WIDTH = 512;
+//	public static final int V_HEIGHT = 288;
+	// Following are 1.6
+//	public static final int V_WIDTH = 512;
+//	public static final int V_HEIGHT = 320;
+	// Following are 1.3
 //	public static final int V_WIDTH = 512;//480;
 //	public static final int V_HEIGHT = 384;//360;
 	private static final float ASPECT_RATIO = (float)V_WIDTH/(float)V_HEIGHT;
@@ -109,7 +118,7 @@ public class BikeGame implements ApplicationListener {
 		} else {
 			progress = BikeGameTextures.textureManager.getProgress();
 			// clear screen
-			Gdx.gl.glClearColor(1, 1, 1, 0);  // Black
+			Gdx.gl.glClearColor(0, 0, 0, 0);  // Black
 			Gdx.gl20.glClear(GL20.GL_COLOR_BUFFER_BIT);
 			Gdx.gl.glViewport((int) viewport.x, (int) viewport.y, (int) viewport.width, (int) viewport.height);
 			// Check if everything is loaded
@@ -131,9 +140,13 @@ public class BikeGame implements ApplicationListener {
 				sb.draw(tube, hudCam.position.x-tube_length/2, hudCam.position.y-0.4f*viewport.height, 0, 0, tube_length, tube_height, 1.0f, 1.0f, 0.0f);
 				sb.end();
 			} else {
-				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("bg_StarsBlueGreen"))) {
+				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("bg_StarsSparse"))) {
 					// texture is available, let's fetch it and do something interesting
-					stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
+//					stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
+//					stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlue"));
+					stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsSparse"));
+//					stars = new Sprite(BikeGameTextures.LoadTexture("bg_Starfield"));
+//					stars = new Sprite(BikeGameTextures.LoadTexture("bg_GalaxyDusty"));
 					load_stars = true;
 				}
 				if(BikeGameTextures.textureManager.isLoaded(BikeGameTextures.GetTextureName("menu_gamename"))) {

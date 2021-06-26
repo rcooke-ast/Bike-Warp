@@ -23,7 +23,7 @@ import com.mygdx.game.utilities.PolygonOperations;
 import java.awt.*;
 
 public class OptionChangeControls extends GameState {
-    private static final String[] options = {"Options Menu", "Accelerator", "Brake", "Pull Right", "Pull Left", "Switch Direction", "Bunny Hop", "Nitrous", "Restart"};
+    private static final String[] options = {"Options Menu", "Accelerator", "Brake", "Pull Right", "Pull Left", "Switch Direction", "Bunny Hop", "Nitrous", "Restart", "Quit"};
     private float SCRWIDTH, SCRHEIGHT;
 	private BitmapFont menuText;
     private static GlyphLayout glyphLayout = new GlyphLayout();

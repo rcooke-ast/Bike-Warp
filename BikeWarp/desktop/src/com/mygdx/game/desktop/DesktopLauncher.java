@@ -18,6 +18,18 @@ public class DesktopLauncher {
 		config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width/3;
 		config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height/3;
 
+//		config.r = config.g = config.b = config.a = 8;
+//
+//		config.useGL20 = false;
+//
+//		View view = initializeForView(new LineDrawing(), config);
+//
+//		if (graphics.getView() instanceof SurfaceView) {
+//			SurfaceView glView = (SurfaceView) graphics.getView();
+//			glView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
+//			glView.setZOrderOnTop(true);
+//		}
+
 		new LwjglApplication(new BikeGame(), config);
 	}
 }

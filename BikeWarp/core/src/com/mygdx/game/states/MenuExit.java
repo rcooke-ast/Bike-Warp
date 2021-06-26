@@ -19,8 +19,7 @@ public class MenuExit extends GameState {
 	private static GlyphLayout glyphLayout = new GlyphLayout();
     private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, yWidth, nWidth, gn_width, gn_height;
     private float fadeIn, fadeOut, fadeTime = 0.5f;
-    //private float finAngle=0.0f, finishRad;
-   
+
 	public MenuExit(GameStateManager gsm) {
 		super(gsm);
         create();
@@ -30,18 +29,12 @@ public class MenuExit extends GameState {
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		SCRWIDTH = BikeGame.viewport.width;
 		SCRHEIGHT = BikeGame.viewport.height;
-		background = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
+		background = new Sprite(BikeGameTextures.LoadTexture("bg_StarsSparse"));
 		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
-//		gn_width = SCRWIDTH;
-//		gn_height = SCRHEIGHT;
 		gn_width = SCRWIDTH*0.7f;
 		gn_height = gn_width*gamename.getHeight()/gamename.getWidth();
         fadeOut = -1.0f;
         fadeIn = 0.0f;
-        // Load the finish ball textures
-        //texture = new Texture(Gdx.files.internal("data/images/finish_whirl.png"));
-        //texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        //finishFG = new Sprite(texture);
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
         question.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);

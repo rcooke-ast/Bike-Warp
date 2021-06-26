@@ -201,8 +201,8 @@ public class MenuSelectPlayer extends GameState {
 			//sb.draw(background, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0, 0, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 0.0f);
 //			sb.draw(stars, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, SCRHEIGHT/2, SCRWIDTH, SCRHEIGHT, 1.0f, 1.0f, 180.0f);
-			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y-gn_height/2, 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
-//			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
+//			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y-gn_height/2, 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
+			sb.draw(gamename, cam.position.x-gn_width/2, cam.position.y+(SCRHEIGHT/2-gn_height*1.5f), 0, 0, gn_width, gn_height, 1.0f, 1.0f, 0.0f);
 	        // Draw the text
 	    	if (fadeOut >= 0.0f) question.setColor(1, 1, 1, fadeOut);
 	    	else if (fadeIn < 1.0f) question.setColor(1, 1, 1, fadeIn);
