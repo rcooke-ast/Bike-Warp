@@ -29,6 +29,7 @@ public class GameVars implements Serializable {
 	public static final int DISPLAY_SMARTON = 2;
 	// Latest time
 	public static int timerTotal = -1;
+	public static int EmeraldDiamond = 0;
 	// Player arrays
 	public static int currentPlayer = -1;
 	public static int currentSteamUser = -1;
@@ -74,7 +75,11 @@ public class GameVars implements Serializable {
 	}
 
 	// Get and Set options
-	public static void SetTimerTotal(int i) {timerTotal = i;}
+	public static void SetTimerTotal(int i) {
+		timerTotal = i;
+		if (i<0) SetEmeraldDiamond(0);
+	}
+	public static void SetEmeraldDiamond(int emdm) {EmeraldDiamond = emdm;}
 	public static void SetWorldRecord(boolean wr) {worldRecord = wr;}
 	public static void SetPersonalBest(boolean pb) {personalBest = pb;}
 
@@ -213,18 +218,22 @@ public class GameVars implements Serializable {
 		int timePrev;
 		if (diamond) {
 			timePrev = plyrTimesDmnd.get(currentPlayer).get(lvl);
-			if (timerTotal < timePrev) {
-				ArrayList<Integer> copyTimes = plyrTimesDmnd.get(currentPlayer);
+			if ((timerTotal < timePrev) | (timePrev==-1)) {
+				ArrayList<Integer> copyTimes = (ArrayList<Integer>) plyrTimesDmnd.get(currentPlayer).clone();
 				copyTimes.set(lvl, timerTotal);
 				plyrTimesDmnd.set(currentPlayer, copyTimes);
+				GameVars.StoreReplay(lvl, diamond);
+				GameVars.SetPersonalBest(true);
 				SavePlayers();
 			}
 		} else {
 			timePrev = plyrTimes.get(currentPlayer).get(lvl);
-			if (timerTotal < timePrev) {
-				ArrayList<Integer> copyTimes = plyrTimes.get(currentPlayer);
+			if ((timerTotal < timePrev) | (timePrev==-1)) {
+				ArrayList<Integer> copyTimes = (ArrayList<Integer>) plyrTimes.get(currentPlayer).clone();
 				copyTimes.set(lvl, timerTotal);
 				plyrTimes.set(currentPlayer, copyTimes);
+				GameVars.StoreReplay(lvl, diamond);
+				GameVars.SetPersonalBest(true);
 				SavePlayers();
 			}
 		}
@@ -283,7 +292,6 @@ public class GameVars implements Serializable {
 		} else {
 			return (Replay) deepClone(plyrReplays.get(currentPlayer)[lvl]);
 		}
-
 	}
 
 	public static void StoreReplay(int lvl, boolean diamond) {

@@ -1,6 +1,5 @@
 package com.mygdx.game.desktop;
 
-import com.badlogic.gdx.Files;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.mygdx.game.BikeGame;
@@ -12,11 +11,22 @@ public class DesktopLauncher {
 		config.title = BikeGame.TITLE;
 		config.width = BikeGame.V_WIDTH * BikeGame.SCALE;
 		config.height = BikeGame.V_HEIGHT * BikeGame.SCALE;
-		config.addIcon("data/images/finish_whirl_64x64.png", Files.FileType.Internal);
+//		config.addIcon("data/images/finish_whirl_64x64.png", Files.FileType.Internal);
 		// Just in case the user wishes to have windowed+borderless
 		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
 		config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width/3;
 		config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height/3;
+
+		/*
+		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
+		config.setTitle(BikeGame.TITLE);
+		config.setDecorated(false);
+		config.setWindowSizeLimits(BikeGame.V_WIDTH, BikeGame.V_HEIGHT, BikeGame.V_WIDTH, BikeGame.V_HEIGHT);
+		config.setWindowedMode(Lwjgl3ApplicationConfiguration.getDisplayMode().width/3, Lwjgl3ApplicationConfiguration.getDisplayMode().height/3);
+		config.setHdpiMode(HdpiMode.Pixels);
+		config.useVsync(true);
+		new Lwjgl3Application(new BikeGame(), config);
+		 */
 
 //		config.r = config.g = config.b = config.a = 8;
 //

@@ -659,6 +659,7 @@ public class Play extends GameState {
 	     	   			if (!isReplay) GameVars.SetTimerTotal(timerTotal);
 	     	   			// Check the records with a diamond
 	     	   			if (collectDiamond) {
+                            GameVars.SetEmeraldDiamond(1);
 	     	   				if (mode == 2) {
 	     	   					// Set the Diamond
 	     	   					GameVars.SetDiamond(levelID);
@@ -670,20 +671,21 @@ public class Play extends GameState {
                                 else GameVars.CheckTimes(levelID, true, timerTotal);
                             }
 	     	   			} else {
+                            GameVars.SetEmeraldDiamond(2);
 		     	   			// Check the records without the diamond
 	     	   				if (mode == 2) {
 //	     	   					GameVars.CheckTimes(GameVars.plyrTimes.get(GameVars.currentPlayer).get(levelID).clone(), 0, levelID, timerTotal, false);
 //	     	   					GameVars.CheckTimes(GameVars.worldTimes.get(levelID).clone(), 0, levelID, timerTotal, true);
                                 ReplayVars.currentReplay.replayStatus = ReplayVars.statusEmerald;
                                 if (SteamAPI.isSteamRunning()) SteamVars.uploadTime(timerTotal, false);
-                                else { GameVars.CheckTimes(levelID, false, timerTotal);}
+                                else GameVars.CheckTimes(levelID, false, timerTotal);
 	     	   				}
 	     	   			}
 	     	   			//System.out.println(GameVars.getTimeString(timerTotal));
 //	     	   			if (mode == 1) LevelsListCustom.updateRecords();
 	     	   			if (mode == 2) {
 		     	   			GameVars.SetLevelComplete(levelID);
-                            if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelID+1);
+                            SteamVars.LoadPBWR(levelID+1);
 	     	   			}
 	     	   			gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
 	     	   			gsm.SetPlaying(false);
@@ -698,7 +700,7 @@ public class Play extends GameState {
     	     		    ReplayVars.currentReplay.replayTimer = (int) (TimeUtils.millis()) - timerStart;
     	   			}
     	   			if (forcequit) {
-                        if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelID+1);
+                        SteamVars.LoadPBWR(levelID+1);
                         gsm.setState(GameStateManager.PEEK, false, null, levelID, mode);
     	            	gsm.SetPlaying(false);
     	   			} else {

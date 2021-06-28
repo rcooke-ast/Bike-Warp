@@ -79,8 +79,11 @@ public class BikeGame implements ApplicationListener {
 
 		// Set the Input Processor to the key input I've written
 		Gdx.input.setInputProcessor(new GameInputProcessor());
-		Gdx.input.setCursorCatched(true);
 
+		// Initialise the viewport
+		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+		// Initialise the Sprite batch
 		sb = new SpriteBatch();
 		sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam = new OrthographicCamera();
@@ -88,8 +91,6 @@ public class BikeGame implements ApplicationListener {
 		cam.setToOrtho(false, V_WIDTH, V_HEIGHT);
 		hudCam = new OrthographicCamera();
 		gsm = null;
-		// Initialise the viewport
-		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		hudCam.setToOrtho(false, viewport.width, viewport.height);
 		hudCam.position.set(viewport.width/2,viewport.height/2,0);
 		tube_length = viewport.width*0.7f;
@@ -103,6 +104,7 @@ public class BikeGame implements ApplicationListener {
 			// we are done loading, let's move to another screen!
 			if (gsm == null) {
 				gsm = new GameStateManager(this);
+				Gdx.input.setCursorCatched(true);
 			}
 			accum += Gdx.graphics.getDeltaTime();
 			while (accum >= STEP) {

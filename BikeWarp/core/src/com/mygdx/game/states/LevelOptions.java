@@ -30,7 +30,8 @@ public class LevelOptions extends GameState {
 	private BitmapFont menuText;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
     private Sprite metalpole, metalcorner;
-    private Texture texture, metalmesh;
+	private final float poleWidth = 0.03f;
+    private Texture metalmesh;
     private float uRight, vTop, sheight;
     private float menuHeight, menuWidth, lvlWidth;
     private float fadeOut, fadeIn, alpha, fadeTime = 0.5f;
@@ -135,7 +136,7 @@ public class LevelOptions extends GameState {
 			tmpMenuWidth = glyphLayout.width;
         	if (tmpMenuWidth > menuWidth) menuWidth = tmpMenuWidth;
         }
-        scaleVal = 0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)/menuWidth;
+        scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/menuWidth;
         menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         glyphLayout.setText(menuText, "My");
@@ -197,11 +198,11 @@ public class LevelOptions extends GameState {
     		gsm.setState(GameStateManager.PEEK, false, "none", levelNumber, modeValue);
     		checkLevels=0.0f;
     		if (goToNext) {
-				if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelNumber+2); // levelNumber is 0 for level 1
+				SteamVars.LoadPBWR(levelNumber+2); // levelNumber is 0 for level 1
     			gsm.setState(GameStateManager.LEVELOPTIONS, true, "", levelNumber+1, modeValue);
 			} else {
     			// Going back to the Level select menu, so redo the stats
-				if (SteamAPI.isSteamRunning()) SteamVars.LoadPBWR(levelNumber+1); // levelNumber is 0 for level 1
+				SteamVars.LoadPBWR(levelNumber+1); // levelNumber is 0 for level 1
 			}
 
 		}
@@ -244,15 +245,16 @@ public class LevelOptions extends GameState {
     	else sb.setColor(1, 1, 1, 1); 
         sb.begin();
         // Draw metal mesh, pole, and corners
-        sb.draw(metalmesh, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH, (float) SCRHEIGHT, 0.0f, 0.0f, uRight, vTop);
-        sb.draw(metalpole, cam.position.x-SCRWIDTH/2+0.075f*SCRHEIGHT, cam.position.y+0.425f*SCRHEIGHT, 0, 0, SCRWIDTH-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-        sb.draw(metalpole, cam.position.x-SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, 0.0375f*SCRHEIGHT, SCRWIDTH-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
-        sb.draw(metalpole, cam.position.x-SCRWIDTH/2-SCRHEIGHT/2+0.0375f*SCRHEIGHT, cam.position.y-0.0375f*SCRHEIGHT+0.075f*SCRHEIGHT, SCRHEIGHT/2, 0.0375f*SCRHEIGHT, SCRHEIGHT-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
-        sb.draw(metalpole, cam.position.x+SCRWIDTH/2-SCRHEIGHT/2-0.0375f*SCRHEIGHT, cam.position.y-0.0375f*SCRHEIGHT-0.075f*SCRHEIGHT, SCRHEIGHT/2, 0.0375f*SCRHEIGHT, SCRHEIGHT-0.15f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
-        sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y+0.425f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
-        sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y+0.425f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
-        sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-0.075f*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
-        sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0.0375f*SCRHEIGHT, 0.0375f*SCRHEIGHT, 0.075f*SCRHEIGHT, 0.075f*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
+		// Draw metal mesh, pole, and corners
+		sb.draw(metalmesh, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, SCRWIDTH, (float) SCRHEIGHT, 0.0f, 0.0f, uRight, vTop);
+		sb.draw(metalpole, cam.position.x-SCRWIDTH/2+poleWidth*SCRHEIGHT, cam.position.y+(0.5f-poleWidth)*SCRHEIGHT, 0, 0, SCRWIDTH-2*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		sb.draw(metalpole, cam.position.x-SCRWIDTH/2-poleWidth*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, SCRWIDTH/2, 0.5f*poleWidth*SCRHEIGHT, SCRWIDTH-2*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+		sb.draw(metalpole, cam.position.x-SCRWIDTH/2-SCRHEIGHT/2+0.5f*poleWidth*SCRHEIGHT, cam.position.y-0.5f*poleWidth*SCRHEIGHT+poleWidth*SCRHEIGHT, SCRHEIGHT/2, 0.5f*poleWidth*SCRHEIGHT, SCRHEIGHT-2*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
+		sb.draw(metalpole, cam.position.x+SCRWIDTH/2-SCRHEIGHT/2-0.5f*poleWidth*SCRHEIGHT, cam.position.y-0.5f*poleWidth*SCRHEIGHT-poleWidth*SCRHEIGHT, SCRHEIGHT/2, 0.5f*poleWidth*SCRHEIGHT, SCRHEIGHT-2*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
+		sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y+(0.5f-poleWidth)*SCRHEIGHT, 0.5f*poleWidth*SCRHEIGHT, 0.5f*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 180.0f);
+		sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-poleWidth*SCRHEIGHT, cam.position.y+(0.5f-poleWidth)*SCRHEIGHT, 0.5f*poleWidth*SCRHEIGHT, 0.5f*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 90.0f);
+		sb.draw(metalcorner, cam.position.x+SCRWIDTH/2-poleWidth*SCRHEIGHT, cam.position.y-SCRHEIGHT/2, 0.5f*poleWidth*SCRHEIGHT, 0.5f*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 0.0f);
+		sb.draw(metalcorner, cam.position.x-SCRWIDTH/2, cam.position.y-SCRHEIGHT/2, 0.5f*poleWidth*SCRHEIGHT, 0.5f*poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, poleWidth*SCRHEIGHT, 1.0f, 1.0f, 270.0f);
         // Draw level names
     	if (fadeOut >= 0.0f) alpha=fadeOut;
     	else if (fadeIn < 1.0f) alpha=fadeIn;
@@ -265,8 +267,8 @@ public class LevelOptions extends GameState {
         	glyphLayout.setText(menuText, allOptions[i]);
         	lvlWidth = glyphLayout.width;
         	if (allOptions[i].equalsIgnoreCase("Watch Replay")) shift = 0.6f;
-        	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
-        	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-0.075f*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1+shift)*menuHeight);
+        	if (i==0) menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+0.5f)*menuHeight);
+        	else menuText.draw(sb, allOptions[i], cam.position.x-0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)-lvlWidth/2, cam.position.y + (1.5f*menuHeight*(totalOptions+1))/2 - 1.5f*(i+1+shift)*menuHeight);
         }
         String dispText = "";
         if (saveReplay) {
@@ -283,27 +285,29 @@ public class LevelOptions extends GameState {
         } else {
 	        // Draw level description
 	        menuText.setColor(1, 1, 1, alpha/2);
-	        if (GameVars.timerTotal == -1) dispText = "Did not finish\n\n";
+	        if (GameVars.timerTotal == -1) dispText = "Did not finish\n";
 	        else if (GameVars.timerTotal>0) {
 	        	if (GameVars.worldRecord) dispText = "New World Record!\n";
-	        	else if (GameVars.personalBest) dispText = "New Personal Best time!\n";
+	        	else if (GameVars.personalBest) {
+	        		if (GameVars.EmeraldDiamond==1) dispText = "New Diamond PB!\n";
+					else if (GameVars.EmeraldDiamond==2) dispText = "New Emerald PB!\n";
+				}
 	        	else dispText = "Your time:\n";
 	        	// Apend the time
-	        	dispText += GameVars.getTimeString(GameVars.timerTotal) + "\n\n";
+	        	dispText += GameVars.getTimeString(GameVars.timerTotal)+"\n";
 	        }
 //	        if (modeValue == 1) dispText += LevelsListCustom.customLevelTimes[levelNumber+1];
 	        if (modeValue == 2) dispText += SteamVars.currentDisplayString;
         }
-		//  lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-0.075f*BikeGame.V_HEIGHT)).height;
+		//  lvlWidth = menuText.getWrappedBounds(dispText, 0.45f*(SCRWIDTH-poleWidth*BikeGame.V_HEIGHT)).height;
 		glyphLayout.setText(menuText, dispText);
 		lvlWidth = glyphLayout.height;
-		menuText.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-0.075f*SCRHEIGHT), Align.center, true);
+		menuText.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-poleWidth*SCRHEIGHT), Align.center, true);
         sb.end();
     }
     
     public void dispose() {
     	if (metalmesh != null) metalmesh = null;
-    	if (texture != null) texture.dispose();
     	if (menuText != null) menuText.dispose();
     }
 
