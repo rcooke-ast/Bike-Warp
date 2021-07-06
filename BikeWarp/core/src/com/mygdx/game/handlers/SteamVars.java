@@ -6,8 +6,11 @@
 
 package com.mygdx.game.handlers;
 
+import com.badlogic.gdx.Game;
 import com.codedisaster.steamworks.*;
 import com.mygdx.game.BikeGame;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -19,6 +22,7 @@ public class SteamVars {
 	private static SteamUserStats userStatsEmerald, userStatsDiamond;
 	private static SteamUserStats worldStatsEmerald, worldStatsDiamond;
 	public static boolean isOnline=false;
+	public static boolean userLoaded=false;
 	// variables for total times
 	private static boolean loadingTotalTimes = false;
 	private static SteamLeaderboardHandle[] leaderboardEmerald;
@@ -35,12 +39,15 @@ public class SteamVars {
 	private static int currentLeaderboardDiamondNumber;
 	private static int statsLoadedEmerald = 0, statsLoadedDiamond = 0;
 	public static String currentDisplayString;
-	public static String recordMenuStringRanks, recordMenuStringNames, recordMenuStringTimes;
+	public static ArrayList<String> recordMenuStringRanks, recordMenuStringNames, recordMenuStringTimes;
+	public static ArrayList<Integer> recordMenuCountries;
 	// Variables for world records
 	public static String[] worldRecordNamesEmerald = new String[NUMWRSHOW];
 	public static int[] worldRecordTimesEmerald = new int[NUMWRSHOW];
+	public static int[] worldRecordCntryEmerald = new int[NUMWRSHOW];
 	public static String[] worldRecordNamesDiamond = new String[NUMWRSHOW];
 	public static int[] worldRecordTimesDiamond = new int[NUMWRSHOW];
+	public static int[] worldRecordCntryDiamond = new int[NUMWRSHOW];
 	// Variables for current player
 	public static SteamID playerID;
 	public static String playerName = "[unknown]";
@@ -98,9 +105,10 @@ public class SteamVars {
 			playerName = plyrFriends.getPersonaName();
 			if (GameVars.GetCurrentPlayer() == -1) {
 				GameVars.LoadPlayers();
-				GameVars.SetCurrentPlayer(steamIDUser.getAccountID(), playerName);
+				GameVars.SetCurrentPlayer(steamIDUser.getAccountID(), playerName, -1);
 				// Set the display preference for the user
 				BikeGame.UpdateDisplay();
+				userLoaded = true;
 			}
 		}
 
@@ -197,12 +205,15 @@ public class SteamVars {
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
 
 			SteamLeaderboardEntry entry;
+			int[] details;
 			for (int i = 0; i < numEntries; i++) {
 				entry = new SteamLeaderboardEntry();
-				if (worldStatsEmerald.getDownloadedLeaderboardEntry(entries, i, entry, null)) {
+				details = new int[1];
+				if (worldStatsEmerald.getDownloadedLeaderboardEntry(entries, i, entry, details)) {
 					if (entry.getGlobalRank() < NUMWRSHOW) {
 						worldRecordNamesEmerald[entry.getGlobalRank()-1] = plyrFriends.getFriendPersonaName(entry.getSteamIDUser());
 						worldRecordTimesEmerald[entry.getGlobalRank()-1] = entry.getScore();
+						worldRecordCntryEmerald[entry.getGlobalRank()-1] = details[0];
 					}
 				}
 			}
@@ -324,12 +335,15 @@ public class SteamVars {
 				SteamLeaderboardEntriesHandle entries, int numEntries) {
 
 			SteamLeaderboardEntry entry;
+			int[] details;
 			for (int i = 0; i < numEntries; i++) {
 				entry = new SteamLeaderboardEntry();
-				if (worldStatsDiamond.getDownloadedLeaderboardEntry(entries, i, entry, null)) {
+				details = new int[1];
+				if (worldStatsDiamond.getDownloadedLeaderboardEntry(entries, i, entry, details)) {
 					if (entry.getGlobalRank() < NUMWRSHOW) {
 						worldRecordNamesDiamond[entry.getGlobalRank()-1] = plyrFriends.getFriendPersonaName(entry.getSteamIDUser());
 						worldRecordTimesDiamond[entry.getGlobalRank()-1] = entry.getScore();
+						worldRecordCntryDiamond[entry.getGlobalRank()-1] = details[0];
 					}
 				}
 			}
@@ -364,6 +378,7 @@ public class SteamVars {
 			System.out.println("Error extracting or loading native libraries");
 		}
 		//Get stat object
+		userLoaded = false;
 		userStatsEmerald = new SteamUserStats(steamUserStatsCallbackEmerald);
 		userStatsDiamond = new SteamUserStats(steamUserStatsCallbackDiamond);
 		worldStatsEmerald = new SteamUserStats(steamWorldStatsCallbackEmerald);
@@ -376,9 +391,10 @@ public class SteamVars {
 		// Setup the friends in order to get the names
 		plyrFriends = new SteamFriends(friendsCallback);
 		currentDisplayString = "";
-		recordMenuStringNames = "";
-		recordMenuStringRanks = "";
-		recordMenuStringTimes = "";
+		recordMenuStringNames = new ArrayList<String>();
+		recordMenuStringRanks = new ArrayList<String>();
+		recordMenuStringTimes = new ArrayList<String>();
+		recordMenuCountries   = new ArrayList<Integer>();
 		isOnline=true;
 		// Initialise the leaderboard handles
 		return true;
@@ -392,9 +408,10 @@ public class SteamVars {
 
 	private static void ResetTimes() {
 		currentDisplayString = "Loading Records";
-		recordMenuStringNames = "Loading Records";
-		recordMenuStringRanks = "";
-		recordMenuStringTimes = "";
+		recordMenuStringNames = new ArrayList<String>();
+		recordMenuStringRanks = new ArrayList<String>();
+		recordMenuStringTimes = new ArrayList<String>();
+		recordMenuCountries   = new ArrayList<Integer>();
 		playerBestEmerald = -1;
 		playerBestDiamond = -1;
 		playerRankEmerald = -1;
@@ -404,8 +421,10 @@ public class SteamVars {
 		for (int ii=0; ii<NUMWRSHOW; ii++) {
 			worldRecordTimesEmerald[ii] = -1;
 			worldRecordNamesEmerald[ii] = "";
+			worldRecordCntryEmerald[ii] = -1;
 			worldRecordTimesDiamond[ii] = -1;
 			worldRecordNamesDiamond[ii] = "";
+			worldRecordCntryDiamond[ii] = -1;
 		}
 	}
 
@@ -465,16 +484,17 @@ public class SteamVars {
 
 	public static boolean uploadTime(int millis, boolean diamond) {
 		boolean result = false;
+		int[] details = GameVars.GetPlayerDetails();
 		try {
 			if (diamond) {
 				if (currentLeaderboardDiamond != null) {
-					userStatsDiamond.uploadLeaderboardScore(currentLeaderboardDiamond, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, null);
+					userStatsDiamond.uploadLeaderboardScore(currentLeaderboardDiamond, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, details);
 				}
 //				//save
 //				result = userStatsDiamond.storeStats();
 			} else {
 				if (currentLeaderboardEmerald != null) {
-					userStatsEmerald.uploadLeaderboardScore(currentLeaderboardEmerald, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, null);
+					userStatsEmerald.uploadLeaderboardScore(currentLeaderboardEmerald, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, details);
 				}
 //				//save
 //				result = userStatsEmerald.storeStats();
@@ -534,16 +554,16 @@ public class SteamVars {
 			if (SteamAPI.isSteamRunning()) currentDisplayString = "Loading Records";
 			else currentDisplayString = "Steam Offline";
 		}
-		return;
 	}
 
 	public static void RecordStringMenu(boolean diamond) {
 		if (!SteamAPI.isSteamRunning()) {
 			// TODO :: Need to deal with offline records
 			// Probably can just set the variables below
-			recordMenuStringNames = "Steam offline";
-			recordMenuStringRanks = "";
-			recordMenuStringTimes = "";
+			recordMenuStringNames.add("Steam offline");
+			recordMenuStringRanks.add("");
+			recordMenuStringTimes.add("");
+			recordMenuCountries.add(-1);
 			playerName = "";
 			playerBestEmerald = 0;
 			playerBestDiamond = 0;
@@ -551,67 +571,118 @@ public class SteamVars {
 		}
 		if (diamond) {
 			if (statsLoadedDiamond==2) {
-				recordMenuStringNames = "";
-				recordMenuStringRanks = "";
-				recordMenuStringTimes = "";
+				recordMenuStringNames = new ArrayList<String>();
+				recordMenuStringRanks = new ArrayList<String>();
+				recordMenuStringTimes = new ArrayList<String>();
+				recordMenuCountries   = new ArrayList<Integer>();
 				for (int ww=0; ww < worldRecordNamesDiamond.length; ww++) {
-					recordMenuStringRanks += String.format("%d\n", ww+1);
-					recordMenuStringNames += String.format("%s\n", worldRecordNamesDiamond[ww]);
-					if (worldRecordNamesDiamond[ww].compareTo("")==0) recordMenuStringTimes += "\n";
-					else recordMenuStringTimes += String.format("%s\n", GameVars.getTimeString(worldRecordTimesDiamond[ww]));
+					if (worldRecordCntryDiamond[ww]==-1) {
+						// No time available for this entry.
+						recordMenuStringRanks.add("");
+						recordMenuStringNames.add("");
+						recordMenuStringTimes.add("");
+						recordMenuCountries.add(-1);
+					} else {
+						recordMenuStringRanks.add(String.format("%d", ww+1));
+						recordMenuStringNames.add(String.format("%s", worldRecordNamesDiamond[ww]));
+						recordMenuCountries.add(worldRecordCntryDiamond[ww]);
+						if (worldRecordNamesDiamond[ww].compareTo("")==0) recordMenuStringTimes.add("");
+						else recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(worldRecordTimesDiamond[ww])));
+					}
 				}
 				if (playerRankDiamond == 11) {
-					recordMenuStringRanks += String.format("%s", playerRankDiamond);
-					recordMenuStringNames += String.format("%s", playerName);
-					recordMenuStringTimes += String.format("%s", playerBestDiamond);
+					recordMenuStringRanks.add(String.format("%s", playerRankDiamond));
+					recordMenuStringNames.add(String.format("%s", playerName));
+					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(playerBestDiamond)));
+					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				} else if (playerRankDiamond > 11) {
-					recordMenuStringRanks += String.format(":\n%s\n", playerRankDiamond);
-					recordMenuStringNames += String.format(":\n%s\n", playerName);
-					recordMenuStringTimes += String.format(":\n%s\n", playerBestDiamond);
+					recordMenuStringRanks.add("");
+					recordMenuStringNames.add("");
+					recordMenuStringTimes.add("");
+					recordMenuCountries.add(-1);
+					recordMenuStringRanks.add(String.format("%s", playerRankDiamond));
+					recordMenuStringNames.add(String.format("%s", playerName));
+					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(playerBestDiamond)));
+					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				} else if (playerRankDiamond == -1) {
-					recordMenuStringRanks += String.format(":\n%s\n", " ");
-					recordMenuStringNames += String.format(":\n%s - unranked\n", playerName);
-					recordMenuStringTimes += String.format(":\n%s\n", " ");
+					recordMenuStringRanks.add("");
+					recordMenuStringNames.add("");
+					recordMenuStringTimes.add("");
+					recordMenuCountries.add(-1);
+					recordMenuStringRanks.add("");
+					recordMenuStringNames.add(String.format("%s - unranked", playerName));
+					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(-1)));
+					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				}
 			} else if (statsLoadedDiamond>2) {
 				statsLoadedDiamond = 2;
 			} else {
-				recordMenuStringNames = "Loading Records";
-				recordMenuStringRanks = "";
-				recordMenuStringTimes = "";
+				recordMenuStringNames = new ArrayList<String>();
+				recordMenuStringRanks = new ArrayList<String>();
+				recordMenuStringTimes = new ArrayList<String>();
+				recordMenuCountries   = new ArrayList<Integer>();
+				recordMenuStringNames.add("Loading Records");
+				recordMenuStringRanks.add("");
+				recordMenuStringTimes.add("");
+				recordMenuCountries.add(-1);
 				return;
 			}
 		} else {
 			if (statsLoadedEmerald==2) {
-				recordMenuStringNames = "";
-				recordMenuStringRanks = "";
-				recordMenuStringTimes = "";
+				recordMenuStringNames = new ArrayList<String>();
+				recordMenuStringRanks = new ArrayList<String>();
+				recordMenuStringTimes = new ArrayList<String>();
+				recordMenuCountries   = new ArrayList<Integer>();
 				for (int ww=0; ww < worldRecordNamesEmerald.length; ww++) {
-					recordMenuStringRanks += String.format("%d\n", ww+1);
-					recordMenuStringNames += String.format("%s\n", worldRecordNamesEmerald[ww]);
-					if (worldRecordNamesEmerald[ww].compareTo("")==0) recordMenuStringTimes += "\n";
-					else recordMenuStringTimes += String.format("%s\n", GameVars.getTimeString(worldRecordTimesEmerald[ww]));
+					if (worldRecordCntryEmerald[ww]==-1) {
+						// No time available for this entry.
+						recordMenuStringRanks.add("");
+						recordMenuStringNames.add("");
+						recordMenuStringTimes.add("");
+						recordMenuCountries.add(-1);
+					} else {
+						recordMenuStringRanks.add(String.format("%d", ww+1));
+						recordMenuStringNames.add(String.format("%s", worldRecordNamesEmerald[ww]));
+						recordMenuCountries.add(worldRecordCntryEmerald[ww]);
+						if (worldRecordNamesEmerald[ww].compareTo("")==0) recordMenuStringTimes.add("");
+						else recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(worldRecordTimesEmerald[ww])));
+					}
 				}
 				if (playerRankEmerald == 11) {
-					recordMenuStringRanks += String.format("%s", playerRankEmerald);
-					recordMenuStringNames += String.format("%s", playerName);
-					recordMenuStringTimes += String.format("%s", GameVars.getTimeString(playerBestEmerald));
+					recordMenuStringRanks.add(String.format("%s", playerRankEmerald));
+					recordMenuStringNames.add(String.format("%s", playerName));
+					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(playerBestEmerald)));
+					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				} else if (playerRankEmerald > 11) {
-					recordMenuStringRanks += String.format(":\n%s\n", playerRankEmerald);
-					recordMenuStringNames += String.format(":\n%s\n", playerName);
-					recordMenuStringTimes += String.format(":\n%s\n", GameVars.getTimeString(playerBestEmerald));
+					recordMenuStringRanks.add("");
+					recordMenuStringNames.add("");
+					recordMenuStringTimes.add("");
+					recordMenuCountries.add(-1);
+					recordMenuStringRanks.add(String.format("%s", playerRankEmerald));
+					recordMenuStringNames.add(String.format("%s", playerName));
+					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(playerBestEmerald)));
+					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				} else if (playerRankEmerald == -1) {
-					recordMenuStringRanks += String.format(":\n%s\n", " ");
-					recordMenuStringNames += String.format(":\n%s\n", playerName);
-					recordMenuStringTimes += String.format(":\n%s\n", GameVars.getTimeString(playerBestEmerald));
+					recordMenuStringRanks.add("");
+					recordMenuStringNames.add("");
+					recordMenuStringTimes.add("");
+					recordMenuCountries.add(-1);
+					recordMenuStringRanks.add("");
+					recordMenuStringNames.add(String.format("%s - unranked", playerName));
+					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(-1)));
+					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				}
 			} else if (statsLoadedEmerald>2) {
 				statsLoadedEmerald = 2;
 			} else {
-				recordMenuStringNames = "Loading Records";
-				recordMenuStringRanks = "";
-				recordMenuStringTimes = "";
-				return;
+				recordMenuStringNames = new ArrayList<String>();
+				recordMenuStringRanks = new ArrayList<String>();
+				recordMenuStringTimes = new ArrayList<String>();
+				recordMenuCountries   = new ArrayList<Integer>();
+				recordMenuStringNames.add("Loading Records");
+				recordMenuStringRanks.add("");
+				recordMenuStringTimes.add("");
+				recordMenuCountries.add(-1);
 			}
 		}
 	}

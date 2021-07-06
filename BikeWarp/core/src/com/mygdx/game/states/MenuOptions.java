@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
+import com.codedisaster.steamworks.SteamAPI;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
@@ -27,7 +28,7 @@ import com.mygdx.game.handlers.LevelsListGame;
  * @author rcooke
  */
 public class MenuOptions extends GameState {
-    private static final String[] options = {"Main Menu", "Change Bike Colour", "Change Controls", "Change HUD", "Change Display"};
+    private static final String[] options = {"Main Menu", "Change Bike Colour", "Change Controls", "Change HUD", "Change Display", "Change Nationality"};
 	private float SCRWIDTH, SCRHEIGHT;
 	private BitmapFont menuText;
     private static GlyphLayout glyphLayout = new GlyphLayout();
@@ -111,6 +112,11 @@ public class MenuOptions extends GameState {
                 GameVars.SetPlayerFullscreen(!GameVars.GetPlayerFullscreen());
                 BikeGame.UpdateDisplay();
                 sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            } else if (currentOption==5) {
+                if (SteamAPI.isSteamRunning()) {
+                    gsm.setState(GameStateManager.MENUSELECTCOUNTRY, true, "", currentOption - 1, 2);
+                    BikeGameSounds.PlayMenuSelect();
+                }
             }
         } else if (fadeOut==0.0f) {
     		fadeOut=-1.0f;
@@ -178,7 +184,14 @@ public class MenuOptions extends GameState {
         else if (currentOption == 1) displayText = "Press enter to set the bike colour";
         else if (currentOption == 2) displayText = "Press enter to set the controls";
         else if (currentOption == 3) displayText = "Press enter to change the HUD display";
-        else if (currentOption == 4) displayText = "Press enter to toggle fullscreen/windowed:\nCurrent mode: "+fsText;
+        else if (currentOption == 4) displayText = "Press enter to toggle fullscreen/windowed.\nCurrent mode: "+fsText;
+        else if (currentOption == 5) {
+            if (SteamAPI.isSteamRunning()) {
+                displayText = "Press enter to change your nationality.\nCurrent nationality: " + GameVars.GetPlayerCountry();
+            } else {
+                displayText = "Current Nationality: " + GameVars.GetPlayerCountry() + "\nSteam Offline - Connect to Steam.";
+            }
+        }
         else displayText = "Press enter to change the " + options[currentOption].replace("Change ", "").toLowerCase() + " key.\n\nThe current key is:\n" + Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[currentOption-2]);
         glyphLayout.setText(menuText, displayText);
         lvlWidth = glyphLayout.height;

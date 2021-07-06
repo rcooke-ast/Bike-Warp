@@ -58,7 +58,7 @@ public class MenuSelectPlayer extends GameState {
 		sheight = 0.4f*BikeGame.viewport.height;
 		//background = new Sprite(BikeGameTextures.LoadTexture("sky_bluesky"));
 		//background = new Sprite(BikeGameTextures.LoadTexture("menu_black"));
-		stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsBlueGreen"));
+		stars = new Sprite(BikeGameTextures.LoadTexture("bg_StarsSparse"));
 		gamename = new Sprite(BikeGameTextures.LoadTexture("menu_gamename"));
 //		gn_width = SCRWIDTH;
 //		gn_height = SCRHEIGHT;
@@ -159,7 +159,11 @@ public class MenuSelectPlayer extends GameState {
     		fadeOut=-1.0f;
     		LevelsListGame.initialise();
     		GameVars.UpdateTotalTimes();
-    		gsm.setState(GameStateManager.MAINMENU, false, "none", -1, 0);
+    		if (GameVars.IsCountrySet()) {
+				gsm.setState(GameStateManager.MENUSELECTCOUNTRY, false, "none", -1, 0);
+			} else {
+				gsm.setState(GameStateManager.MAINMENU, false, "none", -1, 0);
+			}
         }
     	if ((currentOption>numPlyrShow/2) & (currentOption<numOptions-numPlyrShow/2)) numMin = currentOption-numPlyrShow/2;
     	else if (currentOption<=numPlyrShow/2) numMin = 0;

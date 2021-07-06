@@ -3,18 +3,18 @@ package com.mygdx.game;
 // https://www.pxfuel.com/en/search?q=seamless+texture
 // https://www.wildtextures.com/category/free-textures/
 
-import java.io.File;
-import java.util.ArrayList;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.Texture.TextureWrap;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.mygdx.game.handlers.GameVars;
 
 public class BikeGameTextures {
     public static AssetManager textureManager;
+    public static Sprite[] allFlags;
 
     public static void InitiateTextures() {
         // Initiate the arrays
@@ -51,6 +51,13 @@ public class BikeGameTextures {
         textureManager.load(GetTextureName(file), Texture.class, param);
     }
 
+    public static void LoadFlags() {
+        allFlags = new Sprite[GameVars.countryNames.length-1];
+        for (int ff=0; ff<GameVars.countryNames.length-1; ff++) {
+            allFlags[ff] = new Sprite(BikeGameTextures.LoadTexture(String.format("flag_%03d",ff)));
+        }
+    }
+
     private static void GetLevelImages() {
         // Load the items required for the splash screen
         GetTexture("bg_StarsSparse");
@@ -58,6 +65,7 @@ public class BikeGameTextures {
         GetTexture("nitrous_tube");
         GetTexture("nitrous_fluid");
         GetTexture("finish_whirl");
+        GetTexture("ground_shade");
         // Load Bike
         GetTexture("bike_white");
         GetTexture("bike_overlay");
@@ -111,6 +119,7 @@ public class BikeGameTextures {
     }
 
     private static void GetMenuImages() {
+        GetTexture("records_tile");
         GetTexture("menu_arrow");
         GetTexture("menu_ChangePlayer");
         GetTexture("menu_DesignLevel");
@@ -260,6 +269,8 @@ public class BikeGameTextures {
         for (int i=0; i<7; i++) GetTexture("vehicle_"+String.format("%02d", i));
         for (int i=0; i<9; i++) GetTexture("portrait_"+String.format("%02d", i));
         for (int i=0; i<8; i++) GetTexture("text_"+String.format("%02d", i));
+        for (int i=0; i<8; i++) GetTexture("text_"+String.format("%02d", i));
+        for (int i=0; i<250; i++) GetTexture("flag_"+String.format("%03d", i));
         GetTexture("misc_emerald");
         GetTexture("misc_diamond");
         GetTexture("misc_diary");

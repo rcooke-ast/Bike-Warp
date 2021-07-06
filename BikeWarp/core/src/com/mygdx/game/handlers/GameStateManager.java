@@ -6,6 +6,7 @@
 
 package com.mygdx.game.handlers;
 
+import com.badlogic.gdx.Gdx;
 import com.codedisaster.steamworks.SteamAPI;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.states.*;
@@ -37,6 +38,7 @@ public class GameStateManager {
     public static final int MENUPLAYER = 110011;
     public static final int MENURECORDSTOTAL = 100012;
     public static final int MENUREPLAYCUSTOM = 100013;
+    public static final int MENUSELECTCOUNTRY = 100014;
     public static final int PLAY = 200000;
     public static final int LEVELOPTIONS = 300001;
     public static final int EDITOR = 400000;
@@ -50,7 +52,12 @@ public class GameStateManager {
 	    if (!directory.exists()) directory.mkdir();
         // Set the starting State
         if (SteamAPI.isSteamRunning()) {
-            pushState(MAINMENU, null, -1, 0);
+            if (GameVars.IsCountrySet()) {
+                Gdx.input.setCursorCatched(true);
+                pushState(MAINMENU, null, -1, 0);
+            } else {
+                pushState(MENUSELECTCOUNTRY, null, -1, 0);
+            }
         } else {
             BikeGame.UpdateDisplay();
             pushState(MENUPLAYER, null, -1, 0);
@@ -79,6 +86,7 @@ public class GameStateManager {
 
     private GameState getState(int state, String editorScene, int levelID, int modeValue) {
         if (state == MAINMENU) return new MainMenu(this);
+        else if (state == PLAY) return new Play(this, editorScene, levelID, modeValue);
         else if (state == MENUPLAYER) return new MenuSelectPlayer(this, modeValue);
         else if (state == MENUEXIT) return new MenuExit(this);
         else if (state == MENURECORDS) return new MenuRecords(this);
@@ -94,7 +102,7 @@ public class GameStateManager {
         else if (state == MENUREPLAY) return new MenuReplay(this);
         else if (state == MENUREPLAYPB) return new MenuReplayPB(this, modeValue);
         else if (state == MENUREPLAYCUSTOM) return new MenuReplayCustom(this);
-        else if (state == PLAY) return new Play(this, editorScene, levelID, modeValue);
+        else if (state == MENUSELECTCOUNTRY) return new MenuSelectCountry(this, modeValue);
         else if (state == EDITOR) return new Editor(this);
         //else if (state == LEVELSELECT) return new LevelSelect(this);
         return null;

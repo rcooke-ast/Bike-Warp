@@ -62,17 +62,7 @@ public class BikeGame implements ApplicationListener {
 
 		// Initialise Steam connection
 		SteamVars.initAndConnect();
-/*
-		SteamVars.PrepareLeaderboards();
-		// Parse the leaderboards -- this seems to need the callbacks running in order to work
-		if (SteamVars.GetProgress() < 0.7) {
-			SteamVars.ParseLeaderboards();
-			totalTime += dt;
-		} else if (totalTime != -1.0) {
-			System.out.println(totalTime);
-			totalTime = -1.0f;
-		}
- */
+
 		// Load the textures and sounds
 		BikeGameSounds.InitiateSounds();
 		BikeGameTextures.InitiateTextures();
@@ -101,10 +91,15 @@ public class BikeGame implements ApplicationListener {
 	@Override
 	public void render () {
 		if (BikeGameTextures.textureManager.update()) {
-			// we are done loading, let's move to another screen!
-			if (gsm == null) {
-				gsm = new GameStateManager(this);
-				Gdx.input.setCursorCatched(true);
+			if ((!SteamAPI.isSteamRunning()) | ( ((SteamAPI.isSteamRunning()) & (!SteamVars.userLoaded)) )) {
+				// we are done loading, let's move to another screen!
+				if (gsm == null) {
+					if (SteamAPI.isSteamRunning()) {
+						SteamAPI.runCallbacks();
+					}
+					BikeGameTextures.LoadFlags();
+					gsm = new GameStateManager(this);
+				}
 			}
 			accum += Gdx.graphics.getDeltaTime();
 			while (accum >= STEP) {

@@ -10,13 +10,14 @@ import java.io.*;
 import java.util.ArrayList;
 
 import com.badlogic.gdx.Input.Keys;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 /**
  *
  * @author rcooke
  */
 public class GameVars implements Serializable {
+
+	public static final String[] countryNames = {"Nationality", "Afghanistan", "Aland Islands", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua and Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bonaire", "Bosnia and Herzegovina", "Botswana", "Bouvet Island", "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos Islands", "Colombia", "Comoros", "Congo", "Congo", "Cook Islands", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Curacao", "Cyprus", "Czechia", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia", "Falkland Islands", "Faroe Islands", "Fiji", "Finland", "France", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Heard Island and McDonald Islands", "Holy See", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Isle of Man", "Israel", "Italy", "Jamaica", "Japan", "Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea", "Korea", "Kosovo", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "North Macedonia", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Barthelemy", "Saint Helena", "Saint Kitts and Nevis", "Saint Lucia", "Saint Martin", "Saint Pierre and Miquelon", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Sint Maarten", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Svalbard and Jan Mayen", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tokelau", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks and Caicos Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States Minor Outlying Islands", "United States of America", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Viet Nam", "Virgin Islands (British)", "Virgin Islands (U.S.)", "Wallis and Futuna", "Western Sahara", "Yemen", "Zambia", "Zimbabwe"};
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,6 +37,7 @@ public class GameVars implements Serializable {
 	public static boolean personalBest = false;
 	public static boolean worldRecord = false;
 	public static int[] plyrID = new int[0];
+	public static int[] plyrCountryID = new int[0];
 	public static String[] plyrName = new String[0];
 	public static ArrayList<Replay[]> plyrReplays = new ArrayList<Replay[]>();
 	public static ArrayList<Replay[]> plyrReplaysDmnd = new ArrayList<Replay[]>();
@@ -56,7 +58,7 @@ public class GameVars implements Serializable {
 	}
 
 	// Get and Set options
-	public static void SetCurrentPlayer(int id, String name) {
+	public static void SetCurrentPlayer(int id, String name, int countryID) {
 		for (int ii=0; ii < plyrID.length; ii++) {
 			if (id==plyrID[ii]) {
 				currentPlayer = ii;
@@ -84,6 +86,32 @@ public class GameVars implements Serializable {
 	public static void SetPersonalBest(boolean pb) {personalBest = pb;}
 
 	public static int GetCurrentPlayer() {return currentPlayer;}
+
+	public static boolean IsCountrySet() {
+		return plyrCountryID[currentPlayer] != -1;
+	}
+
+	public static boolean SetPlayerCountry(int idx) {
+		boolean retval = false;
+		// Check if a player has changed their nationality - if so, update Steam records.
+		if (plyrCountryID[currentPlayer] != -1) retval = true;
+		// Update and save
+		plyrCountryID[currentPlayer] = idx;
+		SavePlayers();
+		return retval;
+	}
+
+	public static String GetPlayerCountry() {
+		return countryNames[plyrCountryID[currentPlayer]];
+	}
+
+	public static int GetPlayerCountryIndex() { return plyrCountryID[currentPlayer]; }
+
+	public static int[] GetPlayerDetails() {
+		int[] details = new int[1];
+		details[0] = plyrCountryID[currentPlayer];
+		return details;
+	}
 
 	// Get Player properties
 	public static String GetPlayerName() {return plyrName[currentPlayer];}
@@ -314,7 +342,7 @@ public class GameVars implements Serializable {
 		int[] oldIDs = plyrID.clone();
 		plyrID = new int[1+oldIDs.length];
 		for (int i=0;i<oldIDs.length;i++) plyrID[i] = oldIDs[i];
-		// make sure the steamID doesn't already exist
+		// make sure the steamID doesn't already exist (only for when Steam is offline)
 		for (int ss=0; ss< plyrID.length-1; ss++) {
 			if (plyrID[ss] <= -2) steamID -= 1;
 		}
@@ -324,6 +352,11 @@ public class GameVars implements Serializable {
 		plyrName = new String[1+oldNames.length];
 		for (int i=0;i<oldNames.length;i++) plyrName[i] = oldNames[i];
 		plyrName[oldNames.length] = name;
+		// Add the player country
+		oldIDs = plyrCountryID.clone();
+		plyrCountryID = new int[1+plyrCountryID.length];
+		for (int i=0;i<oldIDs.length;i++) plyrCountryID[i] = oldIDs[i];
+		plyrCountryID[oldIDs.length] = -1;
 		// Add the player times
 		plyrTimes.add(GetEmptyTimes(LevelsListGame.NUMGAMELEVELS));
 		plyrTimesDmnd.add(GetEmptyTimes(LevelsListGame.NUMGAMELEVELS));
@@ -432,6 +465,7 @@ public class GameVars implements Serializable {
 			// Read objects
 			plyrID = (int[]) oi.readObject();
 			plyrName = (String[]) oi.readObject();
+			plyrCountryID = (int[]) oi.readObject();
 			plyrFullscreen = (ArrayList<Boolean>) oi.readObject();
 			plyrTimes = (ArrayList<ArrayList<Integer>>) oi.readObject();
 			plyrTimesDmnd = (ArrayList<ArrayList<Integer>>) oi.readObject();
@@ -465,6 +499,7 @@ public class GameVars implements Serializable {
 			// Write objects to file
 			o.writeObject(plyrID);
 			o.writeObject(plyrName);
+			o.writeObject(plyrCountryID);
 			o.writeObject(plyrFullscreen);
 			o.writeObject(plyrTimes);
 			o.writeObject(plyrTimesDmnd);

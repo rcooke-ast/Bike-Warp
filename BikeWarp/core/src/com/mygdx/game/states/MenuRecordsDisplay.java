@@ -18,8 +18,9 @@ public class MenuRecordsDisplay extends GameState {
 	private static final String option1 = "Return to Records Menu";
     private int currentOption, numLevelShow, numMin, numOptions;
 	private final float poleWidth = 0.03f;
-	private Sprite metalpole, metalcorner;
+	private Sprite metalpole, metalcorner, tile;
 	private Texture metalmesh;
+	private float tile_xpos, tile_ypos_top, tile_xw, tile_yw, tile_sep, tile_yoff, flagWidth, flagHeight;
 	private float uRight, vTop;
     private BitmapFont question, levelFont;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
@@ -54,6 +55,17 @@ public class MenuRecordsDisplay extends GameState {
 		// Load the black metal pole and the corner
 		metalpole = new Sprite(BikeGameTextures.LoadTexture("metalpole_black"));
 		metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner"));
+
+		// The tile to be used to display the records
+		tile = new Sprite(BikeGameTextures.LoadTexture("records_tile"));
+		tile_sep = 0.2f;
+		tile_yw = SCRHEIGHT*(1-2*poleWidth)/(11 + 15*tile_sep);
+		tile_xw = tile_yw*(1278.0f/106.0f);
+		tile_xpos = cam.position.x;
+		tile_ypos_top = cam.position.y + SCRHEIGHT/2 - poleWidth*SCRHEIGHT - tile_yw - tile_sep*tile_yw;
+		tile_yoff = tile_yw*(12.0f/112.0f);
+		flagHeight = 0.5f*tile_yw*(100.0f/112.0f);
+		flagWidth = flagHeight * (360.0f/240.0f);
 
         // Grab the bitmap fonts
         question = new BitmapFont(Gdx.files.internal("data/font-48.fnt"), false);
@@ -204,24 +216,55 @@ public class MenuRecordsDisplay extends GameState {
 			levelFont.setColor(1, 1, 1, alpha);
 			SteamVars.RecordStringMenu(diamond);
 			float lvlHeight, width;
-			// (1) draw ranks
-			dispText = SteamVars.recordMenuStringRanks;
-			glyphLayout.setText(levelFont, dispText);
-			lvlHeight = glyphLayout.height;
-			width = glyphLayout.width;
-			levelFont.draw(sb, dispText, cam.position.x, cam.position.y+lvlHeight/2, 1.1f*width, Align.right, true);
-			// (2) draw names
-			dispText = SteamVars.recordMenuStringNames;
-			glyphLayout.setText(levelFont, dispText);
-			lvlHeight = glyphLayout.height;
-			levelFont.draw(sb, dispText, cam.position.x+1.5f*width, cam.position.y+lvlHeight/2, 1.1f*glyphLayout.width, Align.left, true);
-			width *= 1.5f;
-			width += 1.1f*glyphLayout.width;
-			// (3) draw times
-			dispText = SteamVars.recordMenuStringTimes;
-			glyphLayout.setText(levelFont, dispText);
-			lvlHeight = glyphLayout.height;
-			levelFont.draw(sb, dispText, cam.position.x+width, cam.position.y+lvlHeight/2, 1.1f*glyphLayout.width, Align.right, true);
+			// Draw the tiles
+			float tile_ypos = tile_ypos_top;
+			int numRender = 12;
+			if (SteamVars.recordMenuStringRanks.size()==1) {
+				tile_ypos = cam.position.y-0.5f*tile_yw;
+				numRender = 1;
+			} else if (SteamVars.recordMenuStringRanks.size()==10) {
+				// Player is in the top 10
+				tile_ypos = tile_ypos_top - 0.5f*(tile_yw + 3*tile_yw*tile_sep);
+				numRender = 10;
+			} else if (SteamVars.recordMenuStringRanks.size()==11) {
+				// Player is ranked 11
+				tile_ypos = tile_ypos_top - 0.5f*(tile_yw + 2*tile_yw*tile_sep);
+				numRender = 11;
+			} else if (SteamVars.recordMenuStringRanks.size()==12) {
+				// Player is ranked 12 or higher
+				tile_ypos = tile_ypos_top;
+				numRender = 12;
+			}
+			// Find the biggest rank width
+			float rankWidth = 0.0f;
+			for (int rr=0; rr<SteamVars.recordMenuStringRanks.size(); rr++) {
+				glyphLayout.setText(levelFont, SteamVars.recordMenuStringRanks.get(rr));
+				lvlHeight = glyphLayout.width;
+				if (lvlHeight > rankWidth) rankWidth = lvlHeight;
+			}
+			float textPos;
+			for (int tt=0; tt<numRender; tt++) {
+				if ((numRender==12) & (tt==10)) continue;
+				sb.draw(tile, tile_xpos, tile_ypos, 0, 0, tile_xw, tile_yw, 1.0f, 1.0f, 0.0f);
+				if (SteamVars.recordMenuCountries.get(tt) != -1) {
+					// Draw the player name
+					dispText = SteamVars.recordMenuStringNames.get(tt);
+					glyphLayout.setText(levelFont, dispText);
+					lvlHeight = glyphLayout.height;
+					textPos = tile_ypos + tile_yoff + tile_yw/2 + lvlHeight/2;
+					levelFont.draw(sb, dispText, tile_xpos + rankWidth + 3*tile_sep*tile_yw + flagWidth, textPos, 1.1f*glyphLayout.width, Align.left, true);
+					// Draw the rank
+					dispText = SteamVars.recordMenuStringRanks.get(tt);
+					levelFont.draw(sb, dispText, tile_xpos + tile_sep*tile_yw, textPos, rankWidth, Align.right, true);
+					// Draw the flag
+					sb.draw(BikeGameTextures.allFlags[SteamVars.recordMenuCountries.get(tt)-1], tile_xpos + rankWidth + 2*tile_sep*tile_yw, tile_ypos + tile_yoff + tile_yw*(100.0f/112.0f)/2 - flagHeight/2, 0, 0, flagWidth, flagHeight, 1.0f, 1.0f, 0.0f);
+					// Draw the time
+					dispText = SteamVars.recordMenuStringTimes.get(tt);
+					levelFont.draw(sb, dispText, tile_xpos + tile_sep*tile_yw, textPos, tile_xw-3*tile_sep*tile_yw, Align.right, true);
+				}
+				if (tt==9) tile_ypos -= 3*tile_yw*tile_sep;
+				tile_ypos -= (1.0+tile_sep)*tile_yw;
+			}
 		}
 		sb.end();
 	}
