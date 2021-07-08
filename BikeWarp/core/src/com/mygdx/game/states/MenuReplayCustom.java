@@ -268,6 +268,7 @@ public class MenuReplayCustom extends GameState {
 			glyphLayout.setText(replayList, dispText);
 			float lvlWidth = glyphLayout.height;
 			replayList.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-poleWidth*SCRHEIGHT), Align.center, true);
+			replayList.draw(sb, dispText, cam.position.x, cam.position.y+lvlWidth/2, 0.45f*(SCRWIDTH-poleWidth*SCRHEIGHT), Align.center, true);
 		}
 		sb.end();
 	}

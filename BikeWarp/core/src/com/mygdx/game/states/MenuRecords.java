@@ -127,8 +127,8 @@ public class MenuRecords extends GameState {
 				// Display Records for diamond times
 				gsm.setState(GameStateManager.MENURECORDSDISPLAY, true, "", -1, 1);
 			} else if (currentOption == 3) {
-				// TODO :: Load the menu for total times
-				System.out.println("NEED TO SORT OUT TOTAL TIMES!");
+				// Display Records for Total time
+				gsm.setState(GameStateManager.MENURECORDSTOTAL, true, "", -1, 1);
 			}
 		} else if (fadeOut == 0.0f) {
 			// Go to the main menu

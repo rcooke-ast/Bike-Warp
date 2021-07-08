@@ -11,6 +11,7 @@ import com.codedisaster.steamworks.*;
 import com.mygdx.game.BikeGame;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
 
 /**
  *
@@ -24,14 +25,14 @@ public class SteamVars {
 	public static boolean isOnline=false;
 	public static boolean userLoaded=false;
 	// variables for total times
-	private static boolean loadingTotalTimes = false;
+	public static boolean loadingTotalTimes = false;
 	private static SteamLeaderboardHandle[] leaderboardEmerald;
 	private static SteamLeaderboardHandle[] leaderboardDiamond;
 	private static String[] leaderboardNameEmerald;
 	private static String[] leaderboardNameDiamond;
 	private static int[] leaderboardNumberEmerald;
 	private static int[] leaderboardNumberDiamond;
-	private static boolean readyForNextLeaderboard;
+	public static boolean readyForNextLeaderboard;
 	// Variables for current leaderboard
 	private static SteamLeaderboardHandle currentLeaderboardEmerald;
 	private static SteamLeaderboardHandle currentLeaderboardDiamond;
@@ -56,6 +57,7 @@ public class SteamVars {
 	public static int worldRecordDiamond, worldRecordEmerald;
 	public static int playerBestEmerald, playerBestDiamond;
 	public static int playerRankEmerald, playerRankDiamond;
+	public static int playerTotalTimeEmerald, playerTotalTimeDiamond;
 
 	/*
 	****************************************************
@@ -128,10 +130,9 @@ public class SteamVars {
 											boolean found) {
 			if (found) {
 				if (loadingTotalTimes) {
+					playerRankEmerald = -1;
 					leaderboardEmerald[loadingLevel] = leaderboard;
-					leaderboardNumberEmerald[loadingLevel] = userStatsEmerald.getLeaderboardEntryCount(leaderboard);
-					loadingLevel += 1;
-					readyForNextLeaderboard = true;
+					userStatsEmerald.downloadLeaderboardEntriesForUsers(leaderboard, new SteamID[] {playerID});
 				} else {
 					currentLeaderboardEmerald = leaderboard;
 					// Download user's score
@@ -157,8 +158,19 @@ public class SteamVars {
 					if (entry.getSteamIDUser().getAccountID() == playerID.getAccountID()) {
 						playerBestEmerald = entry.getScore();
 						playerRankEmerald = entry.getGlobalRank();
+						if (loadingTotalTimes) {
+							playerTotalTimeEmerald += entry.getScore();
+							loadingLevel += 1;
+							readyForNextLeaderboard = true;
+						}
 					}
 				}
+			}
+			// Check if user has not completed level
+			if ((loadingTotalTimes) & (playerRankEmerald == -1)) {
+				playerTotalTimeEmerald += GameVars.MaxTime;
+				loadingLevel += 1;
+				readyForNextLeaderboard = true;
 			}
 			statsLoadedEmerald++;
 		}
@@ -167,7 +179,7 @@ public class SteamVars {
 		public void onLeaderboardScoreUploaded(boolean success,
 											   SteamLeaderboardHandle leaderboard, int score,
 											   boolean scoreChanged, int globalRankNew, int globalRankPrevious) {
-			if (scoreChanged) {
+			if ((scoreChanged) & (currentLevel>=1)) {
 				GameVars.CheckTimes(currentLevel-1, false, score);
 				if (globalRankNew == 1) GameVars.SetWorldRecord(true);
 				else GameVars.SetPersonalBest(true);
@@ -258,10 +270,9 @@ public class SteamVars {
 											boolean found) {
 			if (found) {
 				if (loadingTotalTimes) {
-					leaderboardDiamond[loadingLevel] = leaderboard;
-					leaderboardNumberDiamond[loadingLevel] = userStatsDiamond.getLeaderboardEntryCount(leaderboard);
-					loadingLevel += 1;
-					readyForNextLeaderboard = true;
+					playerRankDiamond = -1;
+					leaderboardDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS] = leaderboard;
+					userStatsDiamond.downloadLeaderboardEntriesForUsers(leaderboard, new SteamID[] {playerID});
 				} else {
 					currentLeaderboardDiamond = leaderboard;
 					// Download user's score
@@ -287,8 +298,19 @@ public class SteamVars {
 					if (entry.getSteamIDUser().getAccountID() == playerID.getAccountID()) {
 						playerBestDiamond = entry.getScore();
 						playerRankDiamond = entry.getGlobalRank();
+						if (loadingTotalTimes) {
+							playerTotalTimeDiamond += entry.getScore();
+							loadingLevel += 1;
+							readyForNextLeaderboard = true;
+						}
 					}
 				}
+			}
+			// Check if user has not completed level
+			if ((loadingTotalTimes) & (playerRankDiamond == -1)) {
+				playerTotalTimeDiamond += GameVars.MaxTime;
+				loadingLevel += 1;
+				readyForNextLeaderboard = true;
 			}
 			statsLoadedDiamond++;
 		}
@@ -428,6 +450,15 @@ public class SteamVars {
 		}
 	}
 
+	public static void LoadPBWRtotal() {
+		currentLeaderboardEmerald = null;
+		currentLevel = -1;
+		ResetTimes();
+		if (SteamAPI.isSteamRunning()) {
+			userStatsEmerald.findLeaderboard("TotalTime");
+		}
+	}
+
 	public static void LoadPBWR(int level) {
 		currentLevel = level;
 		ResetTimes();
@@ -445,10 +476,10 @@ public class SteamVars {
 
 	public static float GetProgress() {
 		// Return the progress on loading the leaderboards
-		return ((float) loadingLevel)/((float) 2*LevelsListGame.NUMGAMELEVELS+1);
+		return ((float) loadingLevel)/((float) 2*LevelsListGame.NUMGAMELEVELS-1);
 	}
 
-	public static void ParseAllLeaderboards() {
+	public static void DownloadAllLeaderboards() {
 		// Must call prepareLeaderboards before calling this function
 		if (readyForNextLeaderboard) {
 			if (loadingLevel < LevelsListGame.NUMGAMELEVELS) {
@@ -456,7 +487,6 @@ public class SteamVars {
 			} else if (loadingLevel < 2*LevelsListGame.NUMGAMELEVELS) {
 				userStatsDiamond.findLeaderboard(leaderboardNameDiamond[loadingLevel-LevelsListGame.NUMGAMELEVELS]);
 			} else {
-				System.out.println("All leaderboards loaded");
 				loadingTotalTimes = false;
 			}
 			readyForNextLeaderboard = false;
@@ -466,6 +496,8 @@ public class SteamVars {
 	public static void PrepareAllLeaderboards() {
 		// Generate a list of all available leaderboards for the total time
 		loadingTotalTimes = true;
+		playerTotalTimeEmerald = 0;
+		playerTotalTimeDiamond = 0;
 		// A handle to each of the leaderboards
 		leaderboardEmerald = new SteamLeaderboardHandle[LevelsListGame.NUMGAMELEVELS];
 		leaderboardDiamond = new SteamLeaderboardHandle[LevelsListGame.NUMGAMELEVELS];
@@ -498,6 +530,27 @@ public class SteamVars {
 				}
 //				//save
 //				result = userStatsEmerald.storeStats();
+			}
+		} catch (Exception e) {
+			isOnline = false;
+			result = false;
+		}
+		return result;
+	}
+
+	public static boolean uploadTotalTime() {
+		// This should only be called after the
+		// LoadPBWRtotal() routine has been called
+		// and the total time leaderboard has been
+		// loaded.
+		boolean result = false;
+		int millis;
+		int[] details = GameVars.GetPlayerDetails();
+		try {
+			if ((currentLeaderboardEmerald != null) & (playerTotalTimeEmerald!=0) & (playerTotalTimeDiamond!=0)) {
+				millis = playerTotalTimeEmerald + playerTotalTimeDiamond;
+				userStatsEmerald.uploadLeaderboardScore(currentLeaderboardEmerald, SteamUserStats.LeaderboardUploadScoreMethod.KeepBest, millis, details);
+				result = true;
 			}
 		} catch (Exception e) {
 			isOnline = false;
