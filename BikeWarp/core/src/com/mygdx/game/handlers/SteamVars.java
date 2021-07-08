@@ -6,12 +6,10 @@
 
 package com.mygdx.game.handlers;
 
-import com.badlogic.gdx.Game;
 import com.codedisaster.steamworks.*;
 import com.mygdx.game.BikeGame;
 
 import java.util.ArrayList;
-import java.util.logging.Level;
 
 /**
  *

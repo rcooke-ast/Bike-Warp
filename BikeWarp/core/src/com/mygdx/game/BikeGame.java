@@ -72,6 +72,9 @@ public class BikeGame implements ApplicationListener {
 
 		// Initialise the viewport
 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		// Cut down the window edges, so the image is displayed and no horrible borders
+		Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 
 		// Initialise the Sprite batch
 		sb = new SpriteBatch();
@@ -196,7 +199,7 @@ public class BikeGame implements ApplicationListener {
 
 	public static void UpdateDisplay() {
 		if (!GameVars.GetPlayerFullscreen()) {
-			Gdx.graphics.setWindowedMode((int) BikeGame.viewport.width, (int) BikeGame.viewport.height);
+			Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 		} else {
 			Graphics.DisplayMode m = null;
@@ -209,7 +212,6 @@ public class BikeGame implements ApplicationListener {
 					}
 				}
 			}
-
 			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 		}
