@@ -9,6 +9,7 @@ package com.mygdx.game.handlers;
 import java.io.*;
 import java.util.ArrayList;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
 
 /**
@@ -22,6 +23,7 @@ public class GameVars implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	// How many level skips are allowed
+	public static final float textHeight = 0.024725739f; // Multiply this by SCRHEIGHT and this represents the required scale of the text, given the glyphText "My"
 	public static final int skipsAllowed = 3; // Allow players to skip 3 levels
 	public static final int numStore = 10; // Store the top 10 times of each level
 	public static final int MaxTime = 10*60*1000;  // 10 minutes is the maximum time that a player can play for!
@@ -126,6 +128,7 @@ public class GameVars implements Serializable {
 	public static int GetPlayerTimes(int lvl) {return plyrTimes.get(currentPlayer).get(lvl);}
 	public static int GetPlayerTimesDmnd(int lvl) {return plyrTimesDmnd.get(currentPlayer).get(lvl);}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
+	public static String GetPlayerESCString() {return Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[8]);}
 	public static int GetPlayerDisplay(int index) {return plyrDisplay.get(currentPlayer)[index];}
 	public static boolean[] GetPlayerDiamonds() {return plyrColDmnd.get(currentPlayer);}
 	public static boolean GetPlayerDiamond(int level) {return plyrColDmnd.get(currentPlayer)[level];}

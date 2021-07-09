@@ -102,8 +102,6 @@ public class BikeGame implements ApplicationListener {
 						SteamAPI.runCallbacks();
 					}
 					BikeGameTextures.LoadFlags();
-					resize(Gdx.graphics.getWidth()*SplashScreenScale, Gdx.graphics.getHeight()*SplashScreenScale);
-					Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
 					gsm = new GameStateManager(this);
 				}
 			}

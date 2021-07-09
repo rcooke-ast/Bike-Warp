@@ -13,6 +13,7 @@ import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.ReplayVars;
 
 public class MenuRecords extends GameState {
@@ -80,27 +81,13 @@ public class MenuRecords extends GameState {
     private void SetupMenuFont() {
 		float scaleVal = 1.0f;
 		recordList.getData().setScale(scaleVal);
-		glyphLayout.setText(recordList, option1);
-		recordWidth = glyphLayout.width;
-		// Option 2
-		float tstRecordWidth;
-		glyphLayout.setText(recordList, option2);
-		tstRecordWidth = glyphLayout.width;
-		if (tstRecordWidth > recordWidth) recordWidth = tstRecordWidth;
-		// Option 3
-		glyphLayout.setText(recordList, option3);
-		tstRecordWidth = glyphLayout.width;
-		if (tstRecordWidth > recordWidth) recordWidth = tstRecordWidth;
-		// Option 4
-		glyphLayout.setText(recordList, option4);
-		tstRecordWidth = glyphLayout.width;
-		if (tstRecordWidth > recordWidth) recordWidth = tstRecordWidth;
-		// Set the properties of the font now.
-		scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/ recordWidth;
-		recordList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		glyphLayout.setText(recordList, "My");
+		scaleVal = GameVars.textHeight*SCRHEIGHT/glyphLayout.height;
 		recordList.getData().setScale(scaleVal);
 		glyphLayout.setText(recordList, "My");
+		recordWidth = glyphLayout.width;
 		recordHeight = glyphLayout.height;
+		recordList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 	}
 
     @Override

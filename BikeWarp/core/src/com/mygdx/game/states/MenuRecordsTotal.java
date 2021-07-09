@@ -106,8 +106,9 @@ public class MenuRecordsTotal extends GameState {
 
     private void SetupMenuFont() {
 		float scaleVal = 1.0f;
+		levelFont.getData().setScale(scaleVal);
 		glyphLayout.setText(levelFont, "My");
-		scaleVal = 0.3682557f*tile_yw/glyphLayout.height;
+		scaleVal = GameVars.textHeight*SCRHEIGHT/glyphLayout.height;
 		levelFont.getData().setScale(scaleVal);
 		glyphLayout.setText(levelFont, options[0]);
 		recordWidth = glyphLayout.width;
@@ -120,7 +121,6 @@ public class MenuRecordsTotal extends GameState {
 //		}
 //		scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/ recordWidth;
 		levelFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		levelFont.getData().setScale(scaleVal);
 		SetNumRecordShow();
 	}
 

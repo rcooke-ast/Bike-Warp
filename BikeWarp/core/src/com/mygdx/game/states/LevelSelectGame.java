@@ -74,7 +74,9 @@ public class LevelSelectGame extends GameState {
     	totalLevels = GameVars.GetNumLevels();
         float scaleVal = 1.0f;
         menuText.getData().setScale(scaleVal);
-        glyphLayout.setText(menuText, "XXXXXXXXXXXXXXX");
+        glyphLayout.setText(menuText, "My");
+        scaleVal = GameVars.textHeight*SCRHEIGHT/glyphLayout.height;
+        menuText.getData().setScale(scaleVal);
         menuWidth = glyphLayout.width;
         float tstMenuWidth;
         for (int i=0; i<totalLevels; i++) {
@@ -82,8 +84,6 @@ public class LevelSelectGame extends GameState {
             tstMenuWidth = glyphLayout.width;
         	if (tstMenuWidth > menuWidth) menuWidth = tstMenuWidth;
         }
-        scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/menuWidth;
-        menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         glyphLayout.setText(menuText, "My");
         menuHeight = glyphLayout.height;
@@ -198,7 +198,7 @@ public class LevelSelectGame extends GameState {
         // Draw level description
         menuText.setColor(1, 1, 1, alpha/2);
         //lvlWidth = menuText.getWrappedBounds(LevelsListGame.gameLevelDescr[currentOption], 0.45f*(SCRWIDTH-poleWidth*BikeGame.V_HEIGHT)).height;
-        if (currentLevel == 0) dispText = "Return to the Main Menu (or press Esc).";
+        if (currentLevel == 0) dispText = String.format("Return to the Main Menu (or press %s)", GameVars.GetPlayerESCString());
         else dispText = SteamVars.currentDisplayString;
         glyphLayout.setText(menuText, dispText);
         lvlWidth = glyphLayout.height;

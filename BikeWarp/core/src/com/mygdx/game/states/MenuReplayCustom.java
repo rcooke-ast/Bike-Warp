@@ -13,6 +13,7 @@ import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
+import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.ReplayVars;
 
 import java.io.File;
@@ -98,9 +99,13 @@ public class MenuReplayCustom extends GameState {
 		// First load the list of replays
 		replayFiles = ReplayVars.GetReplayList();
 		replayList.getData().setScale(scaleVal);
+		glyphLayout.setText(replayList, "My");
+		scaleVal = GameVars.textHeight*SCRHEIGHT/glyphLayout.height;
+		replayList.getData().setScale(scaleVal);
+		replayWidth = glyphLayout.width;
 		// Do option 1
 		glyphLayout.setText(replayList, option1);
-		replayWidth = glyphLayout.width;
+		if (glyphLayout.width > replayWidth) replayWidth = glyphLayout.width;
 		float tstReplayWidth;
 		// Remaining options
 		numOptions = numExtra + replayFiles.length;
@@ -109,7 +114,8 @@ public class MenuReplayCustom extends GameState {
 			tstReplayWidth = glyphLayout.width;
 			if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
 		}
-		scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/replayWidth;
+		float scaling = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/replayWidth;
+		if (scaling < 1) scaleVal *= scaling;
 		replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		replayList.getData().setScale(scaleVal);
 		SetNumReplayShow();
@@ -261,7 +267,7 @@ public class MenuReplayCustom extends GameState {
         if (currentOption >= numExtra) {
 			replayList.setColor(1, 1, 1, alpha);
 			if (renaming) {
-				dispText = "Renaming Replay\n\nPress ESC to cancel\nPress Enter to confirm";
+				dispText = String.format("Renaming Replay\n\nPress %s to cancel\nPress Enter to confirm", GameVars.GetPlayerESCString());
 				if (fileExists) dispText += "\n\nFile exists!";
 				else dispText += "\n\n";
 			} else dispText = ReplayVars.ReplayString(true);

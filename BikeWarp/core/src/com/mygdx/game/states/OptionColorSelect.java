@@ -1,10 +1,6 @@
 package com.mygdx.game.states;
 
-import java.awt.Color;
-
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -17,7 +13,6 @@ import com.mygdx.game.BikeGameTextures;
 import com.mygdx.game.handlers.GameInput;
 import com.mygdx.game.handlers.GameStateManager;
 import com.mygdx.game.handlers.GameVars;
-import com.mygdx.game.utilities.ColorUtils;
 import com.mygdx.game.utilities.FileUtils;
 import com.mygdx.game.utilities.PolygonOperations;
 
@@ -201,7 +196,7 @@ public class OptionColorSelect extends GameState {
         float scaleVal = 1.0f;
         menuText.getData().setScale(scaleVal);
         menuString = String.format("Use the arrow keys to change the bike color\n" +
-                "Press ENTER to set bike color,\nPress '%s' to cancel", Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[8]));
+                "Press ENTER to set bike color,\nPress '%s' to cancel", GameVars.GetPlayerESCString());
         glyphLayout.setText(menuText, menuString);
         mWidth = glyphLayout.width;
         scaleVal = 0.35f*SCRWIDTH/mWidth;

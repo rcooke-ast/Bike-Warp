@@ -100,7 +100,9 @@ public class MenuRecordsDisplay extends GameState {
 		totalLevels = LevelsListGame.NUMGAMELEVELS;
 		float scaleVal = 1.0f;
 		levelFont.getData().setScale(scaleVal);
-		glyphLayout.setText(levelFont, option1);
+		glyphLayout.setText(levelFont, "My");
+		scaleVal = GameVars.textHeight*SCRHEIGHT/glyphLayout.height;
+		levelFont.getData().setScale(scaleVal);
 		recordWidth = glyphLayout.width;
 		// Remaining options
 		float tstReplayWidth;
@@ -110,9 +112,7 @@ public class MenuRecordsDisplay extends GameState {
 			tstReplayWidth = glyphLayout.width;
 			if (tstReplayWidth > recordWidth) recordWidth = tstReplayWidth;
 		}
-		scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/ recordWidth;
 		levelFont.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		levelFont.getData().setScale(scaleVal);
 		SetNumRecordShow();
 	}
 

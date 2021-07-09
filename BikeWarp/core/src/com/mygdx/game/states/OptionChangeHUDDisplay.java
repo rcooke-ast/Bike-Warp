@@ -47,7 +47,9 @@ public class OptionChangeHUDDisplay extends GameState {
         // Set text heights
         float scaleVal = 1.0f;
         menuText.getData().setScale(scaleVal);
-        glyphLayout.setText(menuText, "XXXXXXXXXXXXXXX");
+        glyphLayout.setText(menuText, "My");
+        scaleVal = GameVars.textHeight*SCRHEIGHT/glyphLayout.height;
+        menuText.getData().setScale(scaleVal);
         menuWidth = glyphLayout.width;
         float tstMenuWidth;
         for (int i = 0; i< totalOptions; i++) {
@@ -55,8 +57,6 @@ public class OptionChangeHUDDisplay extends GameState {
             tstMenuWidth = glyphLayout.width;
             if (tstMenuWidth > menuWidth) menuWidth = tstMenuWidth;
         }
-        scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/menuWidth;
-        menuText.getData().setScale(scaleVal);
         menuText.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
         glyphLayout.setText(menuText, "My");
         menuHeight = glyphLayout.height;

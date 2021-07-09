@@ -99,8 +99,12 @@ public class MenuReplayPB extends GameState {
 		float scaleVal = 1.0f;
 		totalLevels = completedLevels.length;
 		replayList.getData().setScale(scaleVal);
-		glyphLayout.setText(replayList, option1);
+		glyphLayout.setText(replayList, "My");
+		scaleVal = GameVars.textHeight*SCRHEIGHT/glyphLayout.height;
+		replayList.getData().setScale(scaleVal);
 		replayWidth = glyphLayout.width;
+		glyphLayout.setText(replayList, option1);
+		if (glyphLayout.width > replayWidth) replayWidth = glyphLayout.width;
 		// Remaining options
 		float tstReplayWidth;
 		numOptions = numExtra + totalLevels;
@@ -109,7 +113,8 @@ public class MenuReplayPB extends GameState {
 			tstReplayWidth = glyphLayout.width;
 			if (tstReplayWidth > replayWidth) replayWidth = tstReplayWidth;
 		}
-		scaleVal = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/replayWidth;
+		float scaling = 0.25f*(SCRWIDTH-poleWidth*SCRHEIGHT)/replayWidth;
+		if (scaling < 1) scaleVal *= scaling;
 		replayList.getRegion().getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		replayList.getData().setScale(scaleVal);
 		SetNumReplayShow();
