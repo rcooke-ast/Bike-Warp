@@ -15,8 +15,8 @@ public class DesktopLauncher {
 //		config.addIcon("data/images/finish_whirl_64x64.png", Files.FileType.Internal);
 		// Just in case the user wishes to have windowed+borderless
 		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-		config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width/3;
-		config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height/3;
+		config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width/BikeGame.SplashScreenScale;
+		config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height/BikeGame.SplashScreenScale;
 
 		/*
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();

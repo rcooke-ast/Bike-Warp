@@ -21,6 +21,7 @@ public class BikeGame implements ApplicationListener {
 	// 768 x 432 = 1.77777R
 	public static final int V_WIDTH = 768;
 	public static final int V_HEIGHT = 432;
+	public static final int SplashScreenScale = 3;
 //	public static final int V_WIDTH = 512;
 //	public static final int V_HEIGHT = 288;
 	// Following are 1.6
@@ -101,6 +102,8 @@ public class BikeGame implements ApplicationListener {
 						SteamAPI.runCallbacks();
 					}
 					BikeGameTextures.LoadFlags();
+					resize(Gdx.graphics.getWidth()*SplashScreenScale, Gdx.graphics.getHeight()*SplashScreenScale);
+					Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
 					gsm = new GameStateManager(this);
 				}
 			}
