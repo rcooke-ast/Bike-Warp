@@ -649,6 +649,12 @@ public class Play extends GameState {
            case RUNNING:
         	   handleInput();
         	   mWorld.step(dt, mVelocityIter, mPositionIter);
+        	   // Check if the timer has gone beyond 10 minutes
+               if ((int) (TimeUtils.millis()) - timerStart > GameVars.MaxTime) {
+                   mNextState = GAME_STATE.RUNNING;  // Ensure that forceRestart can be applied
+                   forceRestart = true;
+               }
+        	   // Now do some checks
 	       	   if (cl.isFinished()) {
 	     	   		if (collectJewel == 0) {
 	     	   			timerTotal = (int) (TimeUtils.millis()) - timerStart;

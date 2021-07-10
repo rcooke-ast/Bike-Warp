@@ -238,8 +238,16 @@ public class GameVars implements Serializable {
         	// time is in milliseconds
             int MSecs = time%1000;
         	int Secs  = ((time-MSecs)%60000)/1000;
-        	int Mins  = (time-MSecs-1000*Secs)/60000;
-        	retval = String.format("%02d", Mins) + ":" + String.format("%02d", Secs) + ":" + String.format("%03d", MSecs);
+        	int Mins  = ((time-MSecs-1000*Secs)%3600000)/60000;
+			int Hour  = (time-MSecs-1000*Secs-60000*Mins)/3600000;
+			if (Hour > 0) {
+				retval = String.format("%d:%02d:%02d.%03d", Hour, Mins, Secs, MSecs);
+			} else {// if (Mins > 0) {
+				retval = String.format("%02d:%02d.%03d", Mins, Secs, MSecs);
+			}/* else {
+				retval = String.format("%02d.%03d", Secs, MSecs);
+			}
+			*/
     	}
 		return retval;
     }

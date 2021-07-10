@@ -54,8 +54,8 @@ public class GameStateManager {
         if (SteamAPI.isSteamRunning()) {
             // Fix the splashscreen for those that prefer windowed borderless
             if (!GameVars.GetPlayerFullscreen()) {
-                this.game.resize(Gdx.graphics.getWidth()*this.game.SplashScreenScale, Gdx.graphics.getHeight()*this.game.SplashScreenScale);
-                Gdx.graphics.setWindowedMode((int) this.game.viewport.width, (int) this.game.viewport.height);
+                this.game.resize(Gdx.graphics.getWidth()* this.game.SplashScreenScale, Gdx.graphics.getHeight()* this.game.SplashScreenScale);
+                Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth()*this.game.SplashScreenScale, Gdx.graphics.getHeight()* this.game.SplashScreenScale);
             }
             // Now load the right menu
             if (GameVars.IsCountrySet()) {
@@ -67,8 +67,8 @@ public class GameStateManager {
         } else {
             // Fix the splashscreen for those that prefer windowed borderless
             if (!GameVars.GetPlayerFullscreen()) {
-                this.game.resize(Gdx.graphics.getWidth()*this.game.SplashScreenScale, Gdx.graphics.getHeight()*this.game.SplashScreenScale);
-                Gdx.graphics.setWindowedMode((int) this.game.viewport.width, (int) this.game.viewport.height);
+                this.game.resize(Gdx.graphics.getWidth() * this.game.SplashScreenScale, Gdx.graphics.getHeight() * this.game.SplashScreenScale);
+                Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             }
             // Now load the right menu
             BikeGame.UpdateDisplay();

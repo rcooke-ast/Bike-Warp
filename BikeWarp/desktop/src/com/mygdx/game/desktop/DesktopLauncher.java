@@ -12,7 +12,6 @@ public class DesktopLauncher {
 		config.width = BikeGame.V_WIDTH * BikeGame.SCALE;
 		config.height = BikeGame.V_HEIGHT * BikeGame.SCALE;
 		config.resizable = false;
-//		config.addIcon("data/images/finish_whirl_64x64.png", Files.FileType.Internal);
 		// Just in case the user wishes to have windowed+borderless
 		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
 		config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width/BikeGame.SplashScreenScale;

@@ -188,7 +188,7 @@ public class MenuRecordsTotal extends GameState {
 
 	private void UpdateTime() {
 		if (uploadingTime == 1) {
-			SteamVars.PrepareAllLeaderboards();
+			SteamVars.PrepareAllLeaderboards(0);
 			uploadingTime++;
 		} else if (uploadingTime == 2) {
 			if (SteamVars.readyForNextLeaderboard) {

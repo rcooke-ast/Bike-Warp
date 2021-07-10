@@ -21,7 +21,7 @@ public class BikeGame implements ApplicationListener {
 	// 768 x 432 = 1.77777R
 	public static final int V_WIDTH = 768;
 	public static final int V_HEIGHT = 432;
-	public static final int SplashScreenScale = 3;
+	public static final int SplashScreenScale = 1;
 //	public static final int V_WIDTH = 512;
 //	public static final int V_HEIGHT = 288;
 	// Following are 1.6
@@ -73,8 +73,10 @@ public class BikeGame implements ApplicationListener {
 
 		// Initialise the viewport
 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		// Cut down the window edges, so the image is displayed and no horrible borders
-		Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
+		Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		// Can't cut down the window edges, due to exception being thrown on new versions of Mac OSX
+		// If this line could be run, we could get rid of horrible black border
+//		Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 
 		// Initialise the Sprite batch
@@ -89,7 +91,6 @@ public class BikeGame implements ApplicationListener {
 		hudCam.position.set(viewport.width/2,viewport.height/2,0);
 		tube_length = viewport.width*0.7f;
 		tube_height = viewport.height*0.02f;
-//		finishRad = viewport.height*0.03f;
 	}
 
 	@Override
@@ -200,7 +201,8 @@ public class BikeGame implements ApplicationListener {
 
 	public static void UpdateDisplay() {
 		if (!GameVars.GetPlayerFullscreen()) {
-			Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
+			Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+//			Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 		} else {
 			Graphics.DisplayMode m = null;

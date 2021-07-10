@@ -88,10 +88,6 @@ public class LevelSelectGame extends GameState {
         glyphLayout.setText(menuText, "My");
         menuHeight = glyphLayout.height;
         SetNumLevShow();
-        if (currentLevel != 0) {
-            SteamVars.LoadPBWR(currentLevel);
-            SteamVars.RecordString();
-        }
     }
     
     private void SetNumLevShow() {
@@ -113,12 +109,14 @@ public class LevelSelectGame extends GameState {
         } else if (GameInput.isPressed(GameInput.KEY_ESC)) {
         	fadeOut=1.0f; // Return to Main Menu
             BikeGameSounds.PlayMenuSelect();
-        } else if ((GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(currentLevel-1)==0)) {
+        } else if ((currentLevel != 0) & (GameInput.isPressed(GameInput.KEY_S)) & (GameVars.GetLevelStatus(currentLevel-1)==0)) {
             BikeGameSounds.PlayMenuSelect();
         	GameVars.SetSkipLevel(currentLevel-1); // Skip this level
         	totalLevels = GameVars.GetNumLevels();
         	LevelsListGame.updateRecords();
         	UpdateMenu();
+            SteamVars.LoadPBWR(currentLevel);
+            SteamVars.RecordString();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentLevel==0) {
         	    fadeOut=1.0f; // Return to Main Menu
@@ -146,8 +144,6 @@ public class LevelSelectGame extends GameState {
 		cam.zoom = 1.0f;
     	cam.update();
 		handleInput();
-		// Update how many levels should be shown
-	    UpdateMenu();
 		// Set the fading
     	if (fadeOut > 0.0f) {
     		fadeOut -= dt/fadeTime;
@@ -157,7 +153,11 @@ public class LevelSelectGame extends GameState {
     		if (fadeIn > 1.0f) {
     			fadeIn = 2.0f;
     		}
-    	}
+    	} else {
+            // Update how many levels should be shown
+            UpdateMenu();
+            SteamVars.RecordString();
+        }
     }
     
     public void render() {

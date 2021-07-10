@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -14,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
@@ -25,15 +23,15 @@ import com.mygdx.game.handlers.GameVars;
 import com.mygdx.game.handlers.SteamVars;
 
 public class MenuSelectCountry extends GameState {
-    private int currentOption, numOptions;
+    private int currentOption, numOptions, updateCountry;
     private Sprite stars, shade, gamename, tube, fluid;
-    private float gn_width, gn_height, tube_length, tube_height;
+    private float gn_width, gn_height, tube_length, tube_height, progress;
     private BitmapFont question;
 	private static GlyphLayout glyphLayout = new GlyphLayout();
 	private float qWidth, qHeight, SCRWIDTH, SCRHEIGHT, sborder;
     private float fadeIn, fadeOut, alpha, fadeTime = 0.5f;
     private final String header = "Select your nationality";
-    private boolean doFade, popState, enableSelect, updateSteam, steamFinished;
+    private boolean doFade, popState, enableSelect, updateSteam;
 	private SelectBox selectCountry;
 	private Button buttonCountry;
 	private Skin skin;
@@ -60,7 +58,6 @@ public class MenuSelectCountry extends GameState {
 
     public void create() {
 		updateSteam = false;
-		steamFinished = false;
 //        float SCTOSCRW = ((float) Gdx.graphics.getHeight()*Gdx.graphics.getDisplayMode().width)/((float) Gdx.graphics.getDisplayMode().height);
 		this.game.resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         SCRWIDTH = BikeGame.viewport.width;
@@ -148,7 +145,9 @@ public class MenuSelectCountry extends GameState {
 				if (enableSelect) {
 					// Set the player country
 					updateSteam = GameVars.SetPlayerCountry(currentOption);
-					if (!updateSteam) {
+					if (updateSteam) {
+						updateCountry = 1;
+					} else {
 						BikeGameSounds.PlayMenuSelect();
 						fadeOut=1.0f;
 					}
@@ -172,8 +171,7 @@ public class MenuSelectCountry extends GameState {
 			// Set the player country
 			updateSteam = GameVars.SetPlayerCountry(currentOption);
 			if (updateSteam) {
-				steamFinished = false;
-				// TODO :: Need to send a comment to Steam here to upload player Country in all levels.
+				updateCountry = 1;
 			} else {
 				BikeGameSounds.PlayMenuSelect();
 				fadeOut=1.0f;
@@ -194,6 +192,7 @@ public class MenuSelectCountry extends GameState {
 		cam.zoom = 1.0f;
     	cam.update();
     	handleInput();
+		if (updateCountry != 0) UpdatePlyrCountry();
     	if (fadeOut > 0.0f) {
     		fadeOut -= dt/fadeTime;
     		if (fadeOut < 0.0f) fadeOut = 0.0f;
@@ -201,10 +200,27 @@ public class MenuSelectCountry extends GameState {
     		fadeIn += dt/fadeTime;
     		if (fadeIn > 1.0f) fadeIn = 2.0f;
     	}
-		if ((updateSteam) & (steamFinished)) {
-			updateSteam = false;
-			steamFinished = false;
-			BikeGameSounds.PlayMenuSelect();
+	}
+
+	private void UpdatePlyrCountry() {
+		if (updateCountry == 1) {
+			SteamVars.PrepareAllLeaderboards(1);
+			updateCountry++;
+		} else if (updateCountry == 2) {
+			if (SteamVars.readyForNextLeaderboard) {
+				// Leaderboards are now prepared
+				updateCountry++;
+			}
+		} else if (updateCountry == 3) {
+			// Start the long process of updating the player's country
+			SteamVars.UpdatePlayerCountry();
+			progress = SteamVars.GetProgress();
+			if (!SteamVars.updateCountry) {
+				updateCountry++;
+			}
+		} else if (updateCountry == 4) {
+			// Reset
+			updateCountry = 0;
 			fadeOut=0.00001f; // Don't bother fading - change to 1.0f to fade
 		}
 	}
@@ -235,9 +251,7 @@ public class MenuSelectCountry extends GameState {
 		question.setColor(1, 1, 1, alpha);
 		question.draw(sb, header, (SCRWIDTH-qWidth)/2.0f, cam.position.y + windowTBar.getHeight()/2+sborder*0.3f + qHeight);
 		// Draw progress bar, if needed
-		if ((updateSteam) & (!steamFinished)) {
-			float progress = SteamVars.GetProgress();
-			if (progress >= 1) steamFinished = true;
+		if (updateSteam) {
 			// Draw Fluid
 			sb.draw(fluid, hudCam.position.x-tube_length/2, hudCam.position.y-0.4f*SCRHEIGHT, 0, 0, tube_length*progress, tube_height, 1.0f, 1.0f, 0.0f);
 			// Draw Tube
