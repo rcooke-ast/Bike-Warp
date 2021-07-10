@@ -73,8 +73,9 @@ public class BikeGame implements ApplicationListener {
 
 		// Initialise the viewport
 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
 		// Can't cut down the window edges, due to exception being thrown on new versions of Mac OSX
+//		Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		// If this line could be run, we could get rid of horrible black border
 //		Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
