@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Align;
+import com.codedisaster.steamworks.SteamAPI;
 import com.mygdx.game.BikeGame;
 import com.mygdx.game.BikeGameSounds;
 import com.mygdx.game.BikeGameTextures;
@@ -155,7 +156,7 @@ public class MenuRecordsTotal extends GameState {
 					SteamVars.LoadPBWRtotal();
 				} else {
 					// Calculate the players total time first, and then upload it.
-					uploadingTime = 1;
+					if (SteamAPI.isSteamRunning()) uploadingTime = 1;
 				}
 			} else if (fadeOut == 0.0f) {
 				// Go to the replay menu
@@ -275,6 +276,9 @@ public class MenuRecordsTotal extends GameState {
 				if (SteamVars.recordMenuStringRanks.size()==1) {
 					tile_ypos = cam.position.y-0.5f*tile_yw;
 					numRender = 1;
+//				} else if (SteamVars.recordMenuStringRanks.size()==2) {
+//					tile_ypos = cam.position.y+0.5f*tile_yw*tile_sep;
+//					numRender = 2;
 				} else if (SteamVars.recordMenuStringRanks.size()==10) {
 					// Player is in the top 10
 					tile_ypos = tile_ypos_top - 0.5f*(tile_yw + 3*tile_yw*tile_sep);
@@ -298,8 +302,16 @@ public class MenuRecordsTotal extends GameState {
 				float textPos;
 				for (int tt=0; tt<numRender; tt++) {
 					if ((numRender==12) & (tt==10)) continue;
+					// Draw the tile
 					sb.draw(tile, tile_xpos, tile_ypos, 0, 0, tile_xw, tile_yw, 1.0f, 1.0f, 0.0f);
-					if (SteamVars.recordMenuCountries.get(tt) != -1) {
+					if ((tt==0) & (numRender==1)) {
+						// Draw the player name
+						dispText = SteamVars.recordMenuStringNames.get(tt);
+						glyphLayout.setText(levelFont, dispText);
+						lvlHeight = glyphLayout.height;
+						textPos = tile_ypos + tile_yoff + tile_yw/2 + lvlHeight/2;
+						levelFont.draw(sb, dispText, tile_xpos + rankWidth + 3*tile_sep*tile_yw + flagWidth, textPos, 1.1f*glyphLayout.width, Align.left, true);
+					} else if (SteamVars.recordMenuCountries.get(tt) != -1) {
 						// Draw the player name
 						dispText = SteamVars.recordMenuStringNames.get(tt);
 						glyphLayout.setText(levelFont, dispText);
@@ -322,7 +334,9 @@ public class MenuRecordsTotal extends GameState {
 			case 2 :
 				// Uploading time
 				if (uploadingTime == 0) {
-					dispText = "Press Enter to upload your Total Time\n\nWarning: A time penalty of 10 minutes is added to each emerald and diamond time that has not been set.";
+					if (SteamAPI.isSteamRunning()) dispText = "Press Enter to upload your Total Time\n\n";
+					else dispText = "Steam offline: To upload your total time, you must connect to Steam\n\n";
+					dispText += "Warning: A time penalty of 10 minutes is added to each emerald and diamond time that has not been set";
 					glyphLayout.setText(levelFont, dispText);
 					width = glyphLayout.height;
 					levelFont.draw(sb, dispText, cam.position.x, cam.position.y+width/2, 0.45f*(SCRWIDTH-poleWidth*SCRHEIGHT), Align.center, true);

@@ -131,7 +131,7 @@ public class MenuSelectPlayer extends GameState {
         			// Check if name already exists
         			exists = false;
         	        for (int i=0; i<GameVars.plyrName.length; i++) {
-        	        	if (GameVars.plyrName[i].equals(newName)) {
+        	        	if (GameVars.plyrName[i].compareTo(newName)==0) {
         	        		currentOption = i;
         	        		exists = true;
         	        		GameVars.SetCurrentPlayerOffline(currentOption);
@@ -158,11 +158,10 @@ public class MenuSelectPlayer extends GameState {
         	// Go to the main menu
     		fadeOut=-1.0f;
     		LevelsListGame.initialise();
-    		GameVars.UpdateTotalTimes();
     		if (GameVars.IsCountrySet()) {
-				gsm.setState(GameStateManager.MENUSELECTCOUNTRY, false, "none", -1, 0);
-			} else {
 				gsm.setState(GameStateManager.MAINMENU, false, "none", -1, 0);
+			} else {
+				gsm.setState(GameStateManager.MENUSELECTCOUNTRY, false, "none", -1, 0);
 			}
         }
     	if ((currentOption>numPlyrShow/2) & (currentOption<numOptions-numPlyrShow/2)) numMin = currentOption-numPlyrShow/2;

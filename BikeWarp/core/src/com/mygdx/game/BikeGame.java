@@ -202,7 +202,7 @@ public class BikeGame implements ApplicationListener {
 
 	public static void UpdateDisplay() {
 		if (!GameVars.GetPlayerFullscreen()) {
-			Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			Gdx.graphics.setWindowedMode(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 //			Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
 			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
 		} else {

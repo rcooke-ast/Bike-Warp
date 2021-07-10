@@ -219,8 +219,11 @@ public class MenuRecordsDisplay extends GameState {
 			float tile_ypos = tile_ypos_top;
 			int numRender = 12;
 			if (SteamVars.recordMenuStringRanks.size()==1) {
-				tile_ypos = cam.position.y-0.5f*tile_yw;
+				tile_ypos = cam.position.y - 0.5f * tile_yw;
 				numRender = 1;
+//			} else if (SteamVars.recordMenuStringRanks.size()==2) {
+//				tile_ypos = cam.position.y+0.5f*tile_yw*tile_sep;
+//				numRender = 2;
 			} else if (SteamVars.recordMenuStringRanks.size()==10) {
 				// Player is in the top 10
 				tile_ypos = tile_ypos_top - 0.5f*(tile_yw + 3*tile_yw*tile_sep);

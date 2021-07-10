@@ -1,5 +1,7 @@
 package com.mygdx.game.utilities;
 
+import java.util.Comparator;
+
 public class FileUtils {
 	private static final int NOT_FOUND = -1;
 	private static final char UNIX_SEPARATOR = '/';

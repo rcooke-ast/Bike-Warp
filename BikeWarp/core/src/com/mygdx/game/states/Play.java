@@ -185,6 +185,7 @@ public class Play extends GameState {
     private Sprite bikeWheel, bikeColour, bikeOverlay, suspensionRear, suspensionFront;
     private float[] bikeCol;
     private BitmapFont timer, timerWR, timerPB;
+    private Color timerColor;
     private static GlyphLayout glyphLayout = new GlyphLayout();
     private int timerStart, timerCurrent, timerTotal;
     private String worldRecord, personalRecord, worldRecordD, personalRecordD;
@@ -422,7 +423,8 @@ public class Play extends GameState {
 
         // Timer for this run
         timer = new BitmapFont(Gdx.files.internal("data/digital-dream-bold-48.fnt"), false);
-        timer.setColor(0, 0, 0, 1);
+        timerColor = new Color(0, 0, 0, 1);
+        timer.setColor(timerColor);
         timer.getData().setScale(0.35f);
         glyphLayout.setText(timer, "00:00:000");
         timerWidth = glyphLayout.width;
@@ -1971,6 +1973,8 @@ public class Play extends GameState {
         int timerBlue = (Integer) mScene.getCustom(gameInfo, "timerColorBlue", 0);
 
         timer.setColor(timerRed/255.0f, timerGreen/255.0f, timerBlue/255.0f, 1);
+        timerColor = new Color(timerRed/255.0f, timerGreen/255.0f, timerBlue/255.0f, 1);
+
         // Load some sky properties
         String skyTextureName = (String) mScene.getCustom(gameInfo, "skyTexture", "data/images/sky_bluesky.png");
         sky = new Sprite(BikeGameTextures.LoadTexture(FileUtils.getBaseName(skyTextureName)));
@@ -2736,7 +2740,9 @@ public class Play extends GameState {
                 // Draw nitrous tube and fluid
                 vshift += 10 * HUDScaleFactor;
                 mBatch.draw(nitrousFluid, SCRWIDTH - jcntrWidth + (-135.0f * 0.2f - 20.0f) * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f, 0, 0, nitrousLevel * 135.0f * HUDScaleFactor, 50.0f * HUDScaleFactor, 0.2f, 0.2f, 0);
+                mBatch.setColor(timerColor);
                 mBatch.draw(nitrousTube, SCRWIDTH - jcntrWidth + (-135.0f * 0.2f - 20.0f) * HUDScaleFactor, SCRHEIGHT - vshift - (pThick / 4.0f - jcntrHeight) / 2.0f, 0, 0, 135.0f * HUDScaleFactor, 50.0f * HUDScaleFactor, 0.2f, 0.2f, 0);
+                mBatch.setColor(1,1,1,1);
             }
         }
         mBatch.end();

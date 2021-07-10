@@ -6,6 +6,7 @@
 
 package com.mygdx.game.handlers;
 
+import com.badlogic.gdx.Game;
 import com.codedisaster.steamworks.*;
 import com.mygdx.game.BikeGame;
 
@@ -16,7 +17,7 @@ import java.util.ArrayList;
  * @author rcooke
  */
 public class SteamVars {
-	private static final int NUMWRSHOW = 10;
+	public static final int NUMWRSHOW = 10;
 	private static final String sep = "\n\n\n";
 //	private static final String sep = "-------------------------\n";
 	private static SteamUserStats userStatsEmerald, userStatsDiamond;
@@ -461,6 +462,8 @@ public class SteamVars {
 		ResetTimes();
 		if (SteamAPI.isSteamRunning()) {
 			userStatsEmerald.findLeaderboard("TotalTime");
+		} else {
+			OfflineVariables(true);
 		}
 	}
 
@@ -486,6 +489,8 @@ public class SteamVars {
 		if (SteamAPI.isSteamRunning()) {
 			userStatsEmerald.findLeaderboard(String.format("Level%02d_Emerald", level));
 			userStatsDiamond.findLeaderboard(String.format("Level%02d_Diamond", level));
+		} else {
+			OfflineVariables(false);
 		}
 	}
 
@@ -631,19 +636,84 @@ public class SteamVars {
 		}
 	}
 
-	public static void RecordStringMenu(boolean diamond) {
-		if (!SteamAPI.isSteamRunning()) {
-			// TODO :: Need to deal with offline records
-			// Probably can just set the variables below
-			recordMenuStringNames.add("Steam offline");
-			recordMenuStringRanks.add("");
-			recordMenuStringTimes.add("");
-			recordMenuCountries.add(-1);
-			playerName = "";
-			playerBestEmerald = 0;
-			playerBestDiamond = 0;
-			return;
+	public static void OfflineVariables(boolean total) {
+		// This routine fills in all of the records arrays with the info from ABstate.dat
+		int[] timesD, timesE, ranksD, ranksE;
+		playerName = GameVars.GetPlayerName();
+		if (total) {
+			timesE = GameVars.GetAllPlayerTotalTimes();
+			ranksE = GameVars.SortedRanks(timesE.clone());
+			for (int rr=0; rr<NUMWRSHOW; rr++) {
+				if (ranksE[rr] != -1) {
+					worldRecordNamesEmerald[rr] = GameVars.plyrName[ranksE[rr]];
+					worldRecordTimesEmerald[rr] = timesE[ranksE[rr]];
+					worldRecordCntryEmerald[rr] = GameVars.plyrCountryID[ranksE[rr]];
+				}
+			}
+			playerBestEmerald = GameVars.GetTotalTimes();
+			playerRankEmerald = GameVars.GetPlayerRankFromTimes(timesE, playerBestEmerald);
+			statsLoadedEmerald = 2;
+		} else {
+			// Fill in diamond arrays
+			timesD = GameVars.GetAllPlayerTimes(currentLevel-1, true);
+			ranksD = GameVars.SortedRanks(timesD.clone());
+			for (int rr=0; rr<NUMWRSHOW; rr++) {
+				if (ranksD[rr] != -1) {
+					worldRecordNamesDiamond[rr] = GameVars.plyrName[ranksD[rr]];
+					worldRecordTimesDiamond[rr] = timesD[ranksD[rr]];
+					worldRecordCntryDiamond[rr] = GameVars.plyrCountryID[ranksD[rr]];
+				}
+			}
+			playerBestDiamond = GameVars.GetPlayerTimesDmnd(currentLevel-1);
+			playerRankDiamond = GameVars.GetPlayerRank(currentLevel-1, true);
+			statsLoadedDiamond = 2;
+			// Fill in emerald arrays
+			timesE = GameVars.GetAllPlayerTimes(currentLevel-1, false);
+			ranksE = GameVars.SortedRanks(timesE.clone());
+			for (int rr=0; rr<NUMWRSHOW; rr++) {
+				if (ranksE[rr] != -1) {
+					worldRecordNamesEmerald[rr] = GameVars.plyrName[ranksE[rr]];
+					worldRecordTimesEmerald[rr] = timesE[ranksE[rr]];
+					worldRecordCntryEmerald[rr] = GameVars.plyrCountryID[ranksE[rr]];
+				}
+			}
+			playerBestEmerald = GameVars.GetPlayerTimes(currentLevel-1);
+			playerRankEmerald = GameVars.GetPlayerRank(currentLevel-1, false);
+			statsLoadedEmerald = 2;
 		}
+	}
+
+	public static void RecordStringMenu(boolean diamond) {
+		// If Steam is offline, you must call OfflineVariables() first!!
+//		if (!SteamAPI.isSteamRunning())
+//			// Reset
+//			recordMenuStringNames = new ArrayList<String>();
+//			recordMenuStringRanks = new ArrayList<String>();
+//			recordMenuStringTimes = new ArrayList<String>();
+//			recordMenuCountries   = new ArrayList<Integer>();
+//			// Start with some dummy variables
+//			recordMenuStringNames.add("Steam offline");
+//			recordMenuStringRanks.add("");
+//			recordMenuStringTimes.add("");
+//			recordMenuCountries.add(-1);
+//			// Now put the player details in
+//			playerName = GameVars.GetPlayerName();
+//			if (currentLevel == -1) {
+//				// Total time
+//				playerBestEmerald = GameVars.GetTotalTimes(false)+GameVars.GetTotalTimes(true);
+//				playerBestDiamond = -1; // Not used for total times
+//			} else {
+//				playerBestEmerald = GameVars.GetPlayerTimes(currentLevel-1);
+//				playerBestDiamond = GameVars.GetPlayerTimesDmnd(currentLevel-1);
+//			}
+//			// Add in the player info
+//			recordMenuStringRanks.add("");
+//			recordMenuStringNames.add(String.format("%s", playerName));
+//			recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
+//			if (diamond) recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(playerBestDiamond)));
+//			else recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(playerBestEmerald)));
+//			return;
+//		}
 		if (diamond) {
 			if (statsLoadedDiamond==2) {
 				recordMenuStringNames = new ArrayList<String>();

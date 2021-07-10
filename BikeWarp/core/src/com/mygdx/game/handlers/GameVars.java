@@ -8,9 +8,13 @@ package com.mygdx.game.handlers;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Random;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Input.Keys;
+import com.codedisaster.steamworks.SteamAPI;
 
 /**
  *
@@ -100,6 +104,7 @@ public class GameVars implements Serializable {
 		// Update and save
 		plyrCountryID[currentPlayer] = idx;
 		SavePlayers();
+		if (!SteamAPI.isSteamRunning()) retval = false;
 		return retval;
 	}
 
@@ -125,8 +130,6 @@ public class GameVars implements Serializable {
 		plyrFullscreen.set(currentPlayer, value);
 		SavePlayers();
 	}
-	public static int GetPlayerTimes(int lvl) {return plyrTimes.get(currentPlayer).get(lvl);}
-	public static int GetPlayerTimesDmnd(int lvl) {return plyrTimesDmnd.get(currentPlayer).get(lvl);}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
 	public static String GetPlayerESCString() {return Input.Keys.toString(GameVars.plyrControls.get(GameVars.currentPlayer)[8]);}
 	public static int GetPlayerDisplay(int index) {return plyrDisplay.get(currentPlayer)[index];}
@@ -160,19 +163,6 @@ public class GameVars implements Serializable {
 		return true;
 	}
 
-	// Get the world record times and aliases
-//	public static int GetWorldTimes(int lvl, int indx) {return worldTimes.get(lvl)[indx];}
-//	public static int GetWorldTimesDmnd(int lvl, int indx) {return worldTimesDmnd.get(lvl)[indx];}
-//	public static int GetWorldNames(int lvl, int indx) {return worldNames.get(lvl)[indx];}
-//	public static int GetWorldNamesDmnd(int lvl, int indx) {return worldNamesDmnd.get(lvl)[indx];}
-
-	public static void UpdateTotalTimes() {
-		// Do the Player total times first
-		plyrTotalTimes.set(currentPlayer, GetTotalTimes(false));
-		plyrTotalTimesDmnd.set(currentPlayer, GetTotalTimes(true));
-		SavePlayers();
-	}
-
 	public static void UpdateTotalTimesAllPlayers(boolean world) {
 		// Check if every player's best total time beats any of the world total times
 		for (int pp=0; pp<plyrID.length; pp++) {
@@ -183,7 +173,67 @@ public class GameVars implements Serializable {
 		SavePlayers();
 	}
 
-	public static int GetTotalTimes(boolean diamond) {return GetTotalTimesPlayer(currentPlayer, diamond);}
+	public static int[] GetAllPlayerTimes(int lvl, boolean diamond) {
+		int[] allTimes = new int[plyrName.length];
+		for (int pp=0; pp< plyrName.length; pp++) {
+			if (diamond) allTimes[pp] = plyrTimesDmnd.get(pp).get(lvl);
+			else allTimes[pp] = plyrTimes.get(pp).get(lvl);
+		}
+		return allTimes.clone();
+	}
+
+	public static int[] GetAllPlayerTotalTimes() {
+		int[] allTimes = new int[plyrName.length];
+		for (int pp=0; pp< plyrName.length; pp++) allTimes[pp] = GetTotalTimesPlayer(pp, true) + GetTotalTimesPlayer(pp, false);
+		return allTimes.clone();
+	}
+
+	public static int[] SortedRanks(final int[] times) {
+		// Go through all times and rank them from fastest (0) to slowest. -1 = unfinished
+		final Integer[] idx = new Integer[times.length];
+		for (int ii=0; ii<times.length; ii++) idx[ii] = ii;
+		Arrays.sort(idx, new Comparator<Integer>() {
+			@Override public int compare(final Integer o1, final Integer o2) {
+				return Integer.compare(times[o1], times[o2]);
+			}
+		});
+		// Initialise and reset ranks
+		int ranks[] = new int[SteamVars.NUMWRSHOW];
+		for (int ii=0; ii<SteamVars.NUMWRSHOW; ii++) ranks[ii] = -1;
+		// Now go through and assign the ranks
+		int cntr=0;
+		for (int ii=0; ii<times.length; ii++) {
+			if (times[idx[ii]] != -1) {
+				ranks[cntr] = idx[ii];
+				cntr++;
+			}
+		}
+		return ranks.clone();
+	}
+
+	public static int GetPlayerRankFromTimes(int[] times, int thisTime) {
+		int rank = 1;
+		if (thisTime == -1) return -1;
+		else {
+			for (int tt=0; tt<times.length; tt++) {
+				if ((times[tt] != -1) && (times[tt]<thisTime)) rank += 1;
+			}
+		}
+		return rank;
+	}
+
+	public static int GetPlayerRank(int lvl, boolean diamond) {
+		int thisPlyrTime;
+		if (diamond) thisPlyrTime = plyrTimesDmnd.get(currentPlayer).get(lvl);
+		else thisPlyrTime = plyrTimes.get(currentPlayer).get(lvl);
+		return GetPlayerRankFromTimes(GetAllPlayerTimes(lvl, diamond), thisPlyrTime);
+	}
+
+	public static int GetPlayerTimes(int lvl) {return plyrTimes.get(currentPlayer).get(lvl);}
+
+	public static int GetPlayerTimesDmnd(int lvl) {return plyrTimesDmnd.get(currentPlayer).get(lvl);}
+
+	public static int GetTotalTimes() {return GetTotalTimesPlayer(currentPlayer, true)+GetTotalTimesPlayer(currentPlayer, false);}
 
 	public static int GetTotalTimesPlayer(int plyr, boolean diamond) {
 		int totalTime = 0;
@@ -575,98 +625,98 @@ public class GameVars implements Serializable {
 		return empty.clone();
 	}
 
-//	private static void GenerateFakeTimes() {
-//		AddFakePlayer("Ryan");
-//		AddFakePlayer("Steve");
-//		AddFakePlayer("Who");
-//		AddFakePlayer("Else");
-//		AddFakePlayer("Wants");
-//		AddFakePlayer("To");
-//		AddFakePlayer("Play");
-//		// Initialise the world records
-//		worldNames = RandomNames(LevelsListGame.NUMGAMELEVELS);
-//		worldTimes = RandomTimes(LevelsListGame.NUMGAMELEVELS);
-//		worldNamesDmnd = RandomNames(LevelsListGame.NUMGAMELEVELS);
-//		worldTimesDmnd = RandomTimes(LevelsListGame.NUMGAMELEVELS);
-//		//GetTotalTimes(boolean train, boolean world, boolean diamond)
-//		// Now generate all of the total times
-//		UpdateTotalTimesAllPlayers(false);
-//		worldTotalNames = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-//		worldTotalTimes = GetTotalTimes(true, false);
-//		worldTotalNamesDmnd = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"};
-//		worldTotalTimesDmnd = GetTotalTimes(true, true);
-////
-////		CheckTimes(int[] times, int indx, int lvl, int timerTotal, boolean world) {
-////		times = plyrTimes.get(currentPlayer).get(lvl)
-////		indx = 0, 1, 2, 3 = plyrTimes, plyrTimesDmnd, plyrTimesTrain, plyrTimesTrainDmnd
-////
-//		// Now apply all world records
-//		int timerTotal;
-//		for (int p=0; p<plyrID.length; p++) {
-//			SetCurrentPlayer(p);
-//			UpdateTotalTimes();
-//			// For all game levels
-//			for (int l=0; l<LevelsListGame.NUMGAMELEVELS; l++) {
-//				timerTotal = plyrTimes.get(currentPlayer).get(l)[0];
-//				CheckTimes(worldTimes.get(l), 0, l, timerTotal, true);
-//			}
-//		}
-//
-//	}
+	public static int[] ValueInt(int num, int value) {
+		int[] empty = new int[num];
+		for (int i=0; i<num; i++) empty[i]=value;
+		return empty.clone();
+	}
 
-//	private static void AddFakePlayer(int name) {
-//		int[] oldNames = plyrID.clone();
-//		plyrID = new int[1+oldNames.length];
-//		for (int i=0;i<oldNames.length;i++) plyrID[i] = oldNames[i];
-//		plyrID[oldNames.length] = name;
-//		// Add the player times
-//		plyrTimes.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
-//		plyrTimesDmnd.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
-//		// Add the player display preferences
-//		plyrDisplay.add(GetDefaultDisplay());
-//		// Add the player controls
-//		plyrControls.add(GetDefaultControls());
-//		// Add an empty diamonds array
-//		plyrColDmnd.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
-//		// Add a completed levels array
-//		plyrLevelComplete.add(ValueInt(LevelsListGame.NUMGAMELEVELS, 1));
-//		// Add a default Bike color
-//		plyrBikeColor.add(GetDefaultBikeColor());
-//		// Add the total times
-//		plyrTotalTimes.add(ValueInt(numStore, -1));
-//		plyrTotalTimesDmnd.add(ValueInt(numStore, -1));
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	private static ArrayList<int[]> RandomTimes(int numLevels) {
-//		int min = 1160000, max = 1170000;
-//		ArrayList<int[]> times = new ArrayList<int[]>();
-//		int[] emptyTimes = new int[numStore]; // Store the top 10 times in each level
-//		for (int l=0; l<numLevels; l++) {
-//			for (int i=0; i<numStore; i++) emptyTimes[i] = getRandomNumberInRange(min, max);
-//			Arrays.sort(emptyTimes);
-//			times.add(emptyTimes.clone());
-//		}
-//		return (ArrayList<int[]>) times.clone();
-//	}
-//
-//	@SuppressWarnings("unchecked")
-//	private static ArrayList<String[]> RandomNames(int numLevels) {
-//		ArrayList<String[]> names = new ArrayList<String[]>();
-//		String[] emptyNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}; // Generate 10 names
-//		for (int l=0; l<numLevels; l++) {
-//			names.add(emptyNames.clone());
-//		}
-//		return (ArrayList<String[]>) names.clone();
-//	}
-//
-//	private static int getRandomNumberInRange(int min, int max) {
-//
-//		if (min >= max) {
-//			throw new IllegalArgumentException("max must be greater than min");
-//		}
-//
-//		Random r = new Random();
-//		return r.nextInt((max - min) + 1) + min;
-//	}
+	private static void GenerateFakeTimes() {
+		AddFakePlayer("Ryan");
+		AddFakePlayer("Steve");
+		AddFakePlayer("Who");
+		AddFakePlayer("Else");
+		AddFakePlayer("Wants");
+		AddFakePlayer("To");
+		AddFakePlayer("Play");
+		AddFakePlayer("Yada");
+		AddFakePlayer("Dodo");
+		AddFakePlayer("Bingo");
+		AddFakePlayer("Hello");
+		AddFakePlayer("NotSteve");
+		AddFakePlayer("WhoAmI");
+		AddFakePlayer("RunningOutOfNames");
+	}
+
+	private static void AddFakePlayer(String name) {
+		int steamID = -1;
+		// Add the player Account ID
+		int[] oldIDs = plyrID.clone();
+		plyrID = new int[1+oldIDs.length];
+		for (int i=0;i<oldIDs.length;i++) plyrID[i] = oldIDs[i];
+		// make sure the steamID doesn't already exist (only for when Steam is offline)
+		for (int ss=0; ss< plyrID.length-1; ss++) {
+			if (plyrID[ss] <= -2) steamID -= 1;
+		}
+		plyrID[oldIDs.length] = steamID;
+		// Add the player name
+		String[] oldNames = plyrName.clone();
+		plyrName = new String[1+oldNames.length];
+		for (int i=0;i<oldNames.length;i++) plyrName[i] = oldNames[i];
+		plyrName[oldNames.length] = name;
+		// Add the player country
+		oldIDs = plyrCountryID.clone();
+		plyrCountryID = new int[1+plyrCountryID.length];
+		for (int i=0;i<oldIDs.length;i++) plyrCountryID[i] = oldIDs[i];
+		plyrCountryID[oldIDs.length] = 3+plyrCountryID.length;
+		// Add the player times
+		plyrTimes.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
+		plyrTimesDmnd.add(RandomTimes(LevelsListGame.NUMGAMELEVELS));
+		// Add the player controls
+		plyrDisplay.add(GetDefaultDisplay());
+		// Add the player controls
+		plyrControls.add(GetDefaultControls());
+		// Add an empty diamonds array
+		plyrColDmnd.add(FalseBoolean(LevelsListGame.NUMGAMELEVELS));
+		// Add an empty level skip array
+		plyrLevelComplete.add(ValueInt(LevelsListGame.NUMGAMELEVELS, 1));
+		// Add a default Bike color
+		plyrBikeColor.add(GetDefaultBikeColor());
+		// Add the total times
+		plyrTotalTimes.add(-1);
+		plyrTotalTimesDmnd.add(-1);
+		// Add the Replays
+		plyrReplays.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
+		plyrReplaysDmnd.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static ArrayList<Integer> RandomTimes(int numLevels) {
+		int min = 10000, max = 11500;
+		ArrayList<Integer> times = new ArrayList<Integer>();
+		for (int l=0; l<numLevels; l++) {
+			times.add(getRandomNumberInRange(min, max));
+		}
+		return (ArrayList<Integer>) times.clone();
+	}
+
+	@SuppressWarnings("unchecked")
+	private static ArrayList<String[]> RandomNames(int numLevels) {
+		ArrayList<String[]> names = new ArrayList<String[]>();
+		String[] emptyNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J"}; // Generate 10 names
+		for (int l=0; l<numLevels; l++) {
+			names.add(emptyNames.clone());
+		}
+		return (ArrayList<String[]>) names.clone();
+	}
+
+	private static int getRandomNumberInRange(int min, int max) {
+
+		if (min >= max) {
+			throw new IllegalArgumentException("max must be greater than min");
+		}
+
+		Random r = new Random();
+		return r.nextInt((max - min) + 1) + min;
+	}
 }
