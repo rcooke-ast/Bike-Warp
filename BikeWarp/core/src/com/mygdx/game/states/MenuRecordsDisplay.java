@@ -214,7 +214,7 @@ public class MenuRecordsDisplay extends GameState {
         if (currentOption >= numExtra) {
 			levelFont.setColor(1, 1, 1, alpha);
 			SteamVars.RecordStringMenu(diamond);
-			float lvlHeight, width;
+			float lvlHeight;
 			// Draw the tiles
 			float tile_ypos = tile_ypos_top;
 			int numRender = 12;
@@ -244,8 +244,16 @@ public class MenuRecordsDisplay extends GameState {
 			float textPos;
 			for (int tt=0; tt<numRender; tt++) {
 				if ((numRender==12) & (tt==10)) continue;
+				// Draw the tile
 				sb.draw(tile, tile_xpos, tile_ypos, 0, 0, tile_xw, tile_yw, 1.0f, 1.0f, 0.0f);
-				if (SteamVars.recordMenuCountries.get(tt) != -1) {
+				if ((tt==0) & (numRender==1)) {
+					// Draw the player name
+					dispText = SteamVars.recordMenuStringNames.get(tt);
+					glyphLayout.setText(levelFont, dispText);
+					lvlHeight = glyphLayout.height;
+					textPos = tile_ypos + tile_yoff + tile_yw/2 + lvlHeight/2;
+					levelFont.draw(sb, dispText, tile_xpos + rankWidth + 3*tile_sep*tile_yw + flagWidth, textPos, 1.1f*glyphLayout.width, Align.left, true);
+				} else if (SteamVars.recordMenuCountries.get(tt) != -1) {
 					// Draw the player name
 					dispText = SteamVars.recordMenuStringNames.get(tt);
 					glyphLayout.setText(levelFont, dispText);

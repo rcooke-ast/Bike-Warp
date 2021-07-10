@@ -685,7 +685,7 @@ public class SteamVars {
 					recordMenuStringTimes.add("");
 					recordMenuCountries.add(-1);
 					recordMenuStringRanks.add("");
-					recordMenuStringNames.add(String.format("%s - unranked", playerName));
+					recordMenuStringNames.add(String.format("%s  (unranked)", playerName));
 					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(-1)));
 					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				}
@@ -743,7 +743,7 @@ public class SteamVars {
 					recordMenuStringTimes.add("");
 					recordMenuCountries.add(-1);
 					recordMenuStringRanks.add("");
-					recordMenuStringNames.add(String.format("%s - unranked", playerName));
+					recordMenuStringNames.add(String.format("%s  (unranked)", playerName));
 					recordMenuStringTimes.add(String.format("%s", GameVars.getTimeString(-1)));
 					recordMenuCountries.add(GameVars.GetPlayerCountryIndex());
 				}
