@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.GL20;
@@ -45,7 +46,7 @@ public class BikeGame implements ApplicationListener {
 	private GameStateManager gsm;
 	private Sprite stars, logo, tube, fluid;
 	private boolean load_stars, load_logo, load_tube, load_fluid;
-	private float finAngle, finishRad, tube_length, tube_height;
+	private float tube_length, tube_height;
 	private float progress;
 
 	public SpriteBatch getSpriteBatch() { return sb; }
@@ -58,7 +59,6 @@ public class BikeGame implements ApplicationListener {
 		load_logo = false;
 		load_tube = false;
 		load_fluid = false;
-		finAngle = 0.0f;
 		progress = 0.0f;
 
 		// Initialise Steam connection
@@ -73,12 +73,16 @@ public class BikeGame implements ApplicationListener {
 
 		// Initialise the viewport
 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-		// Can't cut down the window edges, due to exception being thrown on new versions of Mac OSX
-//		Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		// If this line could be run, we could get rid of horrible black border
-//		Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
+		GameVars.LoadPlayers();
+		if (GameVars.GetPlayerFullscreen()) {
+			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+		} else {
+			Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			// If this line could be run, we could get rid of horrible black border
+//			Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
+		}
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+		Gdx.input.setCursorCatched(true);
 
 		// Initialise the Sprite batch
 		sb = new SpriteBatch();
@@ -200,26 +204,26 @@ public class BikeGame implements ApplicationListener {
 		viewport = new Rectangle(crop.x, crop.y, wid, hei);
 	}
 
-	public static void UpdateDisplay() {
-		if (!GameVars.GetPlayerFullscreen()) {
-			Gdx.graphics.setWindowedMode(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
-//			Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
-			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
-		} else {
-			Graphics.DisplayMode m = null;
-			for(Graphics.DisplayMode mode: Gdx.graphics.getDisplayModes()) {
-				if(m == null) {
-					m = mode;
-				} else {
-					if(m.width < mode.width) {
-						m = mode;
-					}
-				}
-			}
-			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
-			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
-		}
-	}
+//	public static void UpdateDisplay() {
+//		if (!GameVars.GetPlayerFullscreen()) {
+//			Gdx.graphics.setWindowedMode(Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+////			Gdx.graphics.setWindowedMode((int) viewport.width, (int) viewport.height);
+//			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+//		} else {
+//			Graphics.DisplayMode m = null;
+//			for(Graphics.DisplayMode mode: Gdx.graphics.getDisplayModes()) {
+//				if(m == null) {
+//					m = mode;
+//				} else {
+//					if(m.width < mode.width) {
+//						m = mode;
+//					}
+//				}
+//			}
+//			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+//			Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+//		}
+//	}
 
 	@Override
 	public void pause () {

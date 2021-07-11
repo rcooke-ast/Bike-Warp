@@ -51,7 +51,7 @@ public class GameVars implements Serializable {
 	public static ArrayList<ArrayList<Integer>> plyrTimesDmnd = new ArrayList<ArrayList<Integer>>();
 	public static ArrayList<int[]> plyrControls = new ArrayList<int[]>();
 	public static ArrayList<int[]> plyrDisplay = new ArrayList<int[]>();
-	public static ArrayList<Boolean> plyrFullscreen = new ArrayList<Boolean>();
+	public static Boolean plyrFullscreen = true;
 	public static ArrayList<boolean[]> plyrColDmnd = new ArrayList<boolean[]>();
 	public static ArrayList<int[]> plyrLevelComplete = new ArrayList<int[]>();
 	public static ArrayList<float[]> plyrBikeColor = new ArrayList<float[]>();
@@ -64,7 +64,7 @@ public class GameVars implements Serializable {
 	}
 
 	// Get and Set options
-	public static void SetCurrentPlayer(int id, String name, int countryID) {
+	public static void SetCurrentPlayer(int id, String name) {
 		for (int ii=0; ii < plyrID.length; ii++) {
 			if (id==plyrID[ii]) {
 				currentPlayer = ii;
@@ -115,19 +115,18 @@ public class GameVars implements Serializable {
 	public static int GetPlayerCountryIndex() { return plyrCountryID[currentPlayer]; }
 
 	public static int[] GetPlayerDetails() {
-		int[] details = new int[1];
+		int[] details = new int[2];
 		details[0] = plyrCountryID[currentPlayer];
+		details[1] = -1; // This may be used one day to give the team ID
 		return details;
 	}
 
 	// Get Player properties
 	public static String GetPlayerName() {return plyrName[currentPlayer];}
-	public static boolean GetPlayerFullscreen() {
-		if (currentPlayer == -1) return true;
-		return plyrFullscreen.get(currentPlayer);
-	}
+	public static boolean GetPlayerFullscreen() {return plyrFullscreen;}
+
 	public static void SetPlayerFullscreen(boolean value) {
-		plyrFullscreen.set(currentPlayer, value);
+		plyrFullscreen = value;
 		SavePlayers();
 	}
 	public static int[] GetPlayerControls() {return plyrControls.get(currentPlayer);}
@@ -203,7 +202,7 @@ public class GameVars implements Serializable {
 		// Now go through and assign the ranks
 		int cntr=0;
 		for (int ii=0; ii<times.length; ii++) {
-			if (times[idx[ii]] != -1) {
+			if ((times[idx[ii]] != -1) & (cntr < SteamVars.NUMWRSHOW)) {
 				ranks[cntr] = idx[ii];
 				cntr++;
 			}
@@ -229,7 +228,7 @@ public class GameVars implements Serializable {
 		return GetPlayerRankFromTimes(GetAllPlayerTimes(lvl, diamond), thisPlyrTime);
 	}
 
-	public static int GetPlayerTimes(int lvl) {return plyrTimes.get(currentPlayer).get(lvl);}
+	public static int GetPlayerTimes(int lvl) { return plyrTimes.get(currentPlayer).get(lvl); }
 
 	public static int GetPlayerTimesDmnd(int lvl) {return plyrTimesDmnd.get(currentPlayer).get(lvl);}
 
@@ -437,7 +436,6 @@ public class GameVars implements Serializable {
 		// Add the Replays
 		plyrReplays.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
 		plyrReplaysDmnd.add(new Replay[LevelsListGame.NUMGAMELEVELS]);
-		plyrFullscreen.add(true);
 	}
 
 	// Methods
@@ -527,7 +525,7 @@ public class GameVars implements Serializable {
 			plyrID = (int[]) oi.readObject();
 			plyrName = (String[]) oi.readObject();
 			plyrCountryID = (int[]) oi.readObject();
-			plyrFullscreen = (ArrayList<Boolean>) oi.readObject();
+			plyrFullscreen = (Boolean) oi.readObject();
 			plyrTimes = (ArrayList<ArrayList<Integer>>) oi.readObject();
 			plyrTimesDmnd = (ArrayList<ArrayList<Integer>>) oi.readObject();
 			plyrTotalTimes = (ArrayList<Integer>) oi.readObject();
@@ -549,6 +547,7 @@ public class GameVars implements Serializable {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
+		GenerateFakeTimes();
 	}
 
 	public static void SavePlayers() {
@@ -646,6 +645,7 @@ public class GameVars implements Serializable {
 		AddFakePlayer("NotSteve");
 		AddFakePlayer("WhoAmI");
 		AddFakePlayer("RunningOutOfNames");
+		SavePlayers();
 	}
 
 	private static void AddFakePlayer(String name) {

@@ -18,7 +18,7 @@ public class MenuRecordsDisplay extends GameState {
 	private static final String option1 = "Return to Records Menu";
     private int currentOption, numLevelShow, numMin, numOptions;
 	private final float poleWidth = 0.03f;
-	private Sprite metalpole, metalcorner, tile;
+	private Sprite metalpole, metalcorner, tile, dots;
 	private Texture metalmesh;
 	private float tile_xpos, tile_ypos_top, tile_xw, tile_yw, tile_sep, tile_yoff, flagWidth, flagHeight;
 	private float uRight, vTop;
@@ -57,6 +57,7 @@ public class MenuRecordsDisplay extends GameState {
 		metalcorner = new Sprite(BikeGameTextures.LoadTexture("metalpole_blackcorner"));
 
 		// The tile to be used to display the records
+		dots = new Sprite(BikeGameTextures.LoadTexture("records_dots"));
 		tile = new Sprite(BikeGameTextures.LoadTexture("records_tile"));
 		tile_sep = 0.2f;
 		tile_yw = SCRHEIGHT*(1-2*poleWidth)/(11 + 15*tile_sep);
@@ -230,7 +231,7 @@ public class MenuRecordsDisplay extends GameState {
 				numRender = 10;
 			} else if (SteamVars.recordMenuStringRanks.size()==11) {
 				// Player is ranked 11
-				tile_ypos = tile_ypos_top - 0.5f*(tile_yw + 2*tile_yw*tile_sep);
+				tile_ypos = tile_ypos_top - 0.5f*3*tile_yw*tile_sep;
 				numRender = 11;
 			} else if (SteamVars.recordMenuStringRanks.size()==12) {
 				// Player is ranked 12 or higher
@@ -244,9 +245,13 @@ public class MenuRecordsDisplay extends GameState {
 				lvlHeight = glyphLayout.width;
 				if (lvlHeight > rankWidth) rankWidth = lvlHeight;
 			}
-			float textPos;
+			float textPos, ydots;
 			for (int tt=0; tt<numRender; tt++) {
-				if ((numRender==12) & (tt==10)) continue;
+				if ((numRender==12) & (tt==10)) {
+					ydots = tile_ypos + tile_yw;
+					sb.draw(dots, tile_xpos + rankWidth/2 + tile_sep*tile_yw - tile_yw/6, ydots, 0, 0, tile_yw/3, tile_yw, 1.0f, 1.0f, 0.0f);
+					continue;
+				}
 				// Draw the tile
 				sb.draw(tile, tile_xpos, tile_ypos, 0, 0, tile_xw, tile_yw, 1.0f, 1.0f, 0.0f);
 				if ((tt==0) & (numRender==1)) {
@@ -272,8 +277,8 @@ public class MenuRecordsDisplay extends GameState {
 					dispText = SteamVars.recordMenuStringTimes.get(tt);
 					levelFont.draw(sb, dispText, tile_xpos + tile_sep*tile_yw, textPos, tile_xw-3*tile_sep*tile_yw, Align.right, true);
 				}
-				if (tt==9) tile_ypos -= 3*tile_yw*tile_sep;
-				tile_ypos -= (1.0+tile_sep)*tile_yw;
+				if ((tt==9) & (numRender!=11)) tile_ypos -= 3*tile_yw*tile_sep;
+				tile_ypos -= (1.0f+tile_sep)*tile_yw;
 			}
 		}
 		sb.end();

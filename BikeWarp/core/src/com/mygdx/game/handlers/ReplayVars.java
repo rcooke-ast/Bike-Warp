@@ -128,6 +128,7 @@ public class ReplayVars implements Serializable {
 			currentReplay.replayRW_A.clear();
 			currentReplay.replayRW_V.clear();
 			currentReplay.replayChangeDir.clear();
+			currentReplay.replayNitrous.clear();
 			for (int cc=0; cc<currentReplay.replayDynamicBodies_X.size(); cc++) {
 				currentReplay.replayDynamicBodies_X.get(cc).clear();
 				currentReplay.replayDynamicBodies_Y.get(cc).clear();
@@ -182,6 +183,7 @@ public class ReplayVars implements Serializable {
 			}
 		}
 		currentReplay.replayChangeDir.addAll(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayChangeDir);
+		currentReplay.replayNitrous.addAll(GameVars.plyrReplays.get(GameVars.currentPlayer)[levnum].replayNitrous);
 	}
 
 	public static Replay CopyOfCurrentReplay() {
@@ -218,6 +220,7 @@ public class ReplayVars implements Serializable {
 			}
 		}
 		currentReplayCopy.replayChangeDir.addAll(currentReplay.replayChangeDir);
+		currentReplayCopy.replayNitrous.addAll(currentReplay.replayNitrous);
     	return currentReplayCopy;
 	}
 

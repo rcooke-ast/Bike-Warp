@@ -120,7 +120,7 @@ public class MenuSelectPlayer extends GameState {
     		if (currentOption >= numOptions) currentOption = 0;
 			BikeGameSounds.PlayMenuSwitch();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
-        	if ((currentOption == numOptions-1) & (createPlayer == false)) {
+        	if ((currentOption == numOptions-1) & (!createPlayer)) {
     			createPlayer = true;
     			newName = "";  // Reset the name string
         	} else if (createPlayer) {
@@ -138,7 +138,7 @@ public class MenuSelectPlayer extends GameState {
             	        	createPlayer = false;
         	        	}
         	        }
-        	        if (exists == false) {
+        	        if (!exists) {
         	        	// Player created successfully
         	        	GameVars.AddPlayer(-2, newName);
         	        	numOptions = 1 + GameVars.plyrName.length;

@@ -115,7 +115,7 @@ public class LevelSelectGame extends GameState {
         	totalLevels = GameVars.GetNumLevels();
         	LevelsListGame.updateRecords();
         	UpdateMenu();
-            SteamVars.LoadPBWR(currentLevel);
+            if (currentLevel >= 1) SteamVars.LoadPBWR(currentLevel);
             SteamVars.RecordString();
         } else if ((GameInput.isPressed(GameInput.KEY_ENTER)) & (fadeOut==-1.0f)) {
         	if (currentLevel==0) {
@@ -156,7 +156,7 @@ public class LevelSelectGame extends GameState {
     	} else {
             // Update how many levels should be shown
             UpdateMenu();
-            SteamVars.RecordString();
+            if ((currentLevel >= 1) && (SteamVars.currentLevel!=0)) SteamVars.RecordString();
         }
     }
     

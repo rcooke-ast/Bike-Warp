@@ -110,7 +110,7 @@ public class MenuOptions extends GameState {
                 BikeGameSounds.PlayMenuSelect();
             } else if (currentOption==4) {
                 GameVars.SetPlayerFullscreen(!GameVars.GetPlayerFullscreen());
-                BikeGame.UpdateDisplay();
+//                BikeGame.UpdateDisplay();
                 sb.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             } else if (currentOption==5) {
                 if (SteamAPI.isSteamRunning()) {
@@ -184,7 +184,7 @@ public class MenuOptions extends GameState {
         else if (currentOption == 1) displayText = "Press enter to set the bike colour";
         else if (currentOption == 2) displayText = "Press enter to set the controls";
         else if (currentOption == 3) displayText = "Press enter to change the HUD display";
-        else if (currentOption == 4) displayText = "Press enter to toggle fullscreen/windowed.\nCurrent mode: "+fsText;
+        else if (currentOption == 4) displayText = "Press enter to toggle fullscreen/windowed\n(requires AstroBike restart).\n\nCurrent mode: "+fsText;
         else if (currentOption == 5) {
             if (SteamAPI.isSteamRunning()) {
                 displayText = "Press enter to change your nationality.\nCurrent nationality: " + GameVars.GetPlayerCountry();

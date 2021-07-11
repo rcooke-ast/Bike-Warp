@@ -52,26 +52,14 @@ public class GameStateManager {
 	    if (!directory.exists()) directory.mkdir();
         // Set the starting State
         if (SteamAPI.isSteamRunning()) {
-            // Fix the splashscreen for those that prefer windowed borderless
-            if (!GameVars.GetPlayerFullscreen()) {
-                this.game.resize(Gdx.graphics.getWidth()* this.game.SplashScreenScale, Gdx.graphics.getHeight()* this.game.SplashScreenScale);
-                Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth()*this.game.SplashScreenScale, Gdx.graphics.getHeight()* this.game.SplashScreenScale);
-            }
             // Now load the right menu
             if (GameVars.IsCountrySet()) {
-                Gdx.input.setCursorCatched(true);
                 pushState(MAINMENU, null, -1, 0);
             } else {
                 pushState(MENUSELECTCOUNTRY, null, -1, 0);
             }
         } else {
-            // Fix the splashscreen for those that prefer windowed borderless
-            if (!GameVars.GetPlayerFullscreen()) {
-                this.game.resize(Gdx.graphics.getWidth() * this.game.SplashScreenScale, Gdx.graphics.getHeight() * this.game.SplashScreenScale);
-                Gdx.graphics.setWindowedMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            }
             // Now load the right menu
-            BikeGame.UpdateDisplay();
             pushState(MENUPLAYER, null, -1, 0);
         }
     }

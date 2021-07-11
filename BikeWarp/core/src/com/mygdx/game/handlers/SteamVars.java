@@ -103,9 +103,9 @@ public class SteamVars {
 			playerName = plyrFriends.getPersonaName();
 			if (GameVars.GetCurrentPlayer() == -1) {
 				GameVars.LoadPlayers();
-				GameVars.SetCurrentPlayer(steamIDUser.getAccountID(), playerName, -1);
+				GameVars.SetCurrentPlayer(steamIDUser.getAccountID(), playerName);
 				// Set the display preference for the user
-				BikeGame.UpdateDisplay();
+//				BikeGame.UpdateDisplay();
 				userLoaded = true;
 			}
 		}
@@ -150,7 +150,7 @@ public class SteamVars {
 			int[] details;
 			for (int i = 0; i < numEntries; i++) {
 				entry = new SteamLeaderboardEntry();
-				details = new int[1];
+				details = new int[2];
 				if (userStatsEmerald.getDownloadedLeaderboardEntry(entries, i, entry, details)) {
 					if (entry.getSteamIDUser().getAccountID() == playerID.getAccountID()) {
 						playerBestEmerald = entry.getScore();
@@ -222,7 +222,7 @@ public class SteamVars {
 			int[] details;
 			for (int i = 0; i < numEntries; i++) {
 				entry = new SteamLeaderboardEntry();
-				details = new int[1];
+				details = new int[2];
 				if (worldStatsEmerald.getDownloadedLeaderboardEntry(entries, i, entry, details)) {
 					if (entry.getGlobalRank() < NUMWRSHOW) {
 						worldRecordNamesEmerald[entry.getGlobalRank()-1] = plyrFriends.getFriendPersonaName(entry.getSteamIDUser());
@@ -295,7 +295,7 @@ public class SteamVars {
 			int[] details;
 			for (int i = 0; i < numEntries; i++) {
 				entry = new SteamLeaderboardEntry();
-				details = new int[1];
+				details = new int[2];
 				if (userStatsDiamond.getDownloadedLeaderboardEntry(entries, i, entry, details)) {
 					if (entry.getSteamIDUser().getAccountID() == playerID.getAccountID()) {
 						playerBestDiamond = entry.getScore();
@@ -367,7 +367,7 @@ public class SteamVars {
 			int[] details;
 			for (int i = 0; i < numEntries; i++) {
 				entry = new SteamLeaderboardEntry();
-				details = new int[1];
+				details = new int[2];
 				if (worldStatsDiamond.getDownloadedLeaderboardEntry(entries, i, entry, details)) {
 					if (entry.getGlobalRank() < NUMWRSHOW) {
 						worldRecordNamesDiamond[entry.getGlobalRank()-1] = plyrFriends.getFriendPersonaName(entry.getSteamIDUser());

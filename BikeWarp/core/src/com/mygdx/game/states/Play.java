@@ -7,14 +7,12 @@
 
 package com.mygdx.game.states;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.*;
@@ -205,12 +203,12 @@ public class Play extends GameState {
 
     // Index of sounds to be played
     private int soundGem, soundBikeSwitch, soundDiamond, soundCollide, soundHit, soundNitrous, soundKey, soundGravity, soundDoor, soundSwitch, soundTransport, soundFinish;
-    private Sound soundBikeIdle, soundBikeMove;//, soundNitrousApply;
-    private float[] musicVolumes = new float[DecorVars.platformSounds.length-1];
+    private Sound soundBikeIdle, soundBikeMove;
+    private float[] musicVolumes = new float[DecorVars.platformSounds.length];
     private boolean containsAnimatedBG, containsWaterfall, containsRain, containsWind;
     private Array<float[]> waterfallVerts, rainVerts, animBGVerts;
     private Array<Integer> waterfallSounds, rainSounds, rainVertsIdx, rainVertsFGBG;
-    private long soundIDBikeIdle, soundIDBikeMove, soundIDNitrousApply;
+    private long soundIDBikeIdle, soundIDBikeMove;
     private final float bikeMaxVolume = 0.1f;
     private float bikeVolume, bikePitch;
     private float bikeShadeScl = 1.0f;
@@ -575,8 +573,10 @@ public class Play extends GameState {
             			nitrousLevel = 0.0f;
             			collectNitrous -= 1;
             		}
-            	}
-            } else if (GameInput.isDown(GameInput.KEY_NITROUS)==false) {
+            	} else {
+                    applyNitrous = 0;
+                }
+            } else if (!GameInput.isDown(GameInput.KEY_NITROUS)) {
             	applyNitrous = 0;
             }
 //            if (GameInput.isDown(GameInput.KEY_ROCKET)) {
@@ -616,6 +616,7 @@ public class Play extends GameState {
 	            soundBikeIdle.setPitch(soundIDBikeIdle, 1.0f);
                 // sound of the bike moving
                 soundBikeMove = BikeGameSounds.LoadBikeMove();
+//                soundIDBikeMove = soundBikeMove.play(0.0f);  // THIS DOESN'T WORK!!! The line below does...
                 soundIDBikeMove = soundBikeIdle.play(0.0f);
                 soundBikeMove.setPitch(soundIDBikeMove, 1.0f);
                 soundBikeMove.setLooping(soundIDBikeMove, true);
@@ -786,10 +787,6 @@ public class Play extends GameState {
 
     private void StopSounds() {
 		if (soundBikeIdle != null) soundBikeIdle.setLooping(soundIDBikeIdle, false);
-//        if (soundNitrousApply != null) {
-//            soundNitrousApply.setLooping(soundIDNitrousApply, false);
-//            soundNitrousApply.setVolume(soundIDNitrousApply, 0.0f);
-//        }
 		BikeGameSounds.StopAllSounds();
     }
     
@@ -948,6 +945,9 @@ public class Play extends GameState {
 		temppos = new Vector2(bike_x, bike_y);
         bikeBodyR.setTransform(temppos, bike_a);
 
+        // Check Nitrous
+        applyNitrous = ReplayVars.currentReplay.replayNitrous.get(rIndex);
+
 		// Update the Bike Sound
 		UpdateBikeSound();
 
@@ -975,7 +975,7 @@ public class Play extends GameState {
 		}
 		// Update the camera position
 		updateCameraPostion();
-		
+
 		// Check if escape was pressed - if so, end the replay
 		if (1000.0f*replayTime > ReplayVars.currentReplay.replayTimer) {
 			forcequit = true;
@@ -1019,6 +1019,8 @@ public class Play extends GameState {
             ReplayVars.currentReplay.replayDynamicBodies_A.get(dd).add(allDynamicBodies.get(dd).getAngle());
             ReplayVars.currentReplay.replayDynamicBodies_V.get(dd).add(allDynamicBodies.get(dd).getAngularVelocity());
         }
+        // Add the nitrous
+        ReplayVars.currentReplay.replayNitrous.add(applyNitrous);
 	}
 	
 	private void UpdateBikeSound() {
@@ -1809,6 +1811,7 @@ public class Play extends GameState {
                 case DecorVars.soundRain: BikeGameSounds.rainSound.setVolume(musicVolumes[ss]);
                 case DecorVars.soundWaterfall: BikeGameSounds.waterfallSound.setVolume(musicVolumes[ss]);
                 case DecorVars.soundWind: BikeGameSounds.windSound.setVolume(musicVolumes[ss]);
+                case DecorVars.soundNitrousApply: BikeGameSounds.nitrousSound.setVolume(0.2f*applyNitrous);
             }
         }
     }

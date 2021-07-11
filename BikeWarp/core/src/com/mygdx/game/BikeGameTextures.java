@@ -120,6 +120,7 @@ public class BikeGameTextures {
 
     private static void GetMenuImages() {
         GetTexture("records_tile");
+        GetTexture("records_dots");
         GetTexture("menu_arrow");
         GetTexture("menu_ChangePlayer");
         GetTexture("menu_DesignLevel");

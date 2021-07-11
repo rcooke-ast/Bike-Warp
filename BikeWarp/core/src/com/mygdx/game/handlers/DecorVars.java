@@ -12,6 +12,7 @@ public class DecorVars {
 	public static final int soundRain = 1;
 	public static final int soundWaterfall = 2;
 	public static final int soundWind = 3;
+	public static final int soundNitrousApply = 4;
 
 	public static final int imageRain = 0;
 	public static final int imageSnow = 1;

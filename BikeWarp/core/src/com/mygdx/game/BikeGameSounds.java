@@ -9,7 +9,7 @@ import com.badlogic.gdx.audio.Sound;
 
 public class BikeGameSounds {
     private static Sound sound;
-    public static Music rainSound, waterfallSound, windSound;
+    public static Music rainSound, waterfallSound, windSound, nitrousSound;
     private static ArrayList<Sound> sounds;
     private static ArrayList<String> soundNames;
     private static int menuSwitch, menuSelect;
@@ -35,8 +35,8 @@ public class BikeGameSounds {
         return Gdx.audio.newSound(Gdx.files.internal("data/sounds/bike_move.wav"));
     }
 
-    public static Sound LoadNitrousApply() {
-        return Gdx.audio.newSound(Gdx.files.internal("data/sounds/nitrous_apply.wav"));
+    public static Music LoadNitrousApply() {
+        return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/nitrous_apply.wav"));
     }
 
     public static Music LoadWaterfall() { return Gdx.audio.newMusic(Gdx.files.internal("data/sounds/waterfall.wav")); }
@@ -54,6 +54,7 @@ public class BikeGameSounds {
         rainSound = LoadRain();
         waterfallSound = LoadWaterfall();
         windSound = LoadWind();
+        nitrousSound = LoadNitrousApply();
     }
 
     private static void GetSound (String file) {
@@ -114,6 +115,10 @@ public class BikeGameSounds {
             windSound.setLooping(false);
             windSound.setVolume(0.0f);
         }
+        if (nitrousSound != null) {
+            nitrousSound.setLooping(false);
+            nitrousSound.setVolume(0.0f);
+        }
     }
 
     public static void StartAllSounds() {
@@ -129,6 +134,10 @@ public class BikeGameSounds {
         windSound.setLooping(true);
         windSound.setVolume(0.0f);
         windSound.play();
+        // Start the wind music
+        nitrousSound.setLooping(true);
+        nitrousSound.setVolume(0.0f);
+        nitrousSound.play();
     }
 
     public static void dispose() {
@@ -142,6 +151,7 @@ public class BikeGameSounds {
         rainSound.dispose();
         waterfallSound.dispose();
         windSound.dispose();
+        nitrousSound.dispose();
     }
 
 }

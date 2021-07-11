@@ -11,6 +11,7 @@ public class Replay implements Serializable {
     public ArrayList<Float> replayLW_X, replayLW_Y, replayLW_A, replayLW_V;
     public ArrayList<Float> replayRW_X, replayRW_Y, replayRW_A, replayRW_V;
     public ArrayList<Float> replayChangeDir;
+    public ArrayList<Integer> replayNitrous;
     public ArrayList<ArrayList<Float>> replayDynamicBodies_X = new ArrayList<ArrayList<Float>>();
     public ArrayList<ArrayList<Float>> replayDynamicBodies_Y = new ArrayList<ArrayList<Float>>();
     public ArrayList<ArrayList<Float>> replayDynamicBodies_A = new ArrayList<ArrayList<Float>>();
@@ -39,6 +40,7 @@ public class Replay implements Serializable {
         this.replayRW_A = new ArrayList<Float>();
         this.replayRW_V = new ArrayList<Float>();
         this.replayChangeDir = new ArrayList<Float>();
+        this.replayNitrous = new ArrayList<Integer>();
         this.replayDynamicBodies_X = new ArrayList<ArrayList<Float>>();
         this.replayDynamicBodies_Y = new ArrayList<ArrayList<Float>>();
         this.replayDynamicBodies_A = new ArrayList<ArrayList<Float>>();
